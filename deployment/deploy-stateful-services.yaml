@@ -1,0 +1,113 @@
+- name: "deploy pvc/{{ application }}-connector"
+  when: "deploy_connector"
+  tags:
+    - connector
+    - persistentvolumeclaim
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: "{{ application }}-connector"
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{ connector_pvc_storage_size }}"
+ 
+- name: "deploy statefulset/{{ application }}-connector"
+  when: "deploy_connector"
+  tags:
+    - connector
+    - statefulset
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: StatefulSet
+      metadata:
+        name: "{{ application }}-connector"
+        labels:
+          component: "connector"
+          application: "{{ application }}"
+      spec:
+        serviceAccountName: "connector-reader"
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: "connector"
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: "connector"
+              application: "{{ application }}"
+              parameters_digest: "{{ (connector_configmap_digest + connector_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "connector-reader"
+            containers:
+              - name: "connector"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateful_services_image_tag }}"
+                imagePullPolicy: Always
+                resources: "{{ connector_resources }}"
+                securityContext:
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  serviceAccountName: "connector-reader"
+                ports:
+                  - name: "connector-http"
+                    containerPort: 9090
+                    protocol: "TCP"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-connector"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-connector"
+                      optional: true
+                volumeMounts:
+                  - name: "connector-data"
+                    mountPath: "/connector"
+                  - name: "connector-tmp"
+                    mountPath: "/tmp"
+                readinessProbe:
+                  tcpSocket:
+                    port: "connector-http"
+                  initialDelaySeconds: 30
+                  periodSeconds: "{{ readiness_probe_period }}"
+                livenessProbe:
+                  tcpSocket:
+                    port: "connector-http"
+                  initialDelaySeconds: 30
+                  periodSeconds: "{{ liveness_probe_period }}"
+            volumes:
+              - name: "connector-data"
+                persistentVolumeClaim:
+                  claimName: "{{ application }}-connector"
+              - name: "connector-tmp"
+                emptyDir:
+                  medium: "Memory"
+ 
+- name: "deploy service/{{ application }}-connector"
+  when: "deploy_connector"
+  tags:
+    - connector
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-connector"
+        labels:
+          application: "{{ application }}"
+          component: "connector"
+      spec:
+        ports:
+          - port: 9090
+            name: "connector"
+        selector:
+          application: "{{ application }}"
+          component: "connector"
