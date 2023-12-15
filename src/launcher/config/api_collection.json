@@ -1,0 +1,41 @@
+{
+    "rasdaman": {
+        "url": "https://ows.rasdaman.org/rasdaman/ows",
+        "method": "GET",
+        "headers": {},
+        "params": {
+            "service": "WCS",
+            "request": "GetCapabilities",
+            "version": "2.0.1"
+        },
+        "output_mapping":{
+            "format": "xml",
+            "pattern": "wcs:CoverageSummary"
+        },
+        "asset_scheme":{
+            "properties":{
+                "name": "<wcs:CoverageId>",
+                "CoverageSubtype": "<wcs:CoverageSubtype>",
+                "contenttype": "application/xml"
+            },
+
+            "dataAddress":{
+                "name": "<wcs:CoverageId>",
+                "baseUrl": "https://ows.rasdaman.org/rasdaman/ows?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=<wcs:CoverageId>",
+                "proxyPath": "true",
+                "type": "HttpData"
+            }
+        },
+
+        "query_asset": {
+            "headers": {"Authentication": "Basic"},
+            "params": {
+                "SERVICE": "params.service",
+                "VERSION": "params.version",
+                "REQUEST": "GetCoverage",
+                "COVERAGEID": "output_mapping.properties.name"
+            }
+        }
+    }
+}
+

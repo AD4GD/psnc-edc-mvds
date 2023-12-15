@@ -1,0 +1,61 @@
+- name: "deploy deployment/{{ application }}-pipelines"
+  when: "with_pipelines|bool"
+  tags:
+    - pipelines
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-pipelines"
+        labels:
+          component: pipelines
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: 1
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: pipelines
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: pipelines
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (django_configmap_digest + django_secret_digest)|hash('sha1') }}"
+          spec:
+            containers:
+              - name: "pipelines"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/pipelines:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                resources: "{{ pipelines_resources }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-pipelines"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-pipelines"
+                      optional: true
+                env:
+                  - name: ENABLE_SERVICES
+                    value: pipelines
+                volumeMounts:
+                  - name: "pipelines-run"
+                    mountPath: "/tmp/pipelines"
+                  - name: "pipelines-tmp"
+                    mountPath: "/tmp"
+            volumes:
+              - name: "pipelines-run"
+                emptyDir:
+                  medium: "Memory"
+              - name: "pipelines-tmp"
+                emptyDir:
+                  medium: "Memory"

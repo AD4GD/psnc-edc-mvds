@@ -1,0 +1,125 @@
+version: "3.8"
+name: psnc-connector
+services:
+  provider-connector:
+    image: psnc-connector
+    build:
+      context: ../src/launcher
+      args:
+        JAR: build/libs/connector.jar
+      dockerfile: Dockerfile
+      
+    depends_on:
+      - postgresql-provider
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+      EDC_API_ASSET_COLLECTOR_FILE: /app/api_collection.json
+      EDC_API_AUTH_KEY: "fifi-info-zaneta"
+      
+    ports:
+      - '19191:19191'
+      - '19192:19192'
+      - '19193:19193'
+      - '19194:19194'
+      - '19291:19291'
+    
+    volumes:
+      - ../src/launcher/config/configuration-provider.properties:/app/configuration.properties:ro
+      - ../src/launcher/config/keystore.pfx:/app/keystore.pfx:ro
+      - ../src/launcher/config/fs-provider.vault:/app/fs.vault
+      - ../src/launcher/config/api_collection.json:/app/api_collection.json
+      - ../src/launcher/config/json_example.json:/app/json_example.json
+
+  consumer-connector:
+    image: psnc-connector
+    build:
+      context: ../src/launcher
+      args:
+        JAR: build/libs/connector.jar
+      dockerfile: Dockerfile
+      
+    depends_on:
+      - postgresql-consumer
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+      EDC_API_AUTH_KEY: "fifi-info-zaneta"
+      
+    ports:
+      - '29191:29191'
+      - '29192:29192'
+      - '29193:29193'
+      - '29194:29194'
+      - '29291:29291'
+    
+    volumes:
+      - ../src/launcher/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ../src/launcher/config/keystore.pfx:/app/keystore.pfx:ro
+      - ../src/launcher/config/fs-consumer.vault:/app/fs.vault
+
+  consumer-backend:
+    image: consumer-backend-py
+    build:
+      context: ../src/consumer-backend-py
+    ports:
+      - "4000:4000"
+    depends_on:
+      - consumer-connector
+    volumes:
+      - ../src/consumer-backend-data/:/app/data  
+
+
+  postgresql-provider:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'postgresql-provider:/bitnami/postgresql'
+
+  postgresql-consumer:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5433:5432'
+    volumes:
+      - 'postgresql-consumer:/bitnami/postgresql'
+
+  consumer-data-dashboard:
+    build: 
+      context: ../src/data-dashboard
+      dockerfile: Dockerfile
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    depends_on:
+      - consumer-connector
+    ports:
+      - "28080:80"
+    volumes:
+      - ../src/data-dashboard/deployment/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
+      - ../src/data-dashboard/deployment/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
+
+  provider-data-dashboard:
+    build: 
+      context: ../src/data-dashboard
+      dockerfile: Dockerfile
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    depends_on:
+      - provider-connector
+    ports:
+      - "18080:80"
+    volumes:
+      - ../src/data-dashboard/deployment/conf-provider/provider.nginx.conf:/etc/nginx/nginx.conf
+      - ../src/data-dashboard/deployment/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
+
+volumes:
+  postgresql-provider:
+    driver: local
+  postgresql-consumer:
+    driver: local

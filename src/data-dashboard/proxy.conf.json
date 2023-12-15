@@ -1,0 +1,7 @@
+{
+    "/management":
+    {
+        "target": "http://localhost:19191",
+        "secure": false
+    }
+}
