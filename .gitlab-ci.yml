@@ -1,0 +1,50 @@
+default:
+  image: registry.paas.psnc.pl/devlab/gitlab-runner:v1
+
+variables:
+  GIT_STRATEGY: clone
+
+stages:
+  - precommit
+  - build
+  - test
+  - upload
+  - update_inventory
+
+Run pre-commit check:
+  stage: precommit
+  script:
+    - devlab_run_pre_commit 2500
+  artifacts:
+    paths:
+      - ./reports
+
+Build images:
+  stage: build
+  script:
+    - devlab_build_images
+
+Test:
+  stage: test
+  script:
+    - devlab_test django
+  artifacts:
+    paths:
+      - ./reports
+
+Upload images:
+  stage: upload
+  script:
+    - devlab_push_images
+
+Update inventory:
+  stage: update_inventory
+  variables:
+    inventory_repository_name: inventory
+    inventory_hostname: "edc-connector-edc-connector.apps.paas-dev.psnc.pl-edc-connector-instances"
+    gitlab_push_token: $gitlab_push_token_dev
+  script:
+    - devlab_update_inventory
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory
