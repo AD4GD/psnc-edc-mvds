@@ -1,0 +1,24 @@
+#!/bin/bash
+
+application_name=$(basename $PWD)
+application_underscore=$(echo $application_name | tr - _)
+application_hyphen=$(echo $application_name | tr _ -)
+application_dot=$(echo $application_name | tr _- ..)
+
+find \( -path './.git' -o -path './bin/after-skeleton-update' \) -prune -o -type f -print0 | xargs -0 sed -i "s/django-skeleton/$application_hyphen/g"
+find \( -path './.git' -o -path './bin/after-skeleton-update' \) -prune -o -type f -print0 | xargs -0 sed -i "s/django_skeleton/$application_underscore/g"
+find \( -path './.git' -o -path './bin/after-skeleton-update' \) -prune -o -type f -print0 | xargs -0 sed -i "s/django\.skeleton/$application_dot/g"
+
+find \( -path './.git' -o -path './bin/after-skeleton-update' \) -prune -o -type f -print0 | xargs -0 sed -i "s/DJANGO-SKELETON/${application_hyphen^^}/g"
+find \( -path './.git' -o -path './bin/after-skeleton-update' \) -prune -o -type f -print0 | xargs -0 sed -i "s/DJANGO_SKELETON/${application_underscore^^}/g"
+find \( -path './.git' -o -path './bin/after-skeleton-update' \) -prune -o -type f -print0 | xargs -0 sed -i "s/DJANGO\.SKELETON/${application_dot^^}/g"
+
+old_group_vars=deployment/group_vars/dpi-enabler-instances.yaml
+new_group_vars=deployment/group_vars/$application_hyphen-instances.yaml
+
+if [ -e "$old_group_vars" ]
+then
+	echo skeleton file $old_group_vars exists
+	echo rename it to $new_group_vars or merge them manually
+	exit 1
+fi

@@ -1,0 +1,3 @@
+#!/bin/bash
+export COMPOSE_PROJECT_NAME_SCRIPT=devtests
+exec ./compose -f base.yaml -f tests.yaml -f dev.yaml -f local.yaml "$@"

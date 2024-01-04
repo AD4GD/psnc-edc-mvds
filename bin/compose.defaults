@@ -1,0 +1,3 @@
+export REGISTRY_PROJECT=demeter
+export REGISTRY_APPLICATION=dpi-enabler
+export COMPOSE_PROJECT_NAME_PREFIX=dpi_enabler_
