@@ -22,7 +22,7 @@ api_test_resources = (&apos;1&apos;, &apos;user@api.demeter.org&apos;, [&apos;of
                 &quot;config&quot;: &quot;&quot;,
             }
             fadn_tests_success(api_client, data)
-    
+
         def test_fadn_preprocess(client_factory, api_test_resources):
             (
                 user_identifier,
@@ -43,14 +43,14 @@ api_test_resources = (&apos;1&apos;, &apos;user@api.demeter.org&apos;, [&apos;of
                 &quot;config&quot;: &quot;&quot;,
             }
             fadn_tests_success(api_client, data)
-    
+
 &gt;       test_fadn_fetch(client_factory, api_test_resources)
 
-api/tests/test_fadn_pipeline.py:75: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+api/tests/test_fadn_pipeline.py:75:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 api/tests/test_fadn_pipeline.py:52: in test_fadn_fetch
     fadn_tests_success(api_client, data)
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 api_client = RequestsWrapper(&apos;http&apos;, None, &apos;&apos;)
 data = {&apos;config&apos;: &apos;&apos;, &apos;description&apos;: &apos;w3Hx4fZm905Q&apos;, &apos;graph_per_dump&apos;: False, &apos;graph_uri&apos;: &apos;&apos;, ...}
@@ -65,7 +65,7 @@ data = {&apos;config&apos;: &apos;&apos;, &apos;description&apos;: &apos;w3Hx4fZ
         api_client.post(f&quot;/api/{TestFadn.PIPELINE}/{fadn_identifier}/execute/&quot;)
         assert api_client.last.status == 202
         # TODO: DEM-61 - Check results of the job, not only status
-    
+
         # checking if the action execute worked
         api_client.get(f&quot;/api/{TestFadn.PIPELINE}/{fadn_identifier}/&quot;)
         out = api_client.last.json
@@ -191,7 +191,7 @@ api_test_resources = (&apos;1&apos;, &apos;user@api.demeter.org&apos;, [&apos;of
                 &quot;config&quot;: &quot;&quot;,
             }
             lpis_tests_success(api_client, data)
-    
+
         def test_lpis_mapping(client_factory, api_test_resources):
             (
                 user_identifier,
@@ -214,7 +214,7 @@ api_test_resources = (&apos;1&apos;, &apos;user@api.demeter.org&apos;, [&apos;of
                 &quot;config&quot;: &quot;&quot;,
             }
             lpis_tests_success(api_client, data)
-    
+
         def test_lpis_transform(client_factory, api_test_resources):
             (
                 user_identifier,
@@ -237,7 +237,7 @@ api_test_resources = (&apos;1&apos;, &apos;user@api.demeter.org&apos;, [&apos;of
                 &quot;config&quot;: &quot;&quot;,
             }
             lpis_tests_success(api_client, data)
-    
+
         def test_lpis_postprocess(client_factory, api_test_resources):
             (
                 user_identifier,
@@ -260,14 +260,14 @@ api_test_resources = (&apos;1&apos;, &apos;user@api.demeter.org&apos;, [&apos;of
                 &quot;config&quot;: &quot;&quot;,
             }
             lpis_tests_success(api_client, data)
-    
+
 &gt;       test_lpis_fetch(client_factory, api_test_resources)
 
-api/tests/test_lpis_pipeline.py:125: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+api/tests/test_lpis_pipeline.py:125:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 api/tests/test_lpis_pipeline.py:54: in test_lpis_fetch
     lpis_tests_success(api_client, data)
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 api_client = RequestsWrapper(&apos;http&apos;, None, &apos;&apos;)
 data = {&apos;config&apos;: &apos;&apos;, &apos;country&apos;: &apos;&apos;, &apos;description&apos;: &apos;Pe7ouoFgFVFm&apos;, &apos;graph_per_dump&apos;: False, ...}
@@ -276,14 +276,14 @@ data = {&apos;config&apos;: &apos;&apos;, &apos;country&apos;: &apos;&apos;, &ap
         # post lpis data
         api_client.post(f&quot;/api/{TestLpis.PIPELINE}/&quot;, form_data=data)
         assert api_client.last.status == 201
-    
+
         # post action execute
         out = api_client.last.json
         lpis_identifier = out[&quot;identifier&quot;].value
         api_client.post(f&quot;/api/{TestLpis.PIPELINE}/{lpis_identifier}/execute/&quot;)
         assert api_client.last.status == 202
         # TODO: DEM-61 - Check results of the job, not only status
-    
+
         # checking if the action execute worked
         api_client.get(f&quot;/api/{TestLpis.PIPELINE}/{lpis_identifier}/&quot;)
         out = api_client.last.json
