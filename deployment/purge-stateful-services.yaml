@@ -1,0 +1,49 @@
+---
+- import_playbook: "unwitting-purge-protector.yaml"
+  vars:
+    purge_subject: "stateful services"
+
+- name: purge storage services
+  hosts: edc-connector-instances
+  module_defaults:
+    k8s:
+      wait: true
+      state: absent
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    - name: "purge service/{{ application }}-postgres"
+      when: "deploy_postgres"
+      tags:
+        - postgres
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-postgres"
+
+    - name: "purge statefulset/{{ application }}-postgres"
+      when: "deploy_postgres"
+      tags:
+        - postgres
+        - statefulset
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: StatefulSet
+          metadata:
+            name: "{{ application }}-postgres"
+
+    - name: "purge pvc/{{ application }}-postgres"
+      when: "deploy_postgres"
+      tags:
+        - postgres
+        - persistentvolumeclaim
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: "{{ application }}-postgres"

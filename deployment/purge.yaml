@@ -1,0 +1,3 @@
+- import_playbook: "purge-stateless-services.yaml"
+- import_playbook: "purge-stateful-services.yaml"
+- import_playbook: "purge-parameters.yaml"

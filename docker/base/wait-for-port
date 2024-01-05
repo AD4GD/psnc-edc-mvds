@@ -1,0 +1,15 @@
+#!/bin/sh
+host=${1:?missing host}
+port=${2:?missing port}
+timeout=${3:-15}
+
+until echo '' > /dev/tcp/$host/$port
+do
+	if [ "$SECONDS" -gt "$timeout" ]
+	then
+		exit 1
+	else
+		echo "waiting for $host:$port"
+		sleep 1
+	fi
+done

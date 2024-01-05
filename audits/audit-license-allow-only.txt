@@ -1,0 +1,19 @@
+MIT License
+BSD License
+Apache Software License
+Apache Software License, BSD License
+Public Domain, Python Software Foundation License, BSD License, GNU General Public License (GPL)
+Python Software Foundation License
+ISC License (ISCL)
+GNU Library or Lesser General Public License (LGPL), Zope Public License
+GNU Library or Lesser General Public License (LGPL), MIT License
+Zope Public License
+Mozilla Public License 2.0 (MPL 2.0)
+GNU General Public License (GPL)
+BSD License, Apache Software License
+MIT
+Apache License, Version 2.0
+Apache License 2.0
+GNU Library or Lesser General Public License (LGPL)
+Historical Permission Notice and Disclaimer (HPND)
+DFSG approved, MIT License

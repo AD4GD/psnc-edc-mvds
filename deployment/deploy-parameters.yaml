@@ -1,0 +1,114 @@
+---
+- name: deploy parameters
+  hosts: edc-connector-instances
+  vars:
+    parameters_update: true
+    parameters_show: false
+    parameters_owner: "{{ parameters_iterator[0] }}"
+    parameters_kind: "{{ parameters_iterator[1] }}"
+    parameters_k8s_kind: "{{ 'Secret' if parameters_kind == 'secret' else 'ConfigMap' }}"
+    parameters_k8s_data_property: "{{ 'stringData' if parameters_kind == 'secret' else 'data' }}"
+    parameters_k8s_resource_name: "{{ application }}-{{ parameters_owner }}"
+    parameters_k8s_nice_name: "{{ parameters_kind }}/{{ parameters_k8s_resource_name }}"
+    parameters_data_var: "{{ parameters_owner }}_{{ parameters_kind }}_data"
+    parameters_digest_var: "{{ parameters_owner }}_{{ parameters_kind }}_digest"
+    parameters_key: "{{ parameters_owner }}_{{ parameters_kind }}"
+    parameters_show_agregator: {}
+
+  tasks:
+
+    - name: "fetch current {{ application }} secrets data"
+      k8s_info:
+        namespace: "{{ k8s_namespace }}"
+        kind: "Secret"
+        label_selectors:
+          - "application = {{ application }}"
+      register: parameters_current_secrets_state
+
+    - name: "fetch current {{ application }} configmaps data"
+      k8s_info:
+        namespace: "{{ k8s_namespace }}"
+        kind: "ConfigMap"
+        label_selectors:
+          - "application = {{ application }}"
+      register: parameters_current_configmaps_state
+
+    - name: "extract current {{ application}} secrets and configmaps data"
+      with_nested:
+        - "{{ deployed_parameters_packs }}"
+        - [ "configmap", "secret" ]
+      loop_control:
+        loop_var: parameters_iterator
+      set_fact:
+        "{{ parameters_data_var }}": "{{ (lookup('vars', 'parameters_current_' + parameters_kind + 's_state').resources|selectattr('metadata.name', 'equalto', (parameters_k8s_resource_name))|first|default({'data': {}})).data }}"
+
+    - name: "compile {{ application }} secrets and configmaps patches"
+      with_nested:
+        - "{{ deployed_parameters_packs }}"
+        - [ "configmap", "secret" ]
+      loop_control:
+        loop_var: parameters_iterator
+      when: parameters_update
+      set_fact:
+        parameters_patches: "{{ (parameters_patches|default({}))|combine({ parameters_key: (lookup('template', 'compile-missing-configmap-or-secret-entries.yaml', convert_data=True)|from_yaml) }) }}"
+
+    - name: "compile {{ application }} secrets and configmaps unified patch"
+      with_nested:
+        - "{{ deployed_parameters_packs }}"
+        - [ "configmap", "secret" ]
+      loop_control:
+        loop_var: parameters_iterator
+      when: "parameters_update and parameters_patches[parameters_key] is not none"
+      set_fact:
+        parameters_unified_patch_definition: "{{ (parameters_unified_patch_definition|default([]))|union([ {'apiVersion': 'v1', 'kind': parameters_k8s_kind, 'metadata': { 'name': parameters_k8s_resource_name, 'labels': { 'application': application } }, parameters_k8s_data_property: parameters_patches[parameters_key]} ]) }}"
+
+    - when: "parameters_update and parameters_unified_patch_definition is defined"
+      name: "{% if parameters_unified_patch_definition is defined %}apply parameters unified patch on{% for definition in parameters_unified_patch_definition%} {{ definition.kind|lower }}/{{ definition.metadata.name }}{% endfor %}{% else %}all parameters are up to date - no need for patching{% endif %}"
+      k8s:
+        state: "present"
+        namespace: "{{ k8s_namespace }}"
+        definition: "{{ parameters_unified_patch_definition }}"
+
+    - name: "update patched parameters"
+      with_nested:
+        - "{{ deployed_parameters_packs }}"
+        - [ "configmap", "secret" ]
+      loop_control:
+        loop_var: parameters_iterator
+      when: "parameters_update and parameters_patches[parameters_key] is not none"
+      set_fact:
+        "{{ parameters_data_var }}": "{{ lookup('k8s', api_version='v1', namespace=k8s_namespace, resource_name=parameters_k8s_resource_name, kind=parameters_k8s_kind).data }}"
+
+    - name: "decode secrets into variables for later use"
+      with_items: "{{ deployed_parameters_packs }}"
+      loop_control:
+        loop_var: parameters_iterator
+      vars:
+        parameters_owner: "{{ parameters_iterator }}"
+        parameters_kind: "secret"
+      set_fact:
+        "{{ parameters_data_var }}": "{{ dict(lookup('vars', parameters_data_var).keys() | zip(lookup('vars', parameters_data_var).values()|map('b64decode'))) }}"
+
+    - name: "save final parameters digest"
+      with_nested:
+        - "{{ deployed_parameters_packs }}"
+        - [ "configmap", "secret" ]
+      loop_control:
+        loop_var: parameters_iterator
+      set_fact:
+        "{{ parameters_digest_var }}": "{{ lookup('vars', parameters_data_var)|dictsort|hash('sha1') }}"
+
+    - name: "agregate {{ application }} secrets and configmaps data"
+      with_nested:
+        - "{{ deployed_parameters_packs }}"
+        - [ "configmap", "secret" ]
+      loop_control:
+        loop_var: parameters_iterator
+      when: parameters_show
+      set_fact:
+        parameters_show_agregator: "{{ parameters_show_agregator|combine({ parameters_data_var: lookup('vars', parameters_data_var), parameters_digest_var: lookup('vars', parameters_digest_var)  }) }}"
+
+    - name: "show {{ application }} secrets and configmaps data and digest"
+      when: parameters_show
+      debug:
+        var: parameters_show_agregator

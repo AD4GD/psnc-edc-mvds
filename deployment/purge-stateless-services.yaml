@@ -1,0 +1,24 @@
+---
+- import_playbook: "unwitting-purge-protector.yaml"
+  vars:
+    purge_subject: "stateless services"
+
+- name: purge stateless services
+  hosts: edc-connector-instances
+  module_defaults:
+    k8s:
+      wait: true
+      state: absent
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+
+    - name: "purge {{ application }} {{ expose_http_kind }}"
+      with_items: "{{ query('k8s', namespace=k8s_namespace, api_version=expose_http_k8s_entity_api_version, kind=expose_http_k8s_entity_kind, label_selector=('application=' + application)) }}"
+      k8s:
+        state: absent
+        definition:
+          apiVersion: "{{ expose_http_k8s_entity_api_version }}"
+          kind: "{{ expose_http_k8s_entity_kind }}"
+          metadata:
+            name: "{{ item.metadata.name }}"

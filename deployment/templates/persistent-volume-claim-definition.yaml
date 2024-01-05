@@ -1,0 +1,20 @@
+{# this file should not be modified on a per-application basis #}
+{# any change here should be generic and should be brought into the skeleton ASAP #}
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: "{{ pvc_name }}"
+  spec:
+    accessModes:
+{% if pvc_access_mode_type == '' %}
+      - ReadWriteOnce
+{% else %}
+      - "{{ pvc_access_mode_type }}"
+{% endif %}
+    resources:
+      requests:
+        storage: "{{ pvc_storage_size }}"
+{% if pvc_storage_class_name != '' %}
+    storageClassName: "{{ pvc_storage_class_name }}"
+{% endif %}

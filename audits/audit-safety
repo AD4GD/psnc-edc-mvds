@@ -1,0 +1,9 @@
+#!/bin/bash
+source /srv/audits/_audits_environment
+
+setup_audit safety
+
+# TODO: DV-838 it should be here
+# install_audit pip install safety==1.10.3
+
+execute_audit safety check -r /srv/reqs/external.txt --full-report --ignore 41002 --ignore 61489 --ignore 51457 --ignore 48547 --ignore 53269 --ignore 53812 "$@"

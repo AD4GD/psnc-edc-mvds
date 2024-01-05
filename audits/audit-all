@@ -1,0 +1,15 @@
+#!/bin/bash
+
+result=0
+
+for audit in audit-dependencies-pip audit-manage-check audit-license audit-safety
+do
+  /srv/audits/$audit
+  last=$?
+  if [ $last != 0 ]
+  then
+    result=$last
+  fi
+done
+
+exit $result

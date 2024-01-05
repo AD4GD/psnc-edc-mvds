@@ -1,0 +1,4 @@
+- import_playbook: "deploy-parameters.yaml"
+  vars:
+    parameters_update: false
+    parameters_show: true

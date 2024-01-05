@@ -1,0 +1,21 @@
+---
+- name: test application
+  hosts: edc-connector-instances
+
+  tasks:
+    - name: check {{ application }} endpoints
+      with_items:
+        - "/_health/app/"
+        - "/"
+      uri:
+        url: "{{ ingress_scheme }}://{{ ingress_address }}{{ item }}"
+        headers:
+          Host: "{{ MAIN_DOMAIN }}"
+        method: GET
+        return_content: yes
+        status_code: 200
+        body_format: json
+      register: result
+      until: result is not failed
+      retries: 10
+      delay: 10

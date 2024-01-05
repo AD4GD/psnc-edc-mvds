@@ -1,0 +1,15 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: "{{ application }}-{{ component }}"
+  labels:
+    component: "{{ component }}"
+    application: "{{ application }}"
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: "{{ application }}-{{ component }}"
+  minReplicas: {{ autoscaler.min_replicas }}
+  maxReplicas: {{ autoscaler.max_replicas }}
+  targetCPUUtilizationPercentage: {{ autoscaler.target_cpu_utilization_percentage }}

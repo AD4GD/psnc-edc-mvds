@@ -1,0 +1,10 @@
+*.py[cod]
+
+*.egg
+*.egg-info
+docs/_build
+/venv
+dist/
+
+.cache
+*~

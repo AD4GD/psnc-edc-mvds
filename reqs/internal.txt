@@ -1,0 +1,2 @@
+-e /srv/pkgs/service-arguments
+-e /srv/pkgs/pytest-http

@@ -1,0 +1,11 @@
+- import_playbook: "deploy-parameters.yaml"
+
+- name: create application database and application user (non-admin)
+  hosts: edc-connector-instances
+
+  tasks:
+    - debug:
+        msg: |
+          In order to connect to database as master user, exec into some django container and run following commands
+          export {{ postgres_admin_connection_environment_variables }}
+          psql

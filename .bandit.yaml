@@ -1,0 +1,6 @@
+skips: []
+
+assert_used:
+  skips:
+    - "**/tests.py"
+    - "**/conftest.py"

@@ -1,0 +1,45 @@
+---
+# this playbook should be compatible with scenarios, where multiple components are placed inside the same namespace
+- name: deploy parameters
+  hosts: edc-connector-instances
+  tasks:
+
+    # TODO DV-279: not working properly
+    # - name: "deploy namespace {{ k8s_namespace }}"
+    #   k8s:
+    #     state: "present"
+    #     definition:
+    #       apiVersion: v1
+    #       kind: Namespace
+    #       metadata:
+    #         name: "{{ k8s_namespace }}"
+
+    - name: "fetch image pull secret"
+      when: "image_pull_secret|length"
+      k8s_info:
+        namespace: "{{ k8s_namespace }}"
+        kind: "Secret"
+        name: "{{ image_pull_secret }}"
+      register: image_pull_secret_check_result
+
+    - name: "check image pull secret"
+      when: "image_pull_secret|length and (not ((image_pull_secret_check_result is succeeded) and (image_pull_secret_check_result.resources|length == 1)))"
+      fail:
+        msg: "Image pull secret '{{ image_pull_secret }}' does not exist in namespace '{{ k8s_namespace }}'. Prepare it manually or use playbook upload-image-pull-secret.yaml"
+
+    - name: "deploy serviceaccount/run-any-uid"
+      when: image_pull_secret and create_run_any_uid_service_account
+      tags:
+        - serviceaccount
+      k8s:
+        state: present
+        namespace: "{{ k8s_namespace }}"
+        definition:
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: "run-any-uid"
+            labels:
+              prefered-scc: "anyuid"
+          imagePullSecrets:
+            - name: "{{ image_pull_secret }}"

@@ -1,0 +1,11 @@
+---
+#- name: "fetch {{ application }} assets deployment image_tag"
+#  k8s_info:
+#    namespace: "{{ k8s_namespace }}"
+#    kind: Deployment
+#    name: "{{ application }}-django"
+#  register: deployment_facts
+#
+#- name: 'save fetched image_tag as image_tag'
+#  set_fact:
+#    image_tag: "{{ deployment_facts.resources[0].spec.template.metadata.labels.image_tag }}"

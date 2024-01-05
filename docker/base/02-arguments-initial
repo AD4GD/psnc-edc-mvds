@@ -1,0 +1,10 @@
+#!/usr/bin/with-contenv /bin/sh
+
+if [ "$ENABLE_ARGUMENTS" == "0" ]
+then
+	exit 0
+fi
+
+source /root/venv/bin/activate
+
+exec service-arguments process

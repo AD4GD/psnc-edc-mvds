@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv /bin/sh
+
+for service in $ENABLE_SERVICES
+do
+    echo "enabling service $service"
+
+    if [ ${S6_READ_ONLY_ROOT:-0} -eq 1 ]; then
+        cp -a /etc/available.d/$service /var/run/s6/etc/services.d/$service
+    else
+        ln -s /etc/available.d/$service /etc/services.d/$service
+    fi
+done

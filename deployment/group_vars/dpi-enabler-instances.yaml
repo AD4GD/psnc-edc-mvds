@@ -1,0 +1,155 @@
+---
+application: edc-connector
+ansible_connection: local
+registry_project: demeter
+registry_application: edc-connector
+initial_replicas: 1
+progress_deadline_seconds: 300
+with_async_workers: true
+use_environment_ingress_address: false
+k8s_wait_timeout: 600
+
+project_name: DEMETER
+repository_name: edc-connector
+
+base_image_registry_domain: "{{ registry_domain }}"
+base_image_registry_project: "base"
+postgres_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
+connector_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
+# "registry-1.docker.io/amd64/openjdk:17.0.1-jdk-slim-buster"
+
+base_image_registry_domain: "{{ registry_domain }}"
+base_image_registry_project: "base"
+postgres_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
+
+readiness_probe_initial_delay: 3
+readiness_probe_period: 15
+readiness_probe_timeout: 10
+
+liveness_probe_initial_delay: 30
+liveness_probe_period: 30
+liveness_probe_timeout: 60
+
+with_stateless_services_horizontal_pod_autoscalers: true
+
+connector_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+deploy_stateful_services: true
+
+deploy_postgres: "{{ deploy_stateful_services }}"
+deploy_connector: "{{ deploy_stateful_services }}"
+
+postgres_pvc_storage_size: "1Gi"
+connector_pvc_storage_size: "1Gi"
+
+postgres_pvc_storage_class_name: ""
+connector_pvc_storage_class_name: ""
+
+postgres_pvc_access_mode_type: ""
+connector_pvc_access_mode_type: ""
+
+create_non_root_database: true
+
+image_pull_secret: "regcred"
+create_run_any_uid_service_account: true
+
+MAIN_DOMAIN: "{{ inventory_hostname|regex_replace('-edc-connector-instance$', '') }}"
+SECONDARY_DOMAIN: "{{ application }}-varnish:9002"
+
+expose_http_kind: "routes"
+expose_http_host: "{{ MAIN_DOMAIN }}"
+# possible values: wildcard, static, acme, disabled
+expose_http_tls_mode: 'wildcard'
+expose_http_tls_redirect: true
+expose_http_tls_allow_also_non_encrypted: false
+expose_http_ip_whitelist: ""
+expose_http_tls_secret_name: "{{ application }}-tls-secret"
+expose_http_annotations: {}
+expose_http_ingress_annotations: {}
+expose_http_routes_annotations: {}
+expose_http_name_prefix: "{{ application }}"
+expose_http_k8s_entity_kind: "{{ 'Route' if expose_http_kind == 'routes' else 'Ingress' }}"
+expose_http_k8s_entity_api_version: "{{ 'v1' if expose_http_kind == 'routes' else 'extensions/v1beta1' }}"
+
+# TODO DV-272 remove KUBECTL_COMMAND
+KUBECTL_COMMAND: kubectl
+kubectl_command: "{{ KUBECTL_COMMAND }}"
+
+# TODO DV-272 remove IMAGE_TAG
+image_tag: "{{ IMAGE_TAG|default(false) }}"
+stateless_services_image_tag: "{{ image_tag }}"
+
+# TODO DV-276: this should be a fixed value
+stateful_services_image_tag: "{{ image_tag }}"
+use_backup_velero_io_backup_volumes_annotation: false
+
+stateless_services_image_pull_policy: "{{ 'IfNotPresent' if stateless_services_image_tag.startswith('commit-') else 'Always' }}"
+
+ingress_scheme: "{{ 'https' if expose_http_tls_mode != 'disabled' else 'http' }}"
+
+# TODO DV-272 remove ENVIRONMENT_INGRESS_ADDRESS
+environment_ingress_address: "{{ ENVIRONMENT_INGRESS_ADDRESS|default('') }}"
+ingress_address: "{{ environment_ingress_address if use_environment_ingress_address else MAIN_DOMAIN }}"
+
+#django_configmap__05_defaults:
+#  MAIN_DOMAIN: "{{ MAIN_DOMAIN }}"
+#  SECONDARY_DOMAIN: "{{ SECONDARY_DOMAIN }}"
+
+postgres_configmap__05_defaults:
+  POSTGRES_DB: postgres
+  DATABASE_NAME: "{{ application|replace('-', '_') }}_db"
+  DATABASE_HOST: "{{ application }}-postgres"
+  DATABASE_PORT: "5432"
+
+postgres_secret__05_defaults:
+  POSTGRES_USER:
+    when_missing: "{{ random_postgres_user }}"
+  POSTGRES_PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
+
+connector_configmap__05_defaults:
+  JVM_ARGS: "-Dedc.keystore=/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.vault=/connector/vault.properties -Dedc.fs.config=/connector/configuration.properties"
+  SERVICE_HOST: "http://127.0.0.1"
+  EDC_IDS_ID: "urn:connector:pnsc"
+  EDC_PARTICIPANT_ID: "psnc"
+  EDC_DSP_CALLBACK_ADDRESS: "$SERVICE_HOST:29194/protocol"
+  WEB_HTTP_PORT: "29191"
+  WEB_HTTP_PATH: "/api"
+  WEB_HTTP_MANAGEMENT_PORT: "29193"
+  WEB_HTTP_MANAGEMENT_PATH: "/management"
+  WEB_HTTP_PROTOCOL_PORT: "29194"
+  WEB_HTTP_PROTOCOL_PATH: "/protocol"
+  WEB_HTTP_PUBLIC_PORT: "29291"
+  WEB_HTTP_PUBLIC_PATH: "/public"
+  WEB_HTTP_CONTROL_PORT: "29192"
+  WEB_HTTP_CONTROL_PATH: "/control"
+  EDC_RECEIVER_HTTP_ENDPOINT: "$SERVICE_HOST:4000/receiver/urn:connector:psnc/callback"
+  EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "$SERVICE_HOST:29192/control/token"
+  EDC_PUBLIC_KEY_ALIAS: "public-key"
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "1"
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
+  EDC_KEYSTORE: "/certs/cert.pfx"
+  EDC_KEYSTORE_PASSWORD: "123456"
+  EDC_VAULT: "/connector/vault.properties"
+
+random_postgres_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
+random_postgres_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+
+
+# DO NOT CHANGE DEFINITIONS BELOW
+#
+
+deployed_parameters_packs: "{{ (['postgres'] if deploy_postgres else []) + (['connector'] if deploy_connector else []) }}"
+
+# definitions below are helper definitions - do not change this
+
+postgres_admin_connection_environment_variables: "PGUSER={{ postgres_secret_data.POSTGRES_USER }} PGPASSWORD={{ postgres_secret_data.POSTGRES_PASSWORD }} PGHOST={{ postgres_configmap_data.DATABASE_HOST }} PGPORT={{ postgres_configmap_data.DATABASE_PORT }} PGDATABASE={{ postgres_configmap_data.POSTGRES_DB }}"
+#django_direct_connection_environment_variables: "DATABASE_HOST={{ django_configmap_data.DATABASE_HOST }} DATABASE_PORT={{ django_configmap_data.DATABASE_PORT }}"
+
+# DO NOT CHANGE DEFINITIONS ABOVE

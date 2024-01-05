@@ -1,0 +1,22 @@
+[run]
+branch = True
+source = /srv/src
+omit =
+  */migrations/*
+  */tests*
+  conftest.py
+  manage.py
+  main/wsgi.py
+  main/patches.py
+
+[report]
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    def __repr__
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise NotImplementedError
+    raise AssertionError

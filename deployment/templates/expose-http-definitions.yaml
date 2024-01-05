@@ -1,0 +1,75 @@
+{# this file should not be modified on a per-application basis #}
+{# any change here should be generic and should be brought into the skeleton ASAP #}
+
+{% if expose_http_kind == 'routes' %}
+{% for item in expose_http_paths %}
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: {{ ([expose_http_name_prefix] + (item.path.strip('/').split('/') if item.path != '/' else []) + ['route'])|join('-') }}
+    labels:
+      application: "{{ application }}"
+    annotations:
+      kubernetes.io/tls-acme: "{{ (expose_http_tls_mode == 'acme')|string|lower }}"
+      # the ip_whitelist should be space separated
+      haproxy.router.openshift.io/ip_whitelist: "{{ expose_http_ip_whitelist.split(',')|join(' ') }}"
+      haproxy.router.openshift.io/disable_cookies: "true"
+{% for k, v in (expose_http_annotations|combine(expose_http_routes_annotations)).items() %}
+      {{ k }}: {{ v }}
+{% endfor %}
+  spec:
+    host: {{ expose_http_host }}
+    path: {{ item.path }}
+    to:
+      kind: Service
+      name: {{ item.serviceName}}
+    port:
+      targetPort: {{ item.servicePort }}
+{% if expose_http_tls_mode == 'static' or expose_http_tls_mode == 'wildcard' or expose_http_tls_mode == 'acme' %}
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: {{ 'Redirect' if expose_http_tls_redirect else ('Allow' if expose_http_tls_allow_also_non_encrypted else 'None') }}
+{% if expose_http_tls_mode == 'static' %}
+      certificate: |
+        {{ lookup('k8s', namespace=k8s_namespace, kind='Secret', resource_name=expose_http_tls_secret_name).data["tls.crt"] | b64decode | indent(8) }}
+      key: |
+        {{ lookup('k8s', namespace=k8s_namespace, kind='Secret', resource_name=expose_http_tls_secret_name).data["tls.key"] | b64decode | indent(8) }}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% elif expose_http_kind == 'ingress' %}
+- apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: {{ expose_http_name_prefix }}-ingress
+    labels:
+      application: "{{ application }}"
+    annotations:
+      kubernetes.io/tls-acme: "{{ (expose_http_tls_mode == 'acme')|string|lower }}"
+      # the whitelist-source-range should be comma separated
+      nginx.ingress.kubernetes.io/whitelist-source-range: "{{ expose_http_ip_whitelist.split(' ')|join(',') }}"
+      nginx.ingress.kubernetes.io/service-upstream: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "{{ expose_http_tls_redirect|string|lower }}"
+{% for k, v in (expose_http_annotations|combine(expose_http_ingress_annotations)).items() %}
+      {{ k }}: {{ v }}
+{% endfor %}
+  spec:
+{% if expose_http_tls_mode == 'static' %}
+    tls:
+      - hosts:
+          - {{ expose_http_host }}
+        secretName: {{ expose_http_tls_secret_name }}
+{% endif %}
+    rules:
+      - host: {{ expose_http_host }}
+        http:
+          paths:
+{% for item in expose_http_paths %}
+            - path: {{ item.path }}
+              backend:
+                serviceName: {{ item.serviceName }}
+                servicePort: {{ item.servicePort }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,26 @@
+- name: protect against unwitting purge
+  hosts: edc-connector-instances
+
+  tasks:
+    - name: check if operator is really sure to purge {{ application }} {{ purge_subject }}
+      fail:
+        msg: |+
+          Apparently you are trying to remove {{ purge_subject }} of {{ application }} component under {{ MAIN_DOMAIN }}.
+
+          Are you sure?
+
+          If so, variable purge_{{ inventory_hostname|replace('-', '_')|replace('.', '_') }} need to be set to "yesImreallyreallysuretopurge" concatenated with instance MAIN_DOMAIN.
+
+          If you are unable to pass such value, you should not be doing this at all.
+
+
+      when: "lookup('vars', 'purge_' + inventory_hostname|replace('-', '_')|replace('.', '_'), default='undefined') == 'undefined'"
+
+    - name: check if operator should be doing this at all
+      fail:
+        msg: |+
+          Variable purge_{{ inventory_hostname|replace('-', '_')|replace('.', '_') }} is set, however with a bad value.
+
+          Try again or even better rethink your intentions.
+
+      when: "lookup('vars', 'purge_' + inventory_hostname|replace('-', '_')|replace('.', '_'), default='undefined') != 'undefined' and lookup('vars', 'purge_' + inventory_hostname|replace('-', '_')|replace('.', '_')) != ('yesImreallyreallysuretopurge' + MAIN_DOMAIN)"

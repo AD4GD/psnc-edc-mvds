@@ -1,0 +1,6 @@
+#!/bin/bash
+source /srv/audits/_audits_environment
+
+setup_audit dependencies-pip
+
+execute_audit /srv/venv/bin/pip install -r /srv/reqs/external.txt && /srv/venv/bin/pip check --no-color "$@"

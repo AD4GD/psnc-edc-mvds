@@ -1,0 +1,6 @@
+#!/bin/bash
+source /srv/audits/_audits_environment
+
+setup_audit manage-check
+
+execute_audit manage check -v 3 --deploy --no-color "$@"

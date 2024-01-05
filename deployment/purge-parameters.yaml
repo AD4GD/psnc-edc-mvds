@@ -1,0 +1,18 @@
+- import_playbook: "unwitting-purge-protector.yaml"
+  vars:
+    purge_subject: "parameters"
+
+- name: update storage services parameters
+  hosts: edc-connector-instances
+  module_defaults:
+    k8s:
+      state: absent
+      namespace: "{{ k8s_namespace }}"
+  tasks:
+    - name: purge secrets
+      k8s:
+        definition: "[{% for name in deployed_parameters_packs %}{'apiVersion': 'v1', 'kind': 'Secret', 'metadata': { 'name': '{{ application }}-{{ name }}' }},{% endfor %}]"
+
+    - name: purge configmaps
+      k8s:
+        definition: "[{% for name in deployed_parameters_packs %}{'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': { 'name': '{{ application }}-{{ name }}' }},{% endfor %}]"

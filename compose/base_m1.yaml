@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+
+  postgres:
+    restart: unless-stopped
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/postgres:${IMAGE_TAG}
+    read_only: true
+    user: "999"  # postgres user
+    environment:
+      - POSTGRES_PASSWORD=psql-password
+      - POSTGRES_USER=psql-user
+      - POSTGRES_DB=main-db
+    expose:
+      - "5432"
+    tmpfs:
+      - "/run/postgresql"
+      - "/tmp"
+
+
+  connector:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
+    restart: unless-stopped
+    read_only: false
+    env_file:
+      - ${REPO_DIR}/docker/connector/configuration.env
+    environment:
+      - JVM_ARGS=-Dedc.keystore=/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.vault=/connector/vault.properties -Dedc.fs.config=/connector/configuration.properties
+    ports:
+      - "29191:29191"
+      - "29193:29193"
+      - "29194:29194"
+      - "29291:29291"
+      - "29192:29192"
+
+networks:
+  default:

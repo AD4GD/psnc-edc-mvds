@@ -1,0 +1,6 @@
+- import_playbook: "deploy-info.yaml"
+- import_playbook: "deploy-namespace.yaml"
+- import_playbook: "deploy-parameters.yaml"
+- import_playbook: "deploy-stateful-services.yaml"
+- import_playbook: "deploy-stateless-services.yaml"
+- import_playbook: "deploy-post-actions.yaml"

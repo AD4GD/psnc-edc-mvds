@@ -1,0 +1,6 @@
+- name: print deployment info
+  hosts: edc-connector-instances
+
+  tasks:
+    - debug:
+        msg: "Deploying {{ MAIN_DOMAIN }}: {% if image_tag is undefined or not image_tag %}without changing version{% else %}using image_tag={{ image_tag }}{% endif %}, using KUBECTL_COMMAND={{ KUBECTL_COMMAND }}."
