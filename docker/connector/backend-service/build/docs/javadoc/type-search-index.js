@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"org.eclipse.edc","l":"BackendService"},{"p":"org.eclipse.edc.handler","l":"ReceiverHandler"}];updateSearchResults();
