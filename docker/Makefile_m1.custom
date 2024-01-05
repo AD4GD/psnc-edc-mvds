@@ -12,46 +12,14 @@ build-base: build-base-builder
 build-base: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/base-builder:$(BUILD_TIME_TAG)
 
 
-build-django-builder build-django build-varnish build-hitch: build-base
-build-django-builder build-django build-varnish build-hitch: BASE_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/base:$(BUILD_TIME_TAG)
-
-build-django: build-django-builder
-build-django: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/django-builder:$(BUILD_TIME_TAG)
-build-django: CONTEXT_PATH=../
-
-build-pgbouncer: build-pgbouncer-builder
-build-pgbouncer: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/pgbouncer-builder:$(BUILD_TIME_TAG)
-
-
 #build-base: BUILDER_IMAGE=centos:7 --platform arm64
 build-base: BUILDER_IMAGE=centos:7@sha256:73f11afcbb50d8bc70eab9f0850b3fa30e61a419bc48cf426e63527d14a8373b
-build-elastic: BUILDER_IMAGE=elasticsearch:7.17.7
-build-memcached: BUILDER_IMAGE=memcached:1.6.17
-
-# latest alpine does not work https://github.com/pgbouncer/pgbouncer/issues/371
-build-pgbouncer-builder: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
-build-pgbouncer: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
 
 build-postgres: BUILDER_IMAGE=postgres:9
-build-rabbit: BUILDER_IMAGE=rabbitmq:3.8-management
-build-minio: BUILDER_IMAGE=minio/minio:RELEASE.2022-10-24T18-35-07Z
 
 # To start services (eg. pipelines-celery-worker) pipelines must use build-base
-build-pipelines-builder build-pipelines: build-base
-build-pipelines: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/pipelines-builder:$(BUILD_TIME_TAG)
-build-pipelines: CONTEXT_PATH=../
-
-build-pipelines-celery: BASE_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/pipelines:local-build
-build-pipelines-celery: CONTEXT_PATH=../
-
-build-grlc: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=clariah/grlc:v1.3.5
-build-grlc: CONTEXT_PATH=../
-
-build-sta: BUILDER_IMAGE=python:3.11.4
-build-sta: CONTEXT_PATH=../
 
 build-connector: BUILDER_IMAGE=openjdk:17-slim-buster
 build-connector: CONTEXT_PATH=../
 
-build-base build-postgres build-elastic build-minio build-rabbit build-memcached build-grlc build-sta build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
-build-pgbouncer-builder build-pgbouncer build-latex build-grlc: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
+build-base build-postgres build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
