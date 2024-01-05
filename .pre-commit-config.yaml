@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 
 
-exclude: venv/|modules/|docker/|pkgs/|migrations/|locust/|common/|swagger/|tests/|settings.py
+exclude: venv/|modules/|docker/|pkgs/|common/|reports/settings.py
 
 repos:
   -   repo: https://github.com/pre-commit/pre-commit-hooks
