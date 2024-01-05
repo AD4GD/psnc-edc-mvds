@@ -7,7 +7,6 @@ variables:
 stages:
   - precommit
   - build
-  - test
   - upload
   - update_inventory
 
@@ -23,14 +22,6 @@ Build images:
   stage: build
   script:
     - devlab_build_images
-
-Test:
-  stage: test
-  script:
-    - devlab_test django
-  artifacts:
-    paths:
-      - ./reports
 
 Upload images:
   stage: upload

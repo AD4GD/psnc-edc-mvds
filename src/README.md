@@ -6,7 +6,7 @@ This repo contains an Eclipse Dataspace Components (EDC) Connector for the use-c
 
 The connector configuration is based on the EDC Samples and the sovity EDC. The main features are:
 - persistence for assests, policies, contracts etc
-- data transfer via HTTP pull method  
+- data transfer via HTTP pull method
 
 **Note:** _Currently, there is only a noop implementation of the data encryptor for the endpoint data reference (EDR) sent to the consumer. Without a proper data encryptor, the actual data address is passed to the consumer. This also affect sensitive data in the data address, although sensitive data should not be stored in the data address._
 
@@ -22,7 +22,7 @@ critical things:
     - Extention for the connector: https://github.com/eclipse-edc/Connector/tree/a93a66c0e99a215c049cc750483987095df29e30/extensions/common/iam/oauth2/oauth2-core
 - encryption of EDR messages in pull methods -> use https://github.com/eclipse-tractusx/tractusx-edc/tree/main/edc-extensions/data-encryption
 - binary files (e.g. images) are modified during transfer using the http data plane. See: https://github.com/eclipse-edc/Connector/discussions/2360
-- bring the demo into the cloud 
+- bring the demo into the cloud
 
 
 nice to have:

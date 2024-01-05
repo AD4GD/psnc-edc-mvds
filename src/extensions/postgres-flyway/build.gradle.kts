@@ -13,7 +13,7 @@ dependencies {
 
     annotationProcessor(libs.lombok)
     compileOnly(libs.lombok)
-    
+
     implementation(libs.edc.core.spi) //implementation("${edcGroup}:core-spi:${edcVersion}")
     implementation(libs.edc.sql.core) //implementation("${edcGroup}:sql-core:${edcVersion}")
 
@@ -27,4 +27,3 @@ dependencies {
 
     implementation(libs.flyway.core) //implementation("org.flywaydb:flyway-core:${flywayVersion}")
 }
-

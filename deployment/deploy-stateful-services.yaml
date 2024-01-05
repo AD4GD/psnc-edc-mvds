@@ -1,113 +1,265 @@
-- name: "deploy pvc/{{ application }}-connector"
-  when: "deploy_connector"
-  tags:
-    - connector
-    - persistentvolumeclaim
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: "{{ application }}-connector"
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: "{{ connector_pvc_storage_size }}"
- 
-- name: "deploy statefulset/{{ application }}-connector"
-  when: "deploy_connector"
-  tags:
-    - connector
-    - statefulset
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: StatefulSet
-      metadata:
-        name: "{{ application }}-connector"
-        labels:
-          component: "connector"
-          application: "{{ application }}"
-      spec:
-        serviceAccountName: "connector-reader"
-        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
-        strategy:
-          type: RollingUpdate
-        selector:
-          matchLabels:
-            component: "connector"
-            application: "{{ application }}"
-        template:
+---
+- name: deploy stateful services
+  hosts: edc-connector-instances
+  module_defaults:
+    k8s:
+      wait: true
+      wait_timeout: "{{ k8s_wait_timeout }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    - name: "fetch image_tag if undefined"
+      # TODO DV-272 remove this or here
+      when: image_tag is undefined or not image_tag
+      include_tasks: "tasks/fetch-current-image-tag.yaml"
+
+    - name: "deploy pvc/{{ application }}-postgres"
+      when: "deploy_postgres"
+      tags:
+        - postgres
+        - persistentvolumeclaim
+      vars:
+        pvc_name: "{{ application }}-postgres"
+        pvc_storage_size: "{{ postgres_pvc_storage_size }}"
+        pvc_storage_class_name: "{{ postgres_pvc_storage_class_name }}"
+        pvc_access_mode_type: "{{ postgres_pvc_access_mode_type }}"
+      k8s:
+        definition: "{{ lookup('template', 'persistent-volume-claim-definition.yaml', convert_data=True)|from_yaml }}"
+
+    - name: "deploy statefulset/{{ application }}-postgres"
+      when: "deploy_postgres"
+      tags:
+        - postgres
+        - statefulset
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: StatefulSet
           metadata:
+            name: "{{ application }}-postgres"
+            labels:
+              component: "postgres"
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: "postgres"
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: "postgres"
+                  application: "{{ application }}"
+                  parameters_digest: "{{ (postgres_configmap_digest + postgres_secret_digest)|hash('sha1') }}"
+                annotations:
+                  backup.velero.io/backup-volumes: "{{ 'postgres-data' if use_backup_velero_io_backup_volumes_annotation else '' }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                initContainers:
+                - name: "permissions-fix"
+                  image: "{{ postgres_init_containers_base_image }}"
+                  command: ["chown", "-v", "999:999", "/mount"]
+                  imagePullPolicy: IfNotPresent
+                  volumeMounts:
+                    - name: "postgres-data"
+                      mountPath: "/mount"
+                containers:
+                  - name: "postgres"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/postgres:{{ stateful_services_image_tag }}"
+                    imagePullPolicy: Always
+                    securityContext:
+                      readOnlyRootFilesystem: true
+                      runAsNonRoot: true
+                      runAsUser: 999  # postgres user
+                    ports:
+                      - name: "postgres-port"
+                        containerPort: 5432
+                        protocol: "TCP"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-postgres"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-postgres"
+                          optional: true
+                    volumeMounts:
+                      - name: "postgres-data"
+                        mountPath: "/var/lib/postgresql/data"
+                      - name: "postgres-run"
+                        mountPath: "/run/postgresql"
+                      - name: "postgres-tmp"
+                        mountPath: "/tmp"
+                    readinessProbe:
+                      tcpSocket:
+                        port: "postgres-port"
+                      initialDelaySeconds: 30
+                      periodSeconds: "{{ readiness_probe_period }}"
+                    livenessProbe:
+                      tcpSocket:
+                        port: "postgres-port"
+                      initialDelaySeconds: 30
+                      periodSeconds: "{{ liveness_probe_period }}"
+                volumes:
+                  - name: "postgres-data"
+                    persistentVolumeClaim:
+                      claimName: "{{ application }}-postgres"
+                  - name: "postgres-run"
+                    emptyDir:
+                      medium: "Memory"
+                  - name: "postgres-tmp"
+                    emptyDir:
+                      medium: "Memory"
+
+    - name: "deploy service/{{ application }}-postgres"
+      when: "deploy_postgres"
+      tags:
+        - postgres
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-postgres"
+            labels:
+              application: "{{ application }}"
+              component: "postgres"
+          spec:
+            ports:
+            - port: 5432
+              name: "postgres"
+            selector:
+              application: "{{ application }}"
+              component: "postgres"
+
+    - name: "deploy pvc/{{ application }}-connector"
+      when: "deploy_connector"
+      tags:
+        - connector
+        - persistentvolumeclaim
+      vars:
+        pvc_name: "{{ application }}-connector"
+        pvc_storage_size: "{{ connector_pvc_storage_size }}"
+        pvc_storage_class_name: "{{ connector_pvc_storage_class_name }}"
+        pvc_access_mode_type: "{{ connector_pvc_access_mode_type }}"
+      k8s:
+        definition: "{{ lookup('template', 'persistent-volume-claim-definition.yaml', convert_data=True)|from_yaml }}"
+
+    - name: "deploy statefulset/{{ application }}-connector"
+      when: "deploy_connector"
+      tags:
+        - connector
+        - statefulset
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: StatefulSet
+          metadata:
+            name: "{{ application }}-connector"
             labels:
               component: "connector"
               application: "{{ application }}"
-              parameters_digest: "{{ (connector_configmap_digest + connector_secret_digest)|hash('sha1') }}"
           spec:
-            serviceAccountName: "connector-reader"
-            containers:
-              - name: "connector"
-                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateful_services_image_tag }}"
-                imagePullPolicy: Always
-                resources: "{{ connector_resources }}"
-                securityContext:
-                  readOnlyRootFilesystem: true
-                  runAsNonRoot: true
-                  serviceAccountName: "connector-reader"
-                ports:
-                  - name: "connector-http"
-                    containerPort: 9090
-                    protocol: "TCP"
-                envFrom:
-                  - configMapRef:
-                      name: "{{ application }}-connector"
-                      optional: true
-                  - secretRef:
-                      name: "{{ application }}-connector"
-                      optional: true
-                volumeMounts:
-                  - name: "connector-data"
-                    mountPath: "/connector"
-                  - name: "connector-tmp"
-                    mountPath: "/tmp"
-                readinessProbe:
-                  tcpSocket:
-                    port: "connector-http"
-                  initialDelaySeconds: 30
-                  periodSeconds: "{{ readiness_probe_period }}"
-                livenessProbe:
-                  tcpSocket:
-                    port: "connector-http"
-                  initialDelaySeconds: 30
-                  periodSeconds: "{{ liveness_probe_period }}"
-            volumes:
-              - name: "connector-data"
-                persistentVolumeClaim:
-                  claimName: "{{ application }}-connector"
-              - name: "connector-tmp"
-                emptyDir:
-                  medium: "Memory"
- 
-- name: "deploy service/{{ application }}-connector"
-  when: "deploy_connector"
-  tags:
-    - connector
-    - service
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: "{{ application }}-connector"
-        labels:
-          application: "{{ application }}"
-          component: "connector"
-      spec:
-        ports:
-          - port: 9090
-            name: "connector"
-        selector:
-          application: "{{ application }}"
-          component: "connector"
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: "connector"
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: "connector"
+                  application: "{{ application }}"
+                  parameters_digest: "{{ (connector_configmap_digest + connector_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                initContainers:
+                  - name: "permissions-fix"
+                    image: "{{ connector_init_containers_base_image }}"
+#                    command: ["chown", "-v", "1000:1000", "/mount"]
+                    imagePullPolicy: IfNotPresent
+                containers:
+                  - name: "connector"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateful_services_image_tag }}"
+                    imagePullPolicy: Always
+                    securityContext:
+                      readOnlyRootFilesystem: true
+                      runAsNonRoot: false
+#                      runAsUser: 1000  # connector user
+                    ports:
+                      - name: "api"
+                        containerPort: 29191
+                        protocol: "TCP"
+                      - name: "management"
+                        containerPort: 29193
+                        protocol: "TCP"
+                      - name: "protocol"
+                        containerPort: 29194
+                        protocol: "TCP"
+                      - name: "public"
+                        containerPort: 29291
+                        protocol: "TCP"
+                      - name: "control"
+                        containerPort: 29192
+                        protocol: "TCP"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-connector"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-connector"
+                          optional: true
+                    volumeMounts:
+                      - name: "con-tmp"
+                        mountPath: "/tmp"
+                    readinessProbe:
+                      tcpSocket:
+                        port: "api"
+                      initialDelaySeconds: 10
+                      periodSeconds: "{{ readiness_probe_period }}"
+                    livenessProbe:
+                      tcpSocket:
+                        port: "api"
+                      initialDelaySeconds: 30
+                      periodSeconds: "{{ liveness_probe_period }}"
+                    resources: "{{ connector_resources }}"
+                volumes:
+                  - name: "con-tmp"
+                    emptyDir:
+                      medium: "Memory"
+
+    - name: "deploy service/{{ application }}-connector"
+      when: "deploy_connector"
+      tags:
+        - connector
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-connector"
+            labels:
+              application: "{{ application }}"
+              component: "connector"
+          spec:
+            ports:
+              - name: "api"
+                port: 29191
+              - name: "management"
+                port: 29193
+              - name: "protocol"
+                port: 29194
+              - name: "public"
+                port: 29291
+              - name: "control"
+                port: 29192
+            selector:
+              application: "{{ application }}"
+              component: "connector"

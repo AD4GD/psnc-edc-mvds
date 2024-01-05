@@ -1,125 +1,36 @@
-version: "3.8"
-name: psnc-connector
+version: '3.3'
 services:
-  provider-connector:
-    image: psnc-connector
-    build:
-      context: ../src/launcher
-      args:
-        JAR: build/libs/connector.jar
-      dockerfile: Dockerfile
-      
-    depends_on:
-      - postgresql-provider
+
+  postgres:
+    restart: unless-stopped
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/postgres:${IMAGE_TAG}
+    read_only: true
+    user: "999"  # postgres user
     environment:
-      EDC_FS_CONFIG: /app/configuration.properties
-      EDC_API_ASSET_COLLECTOR_FILE: /app/api_collection.json
-      EDC_API_AUTH_KEY: "fifi-info-zaneta"
-      
-    ports:
-      - '19191:19191'
-      - '19192:19192'
-      - '19193:19193'
-      - '19194:19194'
-      - '19291:19291'
-    
-    volumes:
-      - ../src/launcher/config/configuration-provider.properties:/app/configuration.properties:ro
-      - ../src/launcher/config/keystore.pfx:/app/keystore.pfx:ro
-      - ../src/launcher/config/fs-provider.vault:/app/fs.vault
-      - ../src/launcher/config/api_collection.json:/app/api_collection.json
-      - ../src/launcher/config/json_example.json:/app/json_example.json
+      - POSTGRES_PASSWORD=psql-password
+      - POSTGRES_USER=psql-user
+      - POSTGRES_DB=main-db
+    expose:
+      - "5432"
+    tmpfs:
+      - "/run/postgresql"
+      - "/tmp"
 
-  consumer-connector:
-    image: psnc-connector
-    build:
-      context: ../src/launcher
-      args:
-        JAR: build/libs/connector.jar
-      dockerfile: Dockerfile
-      
-    depends_on:
-      - postgresql-consumer
+
+  connector:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
+    restart: unless-stopped
+    read_only: false
+    env_file:
+      - ${REPO_DIR}/docker/connector/configuration.env
     environment:
-      EDC_FS_CONFIG: /app/configuration.properties
-      EDC_API_AUTH_KEY: "fifi-info-zaneta"
-      
+      - JVM_ARGS=-Dedc.keystore=/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.vault=/connector/vault.properties -Dedc.fs.config=/connector/configuration.properties
     ports:
-      - '29191:29191'
-      - '29192:29192'
-      - '29193:29193'
-      - '29194:29194'
-      - '29291:29291'
-    
-    volumes:
-      - ../src/launcher/config/configuration-consumer.properties:/app/configuration.properties:ro
-      - ../src/launcher/config/keystore.pfx:/app/keystore.pfx:ro
-      - ../src/launcher/config/fs-consumer.vault:/app/fs.vault
+      - "29191:29191"
+      - "29193:29193"
+      - "29194:29194"
+      - "29291:29291"
+      - "29192:29192"
 
-  consumer-backend:
-    image: consumer-backend-py
-    build:
-      context: ../src/consumer-backend-py
-    ports:
-      - "4000:4000"
-    depends_on:
-      - consumer-connector
-    volumes:
-      - ../src/consumer-backend-data/:/app/data  
-
-
-  postgresql-provider:
-    image: docker.io/bitnami/postgresql:11
-    restart: always
-    environment:
-      POSTGRESQL_USERNAME: edc
-      POSTGRESQL_PASSWORD: edc
-      POSTGRESQL_DATABASE: edc
-    ports:
-      - '5432:5432'
-    volumes:
-      - 'postgresql-provider:/bitnami/postgresql'
-
-  postgresql-consumer:
-    image: docker.io/bitnami/postgresql:11
-    restart: always
-    environment:
-      POSTGRESQL_USERNAME: edc
-      POSTGRESQL_PASSWORD: edc
-      POSTGRESQL_DATABASE: edc
-    ports:
-      - '5433:5432'
-    volumes:
-      - 'postgresql-consumer:/bitnami/postgresql'
-
-  consumer-data-dashboard:
-    build: 
-      context: ../src/data-dashboard
-      dockerfile: Dockerfile
-    platform: ${DOCKER_PLATFORM:-linux/amd64}
-    depends_on:
-      - consumer-connector
-    ports:
-      - "28080:80"
-    volumes:
-      - ../src/data-dashboard/deployment/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
-      - ../src/data-dashboard/deployment/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
-
-  provider-data-dashboard:
-    build: 
-      context: ../src/data-dashboard
-      dockerfile: Dockerfile
-    platform: ${DOCKER_PLATFORM:-linux/amd64}
-    depends_on:
-      - provider-connector
-    ports:
-      - "18080:80"
-    volumes:
-      - ../src/data-dashboard/deployment/conf-provider/provider.nginx.conf:/etc/nginx/nginx.conf
-      - ../src/data-dashboard/deployment/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
-
-volumes:
-  postgresql-provider:
-    driver: local
-  postgresql-consumer:
-    driver: local
+networks:
+  default:

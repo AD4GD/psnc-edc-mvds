@@ -90,7 +90,7 @@ public class ApiCollector {
 
         String urlString = apiCollection.getString("url") + "?" + String.join("&", paramsSet);
         return new URL(urlString);
-    
+
     }
 
     public Stream<String> getResponseFromApi(JsonObject apiCollection) throws Exception {
@@ -108,7 +108,7 @@ public class ApiCollector {
         if (response.statusCode() != 200) {
             throw new Exception("API request failed with status code: " + response.statusCode());
         }
-        
+
         String responseBody = response.body();
         return Arrays.stream(responseBody.split("\\r?\\n"));
     }

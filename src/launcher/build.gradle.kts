@@ -24,11 +24,11 @@ dependencies {
     implementation(libs.edc.dsp)
     implementation(libs.edc.configuration.filesystem)
     implementation(libs.edc.vault.filesystem)
-    
+
     implementation(libs.edc.management.api)
     implementation(libs.edc.transfer.data.plane)
     implementation(libs.edc.transfer.pull.http.receiver)
-	
+
   	implementation(libs.edc.data.plane.selector.api)
     implementation(libs.edc.data.plane.selector.core)
     implementation(libs.edc.data.plane.selector.client)
@@ -39,12 +39,12 @@ dependencies {
 
     implementation(libs.edc.api.observability)
 
-    //extension to make assests, policies etc. persistent. 
+    //extension to make assests, policies etc. persistent.
     api(project(":extensions:postgres-flyway"))
-    
+
     //extension to register external resources as assets
     api(project(":extensions:asset-collect"))
-    
+
     // extention for enhancing data dashboard locally
     api(project(":extensions:data-dashboard-local"))
 
