@@ -427,13 +427,6 @@
                       - secretRef:
                           name: "{{ application }}-django"
                           optional: true
-                    env:
-                      - configMapRef:
-                          name: "{{ application }}-connector"
-                          optional: true
-                      - secretRef:
-                          name: "{{ application }}-connector"
-                          optional: true
                     volumeMounts:
                       - name: "connector-tmp"
                         mountPath: "/tmp"
