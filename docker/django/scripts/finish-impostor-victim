@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ -e /var/run/impostor-sentinel ]
+then
+	echo "found impostor sentinel - not shutting down container"
+	exit 0
+else
+	exec shutdown-container
+fi

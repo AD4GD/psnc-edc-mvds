@@ -1,6 +1,83 @@
 version: '3.3'
 services:
 
+  hitch:
+    restart: unless-stopped
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/hitch:${IMAGE_TAG}
+    read_only: true
+    environment:
+      - HITCH_LISTENING_ADDRESS=0.0.0.0:9004
+      - HITCH_BACKEND_ADDRESS=varnish:9003
+      - HITCH_WRITE_PROXY_V1=True
+      - HITCH_AUTO_GENERATE_CERTIFICATE_DOMAIN=localhost.edc.connector
+      - HITCH_PEM_FILE=/etc/certs/localhost.edc.connector.hitch-pem
+    expose:
+      - "9004"
+    tmpfs:
+      - "/run:exec"
+    depends_on:
+      - varnish
+
+  varnish:
+    restart: unless-stopped
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/varnish:${IMAGE_TAG}
+    read_only: true
+    user: "1000"  # regular user
+    environment:
+      - MAIN_DOMAIN=localhost.edc.connector
+      - DJANGO_HOSTS=django:9001
+      - VARNISH_LISTENING_ADDRESS=0.0.0.0:9002
+      - VARNISH_LISTENING_PROXY_ADDRESS=0.0.0.0:9003
+      - HEALTH_ENABLED=True
+      - HEALTH_ACLS="0.0.0.0"/0
+      - VARNISH_CACHE_SIZE=128M
+    expose:
+      - "9002"
+      - "9003"
+    tmpfs:
+      - "/run:exec"
+      - "/var/lib/varnish:exec"
+    depends_on:
+      - django
+
+  django:
+    restart: unless-stopped
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/django:${IMAGE_TAG}
+    read_only: true
+    user: "1000"  # regular user
+    environment:
+      - DEBUG=True
+      - PYTHONUNBUFFERED=1
+      - ENABLE_SERVICES=
+      - DATABASE_USER=psql-user
+      - DATABASE_PASS=psql-password
+      - MAIN_DOMAIN=localhost.edc.connector
+      - WAIT_FOR_DATABASE=True
+      - SRV_UWSGI_GEVENT=False
+
+    expose:
+      - "9001"
+    tmpfs:
+      - "/run:exec"
+      - "/tmp:exec"
+      - "/home/regular/.ssh/known_hosts:exec"
+    depends_on:
+      - postgres
+      - memcached
+
+    networks:
+      default:
+        aliases:
+          - django
+
+  memcached:
+    restart: unless-stopped
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/memcached:${IMAGE_TAG}
+    read_only: true
+    user: "1000"  # memcache user
+    expose:
+      - "11211"
+
   postgres:
     restart: unless-stopped
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/postgres:${IMAGE_TAG}
@@ -15,7 +92,6 @@ services:
     tmpfs:
       - "/run/postgresql"
       - "/tmp"
-
 
   connector:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}

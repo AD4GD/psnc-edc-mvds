@@ -1,0 +1,11 @@
+#!/bin/sh
+. /var/run/varnish/varnish.params
+
+exec /usr/sbin/varnishd -F \
+	-P /var/run/varnish/varnish.pid \
+	-f $VARNISH_VCL_CONF \
+	-T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT} \
+	-t $VARNISH_TTL \
+	-S $VARNISH_SECRET_FILE \
+	-s $VARNISH_STORAGE \
+	$DAEMON_OPTS

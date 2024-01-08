@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv /bin/bash
+
+if [ "$HITCH_AUTO_GENERATE_CERTIFICATE_DOMAIN" == "" ]
+then
+	exit 0
+fi
+
+exec /usr/local/bin/generate-certificate "$HITCH_AUTO_GENERATE_CERTIFICATE_DOMAIN"

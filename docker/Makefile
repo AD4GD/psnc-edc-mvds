@@ -17,7 +17,10 @@ $(shell git diff --exit-code --quiet)
 GIT_IS_CLEAN := $(shell git diff --exit-code --quiet && echo clean || echo dirty)
 
 GIT_COMMIT_TAG := $(if $(filter $(GIT_IS_CLEAN),clean),commit-$(shell git rev-parse HEAD),)
-GIT_BRANCH_TAG := $(if $(filter $(GIT_IS_CLEAN),clean),branch-$(shell git rev-parse --abbrev-ref HEAD | tr / -),)
+GIT_COMMIT_SHA_TAG := $(if $(filter $(GIT_IS_CLEAN),clean),$(shell git rev-parse HEAD),)
+# on GitLab, the current branch name must be read from $CI_COMMIT_BRANCH, not with `git rev-parse`
+GIT_BRANCH_TAG := $(if $(filter $(GIT_IS_CLEAN),clean),$(if $(CI_COMMIT_BRANCH),branch-$(CI_COMMIT_BRANCH),branch-$(shell git rev-parse --abbrev-ref HEAD | tr / -)),)
+GIT_BRANCH_NAME_TAG := $(if $(filter $(GIT_IS_CLEAN),clean),$(if $(CI_COMMIT_BRANCH),$(CI_COMMIT_BRANCH),$(shell git rev-parse --abbrev-ref HEAD | tr / -)),)
 GIT_TAG_TAGS := $(if $(filter $(GIT_IS_CLEAN),clean),$(foreach tag,$(shell git tag --points-at HEAD),tag-$(tag)),)
 
 IMAGES := $(subst /,\:,$(subst /Dockerfile,,$(DOCKERFILES)))
@@ -28,7 +31,7 @@ RUN_IMAGES := $(foreach image,$(IMAGES),run-$(image))
 CLEAN_IMAGES := $(foreach image,$(IMAGES),clean-$(image))
 
 # summarize all tags to be used for images - local-build is always assigned but not pushed
-PUBLIC_TAGS := $(GIT_COMMIT_TAG) $(GIT_BRANCH_TAG) $(GIT_TAG_TAGS)
+PUBLIC_TAGS := $(GIT_COMMIT_TAG) $(GIT_BRANCH_TAG) $(GIT_TAG_TAGS) $(GIT_COMMIT_SHA_TAG) $(GIT_BRANCH_NAME_TAG)
 PRIVATE_TAGS := local-build
 ALL_TAGS := $(PUBLIC_TAGS) $(PRIVATE_TAGS)
 
@@ -36,7 +39,7 @@ DEPENDS := .depends.mk
 
 # TODO FROM other other repositories should not be handled by automatic resolution
 #
-.PHONY: all explain build push show-git-commit-tag show-git-tag-tag show-git-branch-tag show-git-is-clean show-tags $(BUILD_IMAGES) $(PUSH_IMAGES) $(HISTORY_IMAGES) $(RUN_IMAGES) $(CLEAN_IMAGES)
+.PHONY: all explain build push show-git-commit-tag show-git-commit-sha-tag show-git-tag-tag show-git-branch-tag show-git-branch-name-tag show-git-is-clean show-tags $(BUILD_IMAGES) $(PUSH_IMAGES) $(HISTORY_IMAGES) $(RUN_IMAGES) $(CLEAN_IMAGES)
 
 .DEFAULT_GOAL := build
 
@@ -62,8 +65,14 @@ show-git-is-clean:
 show-git-commit-tag:
 	@echo $(GIT_COMMIT_TAG)
 
+show-git-commit-sha-tag:
+	@echo $(GIT_COMMIT_SHA_TAG)
+
 show-git-branch-tag:
 	@echo $(GIT_BRANCH_TAG)
+
+show-git-branch-name-tag:
+	@echo $(GIT_BRANCH_NAME_TAG)
 
 show-git-tag-tags:
 	@echo $(GIT_TAG_TAGS)
@@ -110,7 +119,7 @@ $(BUILD_IMAGES):
 		$(if $(or $(NO_IMAGE_PULL), $(BUILDER_IMAGE), $(BASE_IMAGE)),, --pull) \
 		$(if $(shell grep 'ARG BASE_IMAGE' $(DOCKERFILE_PATH)), --build-arg BASE_IMAGE=$(BASE_IMAGE),) \
 		$(if $(shell grep 'ARG BUILDER_IMAGE' $(DOCKERFILE_PATH)), --build-arg BUILDER_IMAGE=$(BUILDER_IMAGE),) \
-		-t $(FULL_IMAGE_NAME):$(BUILD_TIME_TAG) $(CONTEXT_PATH) -f $(DOCKERFILE_PATH)
+		-t $(FULL_IMAGE_NAME):$(BUILD_TIME_TAG) $(CONTEXT_PATH) -f $(DOCKERFILE_PATH) $(BUILD_EXTRA_PARAMS)
 	$(foreach tag,$(ALL_TAGS),docker tag $(FULL_IMAGE_NAME):$(BUILD_TIME_TAG) $(FULL_IMAGE_NAME):$(tag);)
 
 $(CLEAN_IMAGES):

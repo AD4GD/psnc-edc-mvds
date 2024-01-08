@@ -1,0 +1,5 @@
+#!/bin/bash
+. /root/venv/bin/activate
+set -e
+service-arguments process
+varnishreload

@@ -1,1 +1,20 @@
 version: '3.3'
+services:
+
+  varnish:
+    volumes:
+      - "${REPO_DIR}/docker/varnish/arguments:/etc/arguments/varnish"
+      - "${REPO_DIR}/docker/varnish/services:/etc/services.d"
+
+  django:
+    # relax this constraint in development environment, e.g. allow to install additional modules
+    read_only: false
+    environment:
+      - DEBUG=True
+    volumes:
+      - "${REPO_DIR}/reqs:/srv/reqs"
+      - "${REPO_DIR}/src:/srv/src"
+      - "${REPO_DIR}/setup.cfg:/srv/setup.cfg"
+      - "${REPO_DIR}/docker/django/arguments/uwsgi:/etc/arguments/uwsgi"
+      - "${REPO_DIR}/modules/service-arguments/arguments:/srv/pkgs/service-arguments/arguments"
+      - "${REPO_DIR}/modules/pytest-http/pytest_http:/srv/pkgs/pytest-http/pytest_http"

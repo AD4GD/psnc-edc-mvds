@@ -586,37 +586,6 @@ class CacheTestSuite(unittest.TestCase):
         assert url['TIMEOUT'] == 60
         assert url['OPTIONS'] == { 'MAX_ENTRIES': 1000, 'CULL_FREQUENCY': 0 }
 
-
-class CeleryTests(unittest.TestCase):
-
-    def test_rabbitmq(self):
-        celery = CeleryRabbitMQUrl().parse('celery+rabbitmq://user:password@rabbithost:5672/vhost/queue_name?celery_task_default_exchange=myexchange')
-        assert celery['CELERY_BROKER_URL'] == 'amqp://user:password@rabbithost:5672/vhost'
-        assert celery['CELERY_TASK_DEFAULT_EXCHANGE'] == 'myexchange'
-        assert celery['CELERY_TASK_DEFAULT_QUEUE'] == 'queue_name'
-        assert celery['CELERY_BROKER_TRANSPORT_OPTIONS'] == {}
-
-        # assert service.get_result('OTHER_SERVICE').intermediate_value is not None
-        # assert service.get_result('OTHER_SERVICE').intermediate_value['urlparse']['hostname'] == '127.0.0.1'
-
-        celery = CeleryRabbitMQUrl().parse('celery+rabbitmq://user:password@rabbithost:5672/vhost/queue_name')
-        assert 'CELERY_TASK_DEFAULT_EXCHANGE' not in celery
-
-
-    def test_sqs(self):
-        celery = CelerySQSUrl().parse('celery+sqs://access_key_id:secret_access_key@sqs.eu-west-1.amazonaws.com/account_id/queue_name')
-        assert celery['CELERY_BROKER_URL'] == 'sqs://access_key_id:secret_access_key@'
-        assert celery['CELERY_TASK_DEFAULT_QUEUE'] == 'queue_name'
-        assert celery['CELERY_BROKER_TRANSPORT_OPTIONS'] == { 'region': 'eu-west-1' }
-
-    def test_fancy_sqs_secrets(self):
-        celery = CelerySQSUrl().parse('celery+sqs://access_key_id:urlencode(secret_access_key_with_slashes/and+plus_signs)@sqs.eu-west-1.amazonaws.com/account_id/queue_name')
-        assert celery['CELERY_BROKER_URL'] == 'sqs://access_key_id:secret_access_key_with_slashes%2Fand%2Bplus_signs@'
-        assert celery['CELERY_TASK_DEFAULT_QUEUE'] == 'queue_name'
-        assert celery['CELERY_BROKER_TRANSPORT_OPTIONS'] == { 'region': 'eu-west-1' }
-
-
-
 class SearchTestSuite(unittest.TestCase):
 
 
@@ -749,47 +718,47 @@ class EmailTests(object):
 def simple_context_setup(tmpdir_factory):
     directory = tmpdir_factory.mktemp('simple')
     directory.join('context.py').write(
-"""
-context.groups(
-    Group('simple',
-        LIST_VAR=[],
-        STR_VAR='default-str',
-        INT_VAR=2,
-    )
-)
-
-@context.postprocess
-def postprocess(variables, extras):
-    extras['ANOTHER_VAR'] = 4 * variables['INT_VAR']
-    extras['INITIALIZED_VAR'] = 'initialized'
-
-@context.initializer
-def postprocess(variables):
-    import os
-    os.environ['REPEAT_INITIALIZED_VAR'] = variables['INITIALIZED_VAR']
-
-@context.filter
-def title_filter(value, argument):
-    return '%s: %s' % (argument, value)
-
-context.templates({
-    "/etc/example/output.conf": "template.conf",
-})
-
-context.glob_templates("/etc/example", "*.conf2")
-
-""")
+        """
+        context.groups(
+            Group('simple',
+                LIST_VAR=[],
+                STR_VAR='default-str',
+                INT_VAR=2,
+            )
+        )
+        
+        @context.postprocess
+        def postprocess(variables, extras):
+            extras['ANOTHER_VAR'] = 4 * variables['INT_VAR']
+            extras['INITIALIZED_VAR'] = 'initialized'
+        
+        @context.initializer
+        def postprocess(variables):
+            import os
+            os.environ['REPEAT_INITIALIZED_VAR'] = variables['INITIALIZED_VAR']
+        
+        @context.filter
+        def title_filter(value, argument):
+            return '%s: %s' % (argument, value)
+        
+        context.templates({
+            "/etc/example/output.conf": "template.conf",
+        })
+        
+        context.glob_templates("/etc/example", "*.conf2")
+        
+        """)
 
     directory.join('template.conf').write(
-"""
-{{ STR_VAR }}
-{% for element in LIST_VAR %}
-x: {{ element }}
-{% endfor %}
-{{ STR_VAR|title_filter("label") }}
-another: {{ ANOTHER_VAR }}
-"""
-)
+        """
+        {{ STR_VAR }}
+        {% for element in LIST_VAR %}
+        x: {{ element }}
+        {% endfor %}
+        {{ STR_VAR|title_filter("label") }}
+        another: {{ ANOTHER_VAR }}
+        """
+    )
     directory.join('glob.conf2').write("example")
 
     return directory
@@ -799,48 +768,48 @@ another: {{ ANOTHER_VAR }}
 def simple_arguments_setup(tmpdir_factory):
     directory = tmpdir_factory.mktemp('simple')
     directory.join('service.py').write(
-"""
-from arguments import *
-
-class SimpleService(Service)
-
-    class Simple(Group):
-        LIST_VAR = []
-        STR_VAR = 'default-str'
-        INT_VAR = 2
-
-    def postprocess_data(variables, extras):
-        extras['ANOTHER_VAR'] = 4 * variables['INT_VAR']
-        extras['INITIALIZED_VAR'] = 'initialized'
-
-    def initialize_vars(variables):
-        import os
-        os.environ['REPEAT_INITIALIZED_VAR'] = variables['INITIALIZED_VAR']
-
-    @filter
-    def title_filter(value, argument):
-        return '%s: %s' % (argument, value)
-
-    templates = {
-        "/etc/example/output.conf": "template.conf",
-    }
-
-    glob_templates = (
-        ("/etc/example", "*.conf2"),
-    )
-
-""")
+        """
+        from arguments import *
+        
+        class SimpleService(Service)
+        
+            class Simple(Group):
+                LIST_VAR = []
+                STR_VAR = 'default-str'
+                INT_VAR = 2
+        
+            def postprocess_data(variables, extras):
+                extras['ANOTHER_VAR'] = 4 * variables['INT_VAR']
+                extras['INITIALIZED_VAR'] = 'initialized'
+        
+            def initialize_vars(variables):
+                import os
+                os.environ['REPEAT_INITIALIZED_VAR'] = variables['INITIALIZED_VAR']
+        
+            @filter
+            def title_filter(value, argument):
+                return '%s: %s' % (argument, value)
+        
+            templates = {
+                "/etc/example/output.conf": "template.conf",
+            }
+        
+            glob_templates = (
+                ("/etc/example", "*.conf2"),
+            )
+        
+        """)
 
     directory.join('template.conf').write(
-"""
-{{ STR_VAR }}
-{% for element in LIST_VAR %}
-x: {{ element }}
-{% endfor %}
-{{ STR_VAR|title_filter("label") }}
-another: {{ ANOTHER_VAR }}
-"""
-)
+        """
+        {{ STR_VAR }}
+        {% for element in LIST_VAR %}
+        x: {{ element }}
+        {% endfor %}
+        {{ STR_VAR|title_filter("label") }}
+        another: {{ ANOTHER_VAR }}
+        """
+    )
     directory.join('glob.conf2').write("example")
 
     return directory
@@ -904,15 +873,15 @@ def test_example_varnish_vcl(empty_environ):
     service = group_as_service(group)
 
     template = templates.load_template_from_string(
-"""
-{% for backend in APP_BACKENDS %}
-backend app_backend_{{ loop.index }} {
-    .host = "{{ backend.hostname }}";
-    .port = "{{ backend.port }}";
-}
-{% endfor %}
-"""
-)
+        """
+        {% for backend in APP_BACKENDS %}
+        backend app_backend_{{ loop.index }} {
+            .host = "{{ backend.hostname }}";
+            .port = "{{ backend.port }}";
+        }
+        {% endfor %}
+        """
+    )
     output = templates.process_template(template, service.get_context())
     assert "app_backend_1" in output
     assert "app_backend_2" in output
@@ -948,37 +917,27 @@ def disable_socket_connect(monkeypatch):
 
 def test_wait_for(empty_environ, disable_socket_connect):
 
-        class TestService(Service):
+    class TestService(Service):
 
-            class Main(Group):
+        class Main(Group):
 
-                OTHER_SERVICE = SearchUrl('elasticsearch://127.0.0.1:9210/some-index')
-                WAIT_FOR_OTHER_SERVICE = WaitForPort(hostname='OTHER_SERVICE', default=False, timeout=2)
+            OTHER_SERVICE = SearchUrl('elasticsearch://127.0.0.1:9210/some-index')
+            WAIT_FOR_OTHER_SERVICE = WaitForPort(hostname='OTHER_SERVICE', default=False, timeout=2)
 
-                CELERY = CeleryUrl('celery+rabbitmq://user:password@rabbithost:5672/vhost/queue_name?celery_task_default_exchange=myexchange')
-                WAIT_FOR_CELERY = WaitForPort(hostname='CELERY', default=False, timeout=2)
+    service = TestService()
+    service.explode(globals())
+    assert service.get_result('OTHER_SERVICE').intermediate_value is not None
+    assert service.get_result('OTHER_SERVICE').intermediate_value['urlparse']['hostname'] == '127.0.0.1'
 
+    assert WAIT_FOR_OTHER_SERVICE == False
+    assert OTHER_SERVICE['INDEX_NAME'] == 'some-index'
 
-        service = TestService()
-        service.explode(globals())
-        assert service.get_result('OTHER_SERVICE').intermediate_value is not None
-        assert service.get_result('OTHER_SERVICE').intermediate_value['urlparse']['hostname'] == '127.0.0.1'
+    os.environ['WAIT_FOR_OTHER_SERVICE'] = 'True'
 
-        assert service.get_result('CELERY').intermediate_value is not None
-        assert service.get_result('CELERY').intermediate_value['urlparse']['hostname'] == 'rabbithost'
+    waiting_service = TestService()
+    waiting_service.explode(globals())
 
-        assert WAIT_FOR_OTHER_SERVICE == False
-        assert OTHER_SERVICE['INDEX_NAME'] == 'some-index'
+    assert WAIT_FOR_OTHER_SERVICE == True
 
-        os.environ['WAIT_FOR_OTHER_SERVICE'] = 'True'
-        os.environ['WAIT_FOR_CELERY'] = 'True'
-
-        waiting_service = TestService()
-        waiting_service.explode(globals())
-
-        assert WAIT_FOR_OTHER_SERVICE == True
-        assert WAIT_FOR_CELERY == True
-
-
-        # assert MAIN_STR == 'str'
-        # assert MISC_INT == 1
+    # assert MAIN_STR == 'str'
+    # assert MISC_INT == 1

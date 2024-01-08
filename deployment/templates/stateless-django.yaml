@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: "{{ application }}-django"
+  labels:
+    application: "{{ application }}"
+    component: django
+spec:
+  progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      component: django
+      application: "{{ application }}"
+  template:
+    metadata:
+      labels:
+        component: django
+        application: "{{ application }}"
+        image_tag: "{{ stateless_services_image_tag }}"
+        parameters_digest: "{{ (django_configmap_digest + django_secret_digest + pgbouncer_configmap_digest + pgbouncer_secret_digest)|hash('sha1') }}"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    component: django
+                    application: "{{ application }}"
+                topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: "django"
+          image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/django:{{ stateless_services_image_tag }}"
+          imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          resources:
+            {{ django_resources | to_nice_yaml(indent=2) | trim | indent(12) }}
+          ports:
+            - name: "django-port"
+              containerPort: 9001
+              protocol: "TCP"
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-django"
+                optional: true
+            - secretRef:
+                name: "{{ application }}-django"
+                optional: true
+          env:
+            - name: ENABLE_SERVICES
+              value: uwsgi
+            # definitions DATABASE_HOST and DATABASE_PORT below
+            # override values typically passed from django configmap
+            # (those values are used by pgbouncer container)
+            - name: DATABASE_HOST
+              value: "localhost"
+            - name: DATABASE_PORT
+              value: "5433"
+          volumeMounts:
+            - name: "django-run"
+              mountPath: "/run"  # centos image that we are using, has symbolic link /var/run -> /run
+            - name: "django-tmp"
+              mountPath: "/tmp"
+          readinessProbe:
+            httpGet:
+              path: /_health/app/?readinessProbe&check=common.checks.django
+              httpHeaders:
+                - name: Host
+                  value: "{{ MAIN_DOMAIN }}"
+              port: "django-port"
+            initialDelaySeconds: "{{ readiness_probe_initial_delay }}"
+            timeoutSeconds: "{{ readiness_probe_timeout }}"
+            periodSeconds: "{{ readiness_probe_period }}"
+          livenessProbe:
+            httpGet:
+              path: /_health/app/?livenessProbe&check=common.checks.django
+              httpHeaders:
+                - name: Host
+                  value: "{{ MAIN_DOMAIN }}"
+              port: "django-port"
+            initialDelaySeconds: "{{ liveness_probe_initial_delay }}"
+            timeoutSeconds: "{{ liveness_probe_timeout }}"
+            periodSeconds: "{{ liveness_probe_period }}"
+        - name: "pgbouncer"
+          image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/pgbouncer:{{ image_tag }}"
+          imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          resources:
+            {{ pgbouncer_resources | to_nice_yaml(indent=2) | trim | indent(12) }}
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-pgbouncer"
+                optional: true
+            - secretRef:
+                name: "{{ application }}-pgbouncer"
+                optional: true
+          env:
+            - name: LISTEN_PORT
+              value: "5433"
+            - name: POOL_MODE
+              value: "transaction"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ application }}-django"
+                  key: DATABASE_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ application }}-django"
+                  key: DATABASE_PASS
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{ application }}-django"
+                  key: DATABASE_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{ application }}-django"
+                  key: DATABASE_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{ application }}-django"
+                  key: DATABASE_NAME
+          volumeMounts:
+            - name: "pgbouncer-var"
+              mountPath: "/var/lib/pgbouncer"
+      volumes:
+        - name: "django-run"
+          emptyDir:
+            medium: "Memory"
+        - name: "django-tmp"
+          emptyDir:
+            medium: "Memory"
+        - name: "pgbouncer-var"
+          emptyDir:
+            medium: "Memory"

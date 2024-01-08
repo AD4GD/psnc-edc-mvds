@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for s in /var/run/uwsgi/tracebacker.socket*
+do
+    echo "*** traceback for ${s} ***"
+    /srv/venv/bin/uwsgi --connect-and-read ${s}
+    echo "***"
+done

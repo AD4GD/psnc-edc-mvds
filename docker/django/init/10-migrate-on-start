@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+
+set -e
+if [ "$MIGRATE_DATABASE_ON_START" != "True" ]
+then
+    echo "skipping initial migrate (MIGRATE_DATABASE_ON_START='${MIGRATE_DATABASE_ON_START}')"
+	exit 0
+fi
+
+echo "migrating due to MIGRATE_DATABASE_ON_START='${MIGRATE_DATABASE_ON_START}'"
+export WAIT_FOR_DATABASE=True
+exec manage migrate

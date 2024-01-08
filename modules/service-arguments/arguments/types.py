@@ -13,7 +13,6 @@ from . import cache
 from . import search
 from . import url
 from . import email
-from . import celery
 from . import auth
 from . import network
 

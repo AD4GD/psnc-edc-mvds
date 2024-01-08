@@ -12,14 +12,29 @@ build-base: build-base-builder
 build-base: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/base-builder:$(BUILD_TIME_TAG)
 
 
+build-django-builder build-django build-varnish build-hitch: build-base
+build-django-builder build-django build-varnish build-hitch: BASE_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/base:$(BUILD_TIME_TAG)
+
+build-django: build-django-builder
+build-django: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/django-builder:$(BUILD_TIME_TAG)
+build-django: CONTEXT_PATH=../
+
+build-pgbouncer: build-pgbouncer-builder
+build-pgbouncer: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/pgbouncer-builder:$(BUILD_TIME_TAG)
+
+
 #build-base: BUILDER_IMAGE=centos:7 --platform arm64
 build-base: BUILDER_IMAGE=centos:7@sha256:73f11afcbb50d8bc70eab9f0850b3fa30e61a419bc48cf426e63527d14a8373b
+build-memcached: BUILDER_IMAGE=memcached:1.6.17
+
+# latest alpine does not work https://github.com/pgbouncer/pgbouncer/issues/371
+build-pgbouncer-builder: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
+build-pgbouncer: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
 
 build-postgres: BUILDER_IMAGE=postgres:9
-
-# To start services (eg. pipelines-celery-worker) pipelines must use build-base
 
 build-connector: BUILDER_IMAGE=openjdk:17-slim-buster
 build-connector: CONTEXT_PATH=../
 
-build-base build-postgres build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
+build-base build-postgres build-memcached build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
+build-pgbouncer-builder build-pgbouncer: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)

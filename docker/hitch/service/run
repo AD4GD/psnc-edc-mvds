@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/sbin/hitch --config=/var/run/hitch/hitch.cfg

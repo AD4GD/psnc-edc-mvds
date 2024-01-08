@@ -1,0 +1,6 @@
+#!/bin/sh
+# Command below mixes some standard format specifiers (like %b or %(Referer)i)
+# with several custom specifiers (like %{VCL_log:reason}x) that passed here using
+# std.log statement in the VCL
+# Furthermore, this command skips logging all health checks coming from the K8S probes.
+exec varnishncsa -a -F '%t client %{VCL_Log:client_ip}x "%r" %s "%{VCL_Log:reason}x" %{x-cache-handling}i %bb %Dus "%{Referer}i" "%{User-agent}i" %{X-Request-ID}i 0' -q 'ReqURL !~ "^/_health/cache" and ReqHeader:User-Agent !~ "^kube-probe"'

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec /srv/venv/bin/uwsgi --connect-and-read /var/run/uwsgi/stats.socket
