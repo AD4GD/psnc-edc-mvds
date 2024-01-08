@@ -169,9 +169,6 @@
                   - name: "pgbouncer-var"
                     emptyDir:
                       medium: "Memory"
-                  - name: "{{ application }}-shared-volume"
-                    persistentVolumeClaim:
-                      claimName: "{{ application }}-shared-volume"
 
     - name: "{{ horizontal_pod_autoscalers_task_heading }} hpa/{{ application }}-django"
       tags:
