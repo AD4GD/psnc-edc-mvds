@@ -120,12 +120,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.sessions",
     "django_extensions",
-    "django_filters",
     "watchman",
-    "drf_yasg",
     "corsheaders",
     "common",
-    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -157,11 +154,6 @@ TEMPLATES = [
         },
     },
 ]
-
-LOGIN_URL = "rest_framework:login"
-LOGOUT_URL = "rest_framework:logout"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
 
 WSGI_APPLICATION = "main.wsgi.application"
 
@@ -201,16 +193,6 @@ CACHES = {
     },
 }
 
-
-# REST API
-REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 50,
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-    ),
-}
 
 # swagger
 SWAGGER_SETTINGS = {
