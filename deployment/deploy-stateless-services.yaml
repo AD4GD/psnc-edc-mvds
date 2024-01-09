@@ -434,6 +434,7 @@
                       medium: "Memory"
 
     - name: "deploy service/{{ application }}-connector"
+      when: "deploy_connector"
       tags:
         - connector
         - service
@@ -449,24 +450,18 @@
           spec:
             ports:
               - name: "api"
-                containerPort: 29191
-                protocol: "TCP"
+                port: 29191
               - name: "management"
-                containerPort: 29193
-                protocol: "TCP"
+                port: 29193
               - name: "protocol"
-                containerPort: 29194
-                protocol: "TCP"
+                port: 29194
               - name: "public"
-                containerPort: 29291
-                protocol: "TCP"
+                port: 29291
               - name: "control"
-                containerPort: 29192
-                protocol: "TCP"
+                port: 29192
             selector:
               application: "{{ application }}"
               component: connector
-            type: ClusterIP
 
     - name: "deploy {{ application }} {{ expose_http_kind }}"
       when: "expose_http_kind != 'none'"
