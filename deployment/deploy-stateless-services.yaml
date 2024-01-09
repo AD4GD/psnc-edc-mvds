@@ -393,8 +393,6 @@
                   parameters_digest: "{{ (connector_configmap_digest + connector_secret_digest)|hash('sha1') }}"
               spec:
                 serviceAccountName: "run-any-uid"
-                readOnlyRootFilesystem: true
-                runAsNonRoot: false
                 ports:
                   - name: "api"
                     containerPort: 29191
@@ -416,7 +414,7 @@
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
-                      readOnlyRootFilesystem: true
+                      readOnlyRootFilesystem: false
                       runAsNonRoot: false
 #                      runAsUser: 1000
                     resources: "{{ connector_resources }}"
