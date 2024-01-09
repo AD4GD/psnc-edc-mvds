@@ -463,15 +463,15 @@
               application: "{{ application }}"
               component: connector
 
-    - name: "deploy {{ application }} {{ expose_http_kind }}"
-      when: "expose_http_kind != 'none'"
-      tags:
-        - routes
-      vars:
-        expose_http_ip_whitelist: "0.0.0.0/0"
-        expose_http_paths:
-          - path: "/api/"
-            serviceName: "{{ application }}-varnish"
-            servicePort: varnish
-      k8s:
-        definition: "{{ lookup('template', 'expose-http-definitions.yaml', convert_data=True)|from_yaml }}"
+#    - name: "deploy {{ application }} {{ expose_http_kind }}"
+#      when: "expose_http_kind != 'none'"
+#      tags:
+#        - routes
+#      vars:
+#        expose_http_ip_whitelist: "0.0.0.0/0"
+#        expose_http_paths:
+#          - path: "/api/"
+#            serviceName: "{{ application }}-varnish"
+#            servicePort: varnish
+#      k8s:
+#        definition: "{{ lookup('template', 'expose-http-definitions.yaml', convert_data=True)|from_yaml }}"
