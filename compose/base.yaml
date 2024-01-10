@@ -97,7 +97,7 @@ services:
     restart: unless-stopped
     read_only: false
     environment:
-      JVM_ARGS=-Dedc.keystore=/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.vault=/connector/vault.properties -Dedc.fs.config=/connector/configuration.properties
+      JVM_ARGS: -Dedc.keystore=/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.vault=/connector/vault.properties -Dedc.fs.config=/connector/configuration.properties
       EDC_FS_CONFIG: /app/config/configuration-consumer.properties
       EDC_API_AUTH_KEY: "fifi-info-zaneta"
 
