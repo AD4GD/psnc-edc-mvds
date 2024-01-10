@@ -9,21 +9,17 @@ RUN apt update \
 
 WORKDIR /app
 
-COPY ./docker/connector/build/libs/connector.jar /app
-RUN mkdir /connector
-COPY ./docker/connector/* /connector/
+COPY ./docker/connector/build/libs/connector.jar /app/app.jar
+RUN touch /app/empty-vault.properties
+RUN mkdir /config
 RUN mkdir /certs
-COPY ./docker/connector/certs/* /certs/
-
-EXPOSE 29191
-EXPOSE 29193
-EXPOSE 29194
-EXPOSE 29291
-EXPOSE 29192
+COPY ./docker/connector/config/* /app/config/
+COPY ./docker/connector/certs/* /app/certs/
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 
 # Use "exec" for graceful termination (SIGINT) to reach JVM.
 # ARG can not be used in ENTRYPOINT so storing values in ENV variables
 ENV JVM_ARGS=$JVM_ARGS
-ENTRYPOINT java $JVM_ARGS -jar connector.jar
+ENTRYPOINT [ "sh", "-c", \
+    "exec java $JVM_ARGS -jar app.jar"]

@@ -1,0 +1,17 @@
+{
+    "@context": {
+        "edc": "https://w3id.org/edc/v0.0.1/ns"
+    },
+    "@id": "testAsset-002",
+    "properties": {
+        "name": "AverageChloroColor_64",
+        "contenttype": "application/xml",
+        "CoverageSubtype": "ReferenceableGridCoverage"
+    },
+    "dataAddress": {
+        "type": "HttpData",
+        "name": "AverageChloroColor_64",
+        "baseUrl": "https://ows.rasdaman.org/rasdaman/ows?&SERVICE=WCS&VERSION=2.0.1&REQUEST=DescribeCoverage&COVERAGEID=AverageChloroColor",
+        "proxyPath": "true"
+    }
+}
