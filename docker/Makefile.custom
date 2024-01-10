@@ -29,7 +29,7 @@ build-memcached: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=memcached:1.5.3-alpine
 build-pgbouncer-builder: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
 build-pgbouncer: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
 
-build-postgres: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=postgres:9
+build-postgres: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=postgres:11
 
 build-connector: BUILDER_IMAGE=openjdk:17-slim-buster
 build-connector: CONTEXT_PATH=../
