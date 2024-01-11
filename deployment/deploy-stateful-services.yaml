@@ -130,8 +130,31 @@
               component: "postgres"
           spec:
             ports:
-            - port: 5432
+            - port: 5430
               name: "postgres"
+            selector:
+              application: "{{ application }}"
+              component: "postgres"
+
+    - name: "deploy service/{{ application }}-postgresql-consumer"
+      when: "deploy_postgres"
+      tags:
+        - postgres
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-postgres-consumer"
+            labels:
+              app: "postgresql-consumer"
+              application: "{{ application }}"
+              component: "postgres"
+          spec:
+            ports:
+            - port: 5432
+              name: "postgresql-consumer"
             selector:
               application: "{{ application }}"
               component: "postgres"
