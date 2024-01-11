@@ -178,6 +178,8 @@ postgres_secret__05_defaults:
 
 connector_configmap__05_defaults:
   JVM_ARGS: ""
+  EDC_FS_CONFIG: /app/config/configuration-consumer.properties
+  EDC_API_AUTH_KEY: "fifi-info-zaneta"
 
 random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
 
