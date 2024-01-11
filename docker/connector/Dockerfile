@@ -11,8 +11,8 @@ WORKDIR /app
 
 COPY ./docker/connector/build/libs/connector.jar /app/app.jar
 RUN touch /app/empty-vault.properties
-RUN mkdir /config
-RUN mkdir /certs
+RUN mkdir /app/config
+RUN mkdir /app/certs
 COPY ./docker/connector/config/* /app/config/
 COPY ./docker/connector/certs/* /app/certs/
 
