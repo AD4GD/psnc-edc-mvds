@@ -77,7 +77,6 @@ connector_resources:
 deploy_stateful_services: true
 
 deploy_postgres: "{{ deploy_stateful_services }}"
-deploy_postgresql_consumer: "{{ deploy_stateful_services }}"
 deploy_memcached: "{{ deploy_stateful_services }}"
 deploy_connector: "{{ deploy_stateful_services }}"
 
@@ -211,7 +210,7 @@ random_postgres_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_le
 # DO NOT CHANGE DEFINITIONS BELOW
 #
 
-deployed_parameters_packs: "{{ ['django', 'varnish', 'pgbouncer'] + (['postgres', 'postgresql_consumer'] if deploy_postgres else []) + (['memcached'] if deploy_memcached else []) + (['connector'] if deploy_connector else []) }}"
+deployed_parameters_packs: "{{ ['django', 'varnish', 'pgbouncer'] + (['postgres'] if deploy_postgres else []) + (['memcached'] if deploy_memcached else []) + (['connector'] if deploy_connector else []) }}"
 
 # definitions below are helper definitions - do not change this
 
