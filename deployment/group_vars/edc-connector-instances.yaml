@@ -16,7 +16,6 @@ base_image_registry_domain: "{{ registry_domain }}"
 base_image_registry_project: "base"
 postgres_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
 connector_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
-postgres_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
 
 readiness_probe_initial_delay: 3
 readiness_probe_period: 15
