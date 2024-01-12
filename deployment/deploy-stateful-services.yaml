@@ -73,8 +73,8 @@
                     imagePullPolicy: Always
                     securityContext:
                       readOnlyRootFilesystem: true
-                      runAsNonRoot: true
-                      runAsUser: 999  # postgres user
+                      runAsNonRoot: false
+                      runAsUser: 0  # postgres user
                     ports:
                       - name: "postgres-port"
                         containerPort: 5432
