@@ -167,9 +167,7 @@ postgres_configmap__05_defaults:
 
 postgres_secret__05_defaults:
   POSTGRES_USER: edc
-    when_missing: "{{ random_postgres_user }}"
   POSTGRES_PASSWORD: edc
-    when_missing: "{{ random_postgres_pass }}"
 
 connector_configmap__05_defaults:
   JVM_ARGS: ""
