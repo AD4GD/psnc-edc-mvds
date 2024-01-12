@@ -83,9 +83,9 @@ services:
     read_only: true
     user: "999"  # postgres user
     environment:
-      - POSTGRES_PASSWORD=psql-password
-      - POSTGRES_USER=psql-user
-      - POSTGRES_DB=main-db
+      - POSTGRES_PASSWORD=edc
+      - POSTGRES_USER=edc
+      - POSTGRES_DB=edc
     expose:
       - "5432"
     tmpfs:
