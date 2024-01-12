@@ -199,7 +199,7 @@ connector_configmap__05_defaults:
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_KEYSTORE_PASSWORD: "123456"
-  EDC_VAULT: "/app/config/fs-consumer.vault
+  EDC_VAULT: "/app/config/fs-consumer.vault"
 
 
 random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
