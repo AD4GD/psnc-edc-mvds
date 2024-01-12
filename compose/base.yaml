@@ -81,7 +81,7 @@ services:
     restart: unless-stopped
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/postgres:${IMAGE_TAG}
     read_only: true
-    user: "0"  # postgres user
+    user: "999"  # postgres user
     environment:
       - POSTGRES_PASSWORD=edc
       - POSTGRES_USER=edc
