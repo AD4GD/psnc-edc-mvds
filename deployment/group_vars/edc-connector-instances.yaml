@@ -169,7 +169,7 @@ postgres_secret__05_defaults:
   POSTGRES_USER:
     when_missing: "{{ random_postgres_user }}"
   POSTGRES_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
+    when_missing: "{{ random_postgres_user }}"
 
 connector_configmap__05_defaults:
   JVM_ARGS: ""
@@ -195,20 +195,34 @@ connector_configmap__05_defaults:
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_KEYSTORE_PASSWORD: "123456"
   EDC_VAULT: "/app/config/fs-consumer.vault"
-  EDC.DATASOURCE.DEFAULT.USER: edc
-  EDC.DATASOURCE.DEFAULT.PASSWORD: edc
-  EDC.DATASOURCE.ASSET.USER: edc
-  EDC.DATASOURCE.ASSET.PASSWORD: edc
-  EDC.DATASOURCE.CONTRACTDEFINITION.USER: edc
-  EDC.DATASOURCE.CONTRACTDEFINITION.PASSWORD: edc
-  EDC.DATASOURCE.CONTRACTNEGOTIATION.USER: edc
-  EDC.DATASOURCE.CONTRACTNEGOTIATION.PASSWORD: edc
-  EDC.DATASOURCE.POLICY.USER: edc
-  EDC.DATASOURCE.POLICY.PASSWORD: edc
-  EDC.DATASOURCE.TRANSFERPROCESS.USER: edc
-  EDC.DATASOURCE.TRANSFERPROCESS.PASSWORD: edc
-  EDC.DATASOURCE.DATAPLANEINSTANCE.USER: edc
-  EDC.DATASOURCE.DATAPLANEINSTANCE.PASSWORD: edc
+  EDC.DATASOURCE.DEFAULT.USER:
+    when_missing: "{{ random_postgres_user }}"
+  EDC.DATASOURCE.DEFAULT.PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
+  EDC.DATASOURCE.ASSET.USER:
+    when_missing: "{{ random_postgres_user }}"
+  EDC.DATASOURCE.ASSET.PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
+  EDC.DATASOURCE.CONTRACTDEFINITION.USER:
+    when_missing: "{{ random_postgres_user }}"
+  EDC.DATASOURCE.CONTRACTDEFINITION.PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
+  EDC.DATASOURCE.CONTRACTNEGOTIATION.USER:
+    when_missing: "{{ random_postgres_user }}"
+  EDC.DATASOURCE.CONTRACTNEGOTIATION.PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
+  EDC.DATASOURCE.POLICY.USER:
+    when_missing: "{{ random_postgres_user }}"
+  EDC.DATASOURCE.POLICY.PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
+  EDC.DATASOURCE.TRANSFERPROCESS.USER:
+    when_missing: "{{ random_postgres_user }}"
+  EDC.DATASOURCE.TRANSFERPROCESS.PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
+  EDC.DATASOURCE.DATAPLANEINSTANCE.USER:
+    when_missing: "{{ random_postgres_user }}"
+  EDC.DATASOURCE.DATAPLANEINSTANCE.PASSWORD:
+    when_missing: "{{ random_postgres_pass }}"
 
 random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
 
