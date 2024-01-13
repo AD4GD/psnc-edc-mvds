@@ -223,8 +223,8 @@ connector_configmap__05_defaults:
     when_missing: "{{ random_postgres_user }}"
   EDC_DATASOURCE_DATAPLANEINSTANCE_PASSWORD:
     when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_DEFAULT_URL: "jdbc:postgresql://edc-connector-postgres_edc-connector_svc:5432/edc"
-  EDC_DATASOURCE_ASSET_URL: "jdbc:postgresql://edc-connector-postgres_edc-connector_svc:5432/edc"
+  EDC_DATASOURCE_DEFAULT_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc"
+  EDC_DATASOURCE_ASSET_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc"
 
 random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
 
