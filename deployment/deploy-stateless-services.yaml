@@ -423,8 +423,79 @@
                           name: "{{ application }}-connector"
                           optional: true
                       - secretRef:
-                          name: "{{ application }}-django"
+                          name: "{{ application }}-postgres"
                           optional: true
+                    env:
+                      - name: EDC_DATASOURCE_DEFAULT_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_USER
+                      - name: EDC_DATASOURCE_DEFAULT_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_PASS
+                      - name: EDC_DATASOURCE_ASSET_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_USER
+                      - name: EDC_DATASOURCE_ASSET_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_PASS
+                      - name: EDC_DATASOURCE_CONTRACTDEFINITION_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_USER
+                      - name: EDC_DATASOURCE_CONTRACTDEFINITION_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_PASS
+                      - name: EDC_DATASOURCE_CONTRACTNEGOTIATION_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_USER
+                      - name: EDC_DATASOURCE_CONTRACTNEGOTIATION_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_PASS
+                      - name: EDC_DATASOURCE_POLICY_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_USER
+                      - name: EDC_DATASOURCE_POLICY_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_PASS
+                      - name: EDC_DATASOURCE_TRANSFERPROCESS_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_USER
+                      - name: EDC_DATASOURCE_TRANSFERPROCESS_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_PASS
+                      - name: EDC_DATASOURCE_DATAPLANEINSTANCE_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_USER
+                      - name: EDC_DATASOURCE_DATAPLANEINSTANCE_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-postgres"
+                            key: POSTGRES_PASS
                     volumeMounts:
                       - name: "connector-tmp"
                         mountPath: "/tmp"
