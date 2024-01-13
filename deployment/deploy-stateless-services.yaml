@@ -435,7 +435,7 @@
                         valueFrom:
                           secretKeyRef:
                             name: "{{ application }}-postgres"
-                            key: POSTGRES_PASS
+                            key: POSTGRES_PASSWORD
                       - name: EDC_DATASOURCE_ASSET_USER
                         valueFrom:
                           secretKeyRef:
@@ -445,7 +445,7 @@
                         valueFrom:
                           secretKeyRef:
                             name: "{{ application }}-postgres"
-                            key: POSTGRES_PASS
+                            key: POSTGRES_PASSWORD
                       - name: EDC_DATASOURCE_CONTRACTDEFINITION_USER
                         valueFrom:
                           secretKeyRef:
@@ -455,7 +455,7 @@
                         valueFrom:
                           secretKeyRef:
                             name: "{{ application }}-postgres"
-                            key: POSTGRES_PASS
+                            key: POSTGRES_PASSWORD
                       - name: EDC_DATASOURCE_CONTRACTNEGOTIATION_USER
                         valueFrom:
                           secretKeyRef:
@@ -465,7 +465,7 @@
                         valueFrom:
                           secretKeyRef:
                             name: "{{ application }}-postgres"
-                            key: POSTGRES_PASS
+                            key: POSTGRES_PASSWORD
                       - name: EDC_DATASOURCE_POLICY_USER
                         valueFrom:
                           secretKeyRef:
@@ -475,7 +475,7 @@
                         valueFrom:
                           secretKeyRef:
                             name: "{{ application }}-postgres"
-                            key: POSTGRES_PASS
+                            key: POSTGRES_PASSWORD
                       - name: EDC_DATASOURCE_TRANSFERPROCESS_USER
                         valueFrom:
                           secretKeyRef:
@@ -485,7 +485,7 @@
                         valueFrom:
                           secretKeyRef:
                             name: "{{ application }}-postgres"
-                            key: POSTGRES_PASS
+                            key: POSTGRES_PASSWORD
                       - name: EDC_DATASOURCE_DATAPLANEINSTANCE_USER
                         valueFrom:
                           secretKeyRef:
@@ -495,7 +495,7 @@
                         valueFrom:
                           secretKeyRef:
                             name: "{{ application }}-postgres"
-                            key: POSTGRES_PASS
+                            key: POSTGRES_PASSWORD
                     volumeMounts:
                       - name: "connector-tmp"
                         mountPath: "/tmp"
