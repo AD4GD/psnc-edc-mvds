@@ -196,12 +196,11 @@ connector_configmap__05_defaults:
   EDC_KEYSTORE_PASSWORD: "123456"
   EDC_VAULT: "/app/config/fs-consumer.vault"
 
-connector_secret__05_defaults:
-  POSTGRES_USER:
-    when_missing: "{{ random_postgres_user }}"
-  POSTGRES_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
+  POSTGRES_USER: "postgres_user"
+  POSTGRES_PASSWORD: "postgres_password"
   POSTGRES_DATASOURCE_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
+
+connector_secret__05_defaults:
   EDC_DATASOURCE_DEFAULT_USER: "{{ POSTGRES_USER }}"
   EDC_DATASOURCE_DEFAULT_PASSWORD: "{{ POSTGRES_PASSWORD }}"
   EDC_DATASOURCE_ASSET_USER: "{{ POSTGRES_USER }}"
