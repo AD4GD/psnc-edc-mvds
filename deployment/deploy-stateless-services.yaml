@@ -193,7 +193,7 @@
           metadata:
             name: "{{ application }}-django"
           spec:
-            replicas: 0
+            replicas: "{{ initial_replicas }}"
 
     - name: "deploy service/{{ application }}-django"
       tags:
