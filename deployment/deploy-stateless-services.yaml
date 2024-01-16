@@ -193,7 +193,7 @@
           metadata:
             name: "{{ application }}-django"
           spec:
-            replicas: "{{ initial_replicas }}"
+            replicas: 0
 
     - name: "deploy service/{{ application }}-django"
       tags:
@@ -336,7 +336,7 @@
           metadata:
             name: "{{ application }}-varnish"
           spec:
-            replicas: "{{ initial_replicas }}"
+            replicas: 0
 
     - name: "deploy service/{{ application }}-varnish"
       tags:

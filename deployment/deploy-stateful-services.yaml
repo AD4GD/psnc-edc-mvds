@@ -42,6 +42,7 @@
               component: "postgres"
               application: "{{ application }}"
           spec:
+            replicas: 0
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
             strategy:
               type: RollingUpdate
