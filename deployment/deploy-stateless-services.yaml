@@ -336,7 +336,7 @@
           metadata:
             name: "{{ application }}-varnish"
           spec:
-            replicas: 0
+            replicas: "{{ initial_replicas }}"
 
     - name: "deploy service/{{ application }}-varnish"
       tags:
@@ -377,7 +377,7 @@
               application: "{{ application }}"
           spec:
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
-            replicas: 1
+            replicas: "{{ initial_replicas }}"
             strategy:
               type: RollingUpdate
             selector:

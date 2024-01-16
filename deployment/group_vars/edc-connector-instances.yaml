@@ -28,13 +28,13 @@ liveness_probe_timeout: 60
 with_stateless_services_horizontal_pod_autoscalers: true
 
 django_autoscaler:
-  min_replicas: 2
-  max_replicas: 4
+  min_replicas: 1
+  max_replicas: 2
   target_cpu_utilization_percentage: 90
 
 varnish_autoscaler:
-  min_replicas: 2
-  max_replicas: 4
+  min_replicas: 1
+  max_replicas: 2
   target_cpu_utilization_percentage: 90
 
 django_resources:
