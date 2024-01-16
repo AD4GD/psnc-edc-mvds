@@ -377,7 +377,7 @@
               application: "{{ application }}"
           spec:
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
-            replicas: 1
+            replicas: "{{ initial_replicas }}"
             strategy:
               type: RollingUpdate
             selector:
@@ -423,79 +423,8 @@
                           name: "{{ application }}-connector"
                           optional: true
                       - secretRef:
-                          name: "{{ application }}-postgres"
+                          name: "{{ application }}-connector"
                           optional: true
-                    env:
-                      - name: EDC_DATASOURCE_DEFAULT_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_USER
-                      - name: EDC_DATASOURCE_DEFAULT_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_PASSWORD
-                      - name: EDC_DATASOURCE_ASSET_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_USER
-                      - name: EDC_DATASOURCE_ASSET_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_PASSWORD
-                      - name: EDC_DATASOURCE_CONTRACTDEFINITION_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_USER
-                      - name: EDC_DATASOURCE_CONTRACTDEFINITION_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_PASSWORD
-                      - name: EDC_DATASOURCE_CONTRACTNEGOTIATION_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_USER
-                      - name: EDC_DATASOURCE_CONTRACTNEGOTIATION_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_PASSWORD
-                      - name: EDC_DATASOURCE_POLICY_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_USER
-                      - name: EDC_DATASOURCE_POLICY_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_PASSWORD
-                      - name: EDC_DATASOURCE_TRANSFERPROCESS_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_USER
-                      - name: EDC_DATASOURCE_TRANSFERPROCESS_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_PASSWORD
-                      - name: EDC_DATASOURCE_DATAPLANEINSTANCE_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_USER
-                      - name: EDC_DATASOURCE_DATAPLANEINSTANCE_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-postgres"
-                            key: POSTGRES_PASSWORD
                     volumeMounts:
                       - name: "connector-tmp"
                         mountPath: "/tmp"

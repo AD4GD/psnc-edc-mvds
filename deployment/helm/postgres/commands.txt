@@ -1,0 +1,3 @@
+helm upgrade -i edc-connector-helm-postgres-one oci://registry.paas.psnc.pl/helm/postgresql-simple --set fullnameOverride=edc-connector-helm-postgres-one --set auth.username=5slalpf34k19 --set auth.database=edc_connector_db --set primary.persistence.size=2Gi
+
+helm upgrade -i edc-connector-helm-postgres-two oci://registry.paas.psnc.pl/helm/postgresql-simple --set fullnameOverride=edc-connector-helm-postgres-two --set auth.username=5slalpf34k19 --set auth.database=edc_connector_db --set primary.persistence.size=2Gi
