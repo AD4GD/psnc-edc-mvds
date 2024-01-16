@@ -175,6 +175,8 @@ connector_configmap__05_defaults:
   # POSTGRES_USER and POSTGRES_PASSWORD must be defined in inventory.yaml.
   # Postgres POD is created via helm. Secrets must be taken from openshift console and put to inventory.yaml.
   POSTGRES_USER: "{{ POSTGRES_USER }}"
+  POSTGRES_DATASOURCE_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  # "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
   POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
   JVM_ARGS: ""
   SERVICE_HOST: "http://127.0.0.1"
@@ -213,13 +215,13 @@ connector_configmap__05_defaults:
   EDC_DATASOURCE_TRANSFERPROCESS_PASSWORD: "{{ POSTGRES_PASSWORD }}"
   EDC_DATASOURCE_DATAPLANEINSTANCE_USER: "{{ POSTGRES_USER }}"
   EDC_DATASOURCE_DATAPLANEINSTANCE_PASSWORD: "{{ POSTGRES_PASSWORD }}"
-  EDC_DATASOURCE_DEFAULT_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_ASSET_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_CONTRACTDEFINITION_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_POLICY_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_CONTRACTNEGOTIATION_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_TRANSFERPROCESS_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_DATAPLANEINSTANCE_URL: "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
+  EDC_DATASOURCE_DEFAULT_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  EDC_DATASOURCE_ASSET_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  EDC_DATASOURCE_CONTRACTDEFINITION_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  EDC_DATASOURCE_POLICY_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  EDC_DATASOURCE_CONTRACTNEGOTIATION_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  EDC_DATASOURCE_TRANSFERPROCESS_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  EDC_DATASOURCE_DATAPLANEINSTANCE_URL: "{{ POSTGRES_DATASOURCE_URL }}"
 
 random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
 
