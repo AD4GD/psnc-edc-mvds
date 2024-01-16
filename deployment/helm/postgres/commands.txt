@@ -1,0 +1,1 @@
+helm upgrade -i edc-connector-helm-postgres oci://registry.paas.psnc.pl/helm/postgresql-simple --set fullnameOverride=edc-connector-helm-postgres --set auth.username=5slalpf34k19 --set auth.database=edc_connector_db
