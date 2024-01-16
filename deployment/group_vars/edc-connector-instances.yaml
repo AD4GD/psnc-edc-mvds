@@ -28,13 +28,13 @@ liveness_probe_timeout: 60
 with_stateless_services_horizontal_pod_autoscalers: true
 
 django_autoscaler:
-  min_replicas: 2
-  max_replicas: 4
+  min_replicas: 1
+  max_replicas: 2
   target_cpu_utilization_percentage: 90
 
 varnish_autoscaler:
-  min_replicas: 2
-  max_replicas: 4
+  min_replicas: 1
+  max_replicas: 2
   target_cpu_utilization_percentage: 90
 
 django_resources:
@@ -169,7 +169,7 @@ postgres_secret__05_defaults:
   POSTGRES_USER:
     when_missing: "{{ random_postgres_user }}"
   POSTGRES_PASSWORD:
-    when_missing: "{{ random_postgres_user }}"
+    when_missing: "{{ random_postgres_pass }}"
 
 connector_configmap__05_defaults:
   JVM_ARGS: ""
@@ -193,43 +193,7 @@ connector_configmap__05_defaults:
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "1"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
-  EDC_KEYSTORE_PASSWORD: "123456"
   EDC_VAULT: "/app/config/fs-consumer.vault"
-  EDC_DATASOURCE_DEFAULT_USER:
-    when_missing: "{{ random_postgres_user }}"
-  EDC_DATASOURCE_DEFAULT_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_ASSET_USER:
-    when_missing: "{{ random_postgres_user }}"
-  EDC_DATASOURCE_ASSET_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_CONTRACTDEFINITION_USER:
-    when_missing: "{{ random_postgres_user }}"
-  EDC_DATASOURCE_CONTRACTDEFINITION_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_CONTRACTNEGOTIATION_USER:
-    when_missing: "{{ random_postgres_user }}"
-  EDC_DATASOURCE_CONTRACTNEGOTIATION_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_POLICY_USER:
-    when_missing: "{{ random_postgres_user }}"
-  EDC_DATASOURCE_POLICY_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_TRANSFERPROCESS_USER:
-    when_missing: "{{ random_postgres_user }}"
-  EDC_DATASOURCE_TRANSFERPROCESS_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_DATAPLANEINSTANCE_USER:
-    when_missing: "{{ random_postgres_user }}"
-  EDC_DATASOURCE_DATAPLANEINSTANCE_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-  EDC_DATASOURCE_DEFAULT_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_ASSET_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_CONTRACTDEFINITION_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_POLICY_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_CONTRACTNEGOTIATION_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_TRANSFERPROCESS_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc_connector_db"
-  EDC_DATASOURCE_DATAPLANEINSTANCE_URL: "jdbc:postgresql://edc-connector-postgres.edc-connector.svc:5432/edc_connector_db"
 
 random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
 
