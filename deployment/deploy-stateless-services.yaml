@@ -422,9 +422,9 @@
                       - configMapRef:
                           name: "{{ application }}-connector"
                           optional: true
-#                      - secretRef:
-#                          name: "{{ application }}-postgres"
-#                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-connector"
+                          optional: true
 #                    env:
 #                      - name: EDC_DATASOURCE_DEFAULT_USER
 #                        valueFrom:

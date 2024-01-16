@@ -172,12 +172,6 @@ postgres_secret__05_defaults:
     when_missing: "{{ random_postgres_user }}"
 
 connector_configmap__05_defaults:
-  # POSTGRES_USER and POSTGRES_PASSWORD must be defined in inventory.yaml.
-  # Postgres POD is created via helm. Secrets must be taken from openshift console and put to inventory.yaml.
-  POSTGRES_USER: "{{ POSTGRES_USER }}"
-  POSTGRES_DATASOURCE_URL: "{{ POSTGRES_DATASOURCE_URL }}"
-  # "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
-  POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
   JVM_ARGS: ""
   SERVICE_HOST: "http://127.0.0.1"
   EDC_IDS_ID: "urn:connector:pnsc"
@@ -201,6 +195,14 @@ connector_configmap__05_defaults:
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_KEYSTORE_PASSWORD: "123456"
   EDC_VAULT: "/app/config/fs-consumer.vault"
+
+connector_secret__05_defaults:
+  # POSTGRES_USER and POSTGRES_PASSWORD must be defined in inventory.yaml.
+  # Postgres POD is created via helm. Secrets must be taken from openshift console and put to inventory.yaml.
+  POSTGRES_USER: "{{ POSTGRES_USER }}"
+  POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
+  POSTGRES_DATASOURCE_URL: "{{ POSTGRES_DATASOURCE_URL }}"
+  # "jdbc:postgresql://edc-connector-helm-postgres-one.edc-connector.svc:5432/edc_connector_db"
   EDC_DATASOURCE_DEFAULT_USER: "{{ POSTGRES_USER }}"
   EDC_DATASOURCE_DEFAULT_PASSWORD: "{{ POSTGRES_PASSWORD }}"
   EDC_DATASOURCE_ASSET_USER: "{{ POSTGRES_USER }}"
