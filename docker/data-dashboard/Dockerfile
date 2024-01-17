@@ -1,5 +1,7 @@
 # Stage 1: Compile and Build angular codebase
 # FROM node:lts as build
+ARG BUILDER_IMAGE
+ARG BASE_IMAGE
 FROM ${BUILDER_IMAGE} as build
 
 WORKDIR /app
