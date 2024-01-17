@@ -22,3 +22,4 @@ HEALTHCHECK --interval=2s --timeout=5s --retries=10 \
 
 # Experiment
 USER 0
+RUN chmod 777 /var/cache/nginx
