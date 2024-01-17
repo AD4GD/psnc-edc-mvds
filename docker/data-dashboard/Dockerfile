@@ -5,7 +5,7 @@ ARG BASE_IMAGE
 FROM ${BUILDER_IMAGE} as build
 
 WORKDIR /app
-COPY src/data-dashboard/* /app/
+COPY src/data-dashboard /app
 RUN npm install
 RUN npm run build
 
