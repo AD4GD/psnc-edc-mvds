@@ -19,3 +19,6 @@ EXPOSE 80
 
 HEALTHCHECK --interval=2s --timeout=5s --retries=10 \
   CMD curl -f http://localhost/ || exit 1
+
+# Experiment
+USER 0
