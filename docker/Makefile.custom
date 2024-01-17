@@ -11,30 +11,14 @@ build-base: CONTEXT_PATH=../
 build-base: build-base-builder
 build-base: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/base-builder:$(BUILD_TIME_TAG)
 
-build-django-builder build-django build-varnish build-hitch: build-base
-build-django-builder build-django build-varnish build-hitch: BASE_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/base:$(BUILD_TIME_TAG)
-
-build-django: build-django-builder
-build-django: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/django-builder:$(BUILD_TIME_TAG)
-build-django: CONTEXT_PATH=../
-
-build-pgbouncer: build-pgbouncer-builder
-build-pgbouncer: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/pgbouncer-builder:$(BUILD_TIME_TAG)
-
-
 build-base: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=centos:7
-build-memcached: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=memcached:1.5.3-alpine
-
-# latest alpine does not work https://github.com/pgbouncer/pgbouncer/issues/371
-build-pgbouncer-builder: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
-build-pgbouncer: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=alpine:3.8
 
 build-postgres: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=postgres:11
 
 build-connector: BUILDER_IMAGE=openjdk:17-slim-buster
 build-connector: CONTEXT_PATH=../
 
-build-base build-memcached build-pgbouncer-builder build-pgbouncer build-postgres: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
+build-base build-postgres: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
 build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
 
 build-data-dashboard: BUILDER_IMAGE=node:lts

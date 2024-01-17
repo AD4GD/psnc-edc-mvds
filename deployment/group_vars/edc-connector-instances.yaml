@@ -27,40 +27,6 @@ liveness_probe_timeout: 60
 
 with_stateless_services_horizontal_pod_autoscalers: true
 
-django_autoscaler:
-  min_replicas: 1
-  max_replicas: 2
-  target_cpu_utilization_percentage: 90
-
-varnish_autoscaler:
-  min_replicas: 1
-  max_replicas: 2
-  target_cpu_utilization_percentage: 90
-
-django_resources:
-  requests:
-    cpu: "200m"
-    memory: "256Mi"
-  limits:
-    cpu: "1000m"
-    memory: "512Mi"
-
-varnish_resources:
-  requests:
-    cpu: "100m"
-    memory: "256Mi"
-  limits:
-    cpu: "1000m"
-    memory: "512Mi"
-
-pgbouncer_resources:
-  requests:
-    cpu: "50m"
-    memory: "50M"
-  limits:
-    cpu: "200m"
-    memory: "200M"
-
 connector_resources:
   requests:
     cpu: "100m"
@@ -72,7 +38,6 @@ connector_resources:
 deploy_stateful_services: true
 
 deploy_postgres: "{{ deploy_stateful_services }}"
-deploy_memcached: "{{ deploy_stateful_services }}"
 deploy_connector: "{{ deploy_stateful_services }}"
 
 postgres_pvc_storage_size: "1Gi"
@@ -89,10 +54,7 @@ create_non_root_database: true
 image_pull_secret: "regcred"
 create_run_any_uid_service_account: true
 
-
 MAIN_DOMAIN: "{{ inventory_hostname|regex_replace('-edc-connector-instance$', '') }}"
-SECONDARY_DOMAIN: "{{ application }}-varnish:9002"
-
 
 expose_http_kind: "routes"
 expose_http_host: "{{ MAIN_DOMAIN }}"
@@ -129,41 +91,16 @@ ingress_scheme: "{{ 'https' if expose_http_tls_mode != 'disabled' else 'http' }}
 environment_ingress_address: "{{ ENVIRONMENT_INGRESS_ADDRESS|default('') }}"
 ingress_address: "{{ environment_ingress_address if use_environment_ingress_address else MAIN_DOMAIN }}"
 
-django_configmap__05_defaults:
-  MAIN_DOMAIN: "{{ MAIN_DOMAIN }}"
-  SECONDARY_DOMAIN: "{{ SECONDARY_DOMAIN }}"
+SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
 
-  DATABASE_NAME: "{{ application|replace('-', '_') }}_db"
-  DATABASE_HOST: "{{ application }}-postgres"
-  DATABASE_PORT: "5432"
-
-  MEMCACHED_HOST: "{{ application }}-memcached"
-  MEMCACHED_PORT: "11211"
-
-django_secret__05_defaults:
-  SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
-
-  SECRET_KEY:
+SECRET_KEY:
     when_missing: "{{ random_django_secret_key }}"
-
-  DATABASE_USER:
-    when_missing: "{{ random_postgres_user }}"
-  DATABASE_PASS:
-    when_missing: "{{ random_postgres_pass }}"
-
-varnish_configmap__05_defaults:
-  MAIN_DOMAIN: "{{ MAIN_DOMAIN }}"
-  SECONDARY_DOMAIN: "{{ SECONDARY_DOMAIN }}"
-  DJANGO_HOSTS: "{{ application }}-django:9001"
-  VARNISH_IS_FIRST_HTTP_SERVER: "false"
-
-pgbouncer_configmap__05_defaults:
-  LOG_CONNECTIONS: "0"
-  LOG_DISCONNECTIONS: "0"
-  STATS_PERIOD: "5"
 
 postgres_configmap__05_defaults:
   POSTGRES_DB: postgres
+  DATABASE_NAME: "{{ application|replace('-', '_') }}_db"
+  DATABASE_HOST: "{{ application }}-postgres"
+  DATABASE_PORT: "5432"
 
 postgres_secret__05_defaults:
   POSTGRES_USER:
@@ -195,7 +132,6 @@ connector_configmap__05_defaults:
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
 
-random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
 
 random_postgres_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
 random_postgres_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
@@ -203,11 +139,11 @@ random_postgres_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_le
 # DO NOT CHANGE DEFINITIONS BELOW
 #
 
-deployed_parameters_packs: "{{ ['django', 'varnish', 'pgbouncer'] + (['postgres'] if deploy_postgres else []) + (['memcached'] if deploy_memcached else []) + (['connector'] if deploy_connector else []) }}"
+deployed_parameters_packs: "{{ (['postgres'] if deploy_postgres else []) + (['connector'] if deploy_connector else []) }}"
 
 # definitions below are helper definitions - do not change this
 
-postgres_admin_connection_environment_variables: "PGUSER={{ postgres_secret_data.POSTGRES_USER }} PGPASSWORD={{ postgres_secret_data.POSTGRES_PASSWORD }} PGHOST={{ django_configmap_data.DATABASE_HOST }} PGPORT={{ django_configmap_data.DATABASE_PORT }} PGDATABASE={{ postgres_configmap_data.POSTGRES_DB }}"
-django_direct_connection_environment_variables: "DATABASE_HOST={{ django_configmap_data.DATABASE_HOST }} DATABASE_PORT={{ django_configmap_data.DATABASE_PORT }}"
+postgres_admin_connection_environment_variables: "PGUSER={{ postgres_secret_data.POSTGRES_USER }} PGPASSWORD={{ postgres_secret_data.POSTGRES_PASSWORD }} PGHOST={{ postgres_configmap_data.DATABASE_HOST }} PGPORT={{ postgres_configmap_data.DATABASE_PORT }} PGDATABASE={{ postgres_configmap_data.POSTGRES_DB }}"
+postgres_direct_connection_environment_variables: "DATABASE_HOST={{ postgres_configmap_data.DATABASE_HOST }} DATABASE_PORT={{ postgres_configmap_data.DATABASE_PORT }}"
 
 # DO NOT CHANGE DEFINITIONS ABOVE

@@ -1,24 +1,9 @@
 version: '3.3'
 services:
 
-  hitch:
-    volumes:
-      - "hitch:/etc/certs"
-    ports:
-      - "443:9004"
-
-  varnish:
-    ports:
-      - "80:9002"
-
-  django:
-    ports:
-      - "9001:9001"
-
   postgres:
     volumes:
       - "postgres:/var/lib/postgresql/data"
 
 volumes:
   postgres:
-  hitch:
