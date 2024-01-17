@@ -38,3 +38,7 @@ build-connector: CONTEXT_PATH=../
 
 build-base build-postgres build-memcached build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
 build-pgbouncer-builder build-pgbouncer: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
+
+build-data-dashboard: BUILDER_IMAGE=node:lts
+build-data-dashboard: BASE_IMAGE=nginx:alpine
+build-data-dashboard: CONTEXT_PATH=../
