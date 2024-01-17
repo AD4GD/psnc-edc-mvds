@@ -1,6 +1,6 @@
 {
   "apiKey": "fifi-info-zaneta",
-  "managementApiUrl": "http://localhost:29193/management",
-  "catalogUrl": "http://localhost:19193/management",
+  "managementApiUrl": "https://edc-connector.apps.paas-dev.psnc.pl/management",
+  "catalogUrl": "https://edc-connector.apps.paas-dev.psnc.pl/management",
   "theme": "theme-3"
 }
