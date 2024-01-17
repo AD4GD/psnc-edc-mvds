@@ -109,6 +109,7 @@ services:
 
   consumer-data-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/dashboard:${IMAGE_TAG}
+    read_only: false
     depends_on:
       - consumer-connector
     ports:
