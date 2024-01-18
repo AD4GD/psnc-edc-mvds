@@ -1,3 +1,0 @@
----
-- name: migrate application
-  hosts: edc-connector-instances
