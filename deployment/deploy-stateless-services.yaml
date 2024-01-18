@@ -70,7 +70,7 @@
                       readOnlyRootFilesystem: false
                       runAsNonRoot: false
 #                      runAsUser: 1000
-                    resources: "{{ connector_resources }}"
+                    resources: "{{ connectorconsumer_resources }}"
                     envFrom:
                       - configMapRef:
                           name: "{{ application }}-connectorconsumer"
