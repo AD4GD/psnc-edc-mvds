@@ -490,6 +490,88 @@
               application: "{{ application }}"
               component: providerdashboard
 
+    - name: "deploy deployment/{{ application }}-datadashboard"
+      when: "deploy_datadashboard|bool"
+      tags:
+        - datadashboard
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-datadashboard"
+            labels:
+              component: datadashboard
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: datadashboard
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: datadashboard
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (datadashboard_configmap_digest + datadashboard_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "www"
+                    containerPort: 80
+                    protocol: "TCP"
+                containers:
+                  - name: "datadashboard"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
+                    resources: "{{ datadashboard_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-datadashboard"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-datadashboard"
+                          optional: true
+                    volumeMounts:
+                      - name: "datadashboard-tmp"
+                        mountPath: "/tmp"
+                volumes:
+                  - name: "datadashboard-tmp"
+                    emptyDir:
+                      medium: "Memory"
+
+    - name: "deploy service/{{ application }}-datadashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - datadashboard
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-datadashboard"
+            labels:
+              application: "{{ application }}"
+              component: datadashboard
+          spec:
+            ports:
+              - name: "www"
+                port: 80
+            selector:
+              application: "{{ application }}"
+              component: datadashboard
+
 #    - name: "deploy {{ application }} {{ expose_http_kind }}"
 #      when: "expose_http_kind != 'none'"
 #      tags:

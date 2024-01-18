@@ -35,6 +35,14 @@ connectorconsumer_resources:
     cpu: "1"
     memory: "2000Mi"
 
+datadashboard_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
 deploy_stateful_services: true
 
 deploy_connector: "{{ deploy_stateful_services }}"
