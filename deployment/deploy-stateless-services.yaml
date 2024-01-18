@@ -17,7 +17,6 @@
     - name: "deploy deployment/{{ application }}-connectorconsumer"
       when: "deploy_connector|bool"
       tags:
-        - connector
         - connectorconsumer
         - deployment
       k8s:
@@ -90,7 +89,6 @@
     - name: "deploy service/{{ application }}-connectorconsumer"
       when: "deploy_connector"
       tags:
-        - connector
         - connectorconsumer
         - service
       k8s:
