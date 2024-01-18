@@ -14,7 +14,6 @@ repository_name: edc-connector
 
 base_image_registry_domain: "{{ registry_domain }}"
 base_image_registry_project: "base"
-#postgres_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
 connector_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
 
 readiness_probe_initial_delay: 3
@@ -37,19 +36,13 @@ connector_resources:
 
 deploy_stateful_services: true
 
-#deploy_postgres: "{{ deploy_stateful_services }}"
 deploy_connector: "{{ deploy_stateful_services }}"
 
-#postgres_pvc_storage_size: "1Gi"
 connector_pvc_storage_size: "1Gi"
 
-#postgres_pvc_storage_class_name: ""
 connector_pvc_storage_class_name: ""
 
-#postgres_pvc_access_mode_type: ""
 connector_pvc_access_mode_type: ""
-
-#create_non_root_database: true
 
 image_pull_secret: "regcred"
 create_run_any_uid_service_account: true
@@ -96,18 +89,6 @@ SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
 SECRET_KEY:
     when_missing: "{{ random_django_secret_key }}"
 
-#postgres_configmap__05_defaults:
-#  POSTGRES_DB: postgres
-#  DATABASE_NAME: "{{ application|replace('-', '_') }}_db"
-#  DATABASE_HOST: "{{ application }}-postgres"
-#  DATABASE_PORT: "5432"
-#
-#postgres_secret__05_defaults:
-#  POSTGRES_USER:
-#    when_missing: "{{ random_postgres_user }}"
-#  POSTGRES_PASSWORD:
-#    when_missing: "{{ random_postgres_pass }}"
-
 connector_configmap__05_defaults:
   JVM_ARGS: ""
   SERVICE_HOST: "http://127.0.0.1"
@@ -132,18 +113,10 @@ connector_configmap__05_defaults:
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
 
-
-#random_postgres_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
-#random_postgres_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
-
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-
 deployed_parameters_packs: "{{ (['connector'] if deploy_connector else []) }}"
 
 # definitions below are helper definitions - do not change this
-
-#postgres_admin_connection_environment_variables: "PGUSER={{ postgres_secret_data.POSTGRES_USER }} PGPASSWORD={{ postgres_secret_data.POSTGRES_PASSWORD }} PGHOST={{ postgres_configmap_data.DATABASE_HOST }} PGPORT={{ postgres_configmap_data.DATABASE_PORT }} PGDATABASE={{ postgres_configmap_data.POSTGRES_DB }}"
-#postgres_direct_connection_environment_variables: "DATABASE_HOST={{ postgres_configmap_data.DATABASE_HOST }} DATABASE_PORT={{ postgres_configmap_data.DATABASE_PORT }}"
 
 # DO NOT CHANGE DEFINITIONS ABOVE
