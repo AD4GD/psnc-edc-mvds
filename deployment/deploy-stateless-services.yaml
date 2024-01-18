@@ -44,7 +44,7 @@
                   component: connector-consumer
                   application: "{{ application }}"
                   image_tag: "{{ stateless_services_image_tag }}"
-                  parameters_digest: "{{ (connector_consumer_configmap_digest + connector_consumer_secret_digest)|hash('sha1') }}"
+                  parameters_digest: "{{ (connectorconsumer_configmap_digest + connectorconsumer_secret_digest)|hash('sha1') }}"
               spec:
                 serviceAccountName: "run-any-uid"
                 ports:
@@ -74,10 +74,10 @@
                     resources: "{{ connector_resources }}"
                     envFrom:
                       - configMapRef:
-                          name: "{{ application }}-connector_consumer"
+                          name: "{{ application }}-connectorconsumer"
                           optional: true
                       - secretRef:
-                          name: "{{ application }}-connector_consumer"
+                          name: "{{ application }}-connectorconsumer"
                           optional: true
                     volumeMounts:
                       - name: "connector-tmp"
