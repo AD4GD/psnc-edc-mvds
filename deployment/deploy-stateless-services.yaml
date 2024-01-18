@@ -14,19 +14,19 @@
       namespace: "{{ k8s_namespace }}"
 
   tasks:
-    - name: "deploy deployment/{{ application }}-connectorconsumer"
+    - name: "deploy deployment/{{ application }}-connector-consumer"
       when: "deploy_connector|bool"
       tags:
-        - connectorconsumer
+        - connector-consumer
         - deployment
       k8s:
         definition:
           apiVersion: v1
           kind: Deployment
           metadata:
-            name: "{{ application }}-connectorconsumer"
+            name: "{{ application }}-connector-consumer"
             labels:
-              component: connectorconsumer
+              component: connector-consumer
               application: "{{ application }}"
           spec:
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -35,15 +35,15 @@
               type: RollingUpdate
             selector:
               matchLabels:
-                component: connectorconsumer
+                component: connector-consumer
                 application: "{{ application }}"
             template:
               metadata:
                 labels:
-                  component: connectorconsumer
+                  component: connector-consumer
                   application: "{{ application }}"
                   image_tag: "{{ stateless_services_image_tag }}"
-                  parameters_digest: "{{ (connectorconsumer_configmap_digest + connectorconsumer_secret_digest)|hash('sha1') }}"
+                  parameters_digest: "{{ (connector-consumer_configmap_digest + connector-consumer_secret_digest)|hash('sha1') }}"
               spec:
                 serviceAccountName: "run-any-uid"
                 ports:
@@ -63,43 +63,43 @@
                     containerPort: 29192
                     protocol: "TCP"
                 containers:
-                  - name: "connectorconsumer"
+                  - name: "connector-consumer"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: false
 #                      runAsUser: 1000
-                    resources: "{{ connectorconsumer_resources }}"
+                    resources: "{{ connector-consumer_resources }}"
                     envFrom:
                       - configMapRef:
-                          name: "{{ application }}-connectorconsumer"
+                          name: "{{ application }}-connector-consumer"
                           optional: true
                       - secretRef:
-                          name: "{{ application }}-connectorconsumer"
+                          name: "{{ application }}-connector-consumer"
                           optional: true
                     volumeMounts:
-                      - name: "connectorconsumer-tmp"
+                      - name: "connector-consumer-tmp"
                         mountPath: "/tmp"
                 volumes:
-                  - name: "connectorconsumer-tmp"
+                  - name: "connector-consumer-tmp"
                     emptyDir:
                       medium: "Memory"
 
-    - name: "deploy service/{{ application }}-connectorconsumer"
+    - name: "deploy service/{{ application }}-connector-consumer"
       when: "deploy_connector"
       tags:
-        - connectorconsumer
+        - connector-consumer
         - service
       k8s:
         definition:
           apiVersion: v1
           kind: Service
           metadata:
-            name: "{{ application }}-connectorconsumer"
+            name: "{{ application }}-connector-consumer"
             labels:
               application: "{{ application }}"
-              component: connectorconsumer
+              component: connector-consumer
           spec:
             ports:
               - name: "api"
@@ -114,7 +114,7 @@
                 port: 29192
             selector:
               application: "{{ application }}"
-              component: connectorconsumer
+              component: connector-consumer
 
 
 #    - name: "deploy {{ application }} {{ expose_http_kind }}"

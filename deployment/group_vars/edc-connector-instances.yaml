@@ -14,7 +14,7 @@ repository_name: edc-connector
 
 base_image_registry_domain: "{{ registry_domain }}"
 base_image_registry_project: "base"
-connectorconsumer_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
+connector-consumer_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
 
 readiness_probe_initial_delay: 3
 readiness_probe_period: 15
@@ -26,7 +26,7 @@ liveness_probe_timeout: 60
 
 with_stateless_services_horizontal_pod_autoscalers: true
 
-connectorconsumer_resources:
+connector-consumer_resources:
   requests:
     cpu: "100m"
     memory: "1000Mi"
@@ -38,11 +38,11 @@ deploy_stateful_services: true
 
 deploy_connector: "{{ deploy_stateful_services }}"
 
-connectorconsumer_pvc_storage_size: "1Gi"
+connector-consumer_pvc_storage_size: "1Gi"
 
-connectorconsumer_pvc_storage_class_name: ""
+connector-consumer_pvc_storage_class_name: ""
 
-connectorconsumer_pvc_access_mode_type: ""
+connector-consumer_pvc_access_mode_type: ""
 
 image_pull_secret: "regcred"
 create_run_any_uid_service_account: true
@@ -89,7 +89,7 @@ SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
 SECRET_KEY:
     when_missing: "{{ random_django_secret_key }}"
 
-connectorconsumer_configmap__05_defaults:
+connector-consumer_configmap__05_defaults:
   JVM_ARGS: ""
   SERVICE_HOST: "http://127.0.0.1"
   EDC_IDS_ID: "urn:connector:pnsc"
@@ -115,7 +115,7 @@ connectorconsumer_configmap__05_defaults:
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-deployed_parameters_packs: "{{ (['connectorconsumer'] if deploy_connector else []) }}"
+deployed_parameters_packs: "{{ (['connector-consumer'] if deploy_connector else []) }}"
 
 # definitions below are helper definitions - do not change this
 
