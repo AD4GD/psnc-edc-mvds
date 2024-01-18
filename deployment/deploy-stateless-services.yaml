@@ -14,19 +14,20 @@
       namespace: "{{ k8s_namespace }}"
 
   tasks:
-    - name: "deploy deployment/{{ application }}-connector"
+    - name: "deploy deployment/{{ application }}-connector-consumer"
       when: "deploy_connector|bool"
       tags:
         - connector
+        - connector-consumer
         - deployment
       k8s:
         definition:
           apiVersion: v1
           kind: Deployment
           metadata:
-            name: "{{ application }}-connector"
+            name: "{{ application }}-connector-consumer"
             labels:
-              component: connector
+              component: connector-consumer
               application: "{{ application }}"
           spec:
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -35,12 +36,12 @@
               type: RollingUpdate
             selector:
               matchLabels:
-                component: connector
+                component: connector-consumer
                 application: "{{ application }}"
             template:
               metadata:
                 labels:
-                  component: connector
+                  component: connector-consumer
                   application: "{{ application }}"
                   image_tag: "{{ stateless_services_image_tag }}"
                   parameters_digest: "{{ (connector_configmap_digest + connector_secret_digest)|hash('sha1') }}"
@@ -63,7 +64,7 @@
                     containerPort: 29192
                     protocol: "TCP"
                 containers:
-                  - name: "connector"
+                  - name: "connector-consumer"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
@@ -73,10 +74,10 @@
                     resources: "{{ connector_resources }}"
                     envFrom:
                       - configMapRef:
-                          name: "{{ application }}-connector"
+                          name: "{{ application }}-connector-consumer"
                           optional: true
                       - secretRef:
-                          name: "{{ application }}-connector"
+                          name: "{{ application }}-connector-consumer"
                           optional: true
                     volumeMounts:
                       - name: "connector-tmp"
@@ -86,20 +87,21 @@
                     emptyDir:
                       medium: "Memory"
 
-    - name: "deploy service/{{ application }}-connector"
+    - name: "deploy service/{{ application }}-connector-consumer"
       when: "deploy_connector"
       tags:
         - connector
+        - connector-consumer
         - service
       k8s:
         definition:
           apiVersion: v1
           kind: Service
           metadata:
-            name: "{{ application }}-connector"
+            name: "{{ application }}-connector-consumer"
             labels:
               application: "{{ application }}"
-              component: connector
+              component: connector-consumer
           spec:
             ports:
               - name: "api"
@@ -114,7 +116,8 @@
                 port: 29192
             selector:
               application: "{{ application }}"
-              component: connector
+              component: connector-consumer
+
 
 #    - name: "deploy {{ application }} {{ expose_http_kind }}"
 #      when: "expose_http_kind != 'none'"
