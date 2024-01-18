@@ -85,7 +85,7 @@ SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
 SECRET_KEY:
     when_missing: "{{ random_django_secret_key }}"
 
-connector_consumer_configmap__05_defaults:
+connectorconsumer_configmap__05_defaults:
   JVM_ARGS: ""
   SERVICE_HOST: "http://127.0.0.1"
   EDC_IDS_ID: "urn:connectorconsumer:psnc"
