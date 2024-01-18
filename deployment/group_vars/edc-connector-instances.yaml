@@ -34,9 +34,18 @@ connectorconsumer_resources:
     cpu: "1"
     memory: "2000Mi"
 
+datadashboard_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
 deploy_stateful_services: true
 
 deploy_connector: "{{ deploy_stateful_services }}"
+deploy_datadashboard: "{{ deploy_stateful_services }}"
 
 image_pull_secret: "regcred"
 create_run_any_uid_service_account: true
@@ -107,9 +116,12 @@ connectorconsumer_configmap__05_defaults:
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
 
+datadashboard_configmap__05_defaults:
+  TEST_PROPERTY: "test_value"
+
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-deployed_parameters_packs: "{{ (['connectorconsumer'] if deploy_connector else []) }}"
+deployed_parameters_packs: "{{ (['connectorconsumer'] if deploy_connector else []) + (['datadashboard'] if deploy_datadashboard else [])}}"
 
 # definitions below are helper definitions - do not change this
 
