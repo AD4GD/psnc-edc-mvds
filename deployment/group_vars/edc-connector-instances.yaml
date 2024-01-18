@@ -38,12 +38,6 @@ deploy_stateful_services: true
 
 deploy_connector: "{{ deploy_stateful_services }}"
 
-connectorconsumer_pvc_storage_size: "1Gi"
-
-connectorconsumer_pvc_storage_class_name: ""
-
-connectorconsumer_pvc_access_mode_type: ""
-
 image_pull_secret: "regcred"
 create_run_any_uid_service_account: true
 
