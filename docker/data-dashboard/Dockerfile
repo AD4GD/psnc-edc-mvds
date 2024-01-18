@@ -21,5 +21,5 @@ HEALTHCHECK --interval=2s --timeout=5s --retries=10 \
   CMD curl -f http://localhost/ || exit 1
 
 # Experiment
-USER 0
-RUN chmod 777 /var/cache/nginx
+#USER 0
+#RUN chmod 777 /var/cache/nginx
