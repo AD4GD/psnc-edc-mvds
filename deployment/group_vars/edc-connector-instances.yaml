@@ -139,7 +139,7 @@ connector_configmap__05_defaults:
 # DO NOT CHANGE DEFINITIONS BELOW
 #
 
-deployed_parameters_packs: "{{ ((['connector'] if deploy_connector else []) }}"
+deployed_parameters_packs: "{{ (['connector'] if deploy_connector else []) }}"
 
 # definitions below are helper definitions - do not change this
 
