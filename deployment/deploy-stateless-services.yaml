@@ -65,7 +65,7 @@
                     protocol: "TCP"
                 containers:
                   - name: "connectorconsumer"
-                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connectorconsumer:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
@@ -80,10 +80,10 @@
                           name: "{{ application }}-connectorconsumer"
                           optional: true
                     volumeMounts:
-                      - name: "connector-tmp"
+                      - name: "connectorconsumer-tmp"
                         mountPath: "/tmp"
                 volumes:
-                  - name: "connector-tmp"
+                  - name: "connectorconsumer-tmp"
                     emptyDir:
                       medium: "Memory"
 
