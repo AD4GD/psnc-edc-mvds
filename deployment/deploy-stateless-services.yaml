@@ -14,366 +14,20 @@
       namespace: "{{ k8s_namespace }}"
 
   tasks:
-    - name: "fetch image_tag if undefined"
-      # TODO DV-272 remove this or here
-      when: image_tag is undefined or not image_tag
-      include_tasks: "tasks/fetch-current-image-tag.yaml"
-
-    - name: "deploy deployment/{{ application }}-django"
-      tags:
-        - django
-        - deployment
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Deployment
-          metadata:
-            name: "{{ application }}-django"
-            labels:
-              application: "{{ application }}"
-              component: django
-          spec:
-            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
-            strategy:
-              type: RollingUpdate
-            selector:
-              matchLabels:
-                component: django
-                application: "{{ application }}"
-            template:
-              metadata:
-                labels:
-                  component: django
-                  application: "{{ application }}"
-                  image_tag: "{{ stateless_services_image_tag }}"
-                  parameters_digest: "{{ (django_configmap_digest + django_secret_digest + pgbouncer_configmap_digest + pgbouncer_secret_digest)|hash('sha1') }}"
-              spec:
-                affinity:
-                  podAntiAffinity:
-                    preferredDuringSchedulingIgnoredDuringExecution:
-                      - weight: 50
-                        podAffinityTerm:
-                          labelSelector:
-                            matchLabels:
-                              component: django
-                              application: "{{ application }}"
-                          topologyKey: "kubernetes.io/hostname"
-                containers:
-                  - name: "django"
-                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/django:{{ stateless_services_image_tag }}"
-                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
-                    securityContext:
-                      readOnlyRootFilesystem: true
-                      runAsNonRoot: true
-                    resources: "{{ django_resources }}"
-                    ports:
-                      - name: "django-port"
-                        containerPort: 9001
-                        protocol: "TCP"
-                    envFrom:
-                      - configMapRef:
-                          name: "{{ application }}-django"
-                          optional: true
-                      - secretRef:
-                          name: "{{ application }}-django"
-                          optional: true
-                    env:
-                      - name: ENABLE_SERVICES
-                        value: uwsgi
-                      # definitions DATABASE_HOST and DATABASE_PORT below
-                      # override values typically passed from django configmap
-                      # (those values are used by pgbouncer container)
-                      - name: DATABASE_HOST
-                        value: "localhost"
-                      - name: DATABASE_PORT
-                        value: "5433"
-                    volumeMounts:
-                      - name: "django-run"
-                        mountPath: "/run"  # centos image that we are using, has symbolic link /var/run -> /run
-                      - name: "django-tmp"
-                        mountPath: "/tmp"
-                    readinessProbe:
-                      httpGet:
-                        path: /_health/app/?readinessProbe&check=common.checks.django
-                        httpHeaders:
-                          - name: Host
-                            value: "{{ MAIN_DOMAIN }}"
-                        port: "django-port"
-                      initialDelaySeconds: "{{ readiness_probe_initial_delay }}"
-                      timeoutSeconds: "{{ readiness_probe_timeout }}"
-                      periodSeconds: "{{ readiness_probe_period }}"
-                    livenessProbe:
-                      httpGet:
-                        path: /_health/app/?livenessProbe&check=common.checks.django
-                        httpHeaders:
-                          - name: Host
-                            value: "{{ MAIN_DOMAIN }}"
-                        port: "django-port"
-                      initialDelaySeconds: "{{ liveness_probe_initial_delay }}"
-                      timeoutSeconds: "{{ liveness_probe_timeout }}"
-                      periodSeconds: "{{ liveness_probe_period }}"
-                  - name: "pgbouncer"
-                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/pgbouncer:{{ image_tag }}"
-                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
-                    securityContext:
-                      readOnlyRootFilesystem: true
-                      runAsNonRoot: true
-                    resources: "{{ pgbouncer_resources }}"
-                    envFrom:
-                      - configMapRef:
-                          name: "{{ application }}-pgbouncer"
-                          optional: true
-                      - secretRef:
-                          name: "{{ application }}-pgbouncer"
-                          optional: true
-                    env:
-                      - name: LISTEN_PORT
-                        value: "5433"
-                      - name: POOL_MODE
-                        value: "transaction"
-                      - name: DB_USER
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-django"
-                            key: DATABASE_USER
-                      - name: DB_PASSWORD
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-django"
-                            key: DATABASE_PASS
-                      - name: DB_HOST
-                        valueFrom:
-                          configMapKeyRef:
-                            name: "{{ application }}-django"
-                            key: DATABASE_HOST
-                      - name: DB_PORT
-                        valueFrom:
-                          configMapKeyRef:
-                            name: "{{ application }}-django"
-                            key: DATABASE_PORT
-                      - name: DB_NAME
-                        valueFrom:
-                          configMapKeyRef:
-                            name: "{{ application }}-django"
-                            key: DATABASE_NAME
-                    volumeMounts:
-                      - name: "pgbouncer-var"
-                        mountPath: "/var/lib/pgbouncer"
-                volumes:
-                  - name: "django-run"
-                    emptyDir:
-                      medium: "Memory"
-                  - name: "django-tmp"
-                    emptyDir:
-                      medium: "Memory"
-                  - name: "pgbouncer-var"
-                    emptyDir:
-                      medium: "Memory"
-
-    - name: "{{ horizontal_pod_autoscalers_task_heading }} hpa/{{ application }}-django"
-      tags:
-        - django
-        - hpa
-      vars:
-        component: django
-        autoscaler: "{{ django_autoscaler }}"
-      k8s:
-        state: "{{ horizontal_pod_autoscalers_state }}"
-        definition: "{{ lookup('template', 'horizontal-pod-autoscaler-definition.yaml') }}"
-
-    - name: "deploy deployment/{{ application }}-django static replicas count (no hpa)"
-      when: "not with_stateless_services_horizontal_pod_autoscalers"
-      tags:
-        - django
-        - deployment
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Deployment
-          metadata:
-            name: "{{ application }}-django"
-          spec:
-            replicas: "{{ initial_replicas }}"
-
-    - name: "deploy service/{{ application }}-django"
-      tags:
-        - django
-        - service
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{ application }}-django"
-            labels:
-              application: "{{ application }}"
-              component: django
-          spec:
-            ports:
-            - port: 9001
-              name: django
-            selector:
-              application: "{{ application }}"
-              component: django
-            type: ClusterIP
-
-    - name: "deploy deployment/{{ application }}-varnish"
-      tags:
-        - varnish
-        - deployment
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Deployment
-          metadata:
-            name: "{{ application }}-varnish"
-            labels:
-              application: "{{ application }}"
-              component: varnish
-          spec:
-            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
-            strategy:
-              type: RollingUpdate
-            selector:
-              matchLabels:
-                application: "{{ application }}"
-                component: varnish
-            template:
-              metadata:
-                labels:
-                  application: "{{ application }}"
-                  component: varnish
-                  image_tag: "{{ stateless_services_image_tag }}"
-                  parameters_digest: "{{ (varnish_configmap_digest + varnish_secret_digest)|hash('sha1') }}"
-              spec:
-                affinity:
-                  podAntiAffinity:
-                    preferredDuringSchedulingIgnoredDuringExecution:
-                      - weight: 50
-                        podAffinityTerm:
-                          labelSelector:
-                            matchLabels:
-                              component: varnish
-                              application: "{{ application }}"
-                          topologyKey: "kubernetes.io/hostname"
-                containers:
-                  - name: "varnish"
-                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/varnish:{{ stateless_services_image_tag }}"
-                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
-                    securityContext:
-                      readOnlyRootFilesystem: true
-                      runAsNonRoot: true
-                    resources: "{{ varnish_resources }}"
-                    ports:
-                      - name: "varnish-port"
-                        containerPort: 9002
-                        protocol: "TCP"
-                    envFrom:
-                      - configMapRef:
-                          name: "{{ application }}-varnish"
-                          optional: true
-                      - secretRef:
-                          name: "{{ application }}-varnish"
-                          optional: true
-                    volumeMounts:
-                      - name: "varnish-data"
-                        mountPath: "/var/lib/varnish"
-                      - name: "varnish-run"
-                        mountPath: "/run"
-                      - name: "varnish-tmp"
-                        mountPath: "/tmp"
-                    readinessProbe:
-                      httpGet:
-                        path: /_health/cache?readinessProbe
-                        httpHeaders:
-                          - name: Host
-                            value: "{{ MAIN_DOMAIN }}"
-                        port: "varnish-port"
-                      initialDelaySeconds: "{{ readiness_probe_initial_delay }}"
-                      timeoutSeconds: "{{ readiness_probe_timeout }}"
-                      periodSeconds: "{{ readiness_probe_period }}"
-                    livenessProbe:
-                      httpGet:
-                        path: /_health/cache?livenessProbe
-                        httpHeaders:
-                          - name: Host
-                            value: "{{ MAIN_DOMAIN }}"
-                        port: "varnish-port"
-                      initialDelaySeconds: "{{ liveness_probe_initial_delay }}"
-                      timeoutSeconds: "{{ liveness_probe_timeout }}"
-                      periodSeconds: "{{ liveness_probe_period }}"
-                volumes:
-                  - name: "varnish-data"
-                    emptyDir:
-                      medium: "Memory"
-                  - name: "varnish-run"
-                    emptyDir:
-                      medium: "Memory"
-                  - name: "varnish-tmp"
-                    emptyDir:
-                      medium: "Memory"
-
-    - name: "{{ horizontal_pod_autoscalers_task_heading }} hpa/{{ application }}-varnish"
-      tags:
-        - varnish
-        - hpa
-      vars:
-        component: varnish
-        autoscaler: "{{ varnish_autoscaler }}"
-      k8s:
-        state: "{{ horizontal_pod_autoscalers_state }}"
-        definition: "{{ lookup('template', 'horizontal-pod-autoscaler-definition.yaml') }}"
-
-    - name: "deploy deployment/{{ application }}-varnish static replicas count (no hpa)"
-      when: "not with_stateless_services_horizontal_pod_autoscalers"
-      tags:
-        - varnish
-        - deployment
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Deployment
-          metadata:
-            name: "{{ application }}-varnish"
-          spec:
-            replicas: "{{ initial_replicas }}"
-
-    - name: "deploy service/{{ application }}-varnish"
-      tags:
-        - varnish
-        - service
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{ application }}-varnish"
-            labels:
-              application: "{{ application }}"
-              component: varnish
-          spec:
-            ports:
-            - port: 9002
-              name: varnish
-            selector:
-              application: "{{ application }}"
-              component: varnish
-            type: ClusterIP
-
-
-    - name: "deploy deployment/{{ application }}-connector"
+    - name: "deploy deployment/{{ application }}-connectorconsumer"
       when: "deploy_connector|bool"
       tags:
         - connector
+        - connectorconsumer
         - deployment
       k8s:
         definition:
           apiVersion: v1
           kind: Deployment
           metadata:
-            name: "{{ application }}-connector"
+            name: "{{ application }}-connectorconsumer"
             labels:
-              component: connector
+              component: connectorconsumer
               application: "{{ application }}"
           spec:
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -382,15 +36,15 @@
               type: RollingUpdate
             selector:
               matchLabels:
-                component: connector
+                component: connectorconsumer
                 application: "{{ application }}"
             template:
               metadata:
                 labels:
-                  component: connector
+                  component: connectorconsumer
                   application: "{{ application }}"
                   image_tag: "{{ stateless_services_image_tag }}"
-                  parameters_digest: "{{ (connector_configmap_digest + connector_secret_digest)|hash('sha1') }}"
+                  parameters_digest: "{{ (connectorconsumer_configmap_digest + connectorconsumer_secret_digest)|hash('sha1') }}"
               spec:
                 serviceAccountName: "run-any-uid"
                 ports:
@@ -410,43 +64,44 @@
                     containerPort: 29192
                     protocol: "TCP"
                 containers:
-                  - name: "connector"
+                  - name: "connectorconsumer"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: false
 #                      runAsUser: 1000
-                    resources: "{{ connector_resources }}"
+                    resources: "{{ connectorconsumer_resources }}"
                     envFrom:
                       - configMapRef:
-                          name: "{{ application }}-connector"
+                          name: "{{ application }}-connectorconsumer"
                           optional: true
                       - secretRef:
-                          name: "{{ application }}-connector"
+                          name: "{{ application }}-connectorconsumer"
                           optional: true
                     volumeMounts:
-                      - name: "connector-tmp"
+                      - name: "connectorconsumer-tmp"
                         mountPath: "/tmp"
                 volumes:
-                  - name: "connector-tmp"
+                  - name: "connectorconsumer-tmp"
                     emptyDir:
                       medium: "Memory"
 
-    - name: "deploy service/{{ application }}-connector"
+    - name: "deploy service/{{ application }}-connectorconsumer"
       when: "deploy_connector"
       tags:
         - connector
+        - connectorconsumer
         - service
       k8s:
         definition:
           apiVersion: v1
           kind: Service
           metadata:
-            name: "{{ application }}-connector"
+            name: "{{ application }}-connectorconsumer"
             labels:
               application: "{{ application }}"
-              component: connector
+              component: connectorconsumer
           spec:
             ports:
               - name: "api"
@@ -461,7 +116,379 @@
                 port: 29192
             selector:
               application: "{{ application }}"
-              component: connector
+              component: connectorconsumer
+
+    - name: "deploy configmap/{{ application }}-consumerdashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - consumerdashboard
+        - configmap
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "{{ application }}-consumerdashboard-config"
+            labels:
+              application: "{{ application }}"
+          data:
+            app.config.json: |
+              {
+                "apiKey": "fifi-info-zaneta",
+                "managementApiUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
+                "theme": "theme-3"
+              }
+            nginx.conf: |
+              events {}
+              http {
+                include /etc/nginx/mime.types;
+                server {
+                  listen 80;
+                  server_name localhost;
+                  root /usr/share/nginx/html;
+                  index index.html;
+                  access_log off;
+                  location / {
+                    try_files $uri $uri/ /index.html;
+                  }
+                  location /management {
+                    proxy_pass https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl;
+                  }
+                }
+              }
+
+    - name: "deploy deployment/{{ application }}-consumerdashboard"
+      when: "deploy_datadashboard|bool"
+      tags:
+        - consumerdashboard
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-consumerdashboard"
+            labels:
+              component: consumerdashboard
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: consumerdashboard
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: consumerdashboard
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (consumerdashboard_configmap_digest + consumerdashboard_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "www"
+                    containerPort: 80
+                    protocol: "TCP"
+                containers:
+                  - name: "consumerdashboard"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
+                    resources: "{{ consumerdashboard_resources }}"
+                    envFrom:
+                      - secretRef:
+                          name: "{{ application }}-consumerdashboard"
+                          optional: true
+                      - configMapRef:
+                          name: "{{ application }}-consumerdashboard-config"
+                          optional: true
+                    volumeMounts:
+                      - name: "consumerdashboard-tmp"
+                        mountPath: "/tmp"
+                      - name: "consumerdashboard-nginx-config"
+                        mountPath: "/etc/nginx/nginx.conf"
+                        subPath: "nginx.conf"
+                      - name: "consumerdashboard-app-config"
+                        mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                        subPath: "app.config.json"
+                volumes:
+                  - name: "consumerdashboard-tmp"
+                    emptyDir:
+                      medium: "Memory"
+                  - name: "consumerdashboard-nginx-config"
+                    configMap:
+                      name: "{{ application }}-consumerdashboard-config"
+                  - name: "consumerdashboard-app-config"
+                    configMap:
+                      name: "{{ application }}-consumerdashboard-config"
+
+    - name: "deploy service/{{ application }}-consumerdashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - consumerdashboard
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-consumerdashboard"
+            labels:
+              application: "{{ application }}"
+              component: consumerdashboard
+          spec:
+            ports:
+              - name: "www"
+                port: 80
+            selector:
+              application: "{{ application }}"
+              component: consumerdashboard
+
+    - name: "deploy deployment/{{ application }}-connectorprovider"
+      when: "deploy_connector|bool"
+      tags:
+        - connector
+        - connectorprovider
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-connectorprovider"
+            labels:
+              component: connectorprovider
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: connectorprovider
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: connectorprovider
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (connectorprovider_configmap_digest + connectorprovider_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "api"
+                    containerPort: 19191
+                    protocol: "TCP"
+                  - name: "management"
+                    containerPort: 19193
+                    protocol: "TCP"
+                  - name: "protocol"
+                    containerPort: 19194
+                    protocol: "TCP"
+                  - name: "public"
+                    containerPort: 19291
+                    protocol: "TCP"
+                  - name: "control"
+                    containerPort: 19192
+                    protocol: "TCP"
+                containers:
+                  - name: "connectorprovider"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+#                      runAsUser: 1000
+                    resources: "{{ connectorprovider_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-connectorprovider"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-connectorprovider"
+                          optional: true
+                    volumeMounts:
+                      - name: "connectorprovider-tmp"
+                        mountPath: "/tmp"
+                volumes:
+                  - name: "connectorprovider-tmp"
+                    emptyDir:
+                      medium: "Memory"
+
+    - name: "deploy service/{{ application }}-connectorprovider"
+      when: "deploy_connector"
+      tags:
+        - connector
+        - connectorprovider
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-connectorprovider"
+            labels:
+              application: "{{ application }}"
+              component: connectorprovider
+          spec:
+            ports:
+              - name: "api"
+                port: 19191
+              - name: "management"
+                port: 19193
+              - name: "protocol"
+                port: 19194
+              - name: "public"
+                port: 19291
+              - name: "control"
+                port: 19192
+            selector:
+              application: "{{ application }}"
+              component: connectorprovider
+
+    - name: "deploy configmap/{{ application }}-providerdashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - providerdashboard
+        - configmap
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "{{ application }}-providerdashboard-config"
+            labels:
+              application: "{{ application }}"
+          data:
+            app.config.json: |
+              {
+                "apiKey": "fifi-info-zaneta",
+                "managementApiUrl": "https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "theme": "theme-3"
+              }
+            nginx.conf: |
+              events {}
+              http {
+                include /etc/nginx/mime.types;
+                server {
+                  listen 80;
+                  server_name localhost;
+                  root /usr/share/nginx/html;
+                  index index.html;
+                  access_log off;
+                  location / {
+                    try_files $uri $uri/ /index.html;
+                  }
+                  location /management {
+                    proxy_pass https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl;
+                  }
+                }
+              }
+
+    - name: "deploy deployment/{{ application }}-providerdashboard"
+      when: "deploy_datadashboard|bool"
+      tags:
+        -providerdashboard
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-providerdashboard"
+            labels:
+              component: providerdashboard
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: providerdashboard
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: providerdashboard
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (providerdashboard_configmap_digest + providerdashboard_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "www"
+                    containerPort: 80
+                    protocol: "TCP"
+                containers:
+                  - name: "providerdashboard"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
+                    resources: "{{ providerdashboard_resources }}"
+                    envFrom:
+                      - secretRef:
+                          name: "{{ application }}-providerdashboard"
+                          optional: true
+                      - configMapRef:
+                          name: "{{ application }}-providerdashboard-config"
+                          optional: true
+                    volumeMounts:
+                      - name: "providerdashboard-tmp"
+                        mountPath: "/tmp"
+                      - name: "providerdashboard-nginx-config"
+                        mountPath: "/etc/nginx/nginx.conf"
+                        subPath: "nginx.conf"
+                      - name: "providerdashboard-app-config"
+                        mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                        subPath: "app.config.json"
+                volumes:
+                  - name: "providerdashboard-tmp"
+                    emptyDir:
+                      medium: "Memory"
+                  - name: "providerdashboard-nginx-config"
+                    configMap:
+                      name: "{{ application }}-providerdashboard-config"
+                  - name: "providerdashboard-app-config"
+                    configMap:
+                      name: "{{ application }}-providerdashboard-config"
+
+    - name: "deploy service/{{ application }}-providerdashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - providerdashboard
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-providerdashboard"
+            labels:
+              application: "{{ application }}"
+              component: providerdashboard
+          spec:
+            ports:
+              - name: "www"
+                port: 80
+            selector:
+              application: "{{ application }}"
+              component: providerdashboard
 
 #    - name: "deploy {{ application }} {{ expose_http_kind }}"
 #      when: "expose_http_kind != 'none'"

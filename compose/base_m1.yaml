@@ -1,112 +1,41 @@
 version: '3.3'
 services:
 
-  hitch:
-    restart: unless-stopped
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/hitch:${IMAGE_TAG}
-    read_only: true
-    environment:
-      - HITCH_LISTENING_ADDRESS=0.0.0.0:9004
-      - HITCH_BACKEND_ADDRESS=varnish:9003
-      - HITCH_WRITE_PROXY_V1=True
-      - HITCH_AUTO_GENERATE_CERTIFICATE_DOMAIN=localhost.edc.connector
-      - HITCH_PEM_FILE=/etc/certs/localhost.edc.connector.hitch-pem
-    expose:
-      - "9004"
-    tmpfs:
-      - "/run:exec"
-    depends_on:
-      - varnish
-
-  varnish:
-    restart: unless-stopped
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/varnish:${IMAGE_TAG}
-    read_only: true
-    user: "1000"  # regular user
-    environment:
-      - MAIN_DOMAIN=localhost.edc.connector
-      - DJANGO_HOSTS=django:9001
-      - VARNISH_LISTENING_ADDRESS=0.0.0.0:9002
-      - VARNISH_LISTENING_PROXY_ADDRESS=0.0.0.0:9003
-      - HEALTH_ENABLED=True
-      - HEALTH_ACLS="0.0.0.0"/0
-      - VARNISH_CACHE_SIZE=128M
-    expose:
-      - "9002"
-      - "9003"
-    tmpfs:
-      - "/run:exec"
-      - "/var/lib/varnish:exec"
-    depends_on:
-      - django
-
-  django:
-    restart: unless-stopped
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/django:${IMAGE_TAG}
-    read_only: true
-    user: "1000"  # regular user
-    environment:
-      - DEBUG=True
-      - PYTHONUNBUFFERED=1
-      - ENABLE_SERVICES=
-      - DATABASE_USER=psql-user
-      - DATABASE_PASS=psql-password
-      - MAIN_DOMAIN=localhost.edc.connector
-      - WAIT_FOR_DATABASE=True
-      - SRV_UWSGI_GEVENT=False
-
-    expose:
-      - "9001"
-    tmpfs:
-      - "/run:exec"
-      - "/tmp:exec"
-      - "/home/regular/.ssh/known_hosts:exec"
-    depends_on:
-      - postgres
-      - memcached
-
-    networks:
-      default:
-        aliases:
-          - django
-
-  memcached:
-    restart: unless-stopped
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/memcached:${IMAGE_TAG}
-    read_only: true
-    user: "1000"  # memcache user
-    expose:
-      - "11211"
-
   postgres:
     restart: unless-stopped
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/postgres:${IMAGE_TAG}
     read_only: true
     user: "999"  # postgres user
     environment:
-      - POSTGRES_PASSWORD=psql-password
-      - POSTGRES_USER=psql-user
-      - POSTGRES_DB=main-db
+      - POSTGRES_PASSWORD=edc
+      - POSTGRES_USER=edc
+      - POSTGRES_DB=edc
     expose:
       - "5432"
     tmpfs:
       - "/run/postgresql"
       - "/tmp"
 
-  connector:
+  consumer-connector:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
     restart: unless-stopped
     read_only: false
-    env_file:
-      - ${REPO_DIR}/docker/connector/configuration.env
     environment:
-      - JVM_ARGS=-Dedc.keystore=/certs/cert.pfx -Dedc.keystore.password=123456 -Dedc.vault=/connector/vault.properties -Dedc.fs.config=/connector/configuration.properties
+      EDC_FS_CONFIG: /app/config/configuration-consumer.properties
+      EDC_API_AUTH_KEY: "fifi-info-zaneta"
     ports:
       - "29191:29191"
       - "29193:29193"
       - "29194:29194"
       - "29291:29291"
       - "29192:29192"
+
+  consumer-data-dashboard:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
+    depends_on:
+      - consumer-connector
+    ports:
+      - "28080:80"
 
 networks:
   default:

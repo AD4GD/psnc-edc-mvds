@@ -10,64 +10,16 @@
       wait: true
       state: absent
       namespace: "{{ k8s_namespace }}"
-
-  tasks:
-    - name: "purge service/{{ application }}-memcached"
-      when: "deploy_memcached"
-      tags:
-        - memcached
-        - service
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{ application }}-memcached"
-
-    - name: "purge deployment/{{ application }}-memcached"
-      when: "deploy_memcached"
-      tags:
-        - memcached
-        - deployment
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Deployment
-          metadata:
-            name: "{{ application }}-memcached"
-
-    - name: "purge service/{{ application }}-postgres"
-      when: "deploy_postgres"
-      tags:
-        - postgres
-        - service
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{ application }}-postgres"
-
-    - name: "purge statefulset/{{ application }}-postgres"
-      when: "deploy_postgres"
-      tags:
-        - postgres
-        - statefulset
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: StatefulSet
-          metadata:
-            name: "{{ application }}-postgres"
-
-    - name: "purge pvc/{{ application }}-postgres"
-      when: "deploy_postgres"
-      tags:
-        - postgres
-        - persistentvolumeclaim
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: PersistentVolumeClaim
-          metadata:
-            name: "{{ application }}-postgres"
+#
+#  tasks:
+#    - name: "purge service/{{ application }}-memcached"
+#      when: "deploy_memcached"
+#      tags:
+#        - memcached
+#        - service
+#      k8s:
+#        definition:
+#          apiVersion: v1
+#          kind: Service
+#          metadata:
+#            name: "{{ application }}-memcached"
