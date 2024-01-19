@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv /bin/sh
-ulimit -c 0
-exec uwsgi --ini /var/run/uwsgi/uwsgi.ini

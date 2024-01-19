@@ -1,13 +1,1 @@
 version: '3.3'
-services:
-
-  django:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/django:${IMAGE_TAG}
-    user: "0"
-    environment:
-      - S6_LOGGING=1
-      - PYTHONUNBUFFERED=1
-    volumes:
-      - "${REPO_DIR}/reqs:/srv/reqs"
-      - "${REPO_DIR}/src:/srv/src"
-      - "${REPO_DIR}/modules/service-arguments/arguments:/srv/pkgs/service-arguments/arguments"
