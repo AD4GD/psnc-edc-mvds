@@ -142,7 +142,7 @@
             nginx.conf: |
               events {}
               http {
-                include /etc/nginx/mime.types;              
+                include /etc/nginx/mime.types;
                 server {
                   listen 80;
                   server_name localhost;
