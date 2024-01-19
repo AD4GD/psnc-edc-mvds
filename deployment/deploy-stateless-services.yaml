@@ -237,6 +237,229 @@
               application: "{{ application }}"
               component: datadashboard
 
+    - name: "deploy deployment/{{ application }}-connectorprovider"
+      when: "deploy_connector|bool"
+      tags:
+        - connector
+        - connectorprovider
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-connectorprovider"
+            labels:
+              component: connectorprovider
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: connectorprovider
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: connectorprovider
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (connectorprovider_configmap_digest + connectorprovider_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "api"
+                    containerPort: 19191
+                    protocol: "TCP"
+                  - name: "management"
+                    containerPort: 19193
+                    protocol: "TCP"
+                  - name: "protocol"
+                    containerPort: 19194
+                    protocol: "TCP"
+                  - name: "public"
+                    containerPort: 19291
+                    protocol: "TCP"
+                  - name: "control"
+                    containerPort: 19192
+                    protocol: "TCP"
+                containers:
+                  - name: "connectorprovider"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+#                      runAsUser: 1000
+                    resources: "{{ connectorprovider_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-connectorprovider"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-connectorprovider"
+                          optional: true
+                    volumeMounts:
+                      - name: "connectorprovider-tmp"
+                        mountPath: "/tmp"
+                volumes:
+                  - name: "connectorprovider-tmp"
+                    emptyDir:
+                      medium: "Memory"
+
+    - name: "deploy service/{{ application }}-connectorprovider"
+      when: "deploy_connector"
+      tags:
+        - connector
+        - connectorprovider
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-connectorprovider"
+            labels:
+              application: "{{ application }}"
+              component: connectorprovider
+          spec:
+            ports:
+              - name: "api"
+                port: 19191
+              - name: "management"
+                port: 19193
+              - name: "protocol"
+                port: 19194
+              - name: "public"
+                port: 19291
+              - name: "control"
+                port: 19192
+            selector:
+              application: "{{ application }}"
+              component: connectorprovider
+
+
+    - name: "deploy configmap/{{ application }}-datadashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - datadashboard
+        - configmap
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "{{ application }}-datadashboard-config"
+            labels:
+              application: "{{ application }}"
+          data:
+            app.config.json: |
+              {
+                "apiKey": "fifi-info-zaneta",
+                "managementApiUrl": "https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "theme": "theme-3"
+              }
+            nginx.conf: |
+              events {}
+
+    - name: "deploy deployment/{{ application }}-providerdashboard"
+      when: "deploy_datadashboard|bool"
+      tags:
+        -providerdashboard
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-providerdashboard"
+            labels:
+              component: providerdashboard
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: providerdashboard
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: providerdashboard
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (providerdashboard_configmap_digest + providerdashboard_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "www"
+                    containerPort: 80
+                    protocol: "TCP"
+                containers:
+                  - name: "providerdashboard"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
+                    resources: "{{ datadashboard_resources }}"
+                    envFrom:
+                      - secretRef:
+                          name: "{{ application }}-providerdashboard"
+                          optional: true
+                      - configMapRef:
+                          name: "{{ application }}-providerdashboard-config"
+                          optional: true
+                    volumeMounts:
+                      - name: "proivderdashboard-tmp"
+                        mountPath: "/tmp"
+                      - name: "providerdashboard-nginx-config"
+                        mountPath: "/etc/nginx/nginx.conf"
+                        subPath: "nginx.conf"
+                      - name: "providerdashboard-app-config"
+                        mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                        subPath: "app.config.json"
+                volumes:
+                  - name: "providerdashboard-tmp"
+                    emptyDir:
+                      medium: "Memory"
+                  - name: "providerdashboard-nginx-config"
+                    configMap:
+                      name: "{{ application }}-providerdashboard-config"
+                  - name: "providerdashboard-app-config"
+                    configMap:
+                      name: "{{ application }}-providerdashboard-config"
+
+    - name: "deploy service/{{ application }}-providerdashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - providerdashboard
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-providerdashboard"
+            labels:
+              application: "{{ application }}"
+              component: providerdashboard
+          spec:
+            ports:
+              - name: "www"
+                port: 80
+            selector:
+              application: "{{ application }}"
+              component: providerdashboard
+
 #    - name: "deploy {{ application }} {{ expose_http_kind }}"
 #      when: "expose_http_kind != 'none'"
 #      tags:
