@@ -35,6 +35,14 @@ connectorconsumer_resources:
     cpu: "1"
     memory: "2000Mi"
 
+connectorprovider_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
 datadashboard_resources:
   requests:
     cpu: "100m"
