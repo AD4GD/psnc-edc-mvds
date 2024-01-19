@@ -116,9 +116,6 @@ connectorconsumer_configmap__05_defaults:
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
 
-#datadashboard_configmap__05_defaults:
-#  TEST_PROPERTY: "test_value"
-
 # DO NOT CHANGE DEFINITIONS BELOW
 #
 deployed_parameters_packs: "{{ (['connectorconsumer'] if deploy_connector else []) + (['datadashboard'] if deploy_datadashboard else [])}}"
