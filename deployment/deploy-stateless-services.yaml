@@ -511,6 +511,28 @@
                 "catalogUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
                 "theme": "theme-3"
               }
+            nginx.conf: |
+              events {}
+              http {
+                include /etc/nginx/mime.types;
+                server {
+                  listen       80;
+                  server_name  localhost;
+              
+                  root   /usr/share/nginx/html;
+                  index  index.html;
+              
+                  access_log off;
+              
+                  location / {
+                    try_files $uri $uri/ /index.html;
+                  }
+              
+                location /management {
+                  proxy_pass https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl;
+                }
+              }
+            }
 
     - name: "deploy deployment/{{ application }}-datadashboard"
       when: "deploy_datadashboard|bool"
@@ -567,14 +589,20 @@
                     volumeMounts:
                       - name: "datadashboard-tmp"
                         mountPath: "/tmp"
-                      - name: "datadashboard-config"
+                      - name: "datadashboard-nginx-config"
+                        mountPath: "/etc/nginx/nginx.conf"
+                        subPath: "nginx.conf"
+                      - name: "datadashboard-app-config"
                         mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
                         subPath: "app.config.json"
                 volumes:
                   - name: "datadashboard-tmp"
                     emptyDir:
                       medium: "Memory"
-                  - name: "datadashboard-config"
+                  - name: "datadashboard-nginx-config"
+                    configMap:
+                      name: "{{ application }}-datadashboard-config"
+                  - name: "datadashboard-app-config"
                     configMap:
                       name: "{{ application }}-datadashboard-config"
 
