@@ -118,17 +118,17 @@
               application: "{{ application }}"
               component: connectorconsumer
 
-    - name: "deploy configmap/{{ application }}-datadashboard"
+    - name: "deploy configmap/{{ application }}-consumerdashboard"
       when: "deploy_datadashboard"
       tags:
-        - datadashboard
+        - consumerdashboard
         - configmap
       k8s:
         definition:
           apiVersion: v1
           kind: ConfigMap
           metadata:
-            name: "{{ application }}-datadashboard-config"
+            name: "{{ application }}-consumerdashboard-config"
             labels:
               application: "{{ application }}"
           data:
@@ -142,19 +142,21 @@
             nginx.conf: |
               events {}
 
-    - name: "deploy deployment/{{ application }}-datadashboard"
+
+
+    - name: "deploy deployment/{{ application }}-consumerdashboard"
       when: "deploy_datadashboard|bool"
       tags:
-        - datadashboard
+        - consumerdashboard
         - deployment
       k8s:
         definition:
           apiVersion: v1
           kind: Deployment
           metadata:
-            name: "{{ application }}-datadashboard"
+            name: "{{ application }}-consumerdashboard"
             labels:
-              component: datadashboard
+              component: consumerdashboard
               application: "{{ application }}"
           spec:
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -163,15 +165,15 @@
               type: RollingUpdate
             selector:
               matchLabels:
-                component: datadashboard
+                component: consumerdashboard
                 application: "{{ application }}"
             template:
               metadata:
                 labels:
-                  component: datadashboard
+                  component: consumerdashboard
                   application: "{{ application }}"
                   image_tag: "{{ stateless_services_image_tag }}"
-                  parameters_digest: "{{ (datadashboard_configmap_digest + datadashboard_secret_digest)|hash('sha1') }}"
+                  parameters_digest: "{{ (consumerdashboard_configmap_digest + consumerdashboard_secret_digest)|hash('sha1') }}"
               spec:
                 serviceAccountName: "run-any-uid"
                 ports:
@@ -179,62 +181,62 @@
                     containerPort: 80
                     protocol: "TCP"
                 containers:
-                  - name: "datadashboard"
+                  - name: "consumerdashboard"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: false
                     #                      runAsUser: 1000
-                    resources: "{{ datadashboard_resources }}"
+                    resources: "{{ consumerdashboard_resources }}"
                     envFrom:
                       - secretRef:
-                          name: "{{ application }}-datadashboard"
+                          name: "{{ application }}-consumerdashboard"
                           optional: true
                       - configMapRef:
-                          name: "{{ application }}-datadashboard-config"
+                          name: "{{ application }}-consumerdashboard-config"
                           optional: true
                     volumeMounts:
-                      - name: "datadashboard-tmp"
+                      - name: "consumerdashboard-tmp"
                         mountPath: "/tmp"
-                      - name: "datadashboard-nginx-config"
+                      - name: "consumerdashboard-nginx-config"
                         mountPath: "/etc/nginx/nginx.conf"
                         subPath: "nginx.conf"
-                      - name: "datadashboard-app-config"
+                      - name: "consumerdashboard-app-config"
                         mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
                         subPath: "app.config.json"
                 volumes:
-                  - name: "datadashboard-tmp"
+                  - name: "consumerdashboard-tmp"
                     emptyDir:
                       medium: "Memory"
-                  - name: "datadashboard-nginx-config"
+                  - name: "consumerdashboard-nginx-config"
                     configMap:
-                      name: "{{ application }}-datadashboard-config"
-                  - name: "datadashboard-app-config"
+                      name: "{{ application }}-consumerdashboard-config"
+                  - name: "consumerdashboard-app-config"
                     configMap:
-                      name: "{{ application }}-datadashboard-config"
+                      name: "{{ application }}-consumerdashboard-config"
 
-    - name: "deploy service/{{ application }}-datadashboard"
+    - name: "deploy service/{{ application }}-consumerdashboard"
       when: "deploy_datadashboard"
       tags:
-        - datadashboard
+        - consumerdashboard
         - service
       k8s:
         definition:
           apiVersion: v1
           kind: Service
           metadata:
-            name: "{{ application }}-datadashboard"
+            name: "{{ application }}-consumerdashboard"
             labels:
               application: "{{ application }}"
-              component: datadashboard
+              component: consumerdashboard
           spec:
             ports:
               - name: "www"
                 port: 80
             selector:
               application: "{{ application }}"
-              component: datadashboard
+              component: consumerdashboard
 
     - name: "deploy deployment/{{ application }}-connectorprovider"
       when: "deploy_connector|bool"
@@ -340,18 +342,17 @@
               application: "{{ application }}"
               component: connectorprovider
 
-
-    - name: "deploy configmap/{{ application }}-datadashboard"
+    - name: "deploy configmap/{{ application }}-providerdashboard"
       when: "deploy_datadashboard"
       tags:
-        - datadashboard
+        - providerdashboard
         - configmap
       k8s:
         definition:
           apiVersion: v1
           kind: ConfigMap
           metadata:
-            name: "{{ application }}-datadashboard-config"
+            name: "{{ application }}-providerdashboard-config"
             labels:
               application: "{{ application }}"
           data:
@@ -364,6 +365,11 @@
               }
             nginx.conf: |
               events {}
+
+
+
+
+
 
     - name: "deploy deployment/{{ application }}-providerdashboard"
       when: "deploy_datadashboard|bool"
@@ -409,34 +415,33 @@
                       readOnlyRootFilesystem: false
                       runAsNonRoot: false
                     #                      runAsUser: 1000
-                    resources: "{{ datadashboard_resources }}"
+                    resources: "{{ providerdashboard_resources }}"
                     envFrom:
                       - secretRef:
                           name: "{{ application }}-providerdashboard"
                           optional: true
                       - configMapRef:
-                          name: "{{ application }}-datadashboard-config"
+                          name: "{{ application }}-providerdashboard-config"
                           optional: true
                     volumeMounts:
-                      - name: "datadashboard-tmp"
+                      - name: "providerdashboard-tmp"
                         mountPath: "/tmp"
-                      - name: "datadashboard-nginx-config"
+                      - name: "providerdashboard-nginx-config"
                         mountPath: "/etc/nginx/nginx.conf"
                         subPath: "nginx.conf"
-                      - name: "datadashboard-app-config"
+                      - name: "providerdashboard-app-config"
                         mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
                         subPath: "app.config.json"
                 volumes:
-                  - name: "datadashboard-tmp"
+                  - name: "providerdashboard-tmp"
                     emptyDir:
                       medium: "Memory"
-                  - name: "datadashboard-nginx-config"
+                  - name: "providerdashboard-nginx-config"
                     configMap:
-                      name: "{{ application }}-datadashboard-config"
-                  - name: "datadashboard-app-config"
+                      name: "{{ application }}-providerdashboard-config"
+                  - name: "providerdashboard-app-config"
                     configMap:
-                      name: "{{ application }}-datadashboard-config"
-
+                      name: "{{ application }}-providerdashboard-config"
 
     - name: "deploy service/{{ application }}-providerdashboard"
       when: "deploy_datadashboard"
