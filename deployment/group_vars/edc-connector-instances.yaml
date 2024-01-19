@@ -43,7 +43,7 @@ connectorprovider_resources:
     cpu: "1"
     memory: "2000Mi"
 
-datadashboard_resources:
+consumerdashboard_resources:
   requests:
     cpu: "100m"
     memory: "200Mi"
