@@ -558,9 +558,6 @@
                     #                      runAsUser: 1000
                     resources: "{{ datadashboard_resources }}"
                     envFrom:
-                      - configMapRef:
-                          name: "{{ application }}-datadashboard"
-                          optional: true
                       - secretRef:
                           name: "{{ application }}-datadashboard"
                           optional: true
