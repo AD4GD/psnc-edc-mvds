@@ -22,35 +22,3 @@
           kind: "{{ expose_http_k8s_entity_kind }}"
           metadata:
             name: "{{ item.metadata.name }}"
-
-    - name: "purge service/{{ application }}-varnish"
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{ application }}-varnish"
-
-    - name: "purge deployment/{{ application }}-varnish"
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Deployment
-          metadata:
-            name: "{{ application }}-varnish"
-
-    - name: "purge service/{{ application }}-django"
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{ application }}-django"
-
-    - name: "purge deployment/{{ application }}-django"
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: Deployment
-          metadata:
-            name: "{{ application }}-django"

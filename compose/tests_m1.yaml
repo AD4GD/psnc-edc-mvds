@@ -1,39 +1,9 @@
 version: '3.3'
 services:
 
-  django:
-    # relax this constraint in test environment, e.g. allow to install test packages
-    # '!reset' here is caused by a bug in docker-compose, see https://github.com/docker/compose/issues/8866
-    read_only: !reset false
-    restart: "unless-stopped"
-    ports:
-      - "9001:9001"
-    environment:
-      - MAIN_DOMAIN=tests.edc.connector
-      - ENABLE_SERVICES=
-      - PYTEST_ADDOPTS
-      - MEMCACHED_DEFAULT_NOREPLY=False
-      - COVERAGE_FILE=/srv/reports/.coverage
-      - DJANGO_LIVE_TEST_SERVER_ADDRESS=django
-    command: run-all-audits-and-tests
-    working_dir: /srv/src
-    tmpfs:
-      - "/tmp:exec"
-    networks:
-      default:
-        aliases:
-          - django
-
   postgres:
     tmpfs:
       - "/var/lib/postgresql/data:uid=999,gid=999"
-
-  memcached:
-    networks:
-      default:
-        aliases:
-          - memcached
-          - memcached_alias
 
 networks:
   default:

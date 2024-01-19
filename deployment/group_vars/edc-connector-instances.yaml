@@ -14,8 +14,8 @@ repository_name: edc-connector
 
 base_image_registry_domain: "{{ registry_domain }}"
 base_image_registry_project: "base"
-postgres_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
-connector_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
+connectorconsumer_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
+connectorprovider_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine"
 
 readiness_probe_initial_delay: 3
 readiness_probe_period: 15
@@ -27,41 +27,7 @@ liveness_probe_timeout: 60
 
 with_stateless_services_horizontal_pod_autoscalers: true
 
-django_autoscaler:
-  min_replicas: 1
-  max_replicas: 2
-  target_cpu_utilization_percentage: 90
-
-varnish_autoscaler:
-  min_replicas: 1
-  max_replicas: 2
-  target_cpu_utilization_percentage: 90
-
-django_resources:
-  requests:
-    cpu: "200m"
-    memory: "256Mi"
-  limits:
-    cpu: "1000m"
-    memory: "512Mi"
-
-varnish_resources:
-  requests:
-    cpu: "100m"
-    memory: "256Mi"
-  limits:
-    cpu: "1000m"
-    memory: "512Mi"
-
-pgbouncer_resources:
-  requests:
-    cpu: "50m"
-    memory: "50M"
-  limits:
-    cpu: "200m"
-    memory: "200M"
-
-connector_resources:
+connectorconsumer_resources:
   requests:
     cpu: "100m"
     memory: "1000Mi"
@@ -69,30 +35,39 @@ connector_resources:
     cpu: "1"
     memory: "2000Mi"
 
+connectorprovider_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+consumerdashboard_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+providerdashboard_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
 deploy_stateful_services: true
 
-deploy_postgres: "{{ deploy_stateful_services }}"
-deploy_memcached: "{{ deploy_stateful_services }}"
 deploy_connector: "{{ deploy_stateful_services }}"
-
-postgres_pvc_storage_size: "1Gi"
-connector_pvc_storage_size: "1Gi"
-
-postgres_pvc_storage_class_name: ""
-connector_pvc_storage_class_name: ""
-
-postgres_pvc_access_mode_type: ""
-connector_pvc_access_mode_type: ""
-
-create_non_root_database: true
+deploy_datadashboard: "{{ deploy_stateful_services }}"
 
 image_pull_secret: "regcred"
 create_run_any_uid_service_account: true
 
-
 MAIN_DOMAIN: "{{ inventory_hostname|regex_replace('-edc-connector-instance$', '') }}"
-SECONDARY_DOMAIN: "{{ application }}-varnish:9002"
-
 
 expose_http_kind: "routes"
 expose_http_host: "{{ MAIN_DOMAIN }}"
@@ -129,52 +104,15 @@ ingress_scheme: "{{ 'https' if expose_http_tls_mode != 'disabled' else 'http' }}
 environment_ingress_address: "{{ ENVIRONMENT_INGRESS_ADDRESS|default('') }}"
 ingress_address: "{{ environment_ingress_address if use_environment_ingress_address else MAIN_DOMAIN }}"
 
-django_configmap__05_defaults:
-  MAIN_DOMAIN: "{{ MAIN_DOMAIN }}"
-  SECONDARY_DOMAIN: "{{ SECONDARY_DOMAIN }}"
+SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
 
-  DATABASE_NAME: "{{ application|replace('-', '_') }}_db"
-  DATABASE_HOST: "{{ application }}-postgres"
-  DATABASE_PORT: "5432"
-
-  MEMCACHED_HOST: "{{ application }}-memcached"
-  MEMCACHED_PORT: "11211"
-
-django_secret__05_defaults:
-  SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
-
-  SECRET_KEY:
+SECRET_KEY:
     when_missing: "{{ random_django_secret_key }}"
 
-  DATABASE_USER:
-    when_missing: "{{ random_postgres_user }}"
-  DATABASE_PASS:
-    when_missing: "{{ random_postgres_pass }}"
-
-varnish_configmap__05_defaults:
-  MAIN_DOMAIN: "{{ MAIN_DOMAIN }}"
-  SECONDARY_DOMAIN: "{{ SECONDARY_DOMAIN }}"
-  DJANGO_HOSTS: "{{ application }}-django:9001"
-  VARNISH_IS_FIRST_HTTP_SERVER: "false"
-
-pgbouncer_configmap__05_defaults:
-  LOG_CONNECTIONS: "0"
-  LOG_DISCONNECTIONS: "0"
-  STATS_PERIOD: "5"
-
-postgres_configmap__05_defaults:
-  POSTGRES_DB: postgres
-
-postgres_secret__05_defaults:
-  POSTGRES_USER:
-    when_missing: "{{ random_postgres_user }}"
-  POSTGRES_PASSWORD:
-    when_missing: "{{ random_postgres_pass }}"
-
-connector_configmap__05_defaults:
+connectorconsumer_configmap__05_defaults:
   JVM_ARGS: ""
   SERVICE_HOST: "http://127.0.0.1"
-  EDC_IDS_ID: "urn:connector:pnsc"
+  EDC_IDS_ID: "urn:connectorconsumer:psnc"
   EDC_PARTICIPANT_ID: "psnc"
   EDC_DSP_CALLBACK_ADDRESS: "$SERVICE_HOST:29194/protocol"
   WEB_HTTP_PORT: "29191"
@@ -195,19 +133,35 @@ connector_configmap__05_defaults:
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
 
-random_django_secret_key: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
 
-random_postgres_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
-random_postgres_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+connectorprovider_configmap__05_defaults:
+  JVM_ARGS: ""
+  SERVICE_HOST: "http://127.0.0.1"
+  EDC_IDS_ID: "urn:connectorprovider:psnc"
+  EDC_PARTICIPANT_ID: "psnc"
+  EDC_DSP_CALLBACK_ADDRESS: "$SERVICE_HOST:19194/protocol"
+  WEB_HTTP_PORT: "19191"
+  WEB_HTTP_PATH: "/api"
+  WEB_HTTP_MANAGEMENT_PORT: "19193"
+  WEB_HTTP_MANAGEMENT_PATH: "/management"
+  WEB_HTTP_PROTOCOL_PORT: "19194"
+  WEB_HTTP_PROTOCOL_PATH: "/protocol"
+  WEB_HTTP_PUBLIC_PORT: "19291"
+  WEB_HTTP_PUBLIC_PATH: "/public"
+  WEB_HTTP_CONTROL_PORT: "19192"
+  WEB_HTTP_CONTROL_PATH: "/control"
+  EDC_RECEIVER_HTTP_ENDPOINT: "$SERVICE_HOST:4000/receiver/urn:connector:psnc/callback"
+  EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "$SERVICE_HOST:29192/control/token"
+  EDC_PUBLIC_KEY_ALIAS: "public-key"
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "1"
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
+  EDC_KEYSTORE: "/app/certs/cert.pfx"
+  EDC_VAULT: "/app/config/fs-provider.vault"
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-
-deployed_parameters_packs: "{{ ['django', 'varnish', 'pgbouncer'] + (['postgres'] if deploy_postgres else []) + (['memcached'] if deploy_memcached else []) + (['connector'] if deploy_connector else []) }}"
+deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider'] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else [])}}"
 
 # definitions below are helper definitions - do not change this
-
-postgres_admin_connection_environment_variables: "PGUSER={{ postgres_secret_data.POSTGRES_USER }} PGPASSWORD={{ postgres_secret_data.POSTGRES_PASSWORD }} PGHOST={{ django_configmap_data.DATABASE_HOST }} PGPORT={{ django_configmap_data.DATABASE_PORT }} PGDATABASE={{ postgres_configmap_data.POSTGRES_DB }}"
-django_direct_connection_environment_variables: "DATABASE_HOST={{ django_configmap_data.DATABASE_HOST }} DATABASE_PORT={{ django_configmap_data.DATABASE_PORT }}"
 
 # DO NOT CHANGE DEFINITIONS ABOVE
