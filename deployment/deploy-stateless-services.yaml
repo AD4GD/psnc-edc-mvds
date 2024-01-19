@@ -418,22 +418,22 @@
                           name: "{{ application }}-datadashboard-config"
                           optional: true
                     volumeMounts:
-                      - name: "dashboard-tmp"
+                      - name: "providerdashboard-tmp"
                         mountPath: "/tmp"
-                      - name: "dashboard-nginx-config"
+                      - name: "providerboard-nginx-config"
                         mountPath: "/etc/nginx/nginx.conf"
                         subPath: "nginx.conf"
-                      - name: "dashboard-app-config"
+                      - name: "providerdashboard-app-config"
                         mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
                         subPath: "app.config.json"
                 volumes:
-                  - name: "dashboard-tmp"
+                  - name: "providerdashboard-tmp"
                     emptyDir:
                       medium: "Memory"
                   - name: "providerdashboard-nginx-config"
                     configMap:
                       name: "{{ application }}-dashboard-config"
-                  - name: "dashboard-app-config"
+                  - name: "providerdashboard-app-config"
                     configMap:
                       name: "{{ application }}-datadashboard-config"
 
