@@ -119,6 +119,28 @@
               component: connectorconsumer
 
 
+    - name: "deploy configmap/{{ application }}-datadashboard"
+      when: "deploy_datadashboard"
+      tags:
+        - datadashboard
+        - configmap
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "{{ application }}-datadashboard-config"
+            labels:
+              application: "{{ application }}"
+          data:
+            app.config.json: |
+              {
+                "apiKey": "fifi-info-zaneta",
+                "managementApiUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
+                "theme": "theme-3"
+              }
+
     - name: "deploy deployment/{{ application }}-datadashboard"
       when: "deploy_datadashboard|bool"
       tags:
@@ -171,13 +193,22 @@
                       - secretRef:
                           name: "{{ application }}-datadashboard"
                           optional: true
+                      - configMapRef:
+                          name: "{{ application }}-datadashboard-config"
+                          optional: true
                     volumeMounts:
                       - name: "datadashboard-tmp"
                         mountPath: "/tmp"
+                      - name: "datadashboard-config"
+                        mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                        subPath: "app.config.json"
                 volumes:
                   - name: "datadashboard-tmp"
                     emptyDir:
                       medium: "Memory"
+                  - name: "datadashboard-config"
+                    configMap:
+                      name: "{{ application }}-datadashboard-config"
 
     - name: "deploy service/{{ application }}-datadashboard"
       when: "deploy_datadashboard"
