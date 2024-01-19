@@ -141,8 +141,7 @@
               }
             nginx.conf: |
               events {}
-
-
+              server {}
 
     - name: "deploy deployment/{{ application }}-consumerdashboard"
       when: "deploy_datadashboard|bool"
@@ -365,11 +364,6 @@
               }
             nginx.conf: |
               events {}
-
-
-
-
-
 
     - name: "deploy deployment/{{ application }}-providerdashboard"
       when: "deploy_datadashboard|bool"
