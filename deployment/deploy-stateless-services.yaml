@@ -118,7 +118,6 @@
               application: "{{ application }}"
               component: connectorconsumer
 
-
     - name: "deploy configmap/{{ application }}-datadashboard"
       when: "deploy_datadashboard"
       tags:
