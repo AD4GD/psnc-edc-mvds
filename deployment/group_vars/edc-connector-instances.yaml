@@ -111,10 +111,10 @@ SECRET_KEY:
 
 connectorconsumer_configmap__05_defaults:
   JVM_ARGS: ""
-  SERVICE_HOST: "http://127.0.0.1"
+  SERVICE_HOST: "http://edc-connector-connectorconsumer.edc-connector.svc"
   EDC_IDS_ID: "urn:connectorconsumer:psnc"
   EDC_PARTICIPANT_ID: "psnc"
-  EDC_DSP_CALLBACK_ADDRESS: "$SERVICE_HOST:29194/protocol"
+  EDC_DSP_CALLBACK_ADDRESS: "http://edc-connector-connectorconsumer.edc-connector.svc:29194/protocol"
   WEB_HTTP_PORT: "29191"
   WEB_HTTP_PATH: "/api"
   WEB_HTTP_MANAGEMENT_PORT: "29193"
@@ -126,7 +126,7 @@ connectorconsumer_configmap__05_defaults:
   WEB_HTTP_CONTROL_PORT: "29192"
   WEB_HTTP_CONTROL_PATH: "/control"
   EDC_RECEIVER_HTTP_ENDPOINT: "$SERVICE_HOST:4000/receiver/urn:connector:psnc/callback"
-  EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "$SERVICE_HOST:29192/control/token"
+  EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "http://edc-connector-connectorconsumer.edc-connector.svc:29192/control/token"
   EDC_PUBLIC_KEY_ALIAS: "public-key"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "1"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
@@ -136,10 +136,10 @@ connectorconsumer_configmap__05_defaults:
 
 connectorprovider_configmap__05_defaults:
   JVM_ARGS: ""
-  SERVICE_HOST: "http://127.0.0.1"
+  SERVICE_HOST: "http://edc-connector-connectorprovider.edc-connector.svc"
   EDC_IDS_ID: "urn:connectorprovider:psnc"
   EDC_PARTICIPANT_ID: "psnc"
-  EDC_DSP_CALLBACK_ADDRESS: "$SERVICE_HOST:19194/protocol"
+  EDC_DSP_CALLBACK_ADDRESS: "http://edc-connector-connectorprovider.edc-connector.svc:19194/protocol"
   WEB_HTTP_PORT: "19191"
   WEB_HTTP_PATH: "/api"
   WEB_HTTP_MANAGEMENT_PORT: "19193"
@@ -151,7 +151,7 @@ connectorprovider_configmap__05_defaults:
   WEB_HTTP_CONTROL_PORT: "19192"
   WEB_HTTP_CONTROL_PATH: "/control"
   EDC_RECEIVER_HTTP_ENDPOINT: "$SERVICE_HOST:4000/receiver/urn:connector:psnc/callback"
-  EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "$SERVICE_HOST:29192/control/token"
+  EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "http://edc-connector-connectorprovider.edc-connector.svc:19192/control/token"
   EDC_PUBLIC_KEY_ALIAS: "public-key"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "1"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
