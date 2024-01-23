@@ -135,8 +135,8 @@
             app.config.json: |
               {
                 "apiKey": "fifi-info-zaneta",
-                "managementApiUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
+                "managementApiUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
                 "theme": "theme-3"
               }
             nginx.conf: |
@@ -145,7 +145,7 @@
                 include /etc/nginx/mime.types;
                 server {
                   listen 80;
-                  server_name localhost;
+                  server_name consumer-dashboard-edc-connector.apps.paas-dev.psnc.pl;
                   root /usr/share/nginx/html;
                   index index.html;
                   access_log off;
@@ -153,7 +153,7 @@
                     try_files $uri $uri/ /index.html;
                   }
                   location /management {
-                    proxy_pass https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl;
+                    proxy_pass https://consumer-edc-connector.apps.paas-dev.psnc.pl;
                   }
                 }
               }
@@ -373,8 +373,8 @@
             app.config.json: |
               {
                 "apiKey": "fifi-info-zaneta",
-                "managementApiUrl": "https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "managementApiUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
                 "theme": "theme-3"
               }
             nginx.conf: |
@@ -383,7 +383,7 @@
                 include /etc/nginx/mime.types;
                 server {
                   listen 80;
-                  server_name localhost;
+                  server_name provider-dashboard-edc-connector.apps.paas-dev.psnc.pl;
                   root /usr/share/nginx/html;
                   index index.html;
                   access_log off;
@@ -391,7 +391,7 @@
                     try_files $uri $uri/ /index.html;
                   }
                   location /management {
-                    proxy_pass https://edc-connector-connectorprovider-edc-connector.apps.paas-dev.psnc.pl;
+                    proxy_pass https://provider-edc-connector.apps.paas-dev.psnc.pl;
                   }
                 }
               }
@@ -490,45 +490,45 @@
               application: "{{ application }}"
               component: providerdashboard
 
-    - name: "deploy configmap/{{ application }}-datadashboard"
-      when: "deploy_datadashboard"
-      tags:
-        - consumerdashboard
-        - configmap
-      k8s:
-        definition:
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            name: "{{ application }}-consumerdashboard-config"
-            labels:
-              application: "{{ application }}"
-          data:
-            app.config.json: |
-              {
-                "apiKey": "fifi-info-zaneta",
-                "managementApiUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
-                "theme": "theme-3"
-              }
-            nginx.conf: |
-              events {}
-              http {
-                include /etc/nginx/mime.types;
-                server {
-                  listen 80;
-                  server_name localhost;
-                  root /usr/share/nginx/html;
-                  index index.html;
-                  access_log off;
-                  location / {
-                    try_files $uri $uri/ /index.html;
-                  }
-                  location /management {
-                    proxy_pass https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl;
-                  }
-                }
-              }
+    # - name: "deploy configmap/{{ application }}-datadashboard"
+    #   when: "deploy_datadashboard"
+    #   tags:
+    #     - consumerdashboard
+    #     - configmap
+    #   k8s:
+    #     definition:
+    #       apiVersion: v1
+    #       kind: ConfigMap
+    #       metadata:
+    #         name: "{{ application }}-consumerdashboard-config"
+    #         labels:
+    #           application: "{{ application }}"
+    #       data:
+    #         app.config.json: |
+    #           {
+    #             "apiKey": "fifi-info-zaneta",
+    #             "managementApiUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
+    #             "catalogUrl": "https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl/management",
+    #             "theme": "theme-3"
+    #           }
+    #         nginx.conf: |
+    #           events {}
+    #           http {
+    #             include /etc/nginx/mime.types;
+    #             server {
+    #               listen 80;
+    #               server_name localhost;
+    #               root /usr/share/nginx/html;
+    #               index index.html;
+    #               access_log off;
+    #               location / {
+    #                 try_files $uri $uri/ /index.html;
+    #               }
+    #               location /management {
+    #                 proxy_pass https://edc-connector-connectorconsumer-edc-connector.apps.paas-dev.psnc.pl;
+    #               }
+    #             }
+    #           }
 
     - name: "deploy deployment/{{ application }}-consumerdashboard"
       when: "deploy_datadashboard|bool"
