@@ -134,7 +134,7 @@ connectorconsumer_configmap__05_defaults:
   EDC_VAULT: "/app/config/fs-consumer.vault"
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
-  EDC_FEDERATED_NODE_URL: https://proivder-edc-connector.apps.paas-dev.psnc.pl/protocol
+  EDC_FEDERATED_NODE_URL: https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol
 
 
 connectorprovider_configmap__05_defaults:
@@ -162,7 +162,7 @@ connectorprovider_configmap__05_defaults:
   EDC_VAULT: "/app/config/fs-provider.vault"
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
-  EDC_FEDERATED_NODE_URL: https://proivder-edc-connector.apps.paas-dev.psnc.pl/protocol
+  EDC_FEDERATED_NODE_URL: https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol
 
 
 # DO NOT CHANGE DEFINITIONS BELOW
