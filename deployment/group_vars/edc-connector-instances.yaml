@@ -59,6 +59,14 @@ providerdashboard_resources:
     cpu: "1"
     memory: "400Mi"
 
+consback_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
 deploy_stateful_services: true
 
 deploy_connector: "{{ deploy_stateful_services }}"
@@ -167,7 +175,7 @@ connectorprovider_configmap__05_defaults:
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider'] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else [])}}"
+deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else [])}}"
 
 # definitions below are helper definitions - do not change this
 

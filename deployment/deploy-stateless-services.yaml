@@ -490,6 +490,83 @@
               application: "{{ application }}"
               component: providerdashboard
 
+    - name: "deploy deployment/{{ application }}-consback"
+      when: "deploy_connector|bool"
+      tags:
+        - consback
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-consback"
+            labels:
+              component: consback
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: consback
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: consback
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (consback_configmap_digest + consback_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "receiver"
+                    containerPort: 4000
+                    protocol: "TCP"
+                containers:
+                  - name: "consback"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/consback:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
+                    resources: "{{ consback_resources }}"
+                    volumeMounts:
+                      - name: "consback-tmp"
+                        mountPath: "/tmp"
+                volumes:
+                  - name: "consback-tmp"
+                    emptyDir:
+                      medium: "Memory"
+
+    - name: "deploy service/{{ application }}-consback"
+      when: "deploy_datadashboard"
+      tags:
+        - consback
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-consback"
+            labels:
+              application: "{{ application }}"
+              component: consback
+          spec:
+            ports:
+              - name: "receiver"
+                port: 4000
+            selector:
+              application: "{{ application }}"
+              component: consback
+
+
+
 #    - name: "deploy {{ application }} {{ expose_http_kind }}"
 #      when: "expose_http_kind != 'none'"
 #      tags:
