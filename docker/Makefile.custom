@@ -25,4 +25,5 @@ build-data-dashboard: BUILDER_IMAGE=node:lts
 build-data-dashboard: BASE_IMAGE=nginx:alpine
 build-data-dashboard: CONTEXT_PATH=../
 
-build-consback: BASE_IMAGE=python:3.9-slim
+build-consback: BUILDER_IMAGE=python:3.9-slim
+build-consback: CONTEXT_PATH=../
