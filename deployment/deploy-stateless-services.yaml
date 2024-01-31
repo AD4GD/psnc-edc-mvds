@@ -136,7 +136,7 @@
               {
                 "apiKey": "fifi-info-zaneta",
                 "managementApiUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
                 "theme": "theme-3"
               }
             nginx.conf: |
@@ -145,7 +145,7 @@
                 include /etc/nginx/mime.types;
                 server {
                   listen 80;
-                  server_name edc-connector-consumerdashboard.edc-connector.svc;
+                  server_name consumer-dashboard-edc-connector.apps.paas-dev.psnc.pl;
                   root /usr/share/nginx/html;
                   index index.html;
                   access_log off;
