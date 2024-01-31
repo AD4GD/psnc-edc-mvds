@@ -52,7 +52,7 @@ async def edr_endpoint(request_data: RequestData):
 
     return StreamingResponse(
         content=response.content,
-        media_type=mime_type,
+        media_type=_mime,
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
