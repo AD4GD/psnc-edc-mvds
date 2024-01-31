@@ -157,7 +157,7 @@
                   }
                 }
               }
-
+            
     - name: "deploy deployment/{{ application }}-consumerdashboard"
       when: "deploy_datadashboard|bool"
       tags:
