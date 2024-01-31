@@ -7,8 +7,7 @@ import httpx
 import magic
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from fastapi.responses import StreamingResponse 
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -50,8 +49,12 @@ async def edr_endpoint(request_data: RequestData):
         final_filename = os.path.join("data", f"{timestamp}{_ext}")
     else:
         final_filename = os.path.join("data", f"{timestamp}.bin")
-    
-    return StreamingResponse(content=response.content, media_type=mime_type, headers={"Content-Disposition": f"attachment; filename={filename}"})
+
+    return StreamingResponse(
+        content=response.content,
+        media_type=mime_type,
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
 
     # os.rename(filename, final_filename)
     # print("Download finished. Filename: " + final_filename)
