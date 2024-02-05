@@ -12,4 +12,135 @@
     - name: "fetch image_tag if undefined"
       # TODO DV-272 remove this or here
       when: image_tag is undefined or not image_tag
+
+    - name: "deploy pvc/{{ application }}-minio"
+      when: "deploy_minio"
+      tags:
+        - minio
+        - persistentvolumeclaim
+      vars:
+        pvc_name: "{{ application }}-minio"
+        pvc_storage_size: "{{ minio_pvc_storage_size }}"
+        pvc_storage_class_name: "{{ minio_pvc_storage_class_name }}"
+
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: "{{ application }}-minio"
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: "{{ minio_pvc_storage_size }}"
+
+    - name: "deploy statefulset/{{ application }}-minio"
+      when: "deploy_minio"
+      tags:
+        - minio
+        - statefulset
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: StatefulSet
+          metadata:
+            name: "{{ application }}-minio"
+            labels:
+              component: "minio"
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: "minio"
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: "minio"
+                  application: "{{ application }}"
+                annotations:
+                  backup.velero.io/backup-volumes: "{{ 'minio-data' if use_minio_backup_velero_io_backup_volumes_annotation else '' }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                initContainers:
+                  - name: "permissions-fix"
+                    image: "{{ minio_init_containers_base_image }}"
+                    command: ["chown", "-v", "999:999", "/mount"]
+                    volumeMounts:
+                      - name: "minio-data"
+                        mountPath: "/mount"
+                containers:
+                  - name: "minio"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/minio:{{ stateful_services_image_tag }}"
+                    command: ["/usr/bin/minio", "server", "/data"]
+                    imagePullPolicy: Always
+                    resources: "{{ minio_resources }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: false
+                      runAsUser: 999  # minio user
+                    ports:
+                      - name: "minio-http"
+                        containerPort: 9000
+                        protocol: "TCP"
+                    envFrom:
+                      - secretRef:
+                          name: "{{ application }}-minio"
+                          optional: true
+                    env:
+                      - name: MINIO_ACCESS_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-django"
+                            key: STORAGE_S3_ACCESS_KEY_ID
+                      - name: MINIO_SECRET_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-django"
+                            key: STORAGE_S3_SECRET_ACCESS_KEY
+                    volumeMounts:
+                      - name: "minio-data"
+                        mountPath: "/data"
+                    readinessProbe:
+                      tcpSocket:
+                        port: "minio-http"
+                      initialDelaySeconds: 30
+                      periodSeconds: "{{ readiness_probe_period }}"
+                    livenessProbe:
+                      tcpSocket:
+                        port: "minio-http"
+                      initialDelaySeconds: 30
+                      periodSeconds: "{{ liveness_probe_period }}"
+                volumes:
+                  - name: "minio-data"
+                    persistentVolumeClaim:
+                      claimName: "{{ application }}-minio"
+
+    - name: "deploy service/{{ application }}-minio"
+      when: "deploy_minio"
+      tags:
+        - minio
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-minio"
+            labels:
+              application: "{{ application }}"
+              component: "minio"
+          spec:
+            ports:
+              - port: 9000
+                name: "minio-http"
+            selector:
+              application: "{{ application }}"
+              component: "minio"
+
       include_tasks: "tasks/fetch-current-image-tag.yaml"
