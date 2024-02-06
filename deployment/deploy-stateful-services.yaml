@@ -12,6 +12,8 @@
     - name: "fetch image_tag if undefined"
       # TODO DV-272 remove this or here
       when: image_tag is undefined or not image_tag
+      include_tasks: "tasks/fetch-current-image-tag.yaml"
+
     - name: "deploy pvc/{{ application }}-minio"
       when: "deploy_minio"
       tags:
@@ -21,7 +23,6 @@
         pvc_name: "{{ application }}-minio"
         pvc_storage_size: "{{ minio_pvc_storage_size }}"
         pvc_storage_class_name: "{{ minio_pvc_storage_class_name }}"
-
       k8s:
         definition:
           apiVersion: v1
