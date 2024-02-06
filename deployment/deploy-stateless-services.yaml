@@ -568,12 +568,12 @@
             - name: MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: "{{ application }}-consback"
+                  name: "{{ application }}-minio"
                   key: MINIO_ACCESS_KEY
             - name: MINIO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: "{{ application }}-consback"
+                  name: "{{ application }}-minio"
                   key: MINIO_SECRET_KEY
 
 
