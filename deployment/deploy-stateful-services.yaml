@@ -10,7 +10,6 @@
 
   tasks:
     - name: "fetch image_tag if undefined"
-      # TODO DV-272 remove this or here
       when: image_tag is undefined or not image_tag
       include_tasks: "tasks/fetch-current-image-tag.yaml"
 
