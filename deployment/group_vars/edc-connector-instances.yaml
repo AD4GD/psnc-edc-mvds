@@ -71,10 +71,10 @@ consback_resources:
 minio_resources:
   requests:
     cpu: "1000m"
-    memory: "1Gi"
+    memory: "300Mi"
   limits:
     cpu: "1500m"
-    memory: "2Gi"
+    memory: "1Gi"
 
 deploy_stateful_services: true
 
