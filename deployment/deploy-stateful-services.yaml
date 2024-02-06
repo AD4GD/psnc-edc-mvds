@@ -142,4 +142,3 @@
               application: "{{ application }}"
               component: "minio"
 
-      include_tasks: "tasks/fetch-current-image-tag.yaml"
