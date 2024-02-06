@@ -92,6 +92,17 @@
                       - secretRef:
                           name: "{{ application }}-minio"
                           optional: true
+                    env:
+                      - name: MINIO_ACCESS_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-consback"
+                            key: MINIO_ACCESS_KEY
+                      - name: MINIO_SECRET_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-consback"
+                            key: MINIO_ACCESS_KEY
                     volumeMounts:
                       - name: "minio-data"
                         mountPath: "/data"
