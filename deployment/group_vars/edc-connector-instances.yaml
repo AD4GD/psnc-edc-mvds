@@ -192,8 +192,6 @@ consback_secret__05_defaults:
   MINIO_SECRET_KEY:
     when_missing: "{{ random_minio_pass }}"
 
-
-
 minio_secret__05_defaults:
   MINIO_ACCESS_KEY:
     when_missing: "{{ random_minio_user }}"

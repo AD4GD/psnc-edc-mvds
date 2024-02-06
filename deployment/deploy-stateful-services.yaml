@@ -92,17 +92,6 @@
                       - secretRef:
                           name: "{{ application }}-minio"
                           optional: true
-                    env:
-                      - name: MINIO_ACCESS_KEY
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-django"
-                            key: STORAGE_S3_ACCESS_KEY_ID
-                      - name: MINIO_SECRET_KEY
-                        valueFrom:
-                          secretKeyRef:
-                            name: "{{ application }}-django"
-                            key: STORAGE_S3_SECRET_ACCESS_KEY
                     volumeMounts:
                       - name: "minio-data"
                         mountPath: "/data"
