@@ -186,10 +186,27 @@ connectorprovider_configmap__05_defaults:
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
   EDC_FEDERATED_NODE_URL: "https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
 
+consback_secret__05_defaults:
+  MINIO_ACCESS_KEY:
+    when_missing: "{{ random_minio_user }}"
+  MINIO_SECRET_KEY:
+    when_missing: "{{ random_minio_pass }}"
+
+
+
+minio_secret__05_defaults:
+  MINIO_ACCESS_KEY:
+    when_missing: "{{ random_minio_user }}"
+  MINIO_SECRET_KEY:
+    when_missing: "{{ random_minio_pass }}"
+
+random_minio_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
+random_minio_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else [])}}"
+deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else []) + (['minio'] if deploy_minio else [])}}"
 
 # definitions below are helper definitions - do not change this
 
