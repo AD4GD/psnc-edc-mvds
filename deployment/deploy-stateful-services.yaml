@@ -141,4 +141,3 @@
             selector:
               application: "{{ application }}"
               component: "minio"
-
