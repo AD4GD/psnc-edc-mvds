@@ -544,7 +544,7 @@
                       medium: "Memory"
 
     - name: "deploy service/{{ application }}-consback"
-      when: "deploy_datadashboard"
+      when: "deploy_connector"
       tags:
         - consback
         - service

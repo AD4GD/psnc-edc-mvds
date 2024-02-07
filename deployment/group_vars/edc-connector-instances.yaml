@@ -187,9 +187,9 @@ connectorprovider_configmap__05_defaults:
   EDC_FEDERATED_NODE_URL: "https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
 
 consback_secret__05_defaults:
-  MINIO_ACCESS_KEY:
+  S3_STORAGE_ACCESS_KEY:
     when_missing: "{{ random_minio_user }}"
-  MINIO_SECRET_KEY:
+  S3_STORAGE_SECRET_KEY:
     when_missing: "{{ random_minio_pass }}"
 
 minio_secret__05_defaults:
