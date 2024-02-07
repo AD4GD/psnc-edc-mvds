@@ -565,12 +565,12 @@
               application: "{{ application }}"
               component: consback
           env:
-            - name: MINIO_ACCESS_KEY
+            - name: S3_STORAGE_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   name: "{{ application }}-minio"
                   key: MINIO_ACCESS_KEY
-            - name: MINIO_SECRET_KEY
+            - name: S3_STORAGE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: "{{ application }}-minio"
