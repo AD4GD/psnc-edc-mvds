@@ -19,24 +19,23 @@ class RequestData(BaseModel):
     authKey: str
     authCode: str
 
+
 def get_minio_credentials():
     return {
         "endpoint": os.environ.get("S3_STORAGE_ENDPOINT"),
         "acces_key": os.environ.get("S3_STORAGE_ACCESS_KEY"),
-        "secret_key": os.environ.get("S3_STORAGE_SECRET_KEY")
+        "secret_key": os.environ.get("S3_STORAGE_SECRET_KEY"),
     }
-    
+
 
 @app.post("/edr-endpoint")
 async def edr_endpoint(request_data: RequestData):
     print("Entering edr endpoint")
-    
+
     minio_data = get_minio_credentials()
 
     minio_client = Minio(
-        endpoint = minio_data["endpoint"],
-        access_key = minio_data["access_key"],
-        secret_key = minio_data["secret_key"]
+        endpoint=minio_data["endpoint"], access_key=minio_data["access_key"], secret_key=minio_data["secret_key"]
     )
 
     if not request_data.endpoint or not request_data.authKey or not request_data.authCode:
