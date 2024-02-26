@@ -64,15 +64,12 @@ async def edr_endpoint(request_data: RequestData):
         final_filename = os.path.join("data", f"{timestamp}{_ext}")
     else:
         final_filename = os.path.join("data", f"{timestamp}.bin")
-    
+
     minio_client.put_object(
-        bucket_name="test",
-        object_name=final_filename,
-        data=response.content,
-        length=len(response.content)
+        bucket_name="test", object_name=final_filename, data=response.content, length=len(response.content)
     )
 
-    return JSONResponse(content={'status': 'success'}, status_code=200)
+    return JSONResponse(content={"status": "success"}, status_code=200)
     # return JSONResponse(
     #      content=response.content,
     #      media_type=_mime,
