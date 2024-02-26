@@ -53,8 +53,8 @@ async def edr_endpoint(request_data: RequestData):
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     filename = os.path.join("data", f"{timestamp}.bin")
 
-    with open(filename, "wb") as f:
-        f.write(response.content)
+    # with open(filename, "wb") as f:
+    #     f.write(response.content)
 
     _mime = magic.from_buffer(response.content, mime=True)
     _ext = mimetypes.guess_extension(_mime)
@@ -64,12 +64,20 @@ async def edr_endpoint(request_data: RequestData):
         final_filename = os.path.join("data", f"{timestamp}{_ext}")
     else:
         final_filename = os.path.join("data", f"{timestamp}.bin")
-
-    return StreamingResponse(
-        content=response.content,
-        media_type=_mime,
-        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    
+    minio_client.put_object(
+        bucket_name="test",
+        object_name=final_filename,
+        data=response.content,
+        length=len(response.content)
     )
+
+    return JSONResponse(content={'status': 'success'}, status_code=200)
+    # return JSONResponse(
+    #      content=response.content,
+    #      media_type=_mime,
+    #      headers={"Content-Disposition": f"attachment; filename={filename}"},
+    #  )
 
     # os.rename(filename, final_filename)
     # print("Download finished. Filename: " + final_filename)
