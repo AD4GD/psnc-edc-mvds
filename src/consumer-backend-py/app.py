@@ -22,9 +22,9 @@ class RequestData(BaseModel):
 
 def get_minio_credentials():
     return {
-        "endpoint": os.environ.get("S3_STORAGE_ENDPOINT"),
-        "access_key": os.environ.get("S3_STORAGE_ACCESS_KEY"),
-        "secret_key": os.environ.get("S3_STORAGE_SECRET_KEY"),
+        "endpoint": os.environ.get("MINIO_ENDPOINT"),
+        "access_key": os.environ.get("MINIO_ACCESS_KEY"),
+        "secret_key": os.environ.get("MINIO_SECRET_KEY"),
     }
 
 
