@@ -187,7 +187,7 @@ connectorprovider_configmap__05_defaults:
   EDC_FEDERATED_NODE_URL: "https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
 
 consback_configmap__05_defaults:
-  MINIO_ENDPOINT: "edc-minio.apps.paas-dev.psnc.pl/minio"
+  MINIO_ENDPOINT: "edc-minio.apps.paas-dev.psnc.pl"
 
 minio_secret__05_defaults:
   MINIO_ACCESS_KEY:
