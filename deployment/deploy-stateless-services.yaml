@@ -564,6 +564,10 @@
             selector:
               application: "{{ application }}"
               component: consback
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-consback"
+                optional: true
           env:
             - name: S3_STORAGE_ACCESS_KEY
               valueFrom:
