@@ -69,7 +69,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true 
+                      runAsNonRoot: true
 #                      runAsUser: 1000
                     resources: "{{ connectorconsumer_resources }}"
                     envFrom:
@@ -200,7 +200,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true 
+                      runAsNonRoot: true
                     #                      runAsUser: 1000
                     resources: "{{ consumerdashboard_resources }}"
                     envFrom:
@@ -307,7 +307,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true 
+                      runAsNonRoot: true
 #                      runAsUser: 1000
                     resources: "{{ connectorprovider_resources }}"
                     envFrom:
@@ -438,7 +438,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true 
+                      runAsNonRoot: true
                     #                      runAsUser: 1000
                     resources: "{{ providerdashboard_resources }}"
                     envFrom:
@@ -532,7 +532,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true 
+                      runAsNonRoot: true
                     #                      runAsUser: 1000
                     resources: "{{ consback_resources }}"
                     volumeMounts:
@@ -568,7 +568,7 @@
             - configMapRef:
                 name: "{{ application }}-consback"
                 optional: true
-                     
+
           env:
             - name: S3_STORAGE_ACCESS_KEY
               valueFrom:

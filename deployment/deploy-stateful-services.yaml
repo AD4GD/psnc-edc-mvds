@@ -81,7 +81,7 @@
                     resources: "{{ minio_resources }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true 
+                      runAsNonRoot: true
                       runAsUser: 999  # minio user
                     ports:
                       - name: "minio-http"
