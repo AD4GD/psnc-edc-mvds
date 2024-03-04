@@ -17,7 +17,9 @@ COPY --from=build /app/dist/edc-demo-client /usr/share/nginx/html
 COPY --from=build /app/deployment/conf-consumer/consumer.config.json /usr/share/nginx/html/assets/config/app.config.json
 EXPOSE 80
 
-RUN chmod -R 775 /var/cache/nginx
+RUN chown -R admin:admin /app
+RUN chmod 755 /app
+USER admin
 
 HEALTHCHECK --interval=2s --timeout=5s --retries=10 \
   CMD curl -f http://localhost/ || exit 1
