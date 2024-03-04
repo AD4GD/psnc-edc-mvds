@@ -17,8 +17,8 @@ COPY --from=build /app/dist/edc-demo-client /usr/share/nginx/html
 COPY --from=build /app/deployment/conf-consumer/consumer.config.json /usr/share/nginx/html/assets/config/app.config.json
 EXPOSE 80
 
-RUN useradd -ms /bin/bash admin
-RUN chown -R admin:admin /app
+RUN groupadd -r app && useradd -r -g app admin
+RUN chown -R admin:app /app
 RUN chmod 755 /app
 USER admin
 
