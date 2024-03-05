@@ -1,7 +1,7 @@
 ARG BUILDER_IMAGE
 FROM ${BUILDER_IMAGE}
 
-RUN useradd --create-home -u 1000 -s /bin/bash admin
+RUN useradd --create-home -s /bin/bash admin
 WORKDIR /app
 RUN chmod 777 /app
 
