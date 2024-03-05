@@ -4,7 +4,7 @@ FROM ${BUILDER_IMAGE}
 RUN useradd --create-home -s /bin/bash admin
 WORKDIR /app
 RUN chmod -R 777 /app
-RUN chmod -R 777 /var/cache/nginx
+RUN chmod -R 777 /var/cache
 
 COPY . /app
 COPY src/consumer-backend-py /app
