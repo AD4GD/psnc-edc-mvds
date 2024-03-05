@@ -1,10 +1,11 @@
 ARG BUILDER_IMAGE
 FROM ${BUILDER_IMAGE}
 
-RUN useradd --create-home -s /bin/bash pipelines_user
-
+RUN useradd --create-home -s /bin/bash admin
 WORKDIR /app
 RUN chmod 777 /app
+USER admin 
+
 COPY . /app
 COPY src/consumer-backend-py /app
 
