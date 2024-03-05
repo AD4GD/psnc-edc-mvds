@@ -69,7 +69,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: false 
+                      runAsNonRoot: false
                     resources: "{{ connectorconsumer_resources }}"
                     envFrom:
                       - configMapRef:
@@ -172,7 +172,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: false 
+                      runAsNonRoot: false
                     resources: "{{ connectorprovider_resources }}"
                     envFrom:
                       - configMapRef:
