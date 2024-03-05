@@ -6,7 +6,7 @@ FROM ${BUILDER_IMAGE} as build
 
 RUN useradd --create-home -s /bin/bash admin
 WORKDIR /app
-RUN chmod 777 /app
+RUN chmod -R 777 /app
 
 COPY src/data-dashboard /app
 RUN npm install
