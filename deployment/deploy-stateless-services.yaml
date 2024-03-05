@@ -70,7 +70,6 @@
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: true
-                      runAsUser: 1000
                     resources: "{{ connectorconsumer_resources }}"
                     envFrom:
                       - configMapRef:
@@ -174,7 +173,6 @@
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: true
-                      runAsUser: 1000
                     resources: "{{ connectorprovider_resources }}"
                     envFrom:
                       - configMapRef:
@@ -305,7 +303,6 @@
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: true
-                      runAsUser: 1000
                     resources: "{{ consumerdashboard_resources }}"
                     envFrom:
                       - secretRef:
@@ -441,7 +438,6 @@
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: true
-                      runAsUser: 1000
                     resources: "{{ providerdashboard_resources }}"
                     envFrom:
                       - secretRef:
@@ -535,7 +531,6 @@
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: true
-                      runAsUser: 1000
                     resources: "{{ consback_resources }}"
                     volumeMounts:
                       - name: "consback-tmp"
