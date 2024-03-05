@@ -530,7 +530,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
+                      runAsNonRoot: false
                     resources: "{{ consback_resources }}"
                     volumeMounts:
                       - name: "consback-tmp"
