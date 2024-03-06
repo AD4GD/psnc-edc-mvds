@@ -4,15 +4,11 @@ ARG BUILDER_IMAGE
 ARG BASE_IMAGE
 FROM ${BUILDER_IMAGE} as build
 
-RUN useradd --create-home -s /bin/bash admin
 WORKDIR /app
-RUN chmod -R 777 /app
-
 COPY src/data-dashboard /app
 RUN npm install
 RUN npm run build
 
-USER admin 
 # Stage 2: Serve app with nginx
 # FROM nginx:alpine
 FROM ${BASE_IMAGE}

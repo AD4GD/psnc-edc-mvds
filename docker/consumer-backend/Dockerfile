@@ -2,9 +2,6 @@ ARG BUILDER_IMAGE
 FROM ${BUILDER_IMAGE}
 
 WORKDIR /app
-RUN chmod -R 777 /app
-RUN chmod -R 777 /var/cache
-
 COPY . /app
 COPY src/consumer-backend-py /app
 
