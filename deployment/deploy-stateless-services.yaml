@@ -69,8 +69,8 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
-                      runAsUser: 1000
+                      runAsNonRoot: false
+#                      runAsUser: 1000
                     resources: "{{ connectorconsumer_resources }}"
                     envFrom:
                       - configMapRef:
@@ -200,8 +200,8 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
-                      runAsUser: 1000
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
                     resources: "{{ consumerdashboard_resources }}"
                     envFrom:
                       - secretRef:
@@ -307,8 +307,8 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
-                      runAsUser: 1000
+                      runAsNonRoot: false
+#                      runAsUser: 1000
                     resources: "{{ connectorprovider_resources }}"
                     envFrom:
                       - configMapRef:
@@ -438,8 +438,8 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
-                      runAsUser: 1000
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
                     resources: "{{ providerdashboard_resources }}"
                     envFrom:
                       - secretRef:
@@ -532,8 +532,8 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
-                      runAsUser: 1000
+                      runAsNonRoot: false
+                    #                      runAsUser: 1000
                     resources: "{{ consback_resources }}"
                     volumeMounts:
                       - name: "consback-tmp"
@@ -568,7 +568,6 @@
             - configMapRef:
                 name: "{{ application }}-consback"
                 optional: true
-
           env:
             - name: S3_STORAGE_ACCESS_KEY
               valueFrom:
