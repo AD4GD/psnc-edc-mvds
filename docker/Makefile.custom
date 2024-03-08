@@ -22,7 +22,7 @@ build-base build-postgres: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE
 build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
 
 build-data-dashboard: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
-build-data-dashboard: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginx:alpine
+build-data-dashboard: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
 build-data-dashboard: CONTEXT_PATH=../
 
 build-consumer-backend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.9-slim
