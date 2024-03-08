@@ -141,10 +141,11 @@
               }
             nginx.conf: |
               events {}
+              pid /tmp/nginx.pid;
               http {
                 include /etc/nginx/mime.types;
                 server {
-                  listen 80;
+                  listen 8080;
                   server_name consumer-dashboard-edc-connector.apps.paas-dev.psnc.pl;
                   root /usr/share/nginx/html;
                   index index.html;
@@ -192,7 +193,7 @@
                 serviceAccountName: "run-any-uid"
                 ports:
                   - name: "www"
-                    containerPort: 80
+                    containerPort: 8080
                     protocol: "TCP"
                 containers:
                   - name: "consumerdashboard"
@@ -379,10 +380,11 @@
               }
             nginx.conf: |
               events {}
+              pid /tmp/nginx.pid;
               http {
                 include /etc/nginx/mime.types;
                 server {
-                  listen 80;
+                  listen 8080;
                   server_name provider-dashboard-edc-connector.apps.paas-dev.psnc.pl;
                   root /usr/share/nginx/html;
                   index index.html;
