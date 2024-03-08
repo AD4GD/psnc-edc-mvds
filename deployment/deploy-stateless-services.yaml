@@ -247,7 +247,7 @@
           spec:
             ports:
               - name: "www"
-                port: 80
+                port: 8080
             selector:
               application: "{{ application }}"
               component: consumerdashboard
@@ -485,7 +485,7 @@
           spec:
             ports:
               - name: "www"
-                port: 80
+                port: 8080
             selector:
               application: "{{ application }}"
               component: providerdashboard
