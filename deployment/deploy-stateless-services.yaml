@@ -69,7 +69,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: false
+                      runAsNonRoot: true
 #                      runAsUser: 1000
                     resources: "{{ connectorconsumer_resources }}"
                     envFrom:
@@ -201,7 +201,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: false
+                      runAsNonRoot: true
                     #                      runAsUser: 1000
                     resources: "{{ consumerdashboard_resources }}"
                     envFrom:
@@ -308,7 +308,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: false
+                      runAsNonRoot: true
 #                      runAsUser: 1000
                     resources: "{{ connectorprovider_resources }}"
                     envFrom:
@@ -440,7 +440,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: false
+                      runAsNonRoot: true
                     #                      runAsUser: 1000
                     resources: "{{ providerdashboard_resources }}"
                     envFrom:
