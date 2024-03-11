@@ -534,7 +534,7 @@
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: false
+                      runAsNonRoot: true
                     #                      runAsUser: 1000
                     resources: "{{ consback_resources }}"
                     volumeMounts:
