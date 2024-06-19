@@ -30,5 +30,4 @@ dependencyResolutionManagement {
 
 include("launcher")
 include("extensions:asset-collect")
-include("extensions:postgres-flyway")
 include("extensions:data-dashboard-local")

@@ -28,11 +28,11 @@ export const routes: Routes = [
     component: ContractViewerComponent,
     data: {title: 'Contracts', icon: 'attachment'}
   },
-  // {
-  //   path: 'transfer-history',
-  //   component: TransferHistoryViewerComponent,
-  //   data: {title: 'Transfer History', icon: 'assignment'}
-  // },
+  {
+    path: 'transfer-history',
+    component: TransferHistoryViewerComponent,
+    data: {title: 'Transfer History', icon: 'assignment'}
+  },
   {
     path: 'contract-definitions',
     component: ContractDefinitionViewerComponent,

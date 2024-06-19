@@ -4,7 +4,7 @@ format.version = "1.1"
 [versions]
 assertj = "3.24.2"
 awaitility = "4.2.0"
-edc = "0.3.1"
+edc = "0.7.0"
 jakarta-json = "2.0.1"
 jetty-jakarta-servlet-api = "5.0.2"
 junit-pioneer = "2.1.0"
@@ -19,6 +19,7 @@ sovityext = "4.2.0"
 postgres = "42.4.0"
 flyway = "9.0.1"
 lombok = "1.18.28"
+tractus = "0.7.2"
 
 [libraries]
 edc-auth-tokenbased = { module = "org.eclipse.edc:auth-tokenbased", version.ref = "edc" }
@@ -37,7 +38,6 @@ edc-control-plane-api = { module = "org.eclipse.edc:control-plane-api", version.
 edc-control-plane-core = { module = "org.eclipse.edc:control-plane-core", version.ref = "edc" }
 edc-control-plane-spi = { module = "org.eclipse.edc:control-plane-spi", version.ref = "edc" }
 
-edc-data-plane-api = { module = "org.eclipse.edc:data-plane-api", version.ref = "edc" }
 edc-data-plane-client = { module = "org.eclipse.edc:data-plane-client", version.ref = "edc" }
 edc-data-plane-core = { module = "org.eclipse.edc:data-plane-core", version.ref = "edc" }
 edc-data-plane-http = { module = "org.eclipse.edc:data-plane-http", version.ref = "edc" }
@@ -46,6 +46,15 @@ edc-data-plane-selector-client = { module = "org.eclipse.edc:data-plane-selector
 edc-data-plane-selector-core = { module = "org.eclipse.edc:data-plane-selector-core", version.ref = "edc" }
 edc-data-plane-spi = { module = "org.eclipse.edc:data-plane-spi", version.ref = "edc" }
 edc-data-plane-util = { module = "org.eclipse.edc:data-plane-util", version.ref = "edc" }
+
+edc-validator-data-address-http-data = { module = "org.eclipse.edc:validator-data-address-http-data", version.ref = "edc" }
+edc-transfer-data-plane-signaling = { module = "org.eclipse.edc:transfer-data-plane-signaling", version.ref = "edc" }
+edc-edr-cache-api = { module = "org.eclipse.edc:edr-cache-api", version.ref = "edc" }
+edc-edr-store-core = { module = "org.eclipse.edc:edr-store-core", version.ref = "edc" }
+edc-edr-store-receiver = { module = "org.eclipse.edc:edr-store-receiver", version.ref = "edc" }
+edc-data-plane-self-registration = { module = "org.eclipse.edc:data-plane-self-registration", version.ref = "edc" }
+edc-data-plane-control-api = { module = "org.eclipse.edc:data-plane-control-api", version.ref = "edc" }
+edc-data-plane-public-api = { module = "org.eclipse.edc:data-plane-public-api-v2", version.ref = "edc" }
 
 edc-dsp = { module = "org.eclipse.edc:dsp", version.ref = "edc" }
 edc-http = { module = "org.eclipse.edc:http", version.ref = "edc" }
@@ -68,7 +77,6 @@ edc-vault-filesystem = { module = "org.eclipse.edc:vault-filesystem", version.re
 
 edc-api-observability = { module = "org.eclipse.edc:api-observability", version.ref = "edc" }
 
-
 edc-core-spi = { module = "org.eclipse.edc:core-spi", version.ref = "edc"}
 edc-sql-core = { module = "org.eclipse.edc:sql-core", version.ref = "edc"}
 
@@ -87,6 +95,8 @@ sovity-pgflyway = { module = "de.sovity.edc.ext:postgres-flyway", version.ref = 
 jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "rsApi" }
 jetty-jakarta-servlet-api = { module = "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api", version.ref = "jetty-jakarta-servlet-api" }
 
+tractus-postgresql-data-plane-migration = { module = "org.eclipse.tractusx.edc:data-plane-migration", version.ref = "tractus" }
+tractus-postgresql-control-plane-migration = { module = "org.eclipse.tractusx.edc:control-plane-migration", version.ref = "tractus" }
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }

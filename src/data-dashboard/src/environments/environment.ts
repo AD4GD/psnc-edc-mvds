@@ -5,7 +5,6 @@
 export const environment = {
   production: false,
   apiKey: "fifi-info-zaneta",
-  logLevel: "error"
 };
 
 /*

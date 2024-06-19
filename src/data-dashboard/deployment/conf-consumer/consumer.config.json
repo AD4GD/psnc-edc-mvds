@@ -1,6 +1,0 @@
-{
-  "apiKey": "fifi-info-zaneta",
-  "managementApiUrl": "https://edc-connector.apps.paas-dev.psnc.pl/management",
-  "catalogUrl": "https://edc-connector.apps.paas-dev.psnc.pl/management",
-  "theme": "theme-3"
-}

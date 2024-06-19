@@ -5,8 +5,8 @@ export interface ContractOffer {
   id: string;
   assetId: string;
   properties: any;
-  "dcat:dataset": Array<any>;
-  "dcat:service": DataService;
+  "http://www.w3.org/ns/dcat#dataset": Array<any>;
+  "http://www.w3.org/ns/dcat#service": DataService;
   policy: PolicyInput;
   originator: string;
 }

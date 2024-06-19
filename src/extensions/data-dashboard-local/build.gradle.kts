@@ -18,17 +18,14 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.edc.boot)
-    implementation(libs.edc.connector.core)
+    implementation(libs.edc.data.plane.selector.core)
+    implementation(libs.edc.data.plane.selector.api)
 
+    implementation(libs.edc.transfer.data.plane)
+    implementation(libs.edc.transfer.pull.http.receiver)
     implementation(libs.edc.http)
 
-    implementation(libs.edc.data.plane.selector.api)
-    implementation(libs.edc.data.plane.selector.core)
-    implementation(libs.edc.data.plane.selector.client)
-
-    implementation(libs.edc.management.api)
-
+    // federated catalog
     implementation(libs.edc.federated.catalog.core)
     implementation(libs.edc.federated.catalog.api)
 }

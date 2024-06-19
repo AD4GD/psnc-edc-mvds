@@ -46,7 +46,7 @@ export class ContractDefinitionViewerComponent implements OnInit {
   onDelete(contractDefinition: ContractDefinition) {
     const dialogData = ConfirmDialogModel.forDelete("contract definition", contractDefinition.id);
 
-    const ref = this.dialog.open(ConfirmationDialogComponent, {maxWidth: '20%', data: dialogData});
+    const ref = this.dialog.open(ConfirmationDialogComponent, {data: dialogData});
 
     ref.afterClosed().subscribe(res => {
       if (res) {
