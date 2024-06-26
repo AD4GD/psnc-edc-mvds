@@ -25,36 +25,6 @@ services:
     volumes:
       - 'postgresql-consumer:/bitnami/postgresql'
 
-  #  consumerpostgres:
-  #    restart: unless-stopped
-  #    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/postgres:${IMAGE_TAG}
-  #    read_only: true
-  #    user: "999"  # postgres user
-  #    environment:
-  #      - POSTGRES_PASSWORD=edc
-  #      - POSTGRES_USER=edc
-  #      - POSTGRES_DB=edc
-  #    expose:
-  #      - "5432"
-  #    tmpfs:
-  #      - "/run/postgresql"
-  #      - "/tmp"
-  #
-  #  providerpostgres:
-  #    restart: unless-stopped
-  #    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/postgres:${IMAGE_TAG}
-  #    read_only: true
-  #    user: "999"  # postgres user
-  #    environment:
-  #      - POSTGRES_PASSWORD=edc
-  #      - POSTGRES_USER=edc
-  #      - POSTGRES_DB=edc
-  #    expose:
-  #      - "5432"
-  #    tmpfs:
-  #      - "/run/postgresql"
-  #      - "/tmp"
-
   connectorconsumer:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
     ports:

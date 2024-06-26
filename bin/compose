@@ -45,5 +45,5 @@ then
   export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME_PREFIX}${COMPOSE_PROJECT_NAME_SCRIPT:-compose}${COMPOSE_PROJECT_NAME_SUFFIX}
 fi
 
-echo running: docker-compose "$@"
-exec docker-compose "$@"
+echo running: docker compose "$@"
+exec docker compose "$@"
