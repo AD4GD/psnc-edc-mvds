@@ -38,31 +38,6 @@ services:
       - ../docker/connector/config/keystore.pfx:/app/keystore.pfx:ro
       - ../docker/connector/config/fs-consumer.vault:/app/fs.vault
     environment:
-      JVM_ARGS: ""
-      SERVICE_HOST: "https://connectorconsumer"
-      EDC_IDS_ID: "urn:connectorconsumer:psnc"
-      EDC_PARTICIPANT_ID: "psnc"
-      EDC_DSP_CALLBACK_ADDRESS: "https://connectorconsumer:29194/protocol"
-      WEB_HTTP_PORT: "29191"
-      WEB_HTTP_PATH: "/api"
-      WEB_HTTP_MANAGEMENT_PORT: "29193"
-      WEB_HTTP_MANAGEMENT_PATH: "/management"
-      WEB_HTTP_PROTOCOL_PORT: "29194"
-      WEB_HTTP_PROTOCOL_PATH: "/protocol"
-      WEB_HTTP_PUBLIC_PORT: "29291"
-      WEB_HTTP_PUBLIC_PATH: "/public"
-      WEB_HTTP_CONTROL_PORT: "29192"
-      WEB_HTTP_CONTROL_PATH: "/control"
-      EDC_RECEIVER_HTTP_ENDPOINT: "https://consback:4000/edr-endpoint"
-      EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "https://localhost:19192/control/token"
-      EDC_PUBLIC_KEY_ALIAS: "public-key"
-      EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "1"
-      EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
-      EDC_KEYSTORE: "/app/certs/cert.pfx"
-      EDC_VAULT: "/app/config/fs-consumer.vault"
-      EDC_WEB_REST_CORS_ENABLED: "true"
-      EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
-      EDC_FEDERATED_NODE_URL: https://connectorprovider:19194/protocol
       EDC_FS_CONFIG: /app/configuration.properties
       EDC_API_AUTH_KEY: "fifi-info-zaneta"
     user: "1000:1000"
@@ -91,31 +66,6 @@ services:
       - ../docker/connector/config/api_collection.json:/app/api_collection.json
       - ../docker/connector/config/json_example.json:/app/json_example.json
     environment:
-      JVM_ARGS: ""
-      SERVICE_HOST: "https://connectorprovider"
-      EDC_IDS_ID: "urn:connectorprovider:psnc"
-      EDC_PARTICIPANT_ID: "psnc"
-      EDC_DSP_CALLBACK_ADDRESS: "http://connectorprovider:19194/protocol"
-      WEB_HTTP_PORT: "19191"
-      WEB_HTTP_PATH: "/api"
-      WEB_HTTP_MANAGEMENT_PORT: "19193"
-      WEB_HTTP_MANAGEMENT_PATH: "/management"
-      WEB_HTTP_PROTOCOL_PORT: "19194"
-      WEB_HTTP_PROTOCOL_PATH: "/protocol"
-      WEB_HTTP_PUBLIC_PORT: "19291"
-      WEB_HTTP_PUBLIC_PATH: "/public"
-      WEB_HTTP_CONTROL_PORT: "19192"
-      WEB_HTTP_CONTROL_PATH: "/control"
-      EDC_RECEIVER_HTTP_ENDPOINT: "https://consback:4000/edr-endpoint"
-      EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "https://localhost:19192/control/token"
-      EDC_PUBLIC_KEY_ALIAS: "public-key"
-      EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "1"
-      EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "public-key"
-      EDC_KEYSTORE: "/app/certs/cert.pfx"
-      EDC_VAULT: "/app/config/fs-provider.vault"
-      EDC_WEB_REST_CORS_ENABLED: "true"
-      EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
-      EDC_FEDERATED_NODE_URL: "https://connectorprovider:19194/protocol"
       EDC_FS_CONFIG: /app/configuration.properties
       EDC_API_AUTH_KEY: "fifi-info-zaneta"
     user: "1000:1000"
@@ -129,7 +79,7 @@ services:
       - ../src/data-dashboard/deployment/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
     #   user: "1000"
 
-  consback:
+  consumerbackend:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
     ports:
       - "4000:4000"
