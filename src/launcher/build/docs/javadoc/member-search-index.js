@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"org.eclipse.edc.sample.runtime","c":"SeedVaultExtension","l":"initialize(ServiceExtensionContext)","u":"initialize(org.eclipse.edc.spi.system.ServiceExtensionContext)"},{"p":"org.eclipse.edc.sample.runtime","c":"SeedVaultExtension","l":"SeedVaultExtension()","u":"%3Cinit%3E()"}];updateSearchResults();
