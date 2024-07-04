@@ -9,7 +9,7 @@ RUN apt update \
 
 WORKDIR /app
 
-COPY ./docker/connector/build/libs/connector.jar /app/app.jar
+COPY src/launcher/build/libs/connector.jar /app/app.jar
 RUN touch /app/empty-vault.properties
 RUN mkdir /app/config
 RUN mkdir /app/certs

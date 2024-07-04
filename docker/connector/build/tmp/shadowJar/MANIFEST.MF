@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: org.eclipse.edc.boot.system.runtime.BaseRuntime
-

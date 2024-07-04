@@ -33,7 +33,7 @@ export class TransferHistoryViewerComponent implements OnInit {
     dialogData.confirmColor = "warn";
     dialogData.confirmText = "Confirm";
     dialogData.cancelText = "Abort";
-    const ref = this.dialog.open(ConfirmationDialogComponent, {maxWidth: '20%', data: dialogData});
+    const ref = this.dialog.open(ConfirmationDialogComponent, {data: dialogData});
 
     ref.afterClosed().subscribe(res => {
       if (res) {

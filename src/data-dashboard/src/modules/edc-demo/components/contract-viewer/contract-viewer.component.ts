@@ -73,6 +73,7 @@ export class ContractViewerComponent implements OnInit {
       //   this.notificationService.showError("Only storage type \"AzureStorage\" is implemented currently!")
       //   return;
       // }
+
       this.createTransferRequest(contract, storageTypeId)
         .pipe(switchMap(trq => this.transferService.initiateTransfer(trq)))
         .subscribe(transferId => {
@@ -90,18 +91,19 @@ export class ContractViewerComponent implements OnInit {
 
   private createTransferRequest(contract: ContractAgreement, storageTypeId: string): Observable<TransferProcessInput> {
     return this.getContractOfferForAssetId(contract.assetId!).pipe(map(contractOffer => {
-
       const iniateTransfer : TransferProcessInput = {
         assetId: contractOffer.assetId,
-        connectorAddress: contractOffer.originator,
+        counterPartyAddress: contractOffer.originator,
 
-        connectorId: "consumer", //doesn't matter, but cannot be null
+        //connectorId: "consumer", //doesn't matter, but cannot be null
         contractId: contract.id,
         dataDestination: {
           "type": storageTypeId,
           // account: this.homeConnectorStorageAccount, // CAUTION: hardcoded value for AzureBlob
           // container: omitted, so it will be auto-assigned by the EDC runtime
-        }
+        },
+
+        transferType: "HttpData-PULL",
       };
 
       return iniateTransfer;
@@ -116,9 +118,12 @@ export class ContractViewerComponent implements OnInit {
    * @param assetId Asset ID of the asset that is associated with the contract.
    */
   private getContractOfferForAssetId(assetId: string): Observable<ContractOffer> {
+    console.log(assetId);
     return this.catalogService.getContractOffers()
       .pipe(
-        map(offers => offers.find(o => o.assetId === assetId)),
+        map(offers => {
+          return offers.find(o => o.assetId === assetId);}
+        ),
         map(o => {
           if (o) return o;
           else throw new Error(`No offer found for asset ID ${assetId}`);
@@ -133,11 +138,9 @@ export class ContractViewerComponent implements OnInit {
       contractId: contractId
     });
 
-    this.notificationService.showInfo(`Transfer Submited!`, "Ok!", () => {})
-
-    // if (!this.pollingHandleTransfer) {
-    //   this.pollingHandleTransfer = setInterval(this.pollRunningTransfers(), 1000);
-    // }
+    if (!this.pollingHandleTransfer) {
+      this.pollingHandleTransfer = setInterval(this.pollRunningTransfers(), 1000);
+    }
 
   }
 

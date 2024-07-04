@@ -40,43 +40,46 @@ export class CatalogBrowserService {
     return this.post<Catalog[]>(url + "/federatedcatalog")
       .pipe(map(catalogs => catalogs.map(catalog => {
         const arr = Array<ContractOffer>();
-        let datasets = catalog["dcat:dataset"];
+        let datasets = catalog["http://www.w3.org/ns/dcat#dataset"];
         if (!Array.isArray(datasets)) {
           datasets = [datasets];
         }
 
+        console.log(catalog);
+        console.log(datasets);
+
         for(let i = 0; i < datasets.length; i++) {
           const dataSet: any = datasets[i];
           const properties: { [key: string]: string; } = {
-            id: dataSet["edc:id"],
-            name: dataSet["edc:name"],
-            version: dataSet["edc:version"],
-            type: dataSet["edc:type"],
-            contentType: dataSet["edc:contenttype"]
+            id: dataSet["@id"],
+            name: dataSet["name"],
+            version: dataSet["version"],
+            type: dataSet["@type"],
+            contentType: dataSet["contenttype"]
           }
           const assetId = dataSet["@id"];
 
           const hasPolicy = dataSet["odrl:hasPolicy"];
           const policy: PolicyInput = {
             //currently hardcoded to SET since parsed type is {"@policytype": "set"}
-            "@type": "set", //TODO Use TypeEnum https://github.com/Think-iT-Labs/edc-connector-client/issues/103
+            "@type": "Set", //TODO Use TypeEnum https://github.com/Think-iT-Labs/edc-connector-client/issues/103
             "@context" : "http://www.w3.org/ns/odrl.jsonld",
             "uid": hasPolicy["@id"],
             "assignee": hasPolicy["assignee"],
             "assigner": hasPolicy["assigner"],
-            "obligation": hasPolicy["odrl:obligations"],
-            "permission": hasPolicy["odrl:permissions"],
-            "prohibition": hasPolicy["odrl:prohibitions"],
+            "obligation": hasPolicy["odrl:obligation"],
+            "permission": hasPolicy["odrl:permission"],
+            "prohibition": hasPolicy["odrl:prohibition"],
             "target": hasPolicy["odrl:target"]
           };
 
           const newContractOffer: ContractOffer = {
             assetId: assetId,
             properties: properties,
-            "dcat:service": catalog["dcat:service"],
-            "dcat:dataset": datasets,
+            "http://www.w3.org/ns/dcat#service": catalog["http://www.w3.org/ns/dcat#service"],
+            "http://www.w3.org/ns/dcat#dataset": datasets,
             id: hasPolicy["@id"],
-            originator: catalog["edc:originator"],
+            originator: catalog["originator"],
             policy: policy
           };
 

@@ -16,10 +16,10 @@ export class AssetEditorDialog implements OnInit {
   name: string = '';
   contenttype: string = '';
 
-  storageTypeId: string = 'HttpData';
+  storageTypeId: string = 'AzureStorage';
   account: string = '';
   container: string = 'src-container';
-  baseUrl: string = '';
+  blobname: string = '';
 
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
       @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
@@ -38,10 +38,10 @@ export class AssetEditorDialog implements OnInit {
       },
       dataAddress: {
         "type": this.storageTypeId,
-      //  "account": this.account,
-      //  "container": this.container,
-        "baseUrl": this.baseUrl,
-      //  "keyName": `${this.account}-key1`
+        "account": this.account,
+        "container": this.container,
+        "blobname": this.blobname,
+        "keyName": `${this.account}-key1`
       }
     };
 

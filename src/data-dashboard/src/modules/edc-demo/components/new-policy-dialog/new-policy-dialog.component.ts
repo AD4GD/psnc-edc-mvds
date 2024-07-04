@@ -1,6 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {PolicyDefinitionInput, PolicyInput} from "../../../mgmt-api-client/model";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import { Policy } from '@think-it-labs/edc-connector-client';
 
 @Component({
   selector: 'app-new-policy-dialog',
@@ -9,9 +10,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 })
 export class NewPolicyDialogComponent implements OnInit {
   editMode: boolean = false;
-  policy: PolicyInput = {
-    "@type": "set"
-  };
+  policy: Policy = new Policy();
   policyDefinition: PolicyDefinitionInput = {
     "policy": this.policy,
     "@id": ''
@@ -40,8 +39,8 @@ export class NewPolicyDialogComponent implements OnInit {
       this.policy.obligation = JSON.parse(this.obligationsJson);
     }
 
-    this.policy["@context"]="http://www.w3.org/ns/odrl.jsonld"
-
+    this.policy["@type"]="Set";
+    this.policy["@context"]="http://www.w3.org/ns/odrl.jsonld";
 
     this.dialogRef.close({
 

@@ -8,7 +8,7 @@ import {Router} from "@angular/router";
 import {TransferProcessStates} from "../../models/transfer-process-states";
 import {ContractOffer} from "../../models/contract-offer";
 import {NegotiationResult} from "../../models/negotiation-result";
-import {ContractNegotiation, ContractNegotiationRequest} from "../../../mgmt-api-client/model";
+import {ContractNegotiation, ContractNegotiationRequest, Policy} from "../../../mgmt-api-client/model";
 
 interface RunningTransferProcess {
   processId: string;
@@ -56,7 +56,10 @@ export class CatalogBrowserComponent implements OnInit {
 
   onNegotiateClicked(contractOffer: ContractOffer) {
     const initiateRequest: ContractNegotiationRequest = {
-      connectorAddress: contractOffer.originator,
+      counterPartyAddress: contractOffer.originator,
+      policy: contractOffer.policy as Policy,
+
+      /*
       offer: {
         offerId: contractOffer.id,
         assetId: contractOffer.assetId,
@@ -64,6 +67,7 @@ export class CatalogBrowserComponent implements OnInit {
       },
       connectorId: 'connector',
       providerId: contractOffer["dcat:service"].id
+      */
     };
 
     const finishedNegotiationStates = [
@@ -72,10 +76,10 @@ export class CatalogBrowserComponent implements OnInit {
       "ERROR"];
 
     this.apiService.initiateNegotiation(initiateRequest).subscribe(negotiationId => {
-      this.finishedNegotiations.delete(initiateRequest.offer.offerId);
-      this.runningNegotiations.set(initiateRequest.offer.offerId, {
+      this.finishedNegotiations.delete(initiateRequest.policy["@id"]);
+      this.runningNegotiations.set(initiateRequest.policy["@id"], {
         id: negotiationId,
-        offerId: initiateRequest.offer.offerId
+        offerId: initiateRequest.policy["@id"]
       });
 
       if (!this.pollingHandleNegotiation) {

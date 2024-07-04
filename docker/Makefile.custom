@@ -11,7 +11,7 @@ build-base: CONTEXT_PATH=../
 build-base: build-base-builder
 build-base: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/$(REGISTRY_PROJECT)/$(REGISTRY_APPLICATION)/base-builder:$(BUILD_TIME_TAG)
 
-build-base: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=centos:7
+build-base: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=almalinux:9
 
 build-postgres: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=postgres:11
 
