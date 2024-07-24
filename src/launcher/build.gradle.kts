@@ -66,6 +66,10 @@ dependencies {
     // apply migrations from tractusX
     implementation(libs.tractus.postgresql.data.plane.migration)
     implementation(libs.tractus.postgresql.control.plane.migration)
+
+    // OAuth2 DAPS
+    implementation(libs.edc.oauth2.core)
+    implementation(libs.edc.oauth2.daps)
 }
 
 application {

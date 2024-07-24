@@ -26,62 +26,58 @@ public class SeedVaultExtension implements ServiceExtension {
 
     private static final String PUBLIC_KEY = """
             -----BEGIN CERTIFICATE-----
-            MIIDazCCAlOgAwIBAgIUZ3/sZXYzW4PjmOXKrZn6WBmUJ+4wDQYJKoZIhvcNAQEL
-            BQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
-            GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yMjAyMjMxNTA2MDNaFw0zMjAy
-            MjExNTA2MDNaMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
-            HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEB
-            AQUAA4IBDwAwggEKAoIBAQDBl6XaJnXTL+6DWip3aBhU+MzmY4d1V9hbTm1tiZ3g
-            E0VbUrvGO3LoYaxpPv6zFmsg3uJv6JxVAde7EddidN0ITHB9cQNdAfdUJ5njmsGS
-            PbdQuOQTHw0aG7/QvTI/nsvfEE6e0lbV/0e7DHacZT/+OztBH1RwkG2ymM94Hf8H
-            I6x7q6yfRTAZOqeOMrPCYTcluAgE9NskoPvjX5qASakBtXISKIsOU84N0/2HDN3W
-            EGMXvoHUQu6vrij6BwiwxKaw1AKwWENKoga775bPXN3M+JTSaIKE7dZbKzvx0Zi0
-            h5X+bxc3BJi3Z/CsUBCzE+Y0SFetOiYmyl/2YmnneYoVAgMBAAGjUzBRMB0GA1Ud
-            DgQWBBTvK1wVERwjni4B2vdH7KtEJeVWFzAfBgNVHSMEGDAWgBTvK1wVERwjni4B
-            2vdH7KtEJeVWFzAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBn
-            QHiPA7OBYukHd9gS7c0HXE+fsWcS3GZeLqcHfQQnV3pte1vTmu9//IVW71wNCJ1/
-            rySRyODPQoPehxEcyHwupNZSzXK//nPlTdSgjMfFxscvt1YndyQLQYCfyOJMixAe
-            Aqrb14GTFHUUrdor0PyElhkULjkOXUrSIsdBrfWrwLTkelE8NK3tb5ZG8KPzD9Jy
-            +NwEPPr9d+iHkUkM7EFWw/cl56wka9ryBb97RI7DqbO6/j6OXHMk4GByxKv7DSIR
-            IvF9/Dw20qytajtaHV0pluFcOBuFc0NfiDvCaQlbTsfjzbc6UmZWbOi9YOJl3VQ/
-            g3h+15GuzbsSzOCOEYOT
+            MIICpTCCAY0CBgGQ2xYEnjANBgkqhkiG9w0BAQsFADAWMRQwEgYDVQQDDAtkYXBz
+            LWNsaWVudDAeFw0yNDA3MjIxNTM0MzFaFw0zNDA3MjIxNTM2MTFaMBYxFDASBgNV
+            BAMMC2RhcHMtY2xpZW50MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+            uJ+81eNZl6mVLzsXdWI5vSeugFOtrDpkCML2pBkQ+CGuMEQpMHxSXJ1kUuF1lbJl
+            OL0N1JsRgRItntspaMoiM+dxDnlwvQDNvcVlB3hV9YuEyCPjeFeeNJoJWT9qxll7
+            bcLQfcjFj/Lp9NmC2WoRyVRgBfdtr7+KBY3Pnlat4GzguvzYkQnv3nIkUshB4UFd
+            8i0SyP/iLisDgz6Wf0atVMSduWVqA4y1LST2f/JuYETh85odHaPLt9HktmNNsKoo
+            ge3LhvkaG1aC1kkwz1uSrgnWJ/UJLn0kUeC+BVsKFgcmnjecDFw8BmFn0gch8EkM
+            5rm7RFDL/3G2cmLkEJW77wIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQB5/c8qu2Lb
+            YSig5U9UEoDAGZ/0TqLKaEj7I53cqUpMpUYtnxCbFZtDktOJGvg3YNK/Ztv1VGOx
+            ADoAfdyDD/EboTGQ+rmXDCZmyL5oPbHLGgMazih/7qu3qfuMN/LBUEiPp5JLXU7x
+            A41mTBCraAYJ8ddQCN0b9CMOr7SNHtkja6oT0gEV6c5iwqOFcPpxcf/PufKm3R2H
+            jh/z1tHHjNkEo499PGZlpXNNr6VgDIs501cWag0S4ZFkK8SoGsttNB4eAChj0CdT
+            mV8lLAwYAXLlWmAJxF7XIE1M9ZTbKwfMspNomYARgpneMUPoigU4CTZfazQzGiHo
+            SNCoRTr7sMBT
             -----END CERTIFICATE-----
             """;
 
     private static final String PRIVATE_KEY = """
             -----BEGIN PRIVATE KEY-----
-            MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDBl6XaJnXTL+6D
-            Wip3aBhU+MzmY4d1V9hbTm1tiZ3gE0VbUrvGO3LoYaxpPv6zFmsg3uJv6JxVAde7
-            EddidN0ITHB9cQNdAfdUJ5njmsGSPbdQuOQTHw0aG7/QvTI/nsvfEE6e0lbV/0e7
-            DHacZT/+OztBH1RwkG2ymM94Hf8HI6x7q6yfRTAZOqeOMrPCYTcluAgE9NskoPvj
-            X5qASakBtXISKIsOU84N0/2HDN3WEGMXvoHUQu6vrij6BwiwxKaw1AKwWENKoga7
-            75bPXN3M+JTSaIKE7dZbKzvx0Zi0h5X+bxc3BJi3Z/CsUBCzE+Y0SFetOiYmyl/2
-            YmnneYoVAgMBAAECggEBAJHXiN6bctAyn+DcoHlsNkhtVw+Jk5bXIutGXjHTJtiU
-            K//siAGC78IZMyXmi0KndPVCdBwShROVW8xWWIiXuZxy2Zvm872xqX4Ah3JsN7/Q
-            NrXdVBUDo38zwIGkxqIfIz9crZ4An+J/eq5zaTfRHzCLtswMqjRS2hFeBY5cKrBY
-            4bkSDGTP/c5cP7xS/UwaiTR2Ptd41f4zTyd4l5rl30TYHpazQNlbdxcOV4jh2Rnp
-            E0+cFEvEfeagVq7RmfBScKG5pk4qcRG0q2QHMyK5y00hdYvhdRjSgN7xIDkeO5B8
-            s8/tSLU78nCl2gA9IKxTXYLitpISwZ81Q04mEAKRRtECgYEA+6lKnhn//aXerkLo
-            ZOLOjWQZhh005jHdNxX7DZqLpTrrfxc8v15KWUkAK1H0QHqYvfPrbbsBV1MY1xXt
-            sKmkeu/k8fJQzCIvFN4K2J5W5kMfq9PSw5d3XPeDaQuXUVaxBVp0gzPEPHmkKRbA
-            AkUqY0oJwA9gMKf8dK+flmLZfbsCgYEAxO4Roj2G46/Oox1GEZGxdLpiMpr9rEdR
-            JlSZ9kMGfddNLV7sFp6yPXDcyc/AOqeNj7tw1MyoT3Ar454+V0q83EZzCXvs4U6f
-            jUrfFcoVWIwf9AV/J4KWzMIzfqPIeNwqymZKd6BrZgcXXvAEPWt27mwO4a1GhC4G
-            oZv0t3lAsm8CgYAQ8C0IhSF4tgBN5Ez19VoHpDQflbmowLRt77nNCZjajyOokyzQ
-            iI0ig0pSoBp7eITtTAyNfyew8/PZDi3IVTKv35OeQTv08VwP4H4EZGve5aetDf3C
-            kmBDTpl2qYQOwnH5tUPgTMypcVp+NXzI6lTXB/WuCprjy3qvc96e5ZpT3wKBgQC8
-            Xny/k9rTL/eYTwgXBiWYYjBL97VudUlKQOKEjNhIxwkrvQBXIrWbz7lh0Tcu49al
-            BcaHxru4QLO6pkM7fGHq0fh3ufJ8EZjMrjF1xjdk26Q05o0aXe+hLKHVIRVBhlfo
-            ArB4fRo+HcpdJXjox0KcDQCvHe+1v9DYBTWvymv4QQKBgBy3YH7hKz35DcXvA2r4
-            Kis9a4ycuZqTXockO4rkcIwC6CJp9JbHDIRzig8HYOaRqmZ4a+coqLmddXr2uOF1
-            7+iAxxG1KzdT6uFNd+e/j2cdUjnqcSmz49PRtdDswgyYhoDT+W4yVGNQ4VuKg6a3
-            Z3pC+KTdoHSKeA2FyAGnSUpD
+            MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4n7zV41mXqZUv
+            Oxd1Yjm9J66AU62sOmQIwvakGRD4Ia4wRCkwfFJcnWRS4XWVsmU4vQ3UmxGBEi2e
+            2yloyiIz53EOeXC9AM29xWUHeFX1i4TII+N4V540mglZP2rGWXttwtB9yMWP8un0
+            2YLZahHJVGAF922vv4oFjc+eVq3gbOC6/NiRCe/eciRSyEHhQV3yLRLI/+IuKwOD
+            PpZ/Rq1UxJ25ZWoDjLUtJPZ/8m5gROHzmh0do8u30eS2Y02wqiiB7cuG+RobVoLW
+            STDPW5KuCdYn9QkufSRR4L4FWwoWByaeN5wMXDwGYWfSByHwSQzmubtEUMv/cbZy
+            YuQQlbvvAgMBAAECggEADfnBkKtaH9ntehrOBsu9tSzoz7wF3JC6+9LOWtOu7imW
+            hv7R42K11V7wtjls7j0H3oipIFvwskWPAIR0mQMcHbO6Yi8dMqF58ZCcujkIwMKj
+            9YaJ9JUlW7QBWykqywMBDej+YVcuZVwtC6Tfe9fEqunhLvJw8incp9j5S3IiTWev
+            lyzagaQCnaFZ2lKZwFUouQ6s+LiUEFnpJIqlvCFj80QYaHa+Q2FiRntNSYKRnEOB
+            6QfhcLC4zTH7LjhDoGobucbMdOLNw7pqMiao5vGPAWh3QWY+RUABHBhwMMyyds9U
+            5dAuY4Mcx2ey1kMLTri2nTMC7DJkva7FrQj1/2THcQKBgQDh21c5YlmW+YnyRrGh
+            LkicnE3Hj8vFhgY2J2KQGJA8QEQYADLu+9nmyTNQpfQz54bUlwS1uI30IExjBEAZ
+            OY+M7Qg537zfwpWIZ+VUlxtCnfbF0t8MIxM9szKQCWSJO0OFm0kA0ZwwmkaV8d5X
+            Nk620/IESII02rXmsm9CeVUmVwKBgQDRQ6EzTsJKq6FEy7d4Ci8+nXnXgpsEt4XK
+            FaOpKr58z8PhZGgO3WcSTmVaQ3ncnYdla1pLcs2f9/pQtvcXvT7TUXoRpMvoRXH6
+            jou/CH7BICZunfl4JIeoLPjINjpY1iFn4Uh8zMJnP37dVVrRIySHncPWmu7LJ6YE
+            SoXsMJMoKQKBgBi5L/UiJPh33Hfe8TbZoC00lvcPcJjwsOFgslNfvPo7drjB3NF4
+            VEQFJk7fu7mq0IGY/nT9/NwKZRI5tuKMAIDGua3MJhrAbCoAZYQ6/krui8Lf8Had
+            qE+KvDA0NwMmr5+Cfh1O1LAlUzC6x0H4uekdjlKVtVsfzeWxBqjaK04FAoGAS5Om
+            Q3Z9WyRzQPpmD5d2CqIrH/dObzysuBhqnC0Q0NjkgKGXp0606/qeRiQ6fb/y52EH
+            IlqbAtw3bjE2Oj+h0gYKFRc0gXWbPYd/1wWFadBnsOmi8I4Y5FchnoVfOzhSpkbJ
+            vDDjQRDAi8VI4GFVzxjeYsJf3cU7Ay+7AFtmukkCgYEAwuziHc5Old0nofZR7QIj
+            SvkocaPVJoOYfeN8m6AZoIysj9rnxm3oT0VMT5khtRmPBvKmfW5P9e+l2fcx3Qho
+            aV3qQgYTCR2/t1tgmXEw2RGlgWPW8iKf9h1kCMEhbYeiaeu5Ees22ELdFSBI8TvL
+            fE1XJ9r/oaLP4LvCa/xdF3Q=
             -----END PRIVATE KEY-----
             """;
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        vault.storeSecret("public-key", PUBLIC_KEY);
-        vault.storeSecret("private-key", PRIVATE_KEY);
+        vault.storeSecret("dapsPublic", PUBLIC_KEY);
+        vault.storeSecret("dapsPrivate", PRIVATE_KEY);
     }
 }
