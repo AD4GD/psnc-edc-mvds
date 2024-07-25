@@ -23,7 +23,7 @@ ARG KC_VERSION
 
 WORKDIR /home/app
 COPY . ./
-RUN --mount=type=cache,target=/root/.m2 mvn -D "version.keycloak=${KC_VERSION}" clean package
+RUN mvn -D "version.keycloak=${KC_VERSION}" clean package
 
 FROM quay.io/keycloak/keycloak:${KC_VERSION}
 COPY --from=daps-ext-builder /home/app/target/dat-extension.jar /opt/keycloak/providers/dat-extension.jar
