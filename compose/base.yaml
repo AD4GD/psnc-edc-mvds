@@ -148,7 +148,7 @@ services:
 volumes:
   consumer-postgresql:
     driver: local
-  consumer-postgresql:
+  provider-postgresql:
     driver: local
   identity-provider-postgresql:
     driver: local
