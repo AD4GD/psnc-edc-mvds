@@ -70,6 +70,10 @@ dependencies {
     // OAuth2 DAPS
     implementation(libs.edc.oauth2.core)
     implementation(libs.edc.oauth2.daps)
+
+    // Enable callbacks
+    implementation(libs.edc.callback.event.dispatcher)
+    implementation(libs.edc.callback.http.dispatcher)
 }
 
 application {

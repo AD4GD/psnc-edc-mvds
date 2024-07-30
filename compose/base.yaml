@@ -95,21 +95,23 @@ services:
     ports:
       - "4000:4000"
     environment:
-      MINIO_ENDPOINT: "minio"
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio
+      MINIO_ENDPOINT: "minio:9001"
+      MINIO_ACCESS_KEY: minio-user
+      MINIO_SECRET_KEY: minio-password
     depends_on:
       - minio
 
   minio:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}
-    command: server /data
+    command: server /storage --address :9001
     environment:
       - HOSTNAME=minio
       - MINIO_ACCESS_KEY=minio-user
       - MINIO_SECRET_KEY=minio-password
-    expose:
-      - "9000"
+      - MINIO_IS_SECURE=False
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     restart: unless-stopped
 
   identity-provider:
