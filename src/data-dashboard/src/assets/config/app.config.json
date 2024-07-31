@@ -4,5 +4,6 @@
   "catalogUrl": "http://localhost:4200/management",
   "storageAccount": "company2assets",
   "storageExplorerLinkTemplate": "storageexplorer://v=1",
-  "theme": "theme-2"
+  "theme": "theme-2",
+  "backendUrl": ""
 }

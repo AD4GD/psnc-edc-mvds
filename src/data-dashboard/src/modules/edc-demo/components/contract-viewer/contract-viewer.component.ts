@@ -16,6 +16,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {CatalogBrowserService} from "../../services/catalog-browser.service";
 import {Router} from "@angular/router";
 import {TransferProcessStates} from "../../models/transfer-process-states";
+import { AppConfigService } from '../../../app/app-config.service';
 
 interface RunningTransferProcess {
   processId: string;
@@ -41,11 +42,13 @@ export class ContractViewerComponent implements OnInit {
               private transferService: TransferProcessService,
               private catalogService: CatalogBrowserService,
               private router: Router,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private appConfigService: AppConfigService) {
   }
 
   private static isFinishedState(state: string): boolean {
     return [
+      "STARTED",
       "COMPLETED",
       "ERROR",
       "ENDED"].includes(state);
@@ -91,19 +94,24 @@ export class ContractViewerComponent implements OnInit {
 
   private createTransferRequest(contract: ContractAgreement, storageTypeId: string): Observable<TransferProcessInput> {
     return this.getContractOfferForAssetId(contract.assetId!).pipe(map(contractOffer => {
-      const iniateTransfer : TransferProcessInput = {
-        assetId: contractOffer.assetId,
+      const backendUrl = this.appConfigService.getConfig()?.backendUrl;
+      const iniateTransfer : any = {
+        connectorId: "provider",
         counterPartyAddress: contractOffer.originator,
-
-        //connectorId: "consumer", //doesn't matter, but cannot be null
         contractId: contract.id,
+        assetId: contractOffer.assetId,
+        transferType: "HttpData-PULL",
         dataDestination: {
           "type": storageTypeId,
-          // account: this.homeConnectorStorageAccount, // CAUTION: hardcoded value for AzureBlob
-          // container: omitted, so it will be auto-assigned by the EDC runtime
         },
-
-        transferType: "HttpData-PULL",
+        callbackAddresses: [
+          {
+            "events": [
+              "transfer.process.started"
+            ],
+            "uri": backendUrl
+          }
+        ]
       };
 
       return iniateTransfer;
@@ -155,7 +163,7 @@ export class ContractViewerComponent implements OnInit {
             this.notificationService.showInfo(`Transfer [${transferProcess.id}] complete!`, "Show me!", () => {
               this.router.navigate(['/transfer-history'])
             })
-          }),
+          })
         ).subscribe(() => {
         // clear interval if necessary
         if (this.runningTransfers.length === 0) {
