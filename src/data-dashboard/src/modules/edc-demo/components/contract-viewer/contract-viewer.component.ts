@@ -71,11 +71,11 @@ export class ContractViewerComponent implements OnInit {
     const dialogRef = this.dialog.open(CatalogBrowserTransferDialog);
 
     dialogRef.afterClosed().pipe(first()).subscribe(result => {
+      if (result.storageTypeId === undefined || result.storageTypeId === "") {
+        return;
+      }
+
       const storageTypeId: string = result.storageTypeId;
-      // if (storageTypeId !== 'AzureStorage') {
-      //   this.notificationService.showError("Only storage type \"AzureStorage\" is implemented currently!")
-      //   return;
-      // }
 
       this.createTransferRequest(contract, storageTypeId)
         .pipe(switchMap(trq => this.transferService.initiateTransfer(trq)))

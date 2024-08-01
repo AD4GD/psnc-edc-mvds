@@ -13,7 +13,7 @@
 
 <mat-dialog-actions>
     <div>
-    <button (click)="onTransfer()" color="accent" mat-stroked-button>
+    <button (click)="onTransfer()" color="accent" mat-stroked-button [disabled]="!storageTypeId || storageTypeId === ''">
         <mat-icon>downloading</mat-icon> Start transfer
     </button>
 
