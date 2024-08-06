@@ -76,7 +76,7 @@ minio_resources:
     cpu: "1500m"
     memory: "1Gi"
 
-identity-provider_resources:
+identityprovider_resources:
   requests:
     cpu: "100m"
     memory: "200Mi"
@@ -89,7 +89,7 @@ deploy_stateful_services: true
 deploy_connector: "{{ deploy_stateful_services }}"
 deploy_datadashboard: "{{ deploy_stateful_services }}"
 deploy_minio: "{{ deploy_stateful_services }}"
-deploy_identity-provider: "{{ deploy_stateful_services }}"
+deploy_identityprovider: "{{ deploy_stateful_services }}"
 
 minio_pvc_storage_size: "2Gi"
 minio_pvc_storage_class_name: ""
@@ -224,7 +224,7 @@ minio_secret__05_defaults:
 random_minio_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
 random_minio_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
 
-identity-provider_configmap__05_defaults:
+identityprovider_configmap__05_defaults:
   KC_DB:
     when_missing: "postgres"
   KC_DB_URL_HOST:
@@ -240,7 +240,7 @@ identity-provider_configmap__05_defaults:
   KEYCLOAK_FRONTEND_URL:
     when_missing: "https://identity-provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
 
-identity-provider_secret__05_defaults:
+identityprovider_secret__05_defaults:
   KEYCLOAK_ADMIN:
     when_missing: "{{ random_keycloak_user }}"
   KEYCLOAK_ADMIN_PASSWORD:
@@ -251,7 +251,7 @@ random_keycloak_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_le
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else []) + (['minio'] if deploy_minio else [])  + (['identity-provider'] if deploy_identity-provider else [])}}"
+deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else []) + (['minio'] if deploy_minio else [])  + (['identityprovider'] if deploy_identityprovider else [])}}"
 
 # definitions below are helper definitions - do not change this
 

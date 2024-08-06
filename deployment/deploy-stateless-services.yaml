@@ -584,19 +584,19 @@
                   name: "{{ application }}-minio"
                   key: MINIO_SECRET_KEY
 
-    - name: "deploy deployment/{{ application }}-identity-provider"
-      when: "deploy_identity-provider|bool"
+    - name: "deploy deployment/{{ application }}-identityprovider"
+      when: "deploy_identityprovider|bool"
       tags:
-        - identity-provider
+        - identityprovider
         - deployment
       k8s:
         definition:
           apiVersion: v1
           kind: Deployment
           metadata:
-            name: "{{ application }}-identity-provider"
+            name: "{{ application }}-identityprovider"
             labels:
-              component: identity-provider
+              component: identityprovider
               application: "{{ application }}"
           spec:
             progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -605,15 +605,15 @@
               type: RollingUpdate
             selector:
               matchLabels:
-                component: identity-provider
+                component: identityprovider
                 application: "{{ application }}"
             template:
               metadata:
                 labels:
-                  component: identity-provider
+                  component: identityprovider
                   application: "{{ application }}"
                   image_tag: "{{ stateless_services_image_tag }}"
-                  parameters_digest: "{{ (identity-provider_configmap_digest + identity-provider_secret_digest)|hash('sha1') }}"
+                  parameters_digest: "{{ (identityprovider_configmap_digest + identityprovider_secret_digest)|hash('sha1') }}"
               spec:
                 serviceAccountName: "run-any-uid"
                 ports:
@@ -621,47 +621,47 @@
                     containerPort: 8080
                     protocol: "TCP"
                 containers:
-                  - name: "identity-provider"
+                  - name: "identityprovider"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-provider:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: true
                       runAsUser: 1000
-                    resources: "{{ identity-provider_resources }}"
+                    resources: "{{ identityprovider_resources }}"
                     volumeMounts:
-                      - name: "identity-provider-tmp"
+                      - name: "identityprovider-tmp"
                         mountPath: "/tmp"
                 volumes:
-                  - name: "identity-provider-tmp"
+                  - name: "identityprovider-tmp"
                     emptyDir:
                       medium: "Memory"
 
-    - name: "deploy service/{{ application }}-identity-provider"
-      when: "deploy_identity-provider"
+    - name: "deploy service/{{ application }}-identityprovider"
+      when: "deploy_identityprovider"
       tags:
-        - identity-provider
+        - identityprovider
         - service
       k8s:
         definition:
           apiVersion: v1
           kind: Service
           metadata:
-            name: "{{ application }}-identity-provider"
+            name: "{{ application }}-identityprovider"
             labels:
               application: "{{ application }}"
-              component: identity-provider
+              component: identityprovider
           spec:
             ports:
               - name: "receiver"
                 port: 8080
             selector:
               application: "{{ application }}"
-              component: identity-provider
+              component: identityprovider
           envFrom:
             - configMapRef:
-                name: "{{ application }}-identity-provider"
+                name: "{{ application }}-identityprovider"
                 optional: true
             - secretRef:
-                name: "{{ application }}-identity-provider"
+                name: "{{ application }}-identityprovider"
                 optional: true
