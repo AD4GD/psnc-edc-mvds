@@ -227,18 +227,20 @@ random_minio_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_lette
 identityprovider_configmap__05_defaults:
   KC_DB:
     when_missing: "postgres"
-  KC_DB_URL_HOST:
-    when_missing: "identity-provider-postgres"
-  KC_DB_URL_DATABASE:
-    when_missing: "keycloak"
   KC_DB_SCHEMA:
     when_missing: "public"
+  KC_DB_URL:
+    when_missing: "jdbc:postgresql://edc-connector-helm-postgres-three.edc-connector.svc:5432/keycloak"
   KC_HOSTNAME_URL:
-    when_missing: "http://localhost:8081"
+    when_missing: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl"
   KC_HOSTNAME_ADMIN_URL:
-    when_missing: "http://localhost:8081"
+    when_missing: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl"
   KEYCLOAK_FRONTEND_URL:
-    when_missing: "https://identity-provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
+    when_missing: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/protocol"
+  KC_PROXY:
+    when_missing: "edge"
+  KC_HTTP_ENABLED:
+    when_missing: "true"
 
 identityprovider_secret__05_defaults:
   KEYCLOAK_ADMIN:
