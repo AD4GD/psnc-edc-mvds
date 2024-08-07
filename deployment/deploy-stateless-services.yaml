@@ -539,6 +539,13 @@
                       runAsNonRoot: true
                       runAsUser: 1000
                     resources: "{{ consback_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-consback"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-consback"
+                          optional: true
                     volumeMounts:
                       - name: "consback-tmp"
                         mountPath: "/tmp"
@@ -629,6 +636,13 @@
                       runAsNonRoot: true
                       runAsUser: 1000
                     resources: "{{ identityprovider_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-identityprovider"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-identityprovider"
+                          optional: true
                     volumeMounts:
                       - name: "identityprovider-tmp"
                         mountPath: "/tmp"
