@@ -166,12 +166,12 @@ connectorconsumer_configmap__05_defaults:
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
   EDC_FEDERATED_NODE_URL: https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol
-  EDC_OAUTH_PROVIDER_JWKS_URL: "https://identity-provider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/certs"
-  EDC_OAUTH_TOKEN_URL: "https://identity-provider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_JWKS_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/certs"
+  EDC_OAUTH_TOKEN_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_CLIENT_ID: "consumer"
   EDC_OAUTH_CERTIFICATE_ALIAS: "dapsPublic"
   EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
-  EDC_OAUTH_PROVIDER_AUDIENCE: "http://localhost:8081/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_AUDIENCE: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
@@ -202,12 +202,12 @@ connectorprovider_configmap__05_defaults:
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
   EDC_FEDERATED_NODE_URL: "https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
-  EDC_OAUTH_PROVIDER_JWKS_URL: "https://identity-provider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/certs"
-  EDC_OAUTH_TOKEN_URL: "https://identity-provider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_JWKS_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/certs"
+  EDC_OAUTH_TOKEN_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_CLIENT_ID: "provider"
   EDC_OAUTH_CERTIFICATE_ALIAS: "dapsPublic"
   EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
-  EDC_OAUTH_PROVIDER_AUDIENCE: "http://localhost:8081/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_AUDIENCE: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
@@ -239,8 +239,6 @@ identityprovider_configmap__05_defaults:
     when_missing: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/protocol"
   KC_PROXY:
     when_missing: "edge"
-  KC_HTTP_ENABLED:
-    when_missing: "true"
 
 identityprovider_secret__05_defaults:
   KEYCLOAK_ADMIN:

@@ -624,9 +624,13 @@
               spec:
                 serviceAccountName: "run-any-uid"
                 ports:
-                  - name: "receiver"
+                  - name: "keycloak-https"
+                    containerPort: 8443
+                    protocol: "TCP"
+                  - name: "keycloak-http"
                     containerPort: 8080
                     protocol: "TCP"
+
                 containers:
                   - name: "identityprovider"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-provider:{{ stateless_services_image_tag }}"
@@ -667,7 +671,9 @@
               component: identityprovider
           spec:
             ports:
-              - name: "receiver"
+              - name: "keycloak-https"
+                port: 8443
+              - name: "keycloak-http"
                 port: 8080
             selector:
               application: "{{ application }}"
