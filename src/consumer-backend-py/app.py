@@ -5,6 +5,7 @@ import logging
 import mimetypes
 import os
 from typing import List, Optional
+from urllib.parse import urlparse, urlunparse
 
 import httpx
 import magic
@@ -86,6 +87,8 @@ async def edr_endpoint(request: TransferProcessStarted):
     authKey = properties.auth_type
     authCode = properties.authorization
 
+    endpoint = fix_endpoint_format(endpoint)
+
     if not endpoint or not authKey or not authCode:
         return JSONResponse(
             content={"error": "Missing or invalid endpoint, authKey or authCode parameters."}, status_code=400
@@ -122,6 +125,29 @@ async def edr_endpoint(request: TransferProcessStarted):
     )
 
     return JSONResponse(content={"status": "success"}, status_code=200)
+
+
+# For some unknown reason (probably some misconfiguration of the EDC connector)
+# received endpoint from EDC connector has a format http://<hostname>:<port>/...
+# which is incorrect in case of deployed instances
+# so we need http://<hostname>:<port>/... -> https://<hostname>/...
+def fix_endpoint_format(url):
+
+    parsed_url = urlparse(url)
+
+    if "localhost" in parsed_url.hostname:
+        # Do nothing, return the original URL
+        return url
+
+    # If not localhost, modify the URL to use HTTPS and remove the port
+    new_netloc = parsed_url.hostname
+    new_scheme = "https"
+
+    new_url = urlunparse(
+        (new_scheme, new_netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment)
+    )
+
+    return new_url
 
 
 def create_bucket_if_not_exists(client, bucket_name):
