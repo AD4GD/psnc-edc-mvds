@@ -59,7 +59,8 @@ export class CatalogBrowserService {
           }
           const assetId = dataSet["@id"];
 
-          const hasPolicy = dataSet["odrl:hasPolicy"];
+          const hasPolicy = this.getFirstPolicy(dataSet["odrl:hasPolicy"]);
+
           const policy: PolicyInput = {
             //currently hardcoded to SET since parsed type is {"@policytype": "set"}
             "@type": "Set", //TODO Use TypeEnum https://github.com/Think-iT-Labs/edc-connector-client/issues/103
@@ -110,6 +111,13 @@ export class CatalogBrowserService {
 
   getNegotiationState(id: string): Observable<ContractNegotiation> {
     return this.negotiationService.getNegotiation(id);
+  }
+
+  private getFirstPolicy(hasPolicy: any): any {
+    if (Array.isArray(hasPolicy)) {
+      return hasPolicy[0];
+    }
+    return hasPolicy;
   }
 
   private post<T>(urlPath: string,

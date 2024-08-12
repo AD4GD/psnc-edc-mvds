@@ -95,6 +95,7 @@ export class ContractViewerComponent implements OnInit {
   private createTransferRequest(contract: ContractAgreement, storageTypeId: string): Observable<TransferProcessInput> {
     return this.getContractOfferForAssetId(contract.assetId!).pipe(map(contractOffer => {
       const backendUrl = this.appConfigService.getConfig()?.backendUrl;
+      console.log(backendUrl);
       const iniateTransfer : any = {
         connectorId: "provider",
         counterPartyAddress: contractOffer.originator,

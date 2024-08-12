@@ -38,12 +38,12 @@ export class AssetEditorDialog implements OnInit {
         "contenttype": this.contenttype,
       },
       dataAddress: {
-        "type": this.storageTypeId,
-        "account": this.account,
-        "container": this.container,
-        "blobname": this.blobname,
+        "type": "HttpData", // this.storageTypeId,
         "baseUrl": this.baseUrl,
-        "keyName": `${this.account}-key1`
+        // "account": this.account,
+        // "container": this.container,
+        // "blobname": this.blobname,
+        // "keyName": `${this.account}-key1`
       }
     };
 
