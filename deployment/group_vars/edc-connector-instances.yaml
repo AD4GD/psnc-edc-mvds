@@ -217,6 +217,12 @@ connectorprovider_configmap__05_defaults:
 consback_configmap__05_defaults:
   MINIO_ENDPOINT: "edc-minio.apps.paas-dev.psnc.pl"
 
+consback_secret__05_defaults:
+  MINIO_ACCESS_KEY:
+    when_missing: "{{ random_minio_user }}"
+  MINIO_SECRET_KEY:
+    when_missing: "{{ random_minio_pass }}"
+
 minio_secret__05_defaults:
   MINIO_ACCESS_KEY:
     when_missing: "{{ random_minio_user }}"

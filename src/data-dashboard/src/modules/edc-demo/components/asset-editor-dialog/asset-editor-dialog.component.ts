@@ -20,6 +20,7 @@ export class AssetEditorDialog implements OnInit {
   account: string = '';
   container: string = 'src-container';
   blobname: string = '';
+  baseUrl: string = '';
 
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
       @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
@@ -41,6 +42,7 @@ export class AssetEditorDialog implements OnInit {
         "account": this.account,
         "container": this.container,
         "blobname": this.blobname,
+        "baseUrl": this.baseUrl,
         "keyName": `${this.account}-key1`
       }
     };

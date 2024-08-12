@@ -31,17 +31,22 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field class="form-field" color="accent" id="form-field-account">
+    <mat-form-field class="form-field" color="accent" id="form-field-baseurl">
+      <mat-label>Base url</mat-label>
+      <input [(ngModel)]="baseUrl" matInput>
+    </mat-form-field>
+
+    <mat-form-field class="form-field" color="accent" id="form-field-account" disabled>
       <mat-label>Account</mat-label>
       <input [(ngModel)]="account" matInput>
     </mat-form-field>
 
-    <mat-form-field class="form-field" color="accent" id="form-field-container">
+    <mat-form-field class="form-field" color="accent" id="form-field-container" disabled>
       <mat-label>Container</mat-label>
       <input disabled [(ngModel)]="container" matInput>
     </mat-form-field>
 
-    <mat-form-field class="form-field" color="accent" id="form-field-blobname">
+    <mat-form-field class="form-field" color="accent" id="form-field-blobname" disabled>
       <mat-label>Blob Name</mat-label>
       <input [(ngModel)]="blobname" matInput>
     </mat-form-field>

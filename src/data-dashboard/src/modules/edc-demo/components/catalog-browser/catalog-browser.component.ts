@@ -55,6 +55,10 @@ export class CatalogBrowserComponent implements OnInit {
   }
 
    onNegotiateClicked(contractOffer: ContractOffer) {
+    console.log("Negotiation cliked");
+    console.log(`Contract Offer Id: ${contractOffer.id!} | assetId: ${contractOffer.assetId}`);
+    console.log(contractOffer);
+
     const initiateRequest: any = {
       "@context": {
         "edc": "https://w3id.org/edc/v0.0.1/ns/"
@@ -91,6 +95,7 @@ export class CatalogBrowserComponent implements OnInit {
 
           for (const negotiation of this.runningNegotiations.values()) {
             this.apiService.getNegotiationState(negotiation.id).subscribe(updatedNegotiation => {
+              console.log(`Negotiation state: ${updatedNegotiation.state!}`);
               if (finishedNegotiationStates.includes(updatedNegotiation.state!)) {
                 let offerId = negotiation.offerId;
                 this.runningNegotiations.delete(offerId);
