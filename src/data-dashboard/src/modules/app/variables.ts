@@ -9,3 +9,5 @@ export const COLLECTION_FORMATS = {
     'ssv': ' ',
     'pipes': '|'
 }
+export const MINIO_STORAGE_TYPE = "minio";
+export const LOCAL_STORAGE_TYPE = "local";
