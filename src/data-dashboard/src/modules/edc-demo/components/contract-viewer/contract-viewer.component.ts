@@ -102,6 +102,20 @@ export class ContractViewerComponent implements OnInit {
     return this.getContractOfferForAssetId(contract.assetId!).pipe(map(contractOffer => {
       const backendUrl = this.appConfigService.getConfig()?.backendUrl;
       console.log(backendUrl);
+
+      const callbackAddresses = [];
+
+      if (storageTypeId == MINIO_STORAGE_TYPE) {
+        callbackAddresses.push(
+          {
+            "events": [
+              "transfer.process.started"
+            ],
+            "uri": backendUrl
+          }
+        )
+      }
+
       const iniateTransfer : any = {
         connectorId: "provider",
         counterPartyAddress: contractOffer.originator,
@@ -111,14 +125,7 @@ export class ContractViewerComponent implements OnInit {
         dataDestination: {
           "type": storageTypeId,
         },
-        callbackAddresses: [
-          {
-            "events": [
-              "transfer.process.started"
-            ],
-            "uri": backendUrl
-          }
-        ]
+        callbackAddresses: callbackAddresses
       };
 
       return iniateTransfer;
