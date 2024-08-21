@@ -16,7 +16,7 @@ import {EdcDemoModule} from '../edc-demo/edc-demo.module';
 import {MAT_FORM_FIELD_DEFAULT_OPTIONS} from '@angular/material/form-field';
 import {AppConfigService} from "./app-config.service";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
-import {CONNECTOR_CATALOG_API, CONNECTOR_MANAGEMENT_API} from "./variables";
+import {CONNECTOR_CATALOG_API, CONNECTOR_MANAGEMENT_API, LOCAL_STORAGE_TYPE, MINIO_STORAGE_TYPE} from "./variables";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {EdcApiKeyInterceptor} from "./edc.apikey.interceptor";
 import {environment} from "../../environments/environment";
@@ -66,7 +66,7 @@ import { EdcConnectorClient } from "@think-it-labs/edc-connector-client";
     },
     {
       provide: 'STORAGE_TYPES',
-      useFactory: () => [{id: "HttpProxy", name: "LocalStorage"}, {id: "HttpProxy", name: "HttpProxy"}],
+      useFactory: () => [{id: LOCAL_STORAGE_TYPE, name: "Local"}, {id: MINIO_STORAGE_TYPE, name: "Minio"}],
     },
     {
       provide: HTTP_INTERCEPTORS, multi: true, useFactory: () => {

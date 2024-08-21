@@ -137,7 +137,8 @@
                 "apiKey": "fifi-info-zaneta",
                 "managementApiUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
                 "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
-                "theme": "theme-3"
+                "theme": "theme-3",
+                "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
               }
             nginx.conf: |
               events {}
@@ -376,7 +377,8 @@
                 "apiKey": "fifi-info-zaneta",
                 "managementApiUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
                 "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
-                "theme": "theme-3"
+                "theme": "theme-2",
+                "backendUrl": ""
               }
             nginx.conf: |
               events {}
@@ -537,6 +539,13 @@
                       runAsNonRoot: true
                       runAsUser: 1000
                     resources: "{{ consback_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-consback"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-consback"
+                          optional: true
                     volumeMounts:
                       - name: "consback-tmp"
                         mountPath: "/tmp"
@@ -582,17 +591,97 @@
                   name: "{{ application }}-minio"
                   key: MINIO_SECRET_KEY
 
+    - name: "deploy deployment/{{ application }}-identityprovider"
+      when: "deploy_identityprovider|bool"
+      tags:
+        - identityprovider
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-identityprovider"
+            labels:
+              component: identityprovider
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: identityprovider
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: identityprovider
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (identityprovider_configmap_digest + identityprovider_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "keycloak-https"
+                    containerPort: 8443
+                    protocol: "TCP"
+                  - name: "keycloak-http"
+                    containerPort: 8080
+                    protocol: "TCP"
 
+                containers:
+                  - name: "identityprovider"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-provider:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: true
+                      runAsUser: 1000
+                    resources: "{{ identityprovider_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-identityprovider"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-identityprovider"
+                          optional: true
+                    volumeMounts:
+                      - name: "identityprovider-tmp"
+                        mountPath: "/tmp"
+                volumes:
+                  - name: "identityprovider-tmp"
+                    emptyDir:
+                      medium: "Memory"
 
-#    - name: "deploy {{ application }} {{ expose_http_kind }}"
-#      when: "expose_http_kind != 'none'"
-#      tags:
-#        - routes
-#      vars:
-#        expose_http_ip_whitelist: "0.0.0.0/0"
-#        expose_http_paths:
-#          - path: "/api/"
-#            serviceName: "{{ application }}-varnish"
-#            servicePort: varnish
-#      k8s:
-#        definition: "{{ lookup('template', 'expose-http-definitions.yaml', convert_data=True)|from_yaml }}"
+    - name: "deploy service/{{ application }}-identityprovider"
+      when: "deploy_identityprovider"
+      tags:
+        - identityprovider
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-identityprovider"
+            labels:
+              application: "{{ application }}"
+              component: identityprovider
+          spec:
+            ports:
+              - name: "keycloak-https"
+                port: 8443
+              - name: "keycloak-http"
+                port: 8080
+            selector:
+              application: "{{ application }}"
+              component: identityprovider
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-identityprovider"
+                optional: true
+            - secretRef:
+                name: "{{ application }}-identityprovider"
+                optional: true

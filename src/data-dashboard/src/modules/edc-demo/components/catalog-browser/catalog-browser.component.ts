@@ -54,23 +54,29 @@ export class CatalogBrowserComponent implements OnInit {
     this.fetch$.next(null);
   }
 
-  onNegotiateClicked(contractOffer: ContractOffer) {
-    const initiateRequest: ContractNegotiationRequest = {
-      counterPartyAddress: contractOffer.originator,
-      policy: contractOffer.policy as Policy,
+   onNegotiateClicked(contractOffer: ContractOffer) {
+    console.log("Negotiation cliked");
+    console.log(`Contract Offer Id: ${contractOffer.id!} | assetId: ${contractOffer.assetId}`);
+    console.log(contractOffer);
 
-      /*
-      offer: {
-        offerId: contractOffer.id,
-        assetId: contractOffer.assetId,
-        policy: contractOffer.policy,
+    const initiateRequest: any = {
+      "@context": {
+        "edc": "https://w3id.org/edc/v0.0.1/ns/"
       },
-      connectorId: 'connector',
-      providerId: contractOffer["dcat:service"].id
-      */
+      "@type": "ContractRequest",
+      counterPartyAddress: contractOffer.originator,
+      protocol: "dataspace-protocol-http",
+      policy: {
+        "@context": "http://www.w3.org/ns/odrl.jsonld",
+        "@id": `${contractOffer.id}`,
+        "@type": "Offer",
+        assigner: "provider",
+        target: `${contractOffer.assetId}`
+      }
     };
 
     const finishedNegotiationStates = [
+      "FINALIZED",
       "VERIFIED",
       "TERMINATED",
       "ERROR"];
@@ -89,10 +95,11 @@ export class CatalogBrowserComponent implements OnInit {
 
           for (const negotiation of this.runningNegotiations.values()) {
             this.apiService.getNegotiationState(negotiation.id).subscribe(updatedNegotiation => {
+              console.log(`Negotiation state: ${updatedNegotiation.state!}`);
               if (finishedNegotiationStates.includes(updatedNegotiation.state!)) {
                 let offerId = negotiation.offerId;
                 this.runningNegotiations.delete(offerId);
-                if (updatedNegotiation["edc:state"] === "VERIFIED") {
+                if (updatedNegotiation.state! === "VERIFIED" || updatedNegotiation.state! === "FINALIZED") {
                   this.finishedNegotiations.set(offerId, updatedNegotiation);
                   this.notificationService.showInfo("Contract Negotiation complete!", "Show me!", () => {
                     this.router.navigate(['/contracts'])

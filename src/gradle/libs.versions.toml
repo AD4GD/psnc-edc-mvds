@@ -30,8 +30,14 @@ edc-configuration-filesystem = { module = "org.eclipse.edc:configuration-filesys
 
 edc-connector-core = { module = "org.eclipse.edc:connector-core", version.ref = "edc" }
 
+edc-callback-event-dispatcher = { module = "org.eclipse.edc:callback-event-dispatcher", version.ref = "edc" }
+edc-callback-http-dispatcher = { module = "org.eclipse.edc:callback-http-dispatcher", version.ref = "edc" }
+
 edc-federated-catalog-core = { module = "org.eclipse.edc:federated-catalog-core", version.ref = "edc" }
 edc-federated-catalog-api = { module = "org.eclipse.edc:federated-catalog-api", version.ref = "edc" }
+
+edc-oauth2-core = { module = "org.eclipse.edc:oauth2-core", version.ref = "edc" }
+edc-oauth2-daps = { module = "org.eclipse.edc:oauth2-daps", version.ref = "edc" }
 
 edc-control-plane-api-client = { module = "org.eclipse.edc:control-plane-api-client", version.ref = "edc" }
 edc-control-plane-api = { module = "org.eclipse.edc:control-plane-api", version.ref = "edc" }
