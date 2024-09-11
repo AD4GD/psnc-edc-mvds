@@ -35,7 +35,7 @@ Update inventory for main project:
   stage: update_inventory
   variables:
     inventory_repository_name: inventory
-    inventory_hostname: "edc-connector-edc-connector.apps.paas-dev.psnc.pl-edc-connector-instances"
+    inventory_hostname: $inventory_hostname
     gitlab_push_token: $gitlab_push_token_dev
   script:
     - devlab_update_inventory
@@ -47,7 +47,7 @@ Update inventory for atos-psnc integration:
   stage: update_inventory
   variables:
     inventory_repository_name: atos-integration-inventory
-    inventory_hostname: "edc-connector-edc-connector.apps.dcw1.psnc.pl-edc-connector-instances"
+    inventory_hostname: $inventory_hostname_psnc_atos
     gitlab_push_token: $gitlab_push_token_psnc_atos
   script:
     - devlab_update_inventory
