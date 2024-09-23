@@ -48,7 +48,7 @@ Update inventory for atos-psnc integration:
   variables:
     inventory_repository_name: atos-integration-inventory
     gitlab_push_token: $gitlab_push_token_psnc_atos
-    inventory_hostname: $inventory_hostname_psnc_atos      
+    inventory_hostname: $inventory_hostname_psnc_atos
   script:
     - devlab_update_inventory
   only:
