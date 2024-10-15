@@ -8,7 +8,7 @@ plugins {
 dependencies {
     implementation(project(":core:base"))
     implementation(project(":extensions:connector-persistence"))
-    
+
     // OAuth2 DAPS
     implementation(libs.edc.oauth2.core)
     implementation(libs.edc.oauth2.daps)
