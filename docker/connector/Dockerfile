@@ -9,7 +9,18 @@ RUN apt update \
 
 WORKDIR /app
 
-COPY src/launcher/build/libs/connector.jar /app/app.jar
+# Copy the source code
+COPY src/ /app/
+
+# Ensure the Gradle wrapper is executable
+RUN chmod +x /app/gradlew
+
+# Build the project inside the container
+RUN ./gradlew launchers:no-daps:build --no-daemon
+ENV CONNECTOR_BUILD_PATH="/app/launchers/no-daps/build/libs/connector.jar"
+# Copy the built JAR to /app/app.jar
+RUN cp $CONNECTOR_BUILD_PATH /app/app.jar
+
 RUN touch /app/empty-vault.properties
 RUN mkdir /app/config
 RUN mkdir /app/certs
@@ -22,4 +33,4 @@ HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://local
 # ARG can not be used in ENTRYPOINT so storing values in ENV variables
 ENV JVM_ARGS=$JVM_ARGS
 ENTRYPOINT [ "sh", "-c", \
-    "exec java $JVM_ARGS -jar app.jar"]
+    "exec java $JVM_ARGS -jar /app/app.jar"]
