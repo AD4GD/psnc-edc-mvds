@@ -1,6 +1,9 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
+# available types: daps, no-daps
+ARG LAUNCHER_TYPE="daps"
+
 ARG JVM_ARGS=""
 
 RUN apt update \
@@ -16,8 +19,8 @@ COPY src/ /app/
 RUN chmod +x /app/gradlew
 
 # Build the project inside the container
-RUN ./gradlew launchers:no-daps:build --no-daemon
-ENV CONNECTOR_BUILD_PATH="/app/launchers/no-daps/build/libs/connector.jar"
+RUN ./gradlew launchers:$LAUNCHER_TYPE:build --no-daemon
+ENV CONNECTOR_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/connector.jar
 # Copy the built JAR to /app/app.jar
 RUN cp $CONNECTOR_BUILD_PATH /app/app.jar
 
