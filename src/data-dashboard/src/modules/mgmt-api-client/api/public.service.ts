@@ -37,7 +37,7 @@ export class PublicService {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json();
+        return response;
       })
       .catch(error => {
         console.error('Error fetching data:', error);
