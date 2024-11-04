@@ -21,6 +21,27 @@ export class PublicService {
         const headers: Record<string, string | undefined> = {
           "Authorization": authCode
         };
-        return from(this.publicService.getTransferredData(headers, context));
+        const url = context.public;
+
+        return from(this.transferData(url, headers));
+    }
+
+    // fixed method, original .getTransferredData doesn't work correctly
+    // since it doesn't allow to pass parameters
+    private transferData(url: string, headers: any): Promise<Response> {
+      return fetch(url, {
+        method: 'GET',
+        headers: headers
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        throw error;
+      });
     }
 }

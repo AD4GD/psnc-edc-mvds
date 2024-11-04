@@ -231,11 +231,13 @@ export class ContractViewerComponent implements OnInit {
       console.log(authCode);
 
       const adjustedEndpoint = this.adjustServiceUrl(endpoint);
-      console.log(adjustedEndpoint);
+      const publicEndpoint = this.getUrlWithQueryParams(adjustedEndpoint, proxyDataAddressOptions);
+      console.log(publicEndpoint);
 
       const context = new EdcConnectorClientContext(undefined, {
-        public: this.getUrlWithQueryParams(adjustedEndpoint, proxyDataAddressOptions)
+        public: publicEndpoint
       });
+      console.log(context.public);
 
       const data: Response = await this.publicService.getTransferredData(authCode, context).toPromise();
       console.log(data);
