@@ -45,6 +45,7 @@ import {
 } from "./components/policy-rule-viewer/policy-rule-viewer.component";
 import {NewPolicyDialogComponent} from "./components/new-policy-dialog/new-policy-dialog.component";
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -71,6 +72,7 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
     MatListModule,
     RouterModule,
     MatProgressSpinnerModule,
+    MatCheckboxModule,
   ],
   declarations: [
     CatalogBrowserComponent,

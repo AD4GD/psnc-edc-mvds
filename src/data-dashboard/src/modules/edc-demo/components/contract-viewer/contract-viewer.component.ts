@@ -49,7 +49,8 @@ export class ContractViewerComponent implements OnInit {
               private catalogService: CatalogBrowserService,
               private router: Router,
               private notificationService: NotificationService,
-              private appConfigService: AppConfigService) {
+              private appConfigService: AppConfigService,
+              private assetsService: AssetService) {
   }
 
   private static isFinishedState(state: string): boolean {
@@ -74,22 +75,45 @@ export class ContractViewerComponent implements OnInit {
   }
 
   onTransferClicked(contract: ContractAgreement) {
-    const dialogRef = this.dialog.open(CatalogBrowserTransferDialog);
 
-    dialogRef.afterClosed().pipe(first()).subscribe(result => {
-      if (result === undefined || result.storageTypeId === undefined || result.storageTypeId === "") {
-        return;
-      }
+    this.assetsService.getAsset(contract.assetId)
+      .pipe(first())
+      .subscribe(asset => {
+        
+        const assetFieldsPrefix = "https://w3id.org/edc/v0.0.1/ns";
+        const properties = `${assetFieldsPrefix}/properties`;
+        const proxyPath = `${assetFieldsPrefix}/proxyPath`;
+        const proxyQueryParams = `${assetFieldsPrefix}/proxyQueryParams`;
+        console.log(asset);
 
-      const storageTypeId: string = result.storageTypeId;
+        const dialogRef = this.dialog.open(CatalogBrowserTransferDialog, {
+          data: {
+            isProxyPath: asset[properties][0][proxyPath] ?? false,
+            isProxyQueryParams: asset[properties][0][proxyQueryParams] ?? false,
+          }
+        });
 
-      this.createTransferRequest(contract, storageTypeId)
-        .pipe(switchMap(trq => this.transferService.initiateTransfer(trq)))
-        .subscribe(transferId => {
-          this.startPolling(transferId, contract["@id"]!, storageTypeId);
-        }, error => {
-          console.error(error);
-          this.notificationService.showError("Error initiating transfer");
+        dialogRef.afterClosed().pipe(first()).subscribe(result => {
+          if (result === undefined || result.storageTypeId === undefined || result.storageTypeId === "") {
+            return;
+          }
+
+          console.log(result);
+
+          const storageTypeId: string = result.storageTypeId;
+          const proxyDataAddressOptions: any = {
+            proxyPath: result.proxyUrlPath,
+            proxyQueryParams: result.proxyQueryParams
+          }
+
+          this.createTransferRequest(contract, storageTypeId, proxyDataAddressOptions)
+            .pipe(switchMap(trq => this.transferService.initiateTransfer(trq)))
+            .subscribe(transferId => {
+              this.startPolling(transferId, contract["@id"]!, storageTypeId, proxyDataAddressOptions);
+            }, error => {
+              console.error(error);
+              this.notificationService.showError("Error initiating transfer");
+            });
         });
     });
   }
@@ -98,7 +122,7 @@ export class ContractViewerComponent implements OnInit {
     return !!this.runningTransfers.find(rt => rt.contractId === contractId);
   }
 
-  private createTransferRequest(contract: ContractAgreement, storageTypeId: string): Observable<TransferProcessInput> {
+  private createTransferRequest(contract: ContractAgreement, storageTypeId: string, proxyDataAddressOptions: any): Observable<TransferProcessInput> {
     return this.getContractOfferForAssetId(contract.assetId!).pipe(map(contractOffer => {
       const backendUrl = this.appConfigService.getConfig()?.backendUrl;
       console.log(backendUrl);
@@ -111,7 +135,7 @@ export class ContractViewerComponent implements OnInit {
             "events": [
               "transfer.process.started"
             ],
-            "uri": backendUrl
+            "uri": this.getUrlWithQueryParams(backendUrl!, proxyDataAddressOptions)
           }
         )
       }
@@ -152,7 +176,7 @@ export class ContractViewerComponent implements OnInit {
         }))
   }
 
-  private startPolling(transferProcessId: IdResponse, contractId: string, storageType: string) {
+  private startPolling(transferProcessId: IdResponse, contractId: string, storageType: string, proxyDataAddressOptions: any) {
     // track this transfer process
     this.runningTransfers.push({
       processId: transferProcessId.id!,
@@ -162,12 +186,12 @@ export class ContractViewerComponent implements OnInit {
     });
 
     if (!this.pollingHandleTransfer) {
-      this.pollingHandleTransfer = setInterval(this.pollRunningTransfers(), 1000);
+      this.pollingHandleTransfer = setInterval(this.pollRunningTransfers(proxyDataAddressOptions), 1000);
     }
 
   }
 
-  private pollRunningTransfers() {
+  private pollRunningTransfers(proxyDataAddressOptions: any) {
     return () => {
       from(this.runningTransfers) //create from array
         .pipe(switchMap(runningTransferProcess => this.catalogService.getTransferProcessesById(runningTransferProcess.processId).pipe(
@@ -176,7 +200,7 @@ export class ContractViewerComponent implements OnInit {
         ),
         filter(({ transferProcess }) => ContractViewerComponent.isFinishedState(transferProcess.state!)),
           tap(({ runningTransferProcess, transferProcess }) => {
-            this.processStartedTransfer(transferProcess, runningTransferProcess.storageType);
+            this.processStartedTransfer(transferProcess, runningTransferProcess.storageType, proxyDataAddressOptions);
           })
         )
         .subscribe(() => {
@@ -189,7 +213,7 @@ export class ContractViewerComponent implements OnInit {
     }
   }
 
-  private processStartedTransfer = (transfer: TransferProcess, storageType: string) => {
+  private processStartedTransfer = (transfer: TransferProcess, storageType: string, proxyDataAddressOptions: any) => {
     console.log(transfer);
     console.log(storageType);
 
@@ -198,10 +222,10 @@ export class ContractViewerComponent implements OnInit {
       return;
     }
 
-    this.processStartedLocalTransfer(transfer);
+    this.processStartedLocalTransfer(transfer, proxyDataAddressOptions);
   }
 
-  private processStartedLocalTransfer = async (transfer: TransferProcess) => {
+  private processStartedLocalTransfer = async (transfer: TransferProcess, proxyDataAddressOptions: any) => {
     console.log(transfer);
     try {
       const address = await this.edrService.requestDataAddress(transfer.id).toPromise();
@@ -216,28 +240,13 @@ export class ContractViewerComponent implements OnInit {
       console.log(adjustedEndpoint);
 
       const context = new EdcConnectorClientContext(undefined, {
-        public: adjustedEndpoint
+        public: this.getUrlWithQueryParams(adjustedEndpoint, proxyDataAddressOptions)
       });
 
       const data: Response = await this.publicService.getTransferredData(authCode, context).toPromise();
       console.log(data);
 
-      // Save to downloads
-      const jsonData = await data.json();
-      console.log(jsonData);
-      const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${transfer.assetId}.json`;
-      document.body.appendChild(a);
-      a.click();
-
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      //
-
+      this.saveFileToDownloads(data, transfer);
       this.completeTransfer(transfer);
     } catch (e: any) {
       const message = (e as Error).message;
@@ -245,6 +254,23 @@ export class ContractViewerComponent implements OnInit {
       this.notificationService.showError(message);
     }
 
+  }
+
+  private saveFileToDownloads = async (data: Response, transfer: TransferProcess) => {
+
+    const jsonData = await data.json();
+    console.log(jsonData);
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${transfer.assetId}.json`;
+    document.body.appendChild(a);
+    a.click();
+
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   }
 
   // A fast fix for the problem related to a request to <service-name>:<port> on dev. env. (need localhost)
@@ -259,11 +285,11 @@ export class ContractViewerComponent implements OnInit {
         parsedUrl.hostname = 'localhost';
       }
 
-      // Return the modified or original URL
       return parsedUrl.toString();
+      
     } catch (error) {
       console.error('Invalid URL provided:', error);
-      return url; // Return the original URL in case of an error
+      return url; 
     }
   }
 
@@ -273,5 +299,26 @@ export class ContractViewerComponent implements OnInit {
     this.notificationService.showInfo(`Transfer [${transferProcess.id}] complete!`, "Show me!", () => {
       this.router.navigate(['/transfer-history'])
     })
+  }
+
+  private getUrlWithQueryParams(url: string, proxyDataAddressOptions: any) {
+    const proxyPath = proxyDataAddressOptions.proxyPath.replace(/\s/g, "");
+    const proxyQueryParams: { key: string; value: string }[] = proxyDataAddressOptions.proxyQueryParams;
+
+    let result = url;
+    if (proxyPath != undefined && proxyPath != '') {
+      if (proxyPath[0] != '/') {
+        result += '/';
+      }
+      result += `${proxyPath}`;
+    }
+    if (proxyQueryParams != undefined && proxyQueryParams.length > 0) {
+      const proxyQueryParamsStr = proxyQueryParams
+        .map(x => `${x.key.replace(/\s/g, "")}=${x.value.replace(/\s/g, "")}`)
+        .join("&");
+      result += `?${proxyQueryParamsStr}`;
+    }
+
+    return result;
   }
 }

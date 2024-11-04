@@ -27,6 +27,19 @@
       <input [(ngModel)]="baseUrl" matInput>
     </mat-form-field>
   </div>
+
+  <!-- In case of the REST API asset type -->
+  <div>
+    <mat-checkbox [(ngModel)]="isProxyPath" color="accent">
+      Allow proxy path
+    </mat-checkbox>
+  </div>
+
+  <div>
+    <mat-checkbox [(ngModel)]="isProxyQueryParams" color="accent">
+      Allow proxy query params
+    </mat-checkbox>
+  </div>
 </mat-dialog-content>
 
 

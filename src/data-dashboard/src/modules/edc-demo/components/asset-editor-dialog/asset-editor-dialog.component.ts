@@ -22,6 +22,9 @@ export class AssetEditorDialog implements OnInit {
   blobname: string = '';
   baseUrl: string = '';
 
+  isProxyPath: boolean = true;
+  isProxyQueryParams: boolean = true;
+
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
       @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
   }
@@ -36,10 +39,14 @@ export class AssetEditorDialog implements OnInit {
         "name": this.name,
         "version": this.version,
         "contenttype": this.contenttype,
+        "proxyPath": this.isProxyPath.toString(),
+        "proxyQueryParams": this.isProxyQueryParams.toString(),
       },
       dataAddress: {
         "type": "HttpData", // this.storageTypeId,
         "baseUrl": this.baseUrl,
+        "proxyPath": this.isProxyPath.toString(),
+        "proxyQueryParams": this.isProxyQueryParams.toString(),
         // "account": this.account,
         // "container": this.container,
         // "blobname": this.blobname,

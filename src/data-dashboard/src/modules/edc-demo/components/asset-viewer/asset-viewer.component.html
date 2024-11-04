@@ -21,7 +21,7 @@
   <div fxLayout="row wrap" fxLayoutAlign="start start">
     <mat-card *ngFor="let asset of assets" class="asset-card">
       <mat-card-header>
-        <mat-icon mat-card-avatar>id</mat-icon>
+        <mat-icon class="avatar-icon" mat-card-avatar>id</mat-icon>
         <mat-card-title>{{asset.id}}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -40,6 +40,20 @@
             <mat-icon matListItemIcon>file_copy</mat-icon>
             <div class="asset-property" matListItemTitle>Version</div>
             <div matListItemLine>{{asset.properties.optionalValue('edc','version')}}</div>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>alt_route</mat-icon>
+            <div class="asset-property" matListItemTitle>Proxy path</div>
+            <div matListItemLine>
+              {{ asset.properties.optionalValue('edc', 'proxyPath') ? 'Proxy path is allowed' : 'Proxy path is not allowed' }}
+            </div>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>explore</mat-icon>
+            <div class="asset-property" matListItemTitle>Proxy query params</div>
+            <div matListItemLine>
+              {{ asset.properties.optionalValue('edc', 'proxyQueryParams') ? 'Proxy query params are allowed' : 'Proxy query params are not allowed' }}
+            </div>
           </mat-list-item>
         </mat-list>
       </mat-card-content>
