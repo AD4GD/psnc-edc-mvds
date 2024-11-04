@@ -49,8 +49,7 @@ export class ContractViewerComponent implements OnInit {
               private catalogService: CatalogBrowserService,
               private router: Router,
               private notificationService: NotificationService,
-              private appConfigService: AppConfigService,
-              private assetsService: AssetService) {
+              private appConfigService: AppConfigService) {
   }
 
   private static isFinishedState(state: string): boolean {
@@ -76,20 +75,15 @@ export class ContractViewerComponent implements OnInit {
 
   onTransferClicked(contract: ContractAgreement) {
 
-    this.assetsService.getAsset(contract.assetId)
+    this.getContractOfferForAssetId(contract.assetId)
       .pipe(first())
-      .subscribe(asset => {
-        
-        const assetFieldsPrefix = "https://w3id.org/edc/v0.0.1/ns";
-        const properties = `${assetFieldsPrefix}/properties`;
-        const proxyPath = `${assetFieldsPrefix}/proxyPath`;
-        const proxyQueryParams = `${assetFieldsPrefix}/proxyQueryParams`;
-        console.log(asset);
+      .subscribe(offer => {
+        console.log(offer);
 
         const dialogRef = this.dialog.open(CatalogBrowserTransferDialog, {
           data: {
-            isProxyPath: asset[properties][0][proxyPath] ?? false,
-            isProxyQueryParams: asset[properties][0][proxyQueryParams] ?? false,
+            isProxyPath: offer.properties.proxyPath ?? false,
+            isProxyQueryParams: offer.properties.proxyQueryParams ?? false,
           }
         });
 
