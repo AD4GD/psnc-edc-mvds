@@ -40,6 +40,56 @@
       Allow proxy query params
     </mat-checkbox>
   </div>
+
+  <!-- HttpData Options Section -->
+  <div class="rest-api-options">
+    <h4>HttpData Source Options</h4>
+
+    <!-- Headers -->
+    <div>
+      <h5>Authentication header (Optional)</h5>
+
+      <!-- Authentication Tabs -->
+      <mat-tab-group (selectedTabChange)="onAuthorizationTypeTabChange($event)">
+        <mat-tab label="Authorization Token">
+          <div class="tab-content">
+            <mat-form-field class="form-field">
+              <mat-label>Authorization Token (Authorization header)</mat-label>
+              <input matInput [(ngModel)]="authToken" placeholder="Enter authorization token">
+            </mat-form-field>
+          </div>
+        </mat-tab>
+        <mat-tab label="API Key">
+          <div class="tab-content">
+            <mat-form-field class="form-field">
+              <mat-label>API Key (x-api-key header)</mat-label>
+              <input matInput [(ngModel)]="apiKey" placeholder="Enter API key">
+            </mat-form-field>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+
+      <h5>Static headers (Optional)</h5>
+
+      <div *ngFor="let param of staticHeaders; let i = index" class="query-param-row">
+        <mat-form-field class="form-field">
+          <mat-label>Key</mat-label>
+          <input matInput [(ngModel)]="param.key" placeholder="Enter key">
+        </mat-form-field>
+        <mat-form-field class="form-field">
+          <mat-label>Value</mat-label>
+          <input matInput [(ngModel)]="param.value" placeholder="Enter value">
+        </mat-form-field>
+        <button mat-icon-button color="warn" (click)="removeHeader(i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+
+      <button mat-stroked-button color="primary" (click)="addHeader()">
+        <mat-icon>add</mat-icon> Add Header
+      </button>
+    </div>
+  </div>
 </mat-dialog-content>
 
 
