@@ -4,7 +4,7 @@ import {
   ContractAgreementService,
   TransferProcessService
 } from "../../../mgmt-api-client";
-import {from, Observable, of} from "rxjs";
+import {forkJoin, from, Observable, of} from "rxjs";
 import { Asset, ContractAgreement, TransferProcessInput, IdResponse, TransferProcess } from "../../../mgmt-api-client/model";
 import {ContractOffer} from "../../models/contract-offer";
 import {filter, first, map, switchMap, tap} from "rxjs/operators";
@@ -29,14 +29,19 @@ interface RunningTransferProcess {
   storageType: string;
 }
 
+interface ContractAgreementWithOfferData extends ContractAgreement {
+  contractOffer?: ContractOffer;
+}
+
 @Component({
   selector: 'app-contract-viewer',
   templateUrl: './contract-viewer.component.html',
   styleUrls: ['./contract-viewer.component.scss']
 })
+
 export class ContractViewerComponent implements OnInit {
 
-  contracts$: Observable<ContractAgreement[]> = of([]);
+  contracts$: Observable<ContractAgreementWithOfferData[]> = of([]);
   private runningTransfers: RunningTransferProcess[] = [];
   private pollingHandleTransfer?: any;
 
@@ -61,7 +66,26 @@ export class ContractViewerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.contracts$ = this.contractAgreementService.queryAllAgreements();
+    this.contracts$ = this.contractAgreementService.queryAllAgreements().pipe(
+      switchMap(contracts => this.loadContractsWithAssets(contracts))
+    );
+  }
+
+  loadContractsWithAssets(contracts: ContractAgreement[]): Observable<ContractAgreementWithOfferData[]> {
+    return this.getAllContractOffers().pipe(
+      switchMap((allOffers: ContractOffer[]) => {
+        const contractObservables: Observable<ContractAgreementWithOfferData>[] = contracts.map(contract => {
+          const offerData = this.getContractOfferForAssetId(contract.assetId, allOffers);
+          const contractWithOffer = contract as ContractAgreementWithOfferData;
+          contractWithOffer.contractOffer = offerData;
+          // Wrap the result in an observable
+          return of(contractWithOffer);
+        });
+  
+        // Combine all observables
+        return forkJoin(contractObservables);
+      })
+    );
   }
 
   asDate(epochSeconds?: number): string {
@@ -73,41 +97,38 @@ export class ContractViewerComponent implements OnInit {
     return '';
   }
 
-  onTransferClicked(contract: ContractAgreement) {
+  onTransferClicked(contract: ContractAgreementWithOfferData) {
 
-    this.getContractOfferForAssetId(contract.assetId)
-      .pipe(first())
-      .subscribe(offer => {
-        console.log(offer);
+    const offer = contract.contractOffer!;
+    console.log(offer);
 
-        const dialogRef = this.dialog.open(CatalogBrowserTransferDialog, {
-          data: {
-            isProxyPath: offer.properties.proxyPath ?? false,
-            isProxyQueryParams: offer.properties.proxyQueryParams ?? false,
-          }
-        });
+    const dialogRef = this.dialog.open(CatalogBrowserTransferDialog, {
+      data: {
+        isProxyPath: offer.properties.proxyPath ?? false,
+        isProxyQueryParams: offer.properties.proxyQueryParams ?? false,
+      }
+    });
 
-        dialogRef.afterClosed().pipe(first()).subscribe(result => {
-          if (result === undefined || result.storageTypeId === undefined || result.storageTypeId === "") {
-            return;
-          }
+    dialogRef.afterClosed().pipe(first()).subscribe(result => {
+      if (result === undefined || result.storageTypeId === undefined || result.storageTypeId === "") {
+        return;
+      }
 
-          console.log(result);
+      console.log(result);
 
-          const storageTypeId: string = result.storageTypeId;
-          const proxyDataAddressOptions: any = {
-            proxyPath: result.proxyUrlPath,
-            proxyQueryParams: result.proxyQueryParams
-          }
+      const storageTypeId: string = result.storageTypeId;
+      const proxyDataAddressOptions: any = {
+        proxyPath: result.proxyUrlPath,
+        proxyQueryParams: result.proxyQueryParams
+      }
 
-          this.createTransferRequest(contract, storageTypeId, proxyDataAddressOptions)
-            .pipe(switchMap(trq => this.transferService.initiateTransfer(trq)))
-            .subscribe(transferId => {
-              this.startPolling(transferId, contract["@id"]!, storageTypeId, proxyDataAddressOptions);
-            }, error => {
-              console.error(error);
-              this.notificationService.showError("Error initiating transfer");
-            });
+      this.createTransferRequest(contract, storageTypeId, proxyDataAddressOptions)
+        .pipe(switchMap(trq => this.transferService.initiateTransfer(trq)))
+        .subscribe(transferId => {
+          this.startPolling(transferId, contract["@id"]!, storageTypeId, proxyDataAddressOptions);
+        }, error => {
+          console.error(error);
+          this.notificationService.showError("Error initiating transfer");
         });
     });
   }
@@ -117,7 +138,7 @@ export class ContractViewerComponent implements OnInit {
   }
 
   private createTransferRequest(contract: ContractAgreement, storageTypeId: string, proxyDataAddressOptions: any): Observable<TransferProcessInput> {
-    return this.getContractOfferForAssetId(contract.assetId!).pipe(map(contractOffer => {
+    return this.getContractOfferForAssetIdAsync(contract.assetId!).pipe(map(contractOffer => {
       const backendUrl = this.appConfigService.getConfig()?.backendUrl;
       console.log(backendUrl);
 
@@ -157,7 +178,7 @@ export class ContractViewerComponent implements OnInit {
    *
    * @param assetId Asset ID of the asset that is associated with the contract.
    */
-  private getContractOfferForAssetId(assetId: string): Observable<ContractOffer> {
+  private getContractOfferForAssetIdAsync(assetId: string): Observable<ContractOffer> {
     console.log(assetId);
     return this.catalogService.getContractOffers()
       .pipe(
@@ -168,6 +189,19 @@ export class ContractViewerComponent implements OnInit {
           if (o) return o;
           else throw new Error(`No offer found for asset ID ${assetId}`);
         }))
+  }
+
+  private getAllContractOffers(): Observable<ContractOffer[]> {
+    return this.catalogService.getContractOffers();
+  }
+
+  private getContractOfferForAssetId(assetId: string, contractOffers: ContractOffer[]): ContractOffer {
+    console.log(assetId);
+    const offer = contractOffers.find(o => o.assetId === assetId);
+    if (offer) {
+      return offer;
+    }
+    throw new Error(`No offer found for asset ID ${assetId}`);
   }
 
   private startPolling(transferProcessId: IdResponse, contractId: string, storageType: string, proxyDataAddressOptions: any) {

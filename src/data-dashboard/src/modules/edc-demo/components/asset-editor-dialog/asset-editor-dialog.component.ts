@@ -29,8 +29,11 @@ export class AssetEditorDialog implements OnInit {
   isProxyPath: boolean = true;
   isProxyQueryParams: boolean = true;
 
-  authorizationTypeTab: string = '';
+  authorizationTypeTab: string = 'Authorization Token';
   staticHeaders: { key: string; value: string }[] = [];
+
+  isDisplayBaseUrl: boolean = true;
+
 
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
       @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
@@ -41,6 +44,35 @@ export class AssetEditorDialog implements OnInit {
 
   onSave() {
     
+    const properties = this.getProperties();
+    const dataAddress = this.getDataAddress();
+
+    const assetInput: AssetInput = {
+      "@id": this.id,
+      properties: properties,
+      dataAddress: dataAddress
+    };
+
+    this.dialogRef.close({ assetInput });
+  }
+
+  getProperties() {
+    const properties: any = {
+      "name": this.name,
+      "version": this.version,
+      "contenttype": this.contenttype,
+      "proxyPath": this.isProxyPath.toString(),
+      "proxyQueryParams": this.isProxyQueryParams.toString(),
+    };
+
+    if (this.isDisplayBaseUrl) {
+      properties.baseUrl = this.baseUrl;
+    }
+
+    return properties;
+  }
+
+  getDataAddress() {
     if (this.authToken != "" || this.apiKey != "") {
       if (this.authorizationTypeTab == "Authorization Token") {
         this.addOrReplaceHeader("authorization", this.authToken);
@@ -70,19 +102,7 @@ export class AssetEditorDialog implements OnInit {
         }, {} as any)
     };
 
-    const assetInput: AssetInput = {
-      "@id": this.id,
-      properties: {
-        "name": this.name,
-        "version": this.version,
-        "contenttype": this.contenttype,
-        "proxyPath": this.isProxyPath.toString(),
-        "proxyQueryParams": this.isProxyQueryParams.toString(),
-      },
-      dataAddress: resultDataAddress
-    };
-
-    this.dialogRef.close({ assetInput });
+    return resultDataAddress;
   }
 
   addOrReplaceHeader(headerKey: string, headerValue: string) {

@@ -44,6 +44,13 @@
   <!-- HttpData Options Section -->
   <div class="rest-api-options">
     <h4>HttpData Source Options</h4>
+    
+    <!-- Display options -->
+    <div>
+      <mat-checkbox [(ngModel)]="isDisplayBaseUrl" color="accent">
+        Allow baseUrl display
+      </mat-checkbox>
+    </div>
 
     <!-- Headers -->
     <div>

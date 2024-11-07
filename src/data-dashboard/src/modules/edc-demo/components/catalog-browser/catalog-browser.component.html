@@ -59,6 +59,11 @@
                         <div class="asset-property-name" matListItemTitle>Content-Type</div>
                           <div matListItemLine>{{contractOffer.properties.contentType}}</div>
                       </mat-list-item>
+                      <mat-list-item *ngIf="contractOffer.properties.baseUrl">
+                          <mat-icon matListItemIcon>http</mat-icon>
+                        <div class="asset-property-name" matListItemTitle>Base Url</div>
+                          <div matListItemLine>{{contractOffer.properties.baseUrl}}</div>
+                      </mat-list-item>
                       <mat-list-item *ngIf="contractOffer.properties.proxyPath">
                         <mat-icon matListItemIcon>alt_route</mat-icon>
                         <div class="asset-property" matListItemTitle>Proxy path</div>

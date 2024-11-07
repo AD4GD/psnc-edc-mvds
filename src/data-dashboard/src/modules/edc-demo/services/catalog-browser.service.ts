@@ -58,6 +58,7 @@ export class CatalogBrowserService {
             contentType: dataSet["contenttype"],
             proxyPath: dataSet["proxyPath"],
             proxyQueryParams: dataSet["proxyQueryParams"],
+            baseUrl: dataSet["baseUrl"],
           }
           const assetId = dataSet["@id"];
 

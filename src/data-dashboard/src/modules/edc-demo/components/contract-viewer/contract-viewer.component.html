@@ -14,6 +14,12 @@
             <div class="contract-property-value" matListItemLine>{{contract.assetId}}</div>
           </mat-list-item>
 
+          <mat-list-item *ngIf="contract.contractOffer?.properties.baseUrl">
+            <mat-icon mat-list-icon>http</mat-icon>
+            <div class="contract-property-header" matListItemTitle>Base Url</div>
+            <div class="contract-property-value" matListItemLine>{{contract.contractOffer!.properties.baseUrl}}</div>
+          </mat-list-item>
+
           <!-- provider -->
           <mat-list-item>
             <mat-icon mat-list-icon>person</mat-icon>

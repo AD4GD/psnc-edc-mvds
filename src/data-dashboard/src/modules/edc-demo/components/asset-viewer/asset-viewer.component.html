@@ -37,6 +37,11 @@
             <div matListItemLine>{{asset.properties.optionalValue('edc','contenttype')}}</div>
           </mat-list-item>
           <mat-list-item>
+            <mat-icon matListItemIcon>http</mat-icon>
+            <div class="asset-property" matListItemTitle>Base url</div>
+            <div matListItemLine>{{asset.properties.optionalValue('edc','baseUrl')}}</div>
+          </mat-list-item>
+          <mat-list-item>
             <mat-icon matListItemIcon>file_copy</mat-icon>
             <div class="asset-property" matListItemTitle>Version</div>
             <div matListItemLine>{{asset.properties.optionalValue('edc','version')}}</div>
