@@ -1,5 +1,6 @@
 <mat-dialog-content *ngIf="storageTypes as storageTypes">
 
+  <!-- Destination Dropdown -->
   <mat-form-field class="form-field" color="accent" id="form-field-destination">
     <mat-label>Destination</mat-label>
     <mat-select [(ngModel)]="storageTypeId">
@@ -9,18 +10,51 @@
     </mat-select>
   </mat-form-field>
 
+  <!-- HttpData Options Section -->
+  <div class="rest-api-options">
+    <h4>HttpData Source Options</h4>
+
+    <!-- Proxy URL Path (Optional) -->
+    <mat-form-field class="form-field" color="accent" id="form-field-proxy-url">
+      <mat-label>Proxy URL Path (Optional)</mat-label>
+      <input matInput [(ngModel)]="proxyUrlPath" placeholder="Enter proxy URL path" [disabled]="!isProxyPath">
+    </mat-form-field>
+
+    <!-- Proxy Query Params (Optional Key-Value Pairs) -->
+    <div>
+      <h5>Proxy Query Params (Optional)</h5>
+
+      <div *ngFor="let param of proxyQueryParams; let i = index" class="query-param-row">
+        <mat-form-field class="form-field">
+          <mat-label>Key</mat-label>
+          <input matInput [(ngModel)]="param.key" placeholder="Enter key">
+        </mat-form-field>
+        <mat-form-field class="form-field">
+          <mat-label>Value</mat-label>
+          <input matInput [(ngModel)]="param.value" placeholder="Enter value">
+        </mat-form-field>
+        <button mat-icon-button color="warn" (click)="removeQueryParam(i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+
+      <button mat-stroked-button color="primary" (click)="addQueryParam()" [disabled]="!isProxyQueryParams">
+        <mat-icon>add</mat-icon> Add Query Param
+      </button>
+    </div>
+  </div>
+
 </mat-dialog-content>
 
 <mat-dialog-actions>
-    <div>
+  <div>
     <button (click)="onTransfer()" color="accent" mat-stroked-button [disabled]="!storageTypeId || storageTypeId === ''">
-        <mat-icon>downloading</mat-icon> Start transfer
+      <mat-icon>downloading</mat-icon> Start transfer
     </button>
 
     <button color="accent" mat-dialog-close mat-stroked-button>
-        <mat-icon>cancel</mat-icon> Cancel
+      <mat-icon>cancel</mat-icon> Cancel
     </button>
-</div>
-<!-- <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar> -->
-
+  </div>
+  <!-- <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar> -->
 </mat-dialog-actions>

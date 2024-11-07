@@ -36,3 +36,9 @@ mat-paginator {
   align-items: center;
   gap: 10px; /* Adjust the gap between elements */
 }
+
+.no-truncate {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
+}
