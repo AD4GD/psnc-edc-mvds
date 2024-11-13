@@ -1,7 +1,7 @@
-{
-    "/management":
+[
     {
-        "target": "http://localhost:18080",
-        "secure": false
+      "context": ["/management", "/catalog"],
+      "target": "http://localhost:18080",
+      "secure": false
     }
-}
+]

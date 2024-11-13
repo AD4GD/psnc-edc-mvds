@@ -19,7 +19,7 @@ export const routes: Routes = [
     data: {title: 'Getting Started', icon: 'info_outline'}
   },
   {
-    path: 'catalog-browser',
+    path: 'browse-catalog',
     component: CatalogBrowserComponent,
     data: {title: 'Catalog Browser', icon: 'sim_card'}
   },
