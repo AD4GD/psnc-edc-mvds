@@ -4,7 +4,7 @@ format.version = "1.1"
 [versions]
 assertj = "3.24.2"
 awaitility = "4.2.0"
-edc = "0.7.0"
+edc = "0.10.1"
 jakarta-json = "2.0.1"
 jetty-jakarta-servlet-api = "5.0.2"
 junit-pioneer = "2.1.0"
@@ -19,7 +19,7 @@ sovityext = "4.2.0"
 postgres = "42.4.0"
 flyway = "9.0.1"
 lombok = "1.18.28"
-tractus = "0.7.2"
+tractus = "0.8.0-rc5"
 
 [libraries]
 edc-auth-tokenbased = { module = "org.eclipse.edc:auth-tokenbased", version.ref = "edc" }
@@ -74,8 +74,6 @@ edc-management-api = { module = "org.eclipse.edc:management-api", version.ref = 
 
 edc-monitor-jdk-logger = { module = "org.eclipse.edc:monitor-jdk-logger", version.ref = "edc" }
 
-edc-transfer-data-plane = { module = "org.eclipse.edc:transfer-data-plane", version.ref = "edc" }
-
 edc-transfer-pull-http-receiver = { module = "org.eclipse.edc:transfer-pull-http-receiver", version.ref = "edc" }
 edc-transfer-spi = { module = "org.eclipse.edc:transfer-spi", version.ref = "edc" }
 
@@ -90,6 +88,11 @@ edc-control-plane-sql = { module = "org.eclipse.edc:control-plane-sql", version.
 edc-data-plane-instance-store-sql = { module = "org.eclipse.edc:data-plane-instance-store-sql", version.ref = "edc"}
 edc-sql-pool-apache-commons = { module = "org.eclipse.edc:sql-pool-apache-commons", version.ref = "edc"}
 edc-transaction-local = { module = "org.eclipse.edc:transaction-local", version.ref = "edc"}
+
+edc-data-plane-signaling-api = { module = "org.eclipse.edc:data-plane-signaling-api", version.ref = "edc" }
+edc-control-api-configuration = { module = "org.eclipse.edc:control-api-configuration", version.ref = "edc" }
+edc-data-plane-iam = { module = "org.eclipse.edc:data-plane-iam", version.ref = "edc" }
+edc-token-core = { module = "org.eclipse.edc:token-core", version.ref = "edc" }
 
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres"}
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway"}
