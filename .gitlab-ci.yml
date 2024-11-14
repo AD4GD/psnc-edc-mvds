@@ -35,7 +35,7 @@ Update inventory for main project:
   stage: update_inventory
   variables:
     inventory_repository_name: inventory
-    inventory_hostname: $inventory_hostname
+    inventory_hostname: $inventory_hostname_psnc
     gitlab_push_token: $gitlab_push_token_dev
   script:
     - devlab_update_inventory
