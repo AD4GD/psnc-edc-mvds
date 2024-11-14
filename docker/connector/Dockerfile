@@ -13,7 +13,7 @@ RUN apt update \
 WORKDIR /app
 
 # Copy the source code
-COPY src/ /app/
+COPY src/edc-connector/ /app/
 
 # Ensure the Gradle wrapper is executable
 RUN chmod +x /app/gradlew
