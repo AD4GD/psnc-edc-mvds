@@ -113,6 +113,8 @@
                 port: 29193
               - name: "protocol"
                 port: 29194
+              - name: "catalog"
+                port: 29195
               - name: "public"
                 port: 29291
               - name: "control"
@@ -359,6 +361,8 @@
                 port: 19193
               - name: "protocol"
                 port: 19194
+              - name: "catalog"
+                port: 19195
               - name: "public"
                 port: 19291
               - name: "control"
