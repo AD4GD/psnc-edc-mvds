@@ -17,7 +17,6 @@ export type {
   IdResponse,
   Criterion,
   Dataplane,
-  DataplaneInput,
   Duty,
   Permission,
   Policy,

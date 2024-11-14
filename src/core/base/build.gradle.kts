@@ -11,7 +11,15 @@ dependencies {
     implementation(libs.edc.configuration.filesystem)
     implementation(libs.edc.iam.mock)
     implementation(libs.edc.management.api)
+
     implementation(libs.edc.transfer.data.plane.signaling)
+
+    // required for consumer PULL transfer type
+    implementation(libs.edc.data.plane.iam)
+    implementation(libs.edc.token.core)
+
+    implementation(libs.edc.control.api.configuration)
+
     implementation(libs.edc.transfer.pull.http.receiver)
     implementation(libs.edc.validator.data.address.http.data)
 
@@ -23,7 +31,9 @@ dependencies {
     implementation(libs.edc.data.plane.selector.core)
 
     implementation(libs.edc.data.plane.self.registration)
-    implementation(libs.edc.data.plane.control.api)
+
+    implementation(libs.edc.data.plane.signaling.api)
+
     implementation(libs.edc.data.plane.public.api)
     implementation(libs.edc.data.plane.core)
     implementation(libs.edc.data.plane.http)
@@ -33,7 +43,7 @@ dependencies {
     // extention for enhancing data dashboard locally
     api(project(":extensions:data-dashboard-local"))
 
-    // Enable callbacks
+    // enable callbacks
     implementation(libs.edc.callback.event.dispatcher)
     implementation(libs.edc.callback.http.dispatcher)
 }

@@ -27,6 +27,7 @@ interface RunningTransferProcess {
   contractId: string;
   state: TransferProcessStates;
   storageType: string;
+  proxyDataAddressOptions: any;
 }
 
 interface ContractAgreementWithOfferData extends ContractAgreement {
@@ -205,21 +206,24 @@ export class ContractViewerComponent implements OnInit {
   }
 
   private startPolling(transferProcessId: IdResponse, contractId: string, storageType: string, proxyDataAddressOptions: any) {
+
     // track this transfer process
     this.runningTransfers.push({
       processId: transferProcessId.id!,
       state: TransferProcessStates.REQUESTED,
       contractId: contractId,
-      storageType: storageType
+      storageType: storageType,
+      proxyDataAddressOptions: proxyDataAddressOptions
     });
 
     if (!this.pollingHandleTransfer) {
-      this.pollingHandleTransfer = setInterval(this.pollRunningTransfers(proxyDataAddressOptions), 1000);
+      console.log(proxyDataAddressOptions.proxyPath);
+      this.pollingHandleTransfer = setInterval(this.pollRunningTransfers(), 1000);
     }
 
   }
 
-  private pollRunningTransfers(proxyDataAddressOptions: any) {
+  private pollRunningTransfers() {
     return () => {
       from(this.runningTransfers) //create from array
         .pipe(switchMap(runningTransferProcess => this.catalogService.getTransferProcessesById(runningTransferProcess.processId).pipe(
@@ -228,7 +232,8 @@ export class ContractViewerComponent implements OnInit {
         ),
         filter(({ transferProcess }) => ContractViewerComponent.isFinishedState(transferProcess.state!)),
           tap(({ runningTransferProcess, transferProcess }) => {
-            this.processStartedTransfer(transferProcess, runningTransferProcess.storageType, proxyDataAddressOptions);
+            this.processStartedTransfer(
+              transferProcess, runningTransferProcess.storageType, runningTransferProcess.proxyDataAddressOptions);
           })
         )
         .subscribe(() => {
@@ -236,6 +241,7 @@ export class ContractViewerComponent implements OnInit {
         if (this.runningTransfers.length === 0) {
           clearInterval(this.pollingHandleTransfer);
           this.pollingHandleTransfer = undefined;
+          console.log("cleared interval");
         }
       }, error => this.notificationService.showError(error))
     }

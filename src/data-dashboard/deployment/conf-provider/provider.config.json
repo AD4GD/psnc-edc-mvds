@@ -1,6 +1,6 @@
 {
   "apiKey": "fifi-info-zaneta",
   "managementApiUrl": "http://localhost:19193/management",
-  "catalogUrl": "http://localhost:19193/management",
+  "catalogUrl": "http://localhost:19195/catalog",
   "theme": "theme-2"
 }
