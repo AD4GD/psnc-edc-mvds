@@ -11,6 +11,8 @@ dependencies {
 
     // OAuth2 DAPS
     implementation(libs.edc.oauth2.core)
+    implementation(libs.edc.oauth2.client) //
+    implementation(libs.edc.accesstokendata.store.sql) //
     implementation(libs.edc.oauth2.daps)
 }
 

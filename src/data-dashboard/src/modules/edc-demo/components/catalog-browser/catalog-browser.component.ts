@@ -71,7 +71,10 @@ export class CatalogBrowserComponent implements OnInit {
         "@id": `${contractOffer.id}`,
         "@type": "Offer",
         assigner: "provider",
-        target: `${contractOffer.assetId}`
+        target: `${contractOffer.assetId}`,
+        obligation: contractOffer.policy.obligation,
+        permission: contractOffer.policy.permission,
+        prohibition: contractOffer.policy.prohibition,
       }
     };
 
