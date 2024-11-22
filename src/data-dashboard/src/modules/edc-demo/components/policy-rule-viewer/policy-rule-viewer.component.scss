@@ -1,3 +1,43 @@
 .rule-json-panel{
   margin-left: 20px
 }
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-left: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.item-row:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add hover effect */
+}
+
+.type-badge {
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.item-icon {
+  margin-right: 8px;
+}
+
+.item-field {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  font-size: 1rem;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 12px;
+  height: 100%;
+}
+
+.item-actions {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+}

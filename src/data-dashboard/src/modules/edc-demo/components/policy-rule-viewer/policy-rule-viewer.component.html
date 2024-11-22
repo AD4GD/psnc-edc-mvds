@@ -1,8 +1,16 @@
-<mat-expansion-panel fxFill [disabled]="rules?.length === 0" hideToggle>
+<mat-expansion-panel fxFill [disabled]="rules?.length === 0">
   <mat-expansion-panel-header>
-    <mat-panel-title>{{title}}</mat-panel-title>
+    <mat-panel-title>Policy rules</mat-panel-title>
   </mat-expansion-panel-header>
-  <div class="rule-json-panel">
-    <pre><p>{{rules | json}}</p></pre>
+  <div class="item-list">
+    <div *ngFor="let rule of rules" class="item-row">
+
+      <mat-chip class="type-badge" color="getTypeColor(rule.type)" selected>
+        {{ rule.type }}
+      </mat-chip>
+      <div class="item-actions">
+        <button mat-stroked-button color="accent" (click)="openDialog(rule.content)">Display ODRL</button>
+      </div>
+    </div>
   </div>
 </mat-expansion-panel>

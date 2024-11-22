@@ -21,6 +21,9 @@ import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {EdcApiKeyInterceptor} from "./edc.apikey.interceptor";
 import {environment} from "../../environments/environment";
 import { EdcConnectorClient } from "@think-it-labs/edc-connector-client";
+import { MatChipsModule } from '@angular/material/chips';
+import { CUSTOM_PRESET, LOCATION_PRESET, PURPOSE_PRESET, TIME_INTERVAL_PRESET } from './policy-presets';
+import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from './policy-rule-types';
 
 
 @NgModule({
@@ -35,7 +38,8 @@ import { EdcConnectorClient } from "@think-it-labs/edc-connector-client";
     MatIconModule,
     MatListModule,
     EdcDemoModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatChipsModule
   ],
   declarations: [
     AppComponent,
@@ -67,6 +71,14 @@ import { EdcConnectorClient } from "@think-it-labs/edc-connector-client";
     {
       provide: 'STORAGE_TYPES',
       useFactory: () => [{id: LOCAL_STORAGE_TYPE, name: "Local"}, {id: MINIO_STORAGE_TYPE, name: "Minio"}],
+    },
+    {
+      provide: 'POLICY_PRESETS',
+      useFactory: () => [TIME_INTERVAL_PRESET, LOCATION_PRESET, PURPOSE_PRESET, CUSTOM_PRESET]
+    },
+    {
+      provide: 'POLICY_RULE_TYPES',
+      useFactory: () => [PERMISSION_RULE, PROHIBITION_RULE, OBLIGATION_RULE]
     },
     {
       provide: HTTP_INTERCEPTORS, multi: true, useFactory: () => {

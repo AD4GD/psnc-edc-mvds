@@ -19,23 +19,98 @@
     </mat-form-field>
   </div>
 
-  <!--  Permissions -->
-  <mat-form-field class="form-field-stretch" color="accent" id="form-field-permissions">
-    <mat-label>Permissions (JSON)</mat-label>
-    <input [(ngModel)]="permissionsJson" matInput>
-  </mat-form-field>
+  <div>
+    <div>
+      <h3>Policy Rules List</h3>
+      <div class="policy-rules-section">
+        <div *ngIf="addedRulesList.length == 0">
+          No rules were added
+        </div>
+        <div>
+          <div *ngFor="let rule of addedRulesList; let i = index" [ngClass]="{'item-rule': !rule.isShowOdrl, 'item-rule-selected' : rule.isShowOdrl }">
+            <div class="item-row">
+              <mat-chip class="type-badge" color="getTypeColor(rule.type)" selected>
+                {{ rule.policyRuleTypeId }}
+              </mat-chip>
+              <div class="item-actions">
+                <button mat-stroked-button color="accent" (click)="toggleIsShowOdrl(rule)">
+                  <div *ngIf="!rule.isShowOdrl">
+                    Display ODRL
+                  </div>
+                  <div *ngIf="rule.isShowOdrl">
+                    Hide ODRL
+                  </div>
+                </button>
+                <button mat-stroked-button color="warn" (click)="removeItem(i)">Remove</button>
+              </div>
+            </div>
+            <div class="rule-odrl" *ngIf="rule.isShowOdrl">
+              <jsonld-code-display [content]="rule.odrlJson" [isCopyButton]="false" [isEditable]="false" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <button *ngIf="currentRuleItem == null" mat-stroked-button color="primary" (click)="createItem()">
+        <mat-icon>add</mat-icon> Add Policy Rule
+      </button>
+    </div>
+    
+    <div *ngIf="currentRuleItem != null" class="item-form">
+      <h4>Add Policy Rule</h4>
+      <mat-form-field class="form-field form-field-half" id="form-field-rule-preset">
+        <mat-label>Policy Rule Type</mat-label>
+        <mat-select [(ngModel)]="currentRuleItem.policyRuleTypeId" (selectionChange)="onPolicyRuleTypeIdChange($event.value)">
+          <mat-option *ngFor="let type of policyRuleTypes" [value]="type.id">
+            {{type.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="form-field form-field-half" id="form-field-rule-preset">
+        <mat-label>Preset Type</mat-label>
+        <mat-select [(ngModel)]="currentRuleItem.presetTypeId" (selectionChange)="onPresetTypeChange($event.value)">
+          <mat-option *ngFor="let type of availablePresetTypes" [value]="type.id">
+            {{type.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-  <!--  Prohibitions -->
-  <mat-form-field class="form-field-stretch" color="accent" id="form-field-prohibitions">
-    <mat-label>Prohibitions (JSON)</mat-label>
-    <input [(ngModel)]="prohibitionsJson" matInput>
-  </mat-form-field>
+      <mat-form-field *ngIf="currentRuleItem.presetTypeId === 'location'" class="form-field form-field-stretch" id="form-field-rule-location">
+          <mat-label>Allowed Location (eu, pl, ...)</mat-label>
+          <input [(ngModel)]="currentRuleItem.allowedLocation" matInput />
+      </mat-form-field>
 
-  <!--  Obligations -->
-  <mat-form-field class="form-field-stretch" color="accent" id="form-field-obligations">
-    <mat-label>Obligations (JSON)</mat-label>
-    <input [(ngModel)]="obligationsJson" matInput>
-  </mat-form-field>
+      <mat-form-field *ngIf="currentRuleItem.presetTypeId === 'purpose'" class="form-field form-field-stretch" id="form-field-rule-purpose">
+        <mat-label>Allowed Purpose (commercial, marketing, ...)</mat-label>
+        <input [(ngModel)]="currentRuleItem.allowedPurpose" matInput />
+      </mat-form-field>
+
+      <div *ngIf="currentRuleItem.presetTypeId === 'timeinterval'">
+        <mat-form-field class="form-field form-field-half" id="form-field-rule-fromdate">
+          <mat-label>From Date</mat-label>
+          <button class="time-now-button" type="button" (click)="setNowFromDate()" mat-button matSuffix mat-stroked-button aria-label="search">Set to Now</button>
+          <input [(ngModel)]="currentRuleItem.fromDateString" matInput type="datetime-local" placeholder="start date">
+        </mat-form-field>
+        <mat-form-field class="form-field form-field-half" id="form-field-rule-todate">
+          <mat-label>To Date</mat-label>
+          <button class="time-now-button" type="button" (click)="setNowToDate()" mat-button matSuffix mat-stroked-button aria-label="search">Set to Now</button>
+          <input [(ngModel)]="currentRuleItem.toDateString" matInput type="datetime-local" placeholder="to date">
+        </mat-form-field>
+     </div>
+
+      <jsonld-code-display *ngIf="currentRuleItem.presetTypeId == 'custom'" [content]="currentRuleItem.odrlJson" [isCopyButton]="false" [isEditable]="true"
+      (contentChange)="onJsonLdUpdated($event)" />
+      <div class="rule-edit-actions-group">
+        <button class="add-item-button" color="accent" (click)="addItem()" 
+        mat-stroked-button [disabled]="!currentRuleItem.presetTypeId">
+          Add Item
+        </button>
+        <button class="add-item-button" color="warn" (click)="cancelItem()" 
+        mat-stroked-button>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
 
 </mat-dialog-content>
 
@@ -50,7 +125,7 @@
     Create
   </button>
 
-  <button color="accent" mat-dialog-close="true" mat-stroked-button>
+  <button color="accent" mat-dialog-close mat-stroked-button>
     <mat-icon>cancel</mat-icon>
     Cancel
   </button>

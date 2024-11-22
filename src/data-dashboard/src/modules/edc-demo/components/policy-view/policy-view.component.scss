@@ -11,6 +11,12 @@
   width: 50%;
 }
 
+.policy-card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 mat-paginator {
   display: inline-block;
   background-color: transparent;
@@ -26,4 +32,8 @@ mat-paginator {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.delete-policy-button {
+  margin-top: 8px;
 }

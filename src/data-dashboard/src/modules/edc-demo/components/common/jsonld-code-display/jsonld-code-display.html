@@ -1,0 +1,16 @@
+
+<div>
+    <button *ngIf="isCopyButton" mat-icon-button (click)="copyToClipboard()">
+        <mat-icon>content_copy</mat-icon>
+    </button>
+    <textarea *ngIf="isEditable"
+        (blur)="onJsonChange()"
+        [(ngModel)]="jsonString"
+        class="editable-code"
+        spellcheck="false"
+        rows="20"
+        cols="50"
+        >
+    </textarea>
+    <pre *ngIf="!isEditable">{{ content | json }}</pre>
+</div>
