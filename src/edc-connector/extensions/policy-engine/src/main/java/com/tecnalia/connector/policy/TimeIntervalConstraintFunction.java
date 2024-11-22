@@ -65,8 +65,8 @@ public class TimeIntervalConstraintFunction implements AtomicConstraintFunction<
                 return false;
         }
     }
-    
-    
+
+
     /**
      * Convert a string to a {@link ZonedDateTime}.
      *
@@ -77,7 +77,7 @@ public class TimeIntervalConstraintFunction implements AtomicConstraintFunction<
     private static ZonedDateTime getDateOf(final String calendar) {
         return ZonedDateTime.parse(calendar);
     }
-    
+
 
      /**
      * Get current system date.

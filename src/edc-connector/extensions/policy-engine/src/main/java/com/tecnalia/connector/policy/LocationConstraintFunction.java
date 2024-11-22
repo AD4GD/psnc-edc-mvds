@@ -32,19 +32,19 @@ import java.util.Map;
 import static java.lang.String.format;
 
 public class LocationConstraintFunction implements AtomicConstraintRuleFunction<Permission, ParticipantAgentPolicyContext> {
-    
+
     private final Monitor monitor;
 
-    
+
     public LocationConstraintFunction(Monitor monitor) {
         this.monitor = monitor;
     }
-    
+
     @Override
     public boolean evaluate(Operator operator, Object rightValue, Permission permission, ParticipantAgentPolicyContext context) {
-	
+
         var participantAgent = context.participantAgent();
-		
+
         monitor.debug("LOCATION Policy CLAIMS list");
         for (String key : participantAgent.getClaims().keySet()) {
             monitor.debug(format("LOCATION Policy claims %s = %s", key, participantAgent.getClaims().get(key)));
@@ -53,7 +53,7 @@ public class LocationConstraintFunction implements AtomicConstraintRuleFunction<
         for (String key : participantAgent.getAttributes().keySet()) {
             monitor.debug(format("LOCATION Policy attributes %s = %s", key, participantAgent.getAttributes().get(key)));
         }
-        
+
 	var participantId = participantAgent.getIdentity();
         var region = participantAgent.getClaims().get("region");
 
@@ -62,7 +62,7 @@ public class LocationConstraintFunction implements AtomicConstraintRuleFunction<
         monitor.debug("LOCATION Policy CLAIMS list");
 	monitor.debug(format("Operator = %s", operator));
         monitor.debug(format("Rightvalue = %s", rightValue));
-	        
+
         monitor.info(format("Evaluating constraint: location %s %s", operator, rightValue.toString()));
         return switch (operator) {
             case EQ -> Objects.equals(region, rightValue);

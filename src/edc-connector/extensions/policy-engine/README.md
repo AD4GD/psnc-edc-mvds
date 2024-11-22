@@ -1,23 +1,23 @@
 <!--
   Copyright (c) 2024 Tecnalia, Basque Research & Technology Alliance (BRTA)
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy of
   this software and associated documentation files (the "Software"), to deal in
   the Software without restriction, including without limitation the rights to
   use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
   the Software, and to permit persons to whom the Software is furnished to do so,
   subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
   FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  
+
   SPDX-License-Identifier: MIT
 -->
 
@@ -32,110 +32,110 @@ It contains the code of the EDC policy extension which implements the policy eng
   - Time Interval Usage: allows data usage for an specific time interval´
 
 ```Example
-{ 
-  "@context":{ 
-    "@vocab": "https://w3id.org/edc/v0.0.1/ns/" 
-  }, 
-  "@id":"aPolicyTimeInterval", 
-  "@type":"edc:PolicyDefinition", 
-  "policy": { 
-     "@context": "http://www.w3.org/ns/odrl.jsonld", 
-     "@type": "Set", 
-     "permission": [ 
-       { 
-         "action": "use", 
-         "constraint": [ 
-           { 
-             "@type": "AtomicConstraint", 
-             "leftOperand": "https://w3id.org/edc/v0.0.1/ns/timeInterval", 
-             "rightOperand":{ 
-                "@type":"xsd:date", 
-                "@value":"2022-12-31T23:00:00.000Z" 
-             }, 
-             "operator": { 
-               "@id": "odrl:gteq" 
-             } 
-           }, 
-           { 
-             "@type": "AtomicConstraint", 
-             "leftOperand": "https://w3id.org/edc/v0.0.1/ns/timeInterval", 
-             "rightOperand":{ 
-                "@type":"xsd:date", 
-                "@value":"2024-09-30T23:00:00.000Z" 
-             }, 
-             "operator": { 
-               "@id": "odrl:lteq" 
-             } 
-           } 
-         ] 
-       } 
-     ], 
-     "prohibition": [], 
-     "obligation": [] 
-} 
-} 
+{
+  "@context":{
+    "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+  },
+  "@id":"aPolicyTimeInterval",
+  "@type":"edc:PolicyDefinition",
+  "policy": {
+     "@context": "http://www.w3.org/ns/odrl.jsonld",
+     "@type": "Set",
+     "permission": [
+       {
+         "action": "use",
+         "constraint": [
+           {
+             "@type": "AtomicConstraint",
+             "leftOperand": "https://w3id.org/edc/v0.0.1/ns/timeInterval",
+             "rightOperand":{
+                "@type":"xsd:date",
+                "@value":"2022-12-31T23:00:00.000Z"
+             },
+             "operator": {
+               "@id": "odrl:gteq"
+             }
+           },
+           {
+             "@type": "AtomicConstraint",
+             "leftOperand": "https://w3id.org/edc/v0.0.1/ns/timeInterval",
+             "rightOperand":{
+                "@type":"xsd:date",
+                "@value":"2024-09-30T23:00:00.000Z"
+             },
+             "operator": {
+               "@id": "odrl:lteq"
+             }
+           }
+         ]
+       }
+     ],
+     "prohibition": [],
+     "obligation": []
+}
+}
 ```
- 
+
    - Location Usage: allows data usage for a specific location
 
-Example: 
+Example:
 ```
-{ 
-  "@context":{ 
-    "@vocab": "https://w3id.org/edc/v0.0.1/ns/" 
-  }, 
-  "@id":"aPolicyRegion", 
-  "@type":"edc:PolicyDefinition", 
-  "policy": { 
-     "@context": "http://www.w3.org/ns/odrl.jsonld", 
-     "@type": "Set", 
-      "permission": [ 
-           { 
-               "action": "use", 
-               "constraint": { 
-                   "@type": "AtomicConstraint", 
-                   "leftOperand": "https://w3id.org/edc/v0.0.1/ns/regionLocation", 
-                   "operator": "odrl:eq", 
-                   "rightOperand": "eu" 
-               } 
-           } 
-       ] 
-  } 
-} 
+{
+  "@context":{
+    "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+  },
+  "@id":"aPolicyRegion",
+  "@type":"edc:PolicyDefinition",
+  "policy": {
+     "@context": "http://www.w3.org/ns/odrl.jsonld",
+     "@type": "Set",
+      "permission": [
+           {
+               "action": "use",
+               "constraint": {
+                   "@type": "AtomicConstraint",
+                   "leftOperand": "https://w3id.org/edc/v0.0.1/ns/regionLocation",
+                   "operator": "odrl:eq",
+                   "rightOperand": "eu"
+               }
+           }
+       ]
+  }
+}
 ```
   - Purpose Usage: allows data usage for specific purposes
 Example:
 ```
-{ 
-   "@context":{ 
-   "@vocab": "https://w3id.org/edc/v0.0.1/ns/" 
-  }, 
- "@id":policy_id, 
- "@type":"edc:PolicyDefinition", 
-  "policy": { 
-    "@context": "http://www.w3.org/ns/odrl.jsonld", 
-    "@type": "Set", 
-     "permission": [ 
-           { 
-              "action": "use", 
-              "constraint": { 
-                  "@type": "AtomicConstraint", 
-                  "odrl:leftOperand": "https://w3id.org/edc/v0.0.1/ns/purpose", 
-                   "rightOperand": { 
-                      "@type": "xsd:string", 
-                      "@value": marketing 
-                   }, 
-                  "operator": { 
-                      "@id":"odrl:eq" 
-                   } 
-               } 
-           } 
-       ] 
-   } 
-  } 
+{
+   "@context":{
+   "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+  },
+ "@id":policy_id,
+ "@type":"edc:PolicyDefinition",
+  "policy": {
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Set",
+     "permission": [
+           {
+              "action": "use",
+              "constraint": {
+                  "@type": "AtomicConstraint",
+                  "odrl:leftOperand": "https://w3id.org/edc/v0.0.1/ns/purpose",
+                   "rightOperand": {
+                      "@type": "xsd:string",
+                      "@value": marketing
+                   },
+                  "operator": {
+                      "@id":"odrl:eq"
+                   }
+               }
+           }
+       ]
+   }
+  }
 ```
 
-  
+
 
 
 
@@ -164,9 +164,9 @@ For the last two policies we have included a claim in the Identity provider/Keyc
   ![policy-engine-extension](doc/figures/consumer_connector_client_client_scope.png)
 
   Click on "Add Mapper" button and select "By configuration" option:
-  
+
   ![policy-engine-extension](doc/figures/create_claim_by_default.png)
-  
+
   Create two "Hardcoded Claim" claims:
 
   ![policy-engine-extension](doc/figures/create_claim_harcoded.png)
@@ -177,7 +177,7 @@ And fill the information for purpose and location claims:
   ![policy-engine-extension](doc/figures/keycloak_location_claim.PNG)
 
   Pursose claim:
-  
+
   ![policy-engine-extension](doc/figures/keycloak_purpose_claim.PNG)
 
 The result is:

@@ -48,9 +48,9 @@ public class PurposeConstraintFunction implements AtomicConstraintRuleFunction<P
 
     @Override
     public boolean evaluate(Operator operator, Object rightValue, Permission rule, ContractNegotiationPolicyContext context) {
-        
+
         var participantAgent = context.participantAgent();
-        
+
         monitor.debug("PURPOSE Policy CLAIMS list");
         for (String key : participantAgent.getClaims().keySet()) {
             monitor.debug(format("PURPOSE Policy claims %s = %s", key, participantAgent.getClaims().get(key)));
@@ -59,7 +59,7 @@ public class PurposeConstraintFunction implements AtomicConstraintRuleFunction<P
         for (String key : participantAgent.getAttributes().keySet()) {
             monitor.debug(format("PURPOSE Policy attributes %s = %s", key, participantAgent.getAttributes().get(key)));
         }
-        
+
         var participantId = participantAgent.getIdentity();
         var urlPurpose = participantAgent.getClaims().get("purpose");
 
