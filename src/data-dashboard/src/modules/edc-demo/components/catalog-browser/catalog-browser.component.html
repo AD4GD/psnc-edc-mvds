@@ -41,8 +41,15 @@
                         <div matListItemLine>{{contractOffer.originator}}</div>
                     </mat-list-item>
                 </mat-list>
+                
+                <policy-rules
+                [permissionRules]="contractOffer.policy.permission" 
+                [prohibitionRules]="contractOffer.policy.prohibition"
+                [obligationRules]="contractOffer.policy.obligation"
+                title="Associated policy rules">
+                </policy-rules>
 
-                <mat-expansion-panel>
+                <mat-expansion-panel class="additional-details-container">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
                             Additional properties

@@ -1,6 +1,6 @@
 <mat-expansion-panel fxFill [disabled]="rules?.length === 0">
   <mat-expansion-panel-header>
-    <mat-panel-title>Policy rules</mat-panel-title>
+    <mat-panel-title>{{title}} ({{rules?.length}})</mat-panel-title>
   </mat-expansion-panel-header>
   <div class="item-list">
     <div *ngFor="let rule of rules" class="item-row">

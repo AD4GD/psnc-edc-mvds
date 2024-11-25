@@ -12,6 +12,7 @@ import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from 'src/modules/
 })
 export class PolicyRuleViewerComponent implements OnInit {
 
+  @Input() title: string = "Policy rules";
   @Input() permissionRules: any[] | undefined = [];
   @Input() prohibitionRules: any[] | undefined = [];
   @Input() obligationRules: any[] | undefined = [];
@@ -28,6 +29,7 @@ export class PolicyRuleViewerComponent implements OnInit {
   }
 
   private getTransformedRules(): PolicyRule[] {
+    
     const rawRulesArray: any[] = [];
     this.addIfExists(rawRulesArray, this.permissionRules, PERMISSION_RULE.id);
     this.addIfExists(rawRulesArray, this.prohibitionRules, PROHIBITION_RULE.id);
@@ -38,7 +40,7 @@ export class PolicyRuleViewerComponent implements OnInit {
   }
 
   private addIfExists(rawRulesArray: any[], arrayToAdd: JsonLdObject[] | undefined, type: string) {
-    if (arrayToAdd === undefined) {
+    if (arrayToAdd === undefined || arrayToAdd.length == 0) {
       return;
     }
 
