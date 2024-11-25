@@ -6,7 +6,7 @@ import { PolicyPresetType } from '../../models/policy-preset-type';
 import { CUSTOM_PRESET, LOCATION_PRESET, PURPOSE_PRESET, TIME_INTERVAL_PRESET } from 'src/modules/app/policy-presets';
 import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from 'src/modules/app/policy-rule-types';
 import { PolicyPresetsService } from '../../services/policy-presets.service';
-import { DateTimeService } from '../../services/common/policy-presets.service';
+import { DateTimeService } from '../../services/common/date-time.service';
 
 interface RuleItem {
   presetTypeId: string,

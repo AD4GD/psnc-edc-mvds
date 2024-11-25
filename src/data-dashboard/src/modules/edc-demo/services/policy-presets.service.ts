@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 import { LOCATION_PRESET, PURPOSE_PRESET, TIME_INTERVAL_PRESET } from "src/modules/app/policy-presets";
-import { DateTimeService } from "./common/policy-presets.service";
+import { DateTimeService } from "./common/date-time.service";
 
 @Injectable({
   providedIn: 'root'
