@@ -28,6 +28,7 @@ interface RunningTransferProcess {
   state: TransferProcessStates;
   storageType: string;
   proxyDataAddressOptions: any;
+  isTransferStarted: boolean;
 }
 
 interface ContractAgreementWithOfferData extends ContractAgreement {
@@ -213,7 +214,8 @@ export class ContractViewerComponent implements OnInit {
       state: TransferProcessStates.REQUESTED,
       contractId: contractId,
       storageType: storageType,
-      proxyDataAddressOptions: proxyDataAddressOptions
+      proxyDataAddressOptions: proxyDataAddressOptions,
+      isTransferStarted: false,
     });
 
     if (!this.pollingHandleTransfer) {
@@ -230,10 +232,16 @@ export class ContractViewerComponent implements OnInit {
           map(transferProcess => ({ runningTransferProcess, transferProcess })) // Combine both into an object
           )
         ),
-        filter(({ transferProcess }) => ContractViewerComponent.isFinishedState(transferProcess.state!)),
+        filter(({ runningTransferProcess, transferProcess }) => 
+          ContractViewerComponent.isFinishedState(transferProcess.state!) && !runningTransferProcess.isTransferStarted),
           tap(({ runningTransferProcess, transferProcess }) => {
-            this.processStartedTransfer(
-              transferProcess, runningTransferProcess.storageType, runningTransferProcess.proxyDataAddressOptions);
+            try {
+              runningTransferProcess.isTransferStarted = true;
+              this.processStartedTransfer(
+                transferProcess, runningTransferProcess.storageType, runningTransferProcess.proxyDataAddressOptions);
+            } catch {
+              runningTransferProcess.isTransferStarted = false;
+            }
           })
         )
         .subscribe(() => {
