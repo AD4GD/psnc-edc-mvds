@@ -99,8 +99,6 @@ edc-policy-engine-spi = { module = "org.eclipse.edc:policy-engine-spi", version.
 edc-participant-spi = { module = "org.eclipse.edc:participant-spi", version.ref = "edc" }
 edc-request-policy-context-spi = { module = "org.eclipse.edc:request-policy-context-spi", version.ref = "edc" }
 edc-jsonld-spi = { module = "org.eclipse.edc:json-ld-spi", version.ref = "edc" }
-edc-accesstokendata-store-sql = { module = "org.eclipse.edc:accesstokendata-store-sql", version.ref = "edc" }
-edc-oauth2-client = { module = "org.eclipse.edc:oauth2-client", version.ref = "edc" }
 
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres"}
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway"}

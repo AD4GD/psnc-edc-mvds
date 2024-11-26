@@ -43,7 +43,7 @@ public class PolicyFunctionsExtension implements ServiceExtension {
     private static final String TIME_INTERVAL_EVALUATION_KEY = "https://w3id.org/edc/v0.0.1/ns/" + TIME_INTERVAL;
     private static final String PURPOSE = "purpose";
     private static final String PURPOSE_EVALUATION_KEY = "https://w3id.org/edc/v0.0.1/ns/" + PURPOSE;
-    private static final String LOCATION = "location";
+    private static final String LOCATION = "regionLocation";
     private static final String LOCATION_EVALUATION_KEY = "https://w3id.org/edc/v0.0.1/ns/" + LOCATION;
 
     @Inject
