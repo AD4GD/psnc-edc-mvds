@@ -44,6 +44,8 @@ export class AssetEditorDialog implements OnInit {
 
   onSave() {
     
+    this.baseUrl = this.getWithoutTrailingSlashIfExists(this.baseUrl);
+
     const properties = this.getProperties();
     const dataAddress = this.getDataAddress();
 
@@ -127,5 +129,18 @@ export class AssetEditorDialog implements OnInit {
 
   onAuthorizationTypeTabChange(event: MatTabChangeEvent) {
     this.authorizationTypeTab = event.tab.textLabel;
+  }
+
+  private getWithoutTrailingSlashIfExists(baseUrl: string) {
+    let resultUrl: string;
+    baseUrl = baseUrl.replace(/\s/g, "");
+
+    if (baseUrl[baseUrl.length - 1] == '/') {
+      resultUrl = baseUrl.slice(0, -1);
+    } else {
+      resultUrl = baseUrl;
+    }
+
+    return resultUrl;
   }
 }

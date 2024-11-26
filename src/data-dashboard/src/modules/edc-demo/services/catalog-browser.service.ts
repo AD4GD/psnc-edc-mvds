@@ -84,9 +84,9 @@ export class CatalogBrowserService {
             "uid": hasPolicy["@id"],
             "assignee": hasPolicy["assignee"],
             "assigner": hasPolicy["assigner"],
-            "obligation": this.getItemProperty(hasPolicy, "obligation", odrlPrefix),
-            "permission": this.getItemProperty(hasPolicy, "permission", odrlPrefix),
-            "prohibition": this.getItemProperty(hasPolicy, "prohibition", odrlPrefix),
+            "obligation": this.getItemProperties(hasPolicy, "obligation", odrlPrefix),
+            "permission": this.getItemProperties(hasPolicy, "permission", odrlPrefix),
+            "prohibition": this.getItemProperties(hasPolicy, "prohibition", odrlPrefix),
             "target": this.getItemProperty(hasPolicy, "target", odrlPrefix)
           };
 

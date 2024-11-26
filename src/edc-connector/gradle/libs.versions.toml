@@ -94,6 +94,12 @@ edc-control-api-configuration = { module = "org.eclipse.edc:control-api-configur
 edc-data-plane-iam = { module = "org.eclipse.edc:data-plane-iam", version.ref = "edc" }
 edc-token-core = { module = "org.eclipse.edc:token-core", version.ref = "edc" }
 
+edc-contract-spi = { module = "org.eclipse.edc:contract-spi", version.ref = "edc" }
+edc-policy-engine-spi = { module = "org.eclipse.edc:policy-engine-spi", version.ref = "edc" }
+edc-participant-spi = { module = "org.eclipse.edc:participant-spi", version.ref = "edc" }
+edc-request-policy-context-spi = { module = "org.eclipse.edc:request-policy-context-spi", version.ref = "edc" }
+edc-jsonld-spi = { module = "org.eclipse.edc:json-ld-spi", version.ref = "edc" }
+
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres"}
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway"}
 

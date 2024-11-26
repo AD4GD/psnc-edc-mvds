@@ -45,7 +45,13 @@ import {
 } from "./components/policy-rule-viewer/policy-rule-viewer.component";
 import {NewPolicyDialogComponent} from "./components/new-policy-dialog/new-policy-dialog.component";
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
+import { PolicyRuleModalComponent } from './components/policy-rule-modal/policy-rule-modal.component';
+import { JsonLdCodeDisplayComponent } from './components/common/jsonld-code-display/jsonld-code-display';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+
 
 @NgModule({
   imports: [
@@ -73,6 +79,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     RouterModule,
     MatProgressSpinnerModule,
     MatCheckboxModule,
+    MatChipsModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   declarations: [
     CatalogBrowserComponent,
@@ -93,7 +102,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     ContractViewerComponent,
     NewPolicyDialogComponent,
     IntroductionComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    PolicyRuleModalComponent,
+    JsonLdCodeDisplayComponent,
   ],
   exports: [
     CatalogBrowserComponent,

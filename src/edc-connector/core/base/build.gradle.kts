@@ -9,7 +9,6 @@ dependencies {
     implementation(libs.edc.control.plane.core)
     implementation(libs.edc.dsp)
     implementation(libs.edc.configuration.filesystem)
-    implementation(libs.edc.iam.mock)
     implementation(libs.edc.management.api)
 
     implementation(libs.edc.transfer.data.plane.signaling)
@@ -46,4 +45,6 @@ dependencies {
     // enable callbacks
     implementation(libs.edc.callback.event.dispatcher)
     implementation(libs.edc.callback.http.dispatcher)
+
+    implementation(project(":extensions:policy-engine"))
 }
