@@ -71,7 +71,10 @@ export class CatalogBrowserComponent implements OnInit {
         "@id": `${contractOffer.id}`,
         "@type": "Offer",
         assigner: "provider",
-        target: `${contractOffer.assetId}`
+        target: `${contractOffer.assetId}`,
+        obligation: contractOffer.policy.obligation,
+        permission: contractOffer.policy.permission,
+        prohibition: contractOffer.policy.prohibition,
       }
     };
 
@@ -91,11 +94,18 @@ export class CatalogBrowserComponent implements OnInit {
       if (!this.pollingHandleNegotiation) {
         // there are no active negotiations
         this.pollingHandleNegotiation = setInterval(() => {
-          // const finishedNegotiations: NegotiationResult[] = [];
 
           for (const negotiation of this.runningNegotiations.values()) {
             this.apiService.getNegotiationState(negotiation.id).subscribe(updatedNegotiation => {
               console.log(`Negotiation state: ${updatedNegotiation.state!}`);
+              console.log(updatedNegotiation);
+
+              if (updatedNegotiation.state! == "TERMINATED") {
+                const messageJson = JSON.parse(updatedNegotiation["https://w3id.org/edc/v0.0.1/ns/errorDetail"][0]["@value"] ?? "");
+                const messageString = messageJson["dspace:reason"] ?? "";
+                this.notificationService.showError(`Error starting negotiation (${messageString})`);
+              }
+
               if (finishedNegotiationStates.includes(updatedNegotiation.state!)) {
                 let offerId = negotiation.offerId;
                 this.runningNegotiations.delete(offerId);

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0 ",
+    "start": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --poll=2000",
     "start-prod": "ng serve --host 0.0.0.0 --configuration=production",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -30,7 +30,7 @@
     "@angular-devkit/build-angular": "~17.0.8",
     "@angular/cli": "~17.0.8",
     "@angular/compiler-cli": "~17.0.8",
-    "@think-it-labs/edc-connector-client": "^0.5.0",
+    "@think-it-labs/edc-connector-client": "^0.8.0",
     "@types/jasmine": "~4.0.3",
     "@types/node": "^20.8.7",
     "cypress": "^13.3.2",

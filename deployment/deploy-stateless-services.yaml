@@ -57,6 +57,9 @@
                   - name: "protocol"
                     containerPort: 29194
                     protocol: "TCP"
+                  - name: "catalog"
+                    containerPort: 29195
+                    protocol: "TCP"
                   - name: "public"
                     containerPort: 29291
                     protocol: "TCP"
@@ -110,6 +113,8 @@
                 port: 29193
               - name: "protocol"
                 port: 29194
+              - name: "catalog"
+                port: 29195
               - name: "public"
                 port: 29291
               - name: "control"
@@ -136,7 +141,7 @@
               {
                 "apiKey": "fifi-info-zaneta",
                 "managementApiUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-3",
                 "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
               }
@@ -156,6 +161,9 @@
                   }
                   location /management {
                     proxy_pass https://consumer-edc-connector.apps.paas-dev.psnc.pl/management;
+                  }
+                  location /catalog {
+                    proxy_pass https://consumer-edc-connector.apps.paas-dev.psnc.pl/catalog;
                   }
                 }
               }
@@ -297,6 +305,9 @@
                   - name: "protocol"
                     containerPort: 19194
                     protocol: "TCP"
+                  - name: "catalog"
+                    containerPort: 19195
+                    protocol: "TCP"
                   - name: "public"
                     containerPort: 19291
                     protocol: "TCP"
@@ -350,6 +361,8 @@
                 port: 19193
               - name: "protocol"
                 port: 19194
+              - name: "catalog"
+                port: 19195
               - name: "public"
                 port: 19291
               - name: "control"
@@ -376,7 +389,7 @@
               {
                 "apiKey": "fifi-info-zaneta",
                 "managementApiUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
+                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-2",
                 "backendUrl": ""
               }
@@ -395,7 +408,10 @@
                     try_files $uri $uri/ /index.html;
                   }
                   location /management {
-                    proxy_pass https://provider-edc-connector.apps.paas-dev.psnc.pl;
+                    proxy_pass https://provider-edc-connector.apps.paas-dev.psnc.pl/management;
+                  }
+                  location /catalog {
+                    proxy_pass https://provider-edc-connector.apps.paas-dev.psnc.pl/catalog;
                   }
                 }
               }

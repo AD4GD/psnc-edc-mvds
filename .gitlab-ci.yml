@@ -31,14 +31,26 @@ Upload images:
   script:
     - devlab_push_images
 
-Update inventory:
+Update inventory for main project:
   stage: update_inventory
   variables:
     inventory_repository_name: inventory
-    inventory_hostname: "edc-connector-edc-connector.apps.paas-dev.psnc.pl-edc-connector-instances"
+    inventory_hostname: $inventory_hostname_psnc
     gitlab_push_token: $gitlab_push_token_dev
   script:
     - devlab_update_inventory
   only:
     variables:
       - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory
+
+Update inventory for atos-psnc integration:
+  stage: update_inventory
+  variables:
+    inventory_repository_name: atos-integration-inventory
+    inventory_hostname: $inventory_hostname_psnc_atos
+    gitlab_push_token: $gitlab_push_token_psnc_atos
+  script:
+    - devlab_update_inventory
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_atos_psnc

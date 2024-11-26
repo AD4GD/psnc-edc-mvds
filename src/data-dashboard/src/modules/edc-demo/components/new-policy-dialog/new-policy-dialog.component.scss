@@ -4,10 +4,76 @@ mat-dialog-content {
 
 .form-field-half{
   box-sizing: border-box;
-  width: calc(50% - 2px);
+  width: calc(50% - 11px);
   margin: 1px;
+  margin-right: 10px;
 }
 .form-field-stretch{
   box-sizing: border-box;
   width: 100%;
+  margin-right: 10px;
+}
+
+.time-now-button {
+  margin-right: 10px;
+}
+
+.rule-edit-actions-group {
+  margin-top: 0px;
+  display: flex;
+  gap: 10px;
+}
+
+.policy-rules-section {
+  margin-bottom: 12px;
+}
+
+// copied from policy-rule-viewer
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-left: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.item-rule:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.item-rule-selected {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.item-field {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  font-size: 1rem;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 12px;
+  height: 100%;
+}
+
+.type-badge {
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.item-icon {
+  margin-right: 8px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.rule-odrl {
+  margin-left: 24px;
+  margin-right: 24px;
 }

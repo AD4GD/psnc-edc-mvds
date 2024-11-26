@@ -1,6 +1,6 @@
 import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Inject, Injectable} from '@angular/core';
-import {EMPTY, Observable} from 'rxjs';
+import {EMPTY, from, Observable} from 'rxjs';
 import {catchError, map, reduce} from 'rxjs/operators';
 import {Catalog} from '../models/catalog';
 import {ContractOffer} from '../models/contract-offer';
@@ -17,6 +17,7 @@ import {
   TransferProcess,
   TransferProcessInput
 } from "../../mgmt-api-client/model";
+import { EdcConnectorClient } from '@think-it-labs/edc-connector-client';
 
 
 
@@ -32,15 +33,26 @@ export class CatalogBrowserService {
               private transferProcessService: TransferProcessService,
               private negotiationService: ContractNegotiationService,
               @Inject(CONNECTOR_MANAGEMENT_API) private managementApiUrl: string,
-              @Inject(CONNECTOR_CATALOG_API) private catalogApiUrl: string) {
+              @Inject(CONNECTOR_CATALOG_API) private catalogApiUrl: string,
+              private edcConnectorClient: EdcConnectorClient) {
   }
 
   getContractOffers(): Observable<ContractOffer[]> {
-    let url = this.catalogApiUrl || this.managementApiUrl;
-    return this.post<Catalog[]>(url + "/federatedcatalog")
+    let federatedCatalog = this.edcConnectorClient.federatedCatalog;
+    let queryObservable = from(federatedCatalog.queryAll({
+      // TODO: add pagination
+      limit: 100,
+      sortOrder: "DESC"
+    }));
+
+    const w3Prefix = "http://www.w3.org/ns/dcat#";
+    const edcPrefix = "https://w3id.org/edc/v0.0.1/ns/";
+    const odrlPrefix = "http://www.w3.org/ns/odrl/2/";
+
+    return queryObservable
       .pipe(map(catalogs => catalogs.map(catalog => {
         const arr = Array<ContractOffer>();
-        let datasets = catalog["http://www.w3.org/ns/dcat#dataset"];
+        let datasets = this.getItemProperties(catalog, "dataset", w3Prefix);
         if (!Array.isArray(datasets)) {
           datasets = [datasets];
         }
@@ -52,35 +64,39 @@ export class CatalogBrowserService {
           const dataSet: any = datasets[i];
           const properties: { [key: string]: string; } = {
             id: dataSet["@id"],
-            name: dataSet["name"],
-            version: dataSet["version"],
             type: dataSet["@type"],
-            contentType: dataSet["contenttype"]
+            name: this.getItemProperty(dataSet, "name", edcPrefix),
+            version: this.getItemProperty(dataSet, "version", edcPrefix),
+            contentType: this.getItemProperty(dataSet, "contenttype", edcPrefix),
+            proxyPath: this.getItemProperty(dataSet, "proxyPath", edcPrefix),
+            proxyQueryParams: this.getItemProperty(dataSet, "proxyQueryParams", edcPrefix),
+            baseUrl: this.getItemProperty(dataSet, "baseUrl", edcPrefix),
           }
           const assetId = dataSet["@id"];
 
-          const hasPolicy = this.getFirstPolicy(dataSet["odrl:hasPolicy"]);
+          const hasPolicy = this.getFirstPolicy(this.getItemProperty(dataSet, "hasPolicy", odrlPrefix));
+          console.log(hasPolicy);
 
           const policy: PolicyInput = {
-            //currently hardcoded to SET since parsed type is {"@policytype": "set"}
+            //currently hardcoded to Set since parsed type is {"@policytype": "set"}
             "@type": "Set", //TODO Use TypeEnum https://github.com/Think-iT-Labs/edc-connector-client/issues/103
             "@context" : "http://www.w3.org/ns/odrl.jsonld",
             "uid": hasPolicy["@id"],
             "assignee": hasPolicy["assignee"],
             "assigner": hasPolicy["assigner"],
-            "obligation": hasPolicy["odrl:obligation"],
-            "permission": hasPolicy["odrl:permission"],
-            "prohibition": hasPolicy["odrl:prohibition"],
-            "target": hasPolicy["odrl:target"]
+            "obligation": this.getItemProperties(hasPolicy, "obligation", odrlPrefix),
+            "permission": this.getItemProperties(hasPolicy, "permission", odrlPrefix),
+            "prohibition": this.getItemProperties(hasPolicy, "prohibition", odrlPrefix),
+            "target": this.getItemProperty(hasPolicy, "target", odrlPrefix)
           };
 
           const newContractOffer: ContractOffer = {
             assetId: assetId,
             properties: properties,
-            "http://www.w3.org/ns/dcat#service": catalog["http://www.w3.org/ns/dcat#service"],
+            "http://www.w3.org/ns/dcat#service": this.getItemProperty(catalog, "service", w3Prefix),
             "http://www.w3.org/ns/dcat#dataset": datasets,
             id: hasPolicy["@id"],
-            originator: catalog["originator"],
+            originator: this.getItemProperty(catalog, "originator", edcPrefix),
             policy: policy
           };
 
@@ -118,6 +134,38 @@ export class CatalogBrowserService {
       return hasPolicy[0];
     }
     return hasPolicy;
+  }
+
+  private getItemProperties(item: any, property: string, prefix: string): any {
+    const field = this.getItemPropertyFullName(property, prefix);
+    const fieldValue = item[field];
+    return fieldValue;
+  }
+
+  private getItemProperty(item: any, property: string, prefix: string): any {
+    const field = this.getItemPropertyFullName(property, prefix);
+    const fieldValue = item[field];
+    
+    let result;
+
+    if (Array.isArray(fieldValue)) {
+      result = fieldValue[0];
+    } else {
+      result = fieldValue;
+    }
+
+    if (result === undefined || result === null) {
+      return result;
+    }
+
+    if (result["@value"] !== undefined) {
+      return result["@value"];
+    }
+    return result;
+  }
+
+  private getItemPropertyFullName(property: string, prefix: string): string {
+    return `${prefix}${property}`;
   }
 
   private post<T>(urlPath: string,

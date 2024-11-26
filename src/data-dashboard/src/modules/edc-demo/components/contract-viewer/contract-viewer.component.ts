@@ -4,7 +4,7 @@ import {
   ContractAgreementService,
   TransferProcessService
 } from "../../../mgmt-api-client";
-import {from, Observable, of} from "rxjs";
+import {forkJoin, from, Observable, of} from "rxjs";
 import { Asset, ContractAgreement, TransferProcessInput, IdResponse, TransferProcess } from "../../../mgmt-api-client/model";
 import {ContractOffer} from "../../models/contract-offer";
 import {filter, first, map, switchMap, tap} from "rxjs/operators";
@@ -27,6 +27,12 @@ interface RunningTransferProcess {
   contractId: string;
   state: TransferProcessStates;
   storageType: string;
+  proxyDataAddressOptions: any;
+  isTransferStarted: boolean;
+}
+
+interface ContractAgreementWithOfferData extends ContractAgreement {
+  contractOffer?: ContractOffer;
 }
 
 @Component({
@@ -34,9 +40,10 @@ interface RunningTransferProcess {
   templateUrl: './contract-viewer.component.html',
   styleUrls: ['./contract-viewer.component.scss']
 })
+
 export class ContractViewerComponent implements OnInit {
 
-  contracts$: Observable<ContractAgreement[]> = of([]);
+  contracts$: Observable<ContractAgreementWithOfferData[]> = of([]);
   private runningTransfers: RunningTransferProcess[] = [];
   private pollingHandleTransfer?: any;
 
@@ -61,7 +68,26 @@ export class ContractViewerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.contracts$ = this.contractAgreementService.queryAllAgreements();
+    this.contracts$ = this.contractAgreementService.queryAllAgreements().pipe(
+      switchMap(contracts => this.loadContractsWithAssets(contracts))
+    );
+  }
+
+  loadContractsWithAssets(contracts: ContractAgreement[]): Observable<ContractAgreementWithOfferData[]> {
+    return this.getAllContractOffers().pipe(
+      switchMap((allOffers: ContractOffer[]) => {
+        const contractObservables: Observable<ContractAgreementWithOfferData>[] = contracts.map(contract => {
+          const offerData = this.getContractOfferForAssetId(contract.assetId, allOffers);
+          const contractWithOffer = contract as ContractAgreementWithOfferData;
+          contractWithOffer.contractOffer = offerData;
+          // Wrap the result in an observable
+          return of(contractWithOffer);
+        });
+  
+        // Combine all observables
+        return forkJoin(contractObservables);
+      })
+    );
   }
 
   asDate(epochSeconds?: number): string {
@@ -73,20 +99,35 @@ export class ContractViewerComponent implements OnInit {
     return '';
   }
 
-  onTransferClicked(contract: ContractAgreement) {
-    const dialogRef = this.dialog.open(CatalogBrowserTransferDialog);
+  onTransferClicked(contract: ContractAgreementWithOfferData) {
+
+    const offer = contract.contractOffer!;
+    console.log(offer);
+
+    const dialogRef = this.dialog.open(CatalogBrowserTransferDialog, {
+      data: {
+        isProxyPath: offer.properties.proxyPath ?? false,
+        isProxyQueryParams: offer.properties.proxyQueryParams ?? false,
+      }
+    });
 
     dialogRef.afterClosed().pipe(first()).subscribe(result => {
       if (result === undefined || result.storageTypeId === undefined || result.storageTypeId === "") {
         return;
       }
 
-      const storageTypeId: string = result.storageTypeId;
+      console.log(result);
 
-      this.createTransferRequest(contract, storageTypeId)
+      const storageTypeId: string = result.storageTypeId;
+      const proxyDataAddressOptions: any = {
+        proxyPath: result.proxyUrlPath,
+        proxyQueryParams: result.proxyQueryParams
+      }
+
+      this.createTransferRequest(contract, storageTypeId, proxyDataAddressOptions)
         .pipe(switchMap(trq => this.transferService.initiateTransfer(trq)))
         .subscribe(transferId => {
-          this.startPolling(transferId, contract["@id"]!, storageTypeId);
+          this.startPolling(transferId, contract["@id"]!, storageTypeId, proxyDataAddressOptions);
         }, error => {
           console.error(error);
           this.notificationService.showError("Error initiating transfer");
@@ -98,8 +139,8 @@ export class ContractViewerComponent implements OnInit {
     return !!this.runningTransfers.find(rt => rt.contractId === contractId);
   }
 
-  private createTransferRequest(contract: ContractAgreement, storageTypeId: string): Observable<TransferProcessInput> {
-    return this.getContractOfferForAssetId(contract.assetId!).pipe(map(contractOffer => {
+  private createTransferRequest(contract: ContractAgreement, storageTypeId: string, proxyDataAddressOptions: any): Observable<TransferProcessInput> {
+    return this.getContractOfferForAssetIdAsync(contract.assetId!).pipe(map(contractOffer => {
       const backendUrl = this.appConfigService.getConfig()?.backendUrl;
       console.log(backendUrl);
 
@@ -111,7 +152,7 @@ export class ContractViewerComponent implements OnInit {
             "events": [
               "transfer.process.started"
             ],
-            "uri": backendUrl
+            "uri": this.getUrlWithQueryParams(backendUrl!, proxyDataAddressOptions)
           }
         )
       }
@@ -139,7 +180,7 @@ export class ContractViewerComponent implements OnInit {
    *
    * @param assetId Asset ID of the asset that is associated with the contract.
    */
-  private getContractOfferForAssetId(assetId: string): Observable<ContractOffer> {
+  private getContractOfferForAssetIdAsync(assetId: string): Observable<ContractOffer> {
     console.log(assetId);
     return this.catalogService.getContractOffers()
       .pipe(
@@ -152,16 +193,33 @@ export class ContractViewerComponent implements OnInit {
         }))
   }
 
-  private startPolling(transferProcessId: IdResponse, contractId: string, storageType: string) {
+  private getAllContractOffers(): Observable<ContractOffer[]> {
+    return this.catalogService.getContractOffers();
+  }
+
+  private getContractOfferForAssetId(assetId: string, contractOffers: ContractOffer[]): ContractOffer {
+    console.log(assetId);
+    const offer = contractOffers.find(o => o.assetId === assetId);
+    if (offer) {
+      return offer;
+    }
+    throw new Error(`No offer found for asset ID ${assetId}`);
+  }
+
+  private startPolling(transferProcessId: IdResponse, contractId: string, storageType: string, proxyDataAddressOptions: any) {
+
     // track this transfer process
     this.runningTransfers.push({
       processId: transferProcessId.id!,
       state: TransferProcessStates.REQUESTED,
       contractId: contractId,
-      storageType: storageType
+      storageType: storageType,
+      proxyDataAddressOptions: proxyDataAddressOptions,
+      isTransferStarted: false,
     });
 
     if (!this.pollingHandleTransfer) {
+      console.log(proxyDataAddressOptions.proxyPath);
       this.pollingHandleTransfer = setInterval(this.pollRunningTransfers(), 1000);
     }
 
@@ -174,9 +232,16 @@ export class ContractViewerComponent implements OnInit {
           map(transferProcess => ({ runningTransferProcess, transferProcess })) // Combine both into an object
           )
         ),
-        filter(({ transferProcess }) => ContractViewerComponent.isFinishedState(transferProcess.state!)),
+        filter(({ runningTransferProcess, transferProcess }) => 
+          ContractViewerComponent.isFinishedState(transferProcess.state!) && !runningTransferProcess.isTransferStarted),
           tap(({ runningTransferProcess, transferProcess }) => {
-            this.processStartedTransfer(transferProcess, runningTransferProcess.storageType);
+            try {
+              runningTransferProcess.isTransferStarted = true;
+              this.processStartedTransfer(
+                transferProcess, runningTransferProcess.storageType, runningTransferProcess.proxyDataAddressOptions);
+            } catch {
+              runningTransferProcess.isTransferStarted = false;
+            }
           })
         )
         .subscribe(() => {
@@ -184,12 +249,13 @@ export class ContractViewerComponent implements OnInit {
         if (this.runningTransfers.length === 0) {
           clearInterval(this.pollingHandleTransfer);
           this.pollingHandleTransfer = undefined;
+          console.log("cleared interval");
         }
       }, error => this.notificationService.showError(error))
     }
   }
 
-  private processStartedTransfer = (transfer: TransferProcess, storageType: string) => {
+  private processStartedTransfer = (transfer: TransferProcess, storageType: string, proxyDataAddressOptions: any) => {
     console.log(transfer);
     console.log(storageType);
 
@@ -198,10 +264,10 @@ export class ContractViewerComponent implements OnInit {
       return;
     }
 
-    this.processStartedLocalTransfer(transfer);
+    this.processStartedLocalTransfer(transfer, proxyDataAddressOptions);
   }
 
-  private processStartedLocalTransfer = async (transfer: TransferProcess) => {
+  private processStartedLocalTransfer = async (transfer: TransferProcess, proxyDataAddressOptions: any) => {
     console.log(transfer);
     try {
       const address = await this.edrService.requestDataAddress(transfer.id).toPromise();
@@ -213,31 +279,18 @@ export class ContractViewerComponent implements OnInit {
       console.log(authCode);
 
       const adjustedEndpoint = this.adjustServiceUrl(endpoint);
-      console.log(adjustedEndpoint);
+      const publicEndpoint = this.getUrlWithQueryParams(adjustedEndpoint, proxyDataAddressOptions);
+      console.log(publicEndpoint);
 
       const context = new EdcConnectorClientContext(undefined, {
-        public: adjustedEndpoint
+        public: publicEndpoint
       });
+      console.log(context.public);
 
       const data: Response = await this.publicService.getTransferredData(authCode, context).toPromise();
       console.log(data);
 
-      // Save to downloads
-      const jsonData = await data.json();
-      console.log(jsonData);
-      const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${transfer.assetId}.json`;
-      document.body.appendChild(a);
-      a.click();
-
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      //
-
+      this.saveFileToDownloads(data, transfer);
       this.completeTransfer(transfer);
     } catch (e: any) {
       const message = (e as Error).message;
@@ -245,6 +298,23 @@ export class ContractViewerComponent implements OnInit {
       this.notificationService.showError(message);
     }
 
+  }
+
+  private saveFileToDownloads = async (data: Response, transfer: TransferProcess) => {
+
+    const jsonData = await data.json();
+    console.log(jsonData);
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${transfer.assetId}.json`;
+    document.body.appendChild(a);
+    a.click();
+
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   }
 
   // A fast fix for the problem related to a request to <service-name>:<port> on dev. env. (need localhost)
@@ -259,11 +329,11 @@ export class ContractViewerComponent implements OnInit {
         parsedUrl.hostname = 'localhost';
       }
 
-      // Return the modified or original URL
       return parsedUrl.toString();
+      
     } catch (error) {
       console.error('Invalid URL provided:', error);
-      return url; // Return the original URL in case of an error
+      return url; 
     }
   }
 
@@ -273,5 +343,26 @@ export class ContractViewerComponent implements OnInit {
     this.notificationService.showInfo(`Transfer [${transferProcess.id}] complete!`, "Show me!", () => {
       this.router.navigate(['/transfer-history'])
     })
+  }
+
+  private getUrlWithQueryParams(url: string, proxyDataAddressOptions: any) {
+    const proxyPath = proxyDataAddressOptions.proxyPath.replace(/\s/g, "");
+    const proxyQueryParams: { key: string; value: string }[] = proxyDataAddressOptions.proxyQueryParams;
+
+    let result = url;
+    if (proxyPath != undefined && proxyPath != '') {
+      if (proxyPath[0] != '/') {
+        result += '/';
+      }
+      result += `${proxyPath}`;
+    }
+    if (proxyQueryParams != undefined && proxyQueryParams.length > 0) {
+      const proxyQueryParamsStr = proxyQueryParams
+        .map(x => `${x.key.replace(/\s/g, "")}=${x.value.replace(/\s/g, "")}`)
+        .join("&");
+      result += `?${proxyQueryParamsStr}`;
+    }
+
+    return result;
   }
 }

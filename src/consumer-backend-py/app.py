@@ -66,10 +66,28 @@ def get_minio_credentials():
     }
 
 
+@app.post("/edr-endpoint/{proxy_path:path}")
 @app.post("/edr-endpoint")
-async def edr_endpoint(request: TransferProcessStarted):
+async def edr_endpoint(
+    request: Request,
+    proxy_path: str = "",
+):
     logger.info(request)
+    logger.info(proxy_path)
     logger.info("Entering edr endpoint")
+
+    proxy_query_params = request.query_params
+
+    logger.info(proxy_query_params)
+
+    # Parse the request body as JSON
+    try:
+        request_body = await request.json()
+        transfer_process = TransferProcessStarted(**request_body)
+        logger.info(request_body)
+    except Exception as e:
+        logger.error("Error parsing request body: %s", str(e))
+        raise HTTPException(status_code=422, detail="Invalid request body")
 
     minio_data = get_minio_credentials()
     logger.info(minio_data)
@@ -81,6 +99,17 @@ async def edr_endpoint(request: TransferProcessStarted):
         secure=minio_data["is_secure"],
     )
 
+    response = await get_asset_from_provider(transfer_process, proxy_path, proxy_query_params)
+
+    content_type = response.headers.get("content-type")
+
+    print("Start uploading...")
+    upload_asset_to_storage(minio_client, response)
+
+    return JSONResponse(content={"status": "success"}, status_code=200)
+
+
+async def get_asset_from_provider(request, proxy_path, proxy_query_params):
     properties = request.payload.data_address.properties
     endpoint = properties.endpoint
     authKey = properties.auth_type
@@ -91,15 +120,21 @@ async def edr_endpoint(request: TransferProcessStarted):
             content={"error": "Missing or invalid endpoint, authKey or authCode parameters."}, status_code=400
         )
 
+    if proxy_path != None and proxy_path != "":
+        endpoint = f"{endpoint}/{proxy_path}"
+
+    if proxy_query_params != None and proxy_query_params != "" and len(proxy_query_params.items()) > 0:
+        endpoint = f"{endpoint}?{proxy_query_params}"
+
     headers = {"Authorization": authCode}
     logger.info(headers)
 
     async with httpx.AsyncClient() as client:
         response = await client.get(endpoint, headers=headers)
+        return response
 
-    content_type = response.headers.get("content-type")
 
-    print("Start downloading...")
+def upload_asset_to_storage(minio_client, response):
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     filename = os.path.join("data", f"{timestamp}.bin")
 
@@ -120,8 +155,6 @@ async def edr_endpoint(request: TransferProcessStarted):
     minio_client.put_object(
         bucket_name=bucket, object_name=final_filename, data=writable_content, length=len(response.content)
     )
-
-    return JSONResponse(content={"status": "success"}, status_code=200)
 
 
 def create_bucket_if_not_exists(client, bucket_name):

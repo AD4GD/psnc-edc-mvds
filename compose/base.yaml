@@ -18,6 +18,11 @@ services:
       - consumer-connector
       - provider-connector
 
+  data-source:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-source:${IMAGE_TAG}
+    ports:
+      - "5000:5000"
+
   provider-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
     ports:
@@ -35,6 +40,7 @@ services:
       - "19191:19191"
       - "19193:19193"
       - "19194:19194"
+      - "19195:19195"
       - "19291:19291"
       - "19192:19192"
     volumes:
@@ -80,6 +86,7 @@ services:
       - "29191:29191"
       - "29193:29193"
       - "29194:29194"
+      - "29195:29195"
       - "29291:29291"
       - "29192:29192"
     volumes:
