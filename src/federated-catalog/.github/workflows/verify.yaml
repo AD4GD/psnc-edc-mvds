@@ -1,0 +1,127 @@
+name: Run Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, release/*, bugfix/* ]
+  pull_request:
+    branches: [ main, release/*, bugfix/* ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  CodeQL:
+    uses: eclipse-edc/.github/.github/workflows/codeql-analysis.yml@main
+    secrets: inherit
+
+  Checkstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+      - name: Run Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest checkstyleTestFixtures
+
+  Javadoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+
+      - name: Run Javadoc
+        run: ./gradlew javadoc
+
+  Unit-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+
+      - name: Run unit tests
+        run: ./gradlew test
+
+  Verify-Launcher:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+
+      - name: 'Build launcher'
+        run: ./gradlew shadowJar
+
+      - name: 'Build Docker image'
+        run: docker build -t federated-catalog:mocked ./launchers/catalog-mocked
+
+      - name: 'Start FCC Container'
+        run: |
+          docker run -d --rm --name fcc \
+            -e "WEB_HTTP_CATALOG_PORT=8183" \
+            -e "WEB_HTTP_CATALOG_PATH=/catalog" \
+            federated-catalog:mocked
+
+      - name: 'Wait for Federated Catalog to be healthy'
+        uses: raschmitt/wait-for-healthy-container@v1
+        with:
+          container-name: fcc
+          timeout: 60
+
+  Postgresql-Integration-Tests:
+    runs-on: ubuntu-latest
+    if: ${{ false }}
+    services:
+      postgres:
+        image: postgres:14.2
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+
+      - name: Postgresql Tests
+        run: ./gradlew test -DincludeTags="PostgresqlIntegrationTest"
+
+  Component-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+
+      - name: Component Tests
+        run: ./gradlew test -DincludeTags="ComponentTest" -PverboseTest=true
+
+  End-To-End-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+
+      - name: 'Build Launchers'
+        run: |
+          ./gradlew compileJava compileTestJava
+
+      - name: 'End to End Integration Tests'
+        run: ./gradlew test -DincludeTags="EndToEndTest" -PverboseTest=true
+
+  API-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eclipse-edc/.github/.github/actions/setup-build@main
+
+      - name: Component Tests
+        run: ./gradlew test -DincludeTags="ApiTest"
+
+  Verify-OpenApi:
+    if: github.event_name == 'pull_request'
+    uses: eclipse-edc/.github/.github/workflows/verify-openapi.yml@main
+    secrets: inherit
