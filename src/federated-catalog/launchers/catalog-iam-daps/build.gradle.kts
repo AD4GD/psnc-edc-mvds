@@ -19,8 +19,11 @@ plugins {
 }
 
 dependencies {
-    runtimeOnly(project(":core:base"))
-    runtimeOnly(libs.edc.iam.mock)
+    implementation(project(":core:base"))
+
+    implementation(project(":extensions:seed-in-memory-vault"))
+    implementation(libs.edc.oauth2.core)
+    implementation(libs.edc.oauth2.daps)
 }
 
 application {

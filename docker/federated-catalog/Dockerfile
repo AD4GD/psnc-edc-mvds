@@ -1,8 +1,8 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
-# available types: catalog-base
-ARG LAUNCHER_TYPE="catalog-base"
+# available types: catalog-iam-daps, catalog-iam-mocked
+ARG LAUNCHER_TYPE="catalog-iam-daps"
 
 ARG JVM_ARGS=""
 
