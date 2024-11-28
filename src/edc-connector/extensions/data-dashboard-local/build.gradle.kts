@@ -23,8 +23,4 @@ dependencies {
 
     implementation(libs.edc.transfer.pull.http.receiver)
     implementation(libs.edc.http)
-
-    // federated catalog
-    implementation(libs.edc.federated.catalog.core)
-    implementation(libs.edc.federated.catalog.api)
 }

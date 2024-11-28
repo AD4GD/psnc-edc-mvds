@@ -20,7 +20,7 @@ plugins {
 
 dependencies {
     implementation(project(":core:base"))
-    
+
     implementation(libs.edc.iam.mock)
 }
 

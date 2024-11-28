@@ -20,6 +20,6 @@ dependencies {
     implementation(libs.edc.federated.catalog.spi)
     runtimeOnly(libs.edc.federated.catalog.core)
     runtimeOnly(libs.edc.federated.catalog.api)
-    
+
     implementation(libs.edc.dsp.catalog.http.dispatcher)
 }

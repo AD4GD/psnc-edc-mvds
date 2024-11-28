@@ -9,4 +9,5 @@ export interface ContractOffer {
   "http://www.w3.org/ns/dcat#service": DataService;
   policy: PolicyInput;
   originator: string;
+  participantId: string;
 }
