@@ -1,0 +1,4 @@
+{
+    "consumer": "http://consumer-connector:29194/protocol",
+    "provider": "http://provider-connector:19194/protocol"
+}

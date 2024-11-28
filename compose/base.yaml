@@ -6,11 +6,9 @@ services:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
     volumes:
       - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
+      - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
     environment:
-      WEB_HTTP_CATALOG_PATH: /api/catalog
-      WEB_HTTP_CATALOG_PORT: 8181
-      WEB_HTTP_PATH: /api
-      WEB_HTTP_PORT: 8080
+      EDC_FS_CONFIG: /app/configuration.properties
     ports:
       - "9080:8080"
       - "9181:8181"

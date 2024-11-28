@@ -1,21 +1,39 @@
-# -buster is required to have apt available
-FROM openjdk:17-slim-buster
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
-# Optional JVM arguments, such as memory settings
+# available types: catalog-base
+ARG LAUNCHER_TYPE="catalog-base"
+
 ARG JVM_ARGS=""
 
 RUN apt update \
-  && apt install -y curl \
-  && rm -rf /var/cache/apt/archives /var/lib/apt/lists
+    && apt install -y curl \
+    && rm -rf /var/cache/apt/archives /var/lib/apt/lists
 
 WORKDIR /app
 
-COPY src/federated-catalog/launchers/catalog-mocked/build/libs/fc-mocked.jar /app/app.jar
+# Copy the source code
+COPY src/federated-catalog/ /app/
 
-HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:9181/api/check/health
+# Ensure the Gradle wrapper is executable
+RUN chmod +x /app/gradlew
+
+# Build the project inside the container
+RUN ./gradlew launchers:$LAUNCHER_TYPE:build --no-daemon
+ENV CONNECTOR_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/fc.jar
+# Copy the built JAR to /app/app.jar
+RUN cp $CONNECTOR_BUILD_PATH /app/app.jar
+
+RUN touch /app/empty-vault.properties
+RUN mkdir /app/config
+RUN mkdir /app/certs
+COPY ./docker/federated-catalog/config/* /app/config/
+#COPY ./docker/federated-catalog/certs/* /app/certs/
+
+HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 
 # Use "exec" for graceful termination (SIGINT) to reach JVM.
-# ARG can not be used in ENTRYPOINT so storing value in an ENV variable
-ENV ENV_JVM_ARGS=$JVM_ARGS
-ENV ENV_APPINSIGHTS_AGENT_VERSION=$APPINSIGHTS_AGENT_VERSION
-ENTRYPOINT [ "sh", "-c", "exec java $ENV_JVM_ARGS -jar app.jar"]
+# ARG can not be used in ENTRYPOINT so storing values in ENV variables
+ENV JVM_ARGS=$JVM_ARGS
+ENTRYPOINT [ "sh", "-c", \
+    "exec java $JVM_ARGS -jar /app/app.jar"]

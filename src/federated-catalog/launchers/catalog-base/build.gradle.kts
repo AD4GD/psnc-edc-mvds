@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
+ *  Copyright (c) 2022 Microsoft Corporation
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -8,29 +8,30 @@
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Contributors:
- *       Bayerische Motoren Werke Aktiengesellschaft (BMW AG) - initial API and implementation
+ *       Microsoft Corporation - initial API and implementation
  *
  */
 
 plugins {
     `java-library`
     id("application")
+    alias(libs.plugins.shadow)
 }
 
 dependencies {
-    runtimeOnly(project(":core:federated-catalog-core"))
-    runtimeOnly(project(":extensions:api:federated-catalog-api"))
-    runtimeOnly(project(":spi:federated-catalog-spi"))
-    runtimeOnly(libs.edc.lib.util)
-    runtimeOnly(libs.edc.spi.jsonld)
+    runtimeOnly(project(":core:base"))
+    runtimeOnly(libs.edc.iam.mock)
+}
 
-    runtimeOnly(libs.bundles.edc.connector)
-    runtimeOnly(libs.edc.core.controlplane)
-    runtimeOnly(libs.edc.core.jetty)
-    runtimeOnly(libs.edc.lib.providers.jersey)
-    runtimeOnly(libs.edc.lib.boot)
+application {
+    mainClass.set("$group.boot.system.runtime.BaseRuntime")
+}
 
-    runtimeOnly(libs.edc.dsp.all)
+var distTar = tasks.getByName("distTar")
+var distZip = tasks.getByName("distZip")
 
-    //contains no IdentityService, this is added by catalog-dcp or catalog-mocked
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    mergeServiceFiles()
+    archiveFileName.set("fc.jar")
+    dependsOn(distTar, distZip)
 }

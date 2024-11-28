@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Microsoft Corporation
+ *  Copyright (c) 2022 Fraunhofer Institute for Software and Systems Engineering
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -8,7 +8,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Contributors:
- *       Microsoft Corporation - initial API and implementation
+ *       Fraunhofer Institute for Software and Systems Engineering - initial API and implementation
  *
  */
 
@@ -17,29 +17,40 @@ plugins {
     `java-library`
 }
 
-val fccScmConnection: String by project
-val fccScmUrl: String by project
+repositories {
+    mavenCentral()
+}
 
 buildscript {
     dependencies {
-        val version: String by project
-        classpath("org.eclipse.edc.edc-build:org.eclipse.edc.edc-build.gradle.plugin:$version")
+        classpath(libs.edc.build.plugin)
     }
 }
 
+val edcVersion = libs.versions.edc
+
 allprojects {
-    apply(plugin = "${group}.edc-build")
+    apply(plugin = "$group.edc-build")
+
+    // configure which version of the annotation processor to use. defaults to the same version as the plugin
+    configure<org.eclipse.edc.plugins.autodoc.AutodocExtension> {
+        processorVersion.set(edcVersion)
+        outputDirectory.set(project.layout.buildDirectory.asFile.get())
+    }
 
     configure<org.eclipse.edc.plugins.edcbuild.extensions.BuildExtension> {
-        pom {
-            scmConnection.set(fccScmConnection)
-            scmUrl.set(fccScmUrl)
-        }
+        publish.set(false)
     }
 
     configure<CheckstyleExtension> {
         configFile = rootProject.file("resources/edc-checkstyle-config.xml")
         configDirectory.set(rootProject.file("resources"))
+    }
+
+    tasks.test {
+        testLogging {
+            showStandardStreams = true
+        }
     }
 
 }
