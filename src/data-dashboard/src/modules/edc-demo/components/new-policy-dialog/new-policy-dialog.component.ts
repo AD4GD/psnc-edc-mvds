@@ -3,7 +3,7 @@ import { PolicyDefinitionInput } from "../../../mgmt-api-client/model";
 import { MatDialogRef } from "@angular/material/dialog";
 import { JsonLdObject, Policy } from '@think-it-labs/edc-connector-client';
 import { PolicyPresetType } from '../../models/policy-preset-type';
-import { CUSTOM_PRESET, LOCATION_PRESET, PURPOSE_PRESET, TIME_INTERVAL_PRESET } from 'src/modules/app/policy-presets';
+import { CUSTOM_PRESET } from 'src/modules/app/policy-presets';
 import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from 'src/modules/app/policy-rule-types';
 import { PolicyPresetsService } from '../../services/policy-presets.service';
 import { DateTimeService } from '../../services/common/date-time.service';

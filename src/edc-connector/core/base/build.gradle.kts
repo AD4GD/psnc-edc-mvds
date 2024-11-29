@@ -10,6 +10,7 @@ dependencies {
     implementation(libs.edc.dsp)
     implementation(libs.edc.configuration.filesystem)
     implementation(libs.edc.management.api)
+    implementation(libs.edc.http)
 
     implementation(libs.edc.transfer.data.plane.signaling)
 
@@ -38,9 +39,6 @@ dependencies {
     implementation(libs.edc.data.plane.http)
 
     implementation(libs.edc.api.observability)
-
-    // extention for enhancing data dashboard locally
-    api(project(":extensions:data-dashboard-local"))
 
     // enable callbacks
     implementation(libs.edc.callback.event.dispatcher)

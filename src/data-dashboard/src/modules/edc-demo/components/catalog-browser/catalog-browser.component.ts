@@ -70,7 +70,7 @@ export class CatalogBrowserComponent implements OnInit {
         "@context": "http://www.w3.org/ns/odrl.jsonld",
         "@id": `${contractOffer.id}`,
         "@type": "Offer",
-        assigner: "provider",
+        assigner: `${contractOffer.participantId}`,
         target: `${contractOffer.assetId}`,
         obligation: contractOffer.policy.obligation,
         permission: contractOffer.policy.permission,

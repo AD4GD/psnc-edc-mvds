@@ -8,6 +8,7 @@ plugins {
 dependencies {
     implementation(project(":core:base"))
     implementation(project(":extensions:connector-persistence"))
+    implementation(libs.edc.iam.mock)
 }
 
 application {

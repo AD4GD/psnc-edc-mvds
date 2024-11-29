@@ -1,6 +1,7 @@
 {
   "apiKey": "fifi-info-zaneta",
   "managementApiUrl": "http://localhost:19193/management",
-  "catalogUrl": "http://localhost:19195/catalog",
-  "theme": "theme-2"
+  "catalogUrl": "http://localhost:9181/catalog",
+  "theme": "theme-2",
+  "backendUrl": "http://consumer-backend:4000/edr-endpoint"
 }

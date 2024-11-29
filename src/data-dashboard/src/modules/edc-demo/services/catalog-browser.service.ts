@@ -48,6 +48,7 @@ export class CatalogBrowserService {
     const w3Prefix = "http://www.w3.org/ns/dcat#";
     const edcPrefix = "https://w3id.org/edc/v0.0.1/ns/";
     const odrlPrefix = "http://www.w3.org/ns/odrl/2/";
+    const dspacePrefix = "https://w3id.org/dspace/v0.8/";
 
     return queryObservable
       .pipe(map(catalogs => catalogs.map(catalog => {
@@ -97,7 +98,8 @@ export class CatalogBrowserService {
             "http://www.w3.org/ns/dcat#dataset": datasets,
             id: hasPolicy["@id"],
             originator: this.getItemProperty(catalog, "originator", edcPrefix),
-            policy: policy
+            policy: policy,
+            participantId: this.getItemProperty(catalog, "participantId", dspacePrefix),
           };
 
           arr.push(newContractOffer)

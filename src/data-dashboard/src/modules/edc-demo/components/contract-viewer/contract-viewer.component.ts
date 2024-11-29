@@ -158,7 +158,7 @@ export class ContractViewerComponent implements OnInit {
       }
 
       const iniateTransfer : any = {
-        connectorId: "provider",
+        connectorId: contract.providerId,
         counterPartyAddress: contractOffer.originator,
         contractId: contract.id,
         assetId: contractOffer.assetId,
