@@ -292,7 +292,7 @@ federatedcatalog_configmap__05_defaults:
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback', "federatedcatalog" ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else []) + (['minio'] if deploy_minio else [])  + (['identityprovider'] if deploy_identityprovider else [])}}"
+deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback', 'federatedcatalog' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else []) + (['minio'] if deploy_minio else [])  + (['identityprovider'] if deploy_identityprovider else [])}}"
 
 # definitions below are helper definitions - do not change this
 
