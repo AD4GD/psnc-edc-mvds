@@ -87,10 +87,10 @@ identityprovider_resources:
 federatedcatalog_resources:
   requests:
     cpu: "100m"
-    memory: "200Mi"
+    memory: "1000Mi"
   limits:
     cpu: "1"
-    memory: "400Mi"
+    memory: "2000Mi"
 
 deploy_stateful_services: true
 

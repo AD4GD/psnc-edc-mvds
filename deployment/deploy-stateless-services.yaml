@@ -758,7 +758,7 @@
                     securityContext:
                       readOnlyRootFilesystem: false
                       runAsNonRoot: true
-                      runAsUser: 1000
+                      #runAsUser: 1000
                     resources: "{{ federatedcatalog_resources }}"
                     envFrom:
                       - configMapRef:
@@ -770,14 +770,14 @@
                     volumeMounts:
                       - name: "federatedcatalog-tmp"
                         mountPath: "/tmp"
-                      - name: "federatedcatalog-config"
-                        mountPath: "/app/config"
+                      - name: "federatedcatalog-participants-config"
+                        mountPath: "/app/config/participants.json"
                         subPath: "participants.json"
                 volumes:
                   - name: "federatedcatalog-tmp"
                     emptyDir:
                       medium: "Memory"
-                  - name: "federatedcatalog-config"
+                  - name: "federatedcatalog-participants-config"
                     configMap:
                       name: "{{ application }}-federatedcatalog"
 
