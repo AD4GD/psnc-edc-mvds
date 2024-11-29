@@ -57,9 +57,6 @@
                   - name: "protocol"
                     containerPort: 29194
                     protocol: "TCP"
-                  - name: "catalog"
-                    containerPort: 29195
-                    protocol: "TCP"
                   - name: "public"
                     containerPort: 29291
                     protocol: "TCP"
@@ -113,8 +110,6 @@
                 port: 29193
               - name: "protocol"
                 port: 29194
-              - name: "catalog"
-                port: 29195
               - name: "public"
                 port: 29291
               - name: "control"
@@ -141,7 +136,7 @@
               {
                 "apiKey": "fifi-info-zaneta",
                 "managementApiUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/catalog",
+                "catalogUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-3",
                 "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
               }
@@ -163,7 +158,7 @@
                     proxy_pass https://consumer-edc-connector.apps.paas-dev.psnc.pl/management;
                   }
                   location /catalog {
-                    proxy_pass https://consumer-edc-connector.apps.paas-dev.psnc.pl/catalog;
+                    proxy_pass https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog;
                   }
                 }
               }
@@ -305,9 +300,6 @@
                   - name: "protocol"
                     containerPort: 19194
                     protocol: "TCP"
-                  - name: "catalog"
-                    containerPort: 19195
-                    protocol: "TCP"
                   - name: "public"
                     containerPort: 19291
                     protocol: "TCP"
@@ -361,8 +353,6 @@
                 port: 19193
               - name: "protocol"
                 port: 19194
-              - name: "catalog"
-                port: 19195
               - name: "public"
                 port: 19291
               - name: "control"
@@ -389,7 +379,7 @@
               {
                 "apiKey": "fifi-info-zaneta",
                 "managementApiUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
-                "catalogUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/catalog",
+                "catalogUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-2",
                 "backendUrl": ""
               }
@@ -411,7 +401,7 @@
                     proxy_pass https://provider-edc-connector.apps.paas-dev.psnc.pl/management;
                   }
                   location /catalog {
-                    proxy_pass https://provider-edc-connector.apps.paas-dev.psnc.pl/catalog;
+                    proxy_pass https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog;
                   }
                 }
               }
@@ -701,3 +691,116 @@
             - secretRef:
                 name: "{{ application }}-identityprovider"
                 optional: true
+
+    - name: "deploy configmap/{{ application }}-federatedcatalog"
+      when: "deploy_connector"
+      tags:
+        - federatedcatalog
+        - configmap
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "{{ application }}-federatedcatalog"
+            labels:
+              application: "{{ application }}"
+          data:
+            participants.json: |
+              {
+                "consumer": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/protocol",
+                "provider": "https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
+              }
+
+    - name: "deploy deployment/{{ application }}-federatedcatalog"
+      when: "deploy_connector|bool"
+      tags:
+        - federatedcatalog
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-federatedcatalog"
+            labels:
+              component: federatedcatalog
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: federatedcatalog
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: federatedcatalog
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (federatedcatalog_configmap_digest + federatedcatalog_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                ports:
+                  - name: "api"
+                    containerPort: 8080
+                    protocol: "TCP"
+                  - name: "catalog"
+                    containerPort: 8181
+                    protocol: "TCP"
+                containers:
+                  - name: "federatedcatalog"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/federated-catalog:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    securityContext:
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: true
+                      runAsUser: 1000
+                    resources: "{{ federatedcatalog_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-federatedcatalog"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-federatedcatalog"
+                          optional: true
+                    volumeMounts:
+                      - name: "federatedcatalog-tmp"
+                        mountPath: "/tmp"
+                      - name: "federatedcatalog-config"
+                        mountPath: "/app/config"
+                        subPath: "participants.json"
+                volumes:
+                  - name: "federatedcatalog-tmp"
+                    emptyDir:
+                      medium: "Memory"
+                  - name: "federatedcatalog-config"
+                    configMap:
+                      name: "{{ application }}-federatedcatalog"
+
+    - name: "deploy service/{{ application }}-federatedcatalog"
+      when: "deploy_connector"
+      tags:
+        - federatedcatalog
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-federatedcatalog"
+            labels:
+              application: "{{ application }}"
+              component: federatedcatalog
+          spec:
+            ports:
+              - name: "api"
+                port: 8080
+              - name: "catalog"
+                port: 8181
+            selector:
+              application: "{{ application }}"
+              component: federatedcatalog

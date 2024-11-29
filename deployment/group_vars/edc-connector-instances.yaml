@@ -84,6 +84,14 @@ identityprovider_resources:
     cpu: "1"
     memory: "400Mi"
 
+federatedcatalog_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
 deploy_stateful_services: true
 
 deploy_connector: "{{ deploy_stateful_services }}"
@@ -157,8 +165,6 @@ connectorconsumer_configmap__05_defaults:
   WEB_HTTP_PUBLIC_PATH: "/public"
   WEB_HTTP_CONTROL_PORT: "29192"
   WEB_HTTP_CONTROL_PATH: "/control"
-  WEB_HTTP_CATALOG_PORT: "29195"
-  WEB_HTTP_CATALOG_PATH: "/catalog"
   EDC_RECEIVER_HTTP_ENDPOINT: "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
   EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "https://consumer-edc-connector.apps.paas-dev.psnc.pl/control/token"
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
@@ -196,8 +202,6 @@ connectorprovider_configmap__05_defaults:
   WEB_HTTP_PUBLIC_PATH: "/public"
   WEB_HTTP_CONTROL_PORT: "19192"
   WEB_HTTP_CONTROL_PATH: "/control"
-  WEB_HTTP_CATALOG_PORT: "19195"
-  WEB_HTTP_CATALOG_PATH: "/catalog"
   EDC_RECEIVER_HTTP_ENDPOINT: "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
   EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "https://provider-edc-connector.apps.paas-dev.psnc.pl/control/token"
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
@@ -260,6 +264,31 @@ identityprovider_secret__05_defaults:
 
 random_keycloak_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
 random_keycloak_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+
+federatedcatalog_configmap__05_defaults:
+  JVM_ARGS: ""
+  SERVICE_HOST: "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl"
+  WEB_HTTP_PORT: "8080"
+  WEB_HTTP_PATH: "/api"
+  WEB_HTTP_CATALOG_PORT: "8181"
+  WEB_HTTP_CATALOG_PATH: "/catalog"
+  EDC_MVD_PARTICIPANTS_LIST_FILE: "config/participants.json"
+  EDC_WEB_REST_CORS_ENABLED: true
+  EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
+  EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
+  EDC_IDS_ID: "urn:federatedcatalog:psnc"
+  EDC_PARTICIPANT_ID: "federated-catalog"
+  EDC_OAUTH_PROVIDER_JWKS_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/certs"
+  EDC_OAUTH_TOKEN_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_CLIENT_ID: "federated-catalog"
+  EDC_OAUTH_CERTIFICATE_ALIAS: "dapsPublic"
+  EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
+  EDC_OAUTH_PROVIDER_AUDIENCE: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
+  EDC_AGENT_IDENTITY_KEY: "client_id"
+  EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #
