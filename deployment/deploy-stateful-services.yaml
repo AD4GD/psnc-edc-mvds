@@ -66,13 +66,6 @@
                   backup.velero.io/backup-volumes: "{{ 'minio-data' if use_minio_backup_velero_io_backup_volumes_annotation else '' }}"
               spec:
                 serviceAccountName: "run-any-uid"
-                initContainers:
-                  - name: "permissions-fix"
-                    image: "{{ minio_init_containers_base_image }}"
-                    command: ["chown", "-v", "999:999", "/mount"]
-                    volumeMounts:
-                      - name: "minio-data"
-                        mountPath: "/mount"
                 containers:
                   - name: "minio"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/minio:{{ stateful_services_image_tag }}"

@@ -381,7 +381,7 @@
                 "managementApiUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
                 "catalogUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-2",
-                "backendUrl": ""
+                "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
               }
             nginx.conf: |
               events {}
@@ -764,20 +764,17 @@
                       - configMapRef:
                           name: "{{ application }}-federatedcatalog"
                           optional: true
-                      - secretRef:
-                          name: "{{ application }}-federatedcatalog"
-                          optional: true
                     volumeMounts:
                       - name: "federatedcatalog-tmp"
                         mountPath: "/tmp"
-                      - name: "federatedcatalog-config"
-                        mountPath: "/app/config"
+                      - name: "federatedcatalog-participants-config"
+                        mountPath: "/app/config/participants.json"
                         subPath: "participants.json"
                 volumes:
                   - name: "federatedcatalog-tmp"
                     emptyDir:
                       medium: "Memory"
-                  - name: "federatedcatalog-config"
+                  - name: "federatedcatalog-participants-config"
                     configMap:
                       name: "{{ application }}-federatedcatalog"
 
