@@ -770,16 +770,16 @@
                     volumeMounts:
                       - name: "federatedcatalog-tmp"
                         mountPath: "/tmp"
-                      - name: "federatedcatalog-participants-config"
-                        mountPath: "/app/config/participants.json"
-                        subPath: "participants.json"
+                      #- name: "federatedcatalog-participants-config"
+                      #  mountPath: "/app/config/participants.json"
+                      #  subPath: "participants.json"
                 volumes:
                   - name: "federatedcatalog-tmp"
                     emptyDir:
                       medium: "Memory"
-                  - name: "federatedcatalog-participants-config"
-                    configMap:
-                      name: "{{ application }}-federatedcatalog"
+                  #- name: "federatedcatalog-participants-config"
+                  #  configMap:
+                  #    name: "{{ application }}-federatedcatalog"
 
     - name: "deploy service/{{ application }}-federatedcatalog"
       when: "deploy_connector"
