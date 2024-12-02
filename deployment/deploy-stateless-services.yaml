@@ -381,7 +381,7 @@
                 "managementApiUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
                 "catalogUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-2",
-                "backendUrl": ""
+                "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
               }
             nginx.conf: |
               events {}
