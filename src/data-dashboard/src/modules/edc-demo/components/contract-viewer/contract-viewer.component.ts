@@ -32,7 +32,7 @@ interface RunningTransferProcess {
 }
 
 interface ContractAgreementWithOfferData extends ContractAgreement {
-  contractOffer?: ContractOffer;
+  contractOffer: ContractOffer | null;
 }
 
 @Component({
@@ -85,7 +85,8 @@ export class ContractViewerComponent implements OnInit {
         });
   
         // Combine all observables
-        return forkJoin(contractObservables);
+        return forkJoin(contractObservables).pipe(
+          map(results => results.filter(item => item !== null)));
       })
     );
   }
@@ -197,13 +198,14 @@ export class ContractViewerComponent implements OnInit {
     return this.catalogService.getContractOffers();
   }
 
-  private getContractOfferForAssetId(assetId: string, contractOffers: ContractOffer[]): ContractOffer {
+  private getContractOfferForAssetId(assetId: string, contractOffers: ContractOffer[]): ContractOffer | null {
     console.log(assetId);
     const offer = contractOffers.find(o => o.assetId === assetId);
     if (offer) {
       return offer;
     }
-    throw new Error(`No offer found for asset ID ${assetId}`);
+    console.log(`No offer found for asset ID ${assetId}`);
+    return null;
   }
 
   private startPolling(transferProcessId: IdResponse, contractId: string, storageType: string, proxyDataAddressOptions: any) {
