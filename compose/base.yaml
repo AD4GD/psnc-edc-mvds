@@ -26,8 +26,8 @@ services:
     ports:
       - "18080:80"
     volumes:
-      - ../src/data-dashboard/deployment/conf-provider/provider.nginx.conf:/etc/nginx/nginx.conf
-      - ../src/data-dashboard/deployment/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
+      - ../docker/data-dashboard/config/conf-provider/provider.nginx.conf:/etc/nginx/nginx.conf
+      - ../docker/data-dashboard/config/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
     user: "root"
     depends_on:
       - provider-connector
@@ -71,8 +71,8 @@ services:
     ports:
       - "28080:80"
     volumes:
-      - ../src/data-dashboard/deployment/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
-      - ../src/data-dashboard/deployment/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
+      - ../docker/data-dashboard/config/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
+      - ../docker/data-dashboard/config/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
     user: "root"
     depends_on:
       - consumer-connector
