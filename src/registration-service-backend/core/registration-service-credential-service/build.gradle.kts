@@ -14,4 +14,3 @@ dependencies {
     testImplementation(testFixtures(project(":spi:registration-service-spi")))
     testImplementation(testFixtures(project(":core:registration-service-client")))
 }
-

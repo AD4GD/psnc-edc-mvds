@@ -105,7 +105,7 @@ public class ParticipantManagerDcp implements ParticipantManager {
         participantStore.save(participant);
         return true;
     }
-    
+
 
     private ProcessorImpl<Participant> processParticipantsInState(ParticipantStatus status, Function<Participant, Boolean> function) {
         return ProcessorImpl.Builder.newInstance(() -> participantStore.listParticipantsWithStatus(status))

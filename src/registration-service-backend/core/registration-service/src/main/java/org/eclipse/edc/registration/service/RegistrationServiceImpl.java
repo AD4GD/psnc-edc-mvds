@@ -22,12 +22,15 @@ import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.telemetry.Telemetry;
 import org.eclipse.edc.transaction.spi.TransactionContext;
 import org.jetbrains.annotations.Nullable;
+import org.psnc.mvd.identity.IdentityProviderClient;
 import org.eclipse.edc.registration.spi.model.ParticipantStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static java.lang.String.format;
+import static org.eclipse.edc.registration.spi.model.ParticipantStatus.DELETED;
 import static org.eclipse.edc.registration.spi.model.ParticipantStatus.ONBOARDING_INITIATED;
 
 public class RegistrationServiceImpl implements RegistrationService {
@@ -36,12 +39,16 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final ParticipantStore participantStore;
     private final Telemetry telemetry;
     private final TransactionContext transactionContext;
+    private final IdentityProviderClient identityProviderClient;
 
-    public RegistrationServiceImpl(Monitor monitor, ParticipantStore participantStore, Telemetry telemetry, TransactionContext transactionContext) {
+
+    public RegistrationServiceImpl(
+        Monitor monitor, ParticipantStore participantStore, Telemetry telemetry, TransactionContext transactionContext, IdentityProviderClient identityProviderClient) {
         this.monitor = monitor;
         this.participantStore = participantStore;
         this.telemetry = telemetry;
         this.transactionContext = transactionContext;
+        this.identityProviderClient = identityProviderClient;
     }
 
     @Nullable
@@ -73,12 +80,21 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         var participant = participantStore.findByDid(did);
         participant.forceTransitionTo(newStatus);
-        
+
         transactionContext.execute(() -> participantStore.save(participant));
+    }
+
+    public void updateParticipantClaims(String did, Map<String, String> updatedClaims) {
+        monitor.info("Updating participant's claims in the dataspace.");
+        identityProviderClient.updateClient(did, updatedClaims);
     }
 
     public void deleteParticipant(String did) {
         monitor.info("Deleting participant from the dataspace.");
-        transactionContext.execute(() -> participantStore.delete(did));
+
+        var participant = participantStore.findByDid(did);
+        participant.forceTransitionTo(DELETED);
+
+        transactionContext.execute(() -> participantStore.save(participant));
     }
 }

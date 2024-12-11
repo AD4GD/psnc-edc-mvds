@@ -56,4 +56,3 @@ public class OnboardingPolicyVerifierExtension implements ServiceExtension {
         return new OnboardingPolicyVerifierImpl(monitor, didResolverRegistry, credentialsVerifier, policyEngine, dataspaceRegistrationPolicy);
     }
 }
-

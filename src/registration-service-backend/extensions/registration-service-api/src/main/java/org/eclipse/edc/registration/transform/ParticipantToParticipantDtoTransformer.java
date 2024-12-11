@@ -56,6 +56,7 @@ public class ParticipantToParticipantDtoTransformer implements TypeTransformer<P
             case ONBOARDING_INITIATED, AUTHORIZING, AUTHORIZED -> ParticipantStatusDto.ONBOARDING_IN_PROGRESS;
             case ONBOARDED -> ParticipantStatusDto.ONBOARDED;
             case DENIED, FAILED -> ParticipantStatusDto.DENIED;
+            case DELETED -> ParticipantStatusDto.DELETED;
         };
     }
 }

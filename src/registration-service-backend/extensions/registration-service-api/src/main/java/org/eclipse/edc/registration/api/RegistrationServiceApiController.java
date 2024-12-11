@@ -43,11 +43,10 @@ import org.eclipse.edc.web.spi.exception.ObjectNotFoundException;
 import org.eclipse.edc.registration.spi.model.ParticipantStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.eclipse.edc.registration.auth.DidJwtAuthenticationFilter.CALLER_DID_HEADER;
 
 
 /**
@@ -61,6 +60,8 @@ public class RegistrationServiceApiController {
 
     private final RegistrationService service;
     private final TypeTransformerRegistry transformerRegistry;
+
+    private final String CALLER_DID_HEADER = "CallerDid";
 
     /**
      * Constructs an instance of {@link RegistrationServiceApiController}
@@ -169,12 +170,23 @@ public class RegistrationServiceApiController {
     @Operation(description = "Asynchronously updates dataspace participant's status.")
     @ApiResponse(responseCode = "204", description = "No content")
     public void updateParticipantStatus(
-        @PathParam("did") String did, 
+        @PathParam("did") String did,
         @QueryParam("status") ParticipantStatus newStatus
         ) {
         var issuer = Objects.requireNonNull(did);
 
         service.updateParticipantStatus(issuer, newStatus);
+    }
+
+    @Path("/participant/claims/{did}")
+    @PATCH
+    @Operation(description = "Asynchronously updates dataspace participant's claims.")
+    @ApiResponse(responseCode = "204", description = "No content")
+    public void updateParticipantClaims(
+        @PathParam("did") String did,
+        Map<String, String> updatedClaims
+        ) {
+        service.updateParticipantClaims(did, updatedClaims);
     }
 
     @Path("/participant/{did}")

@@ -19,7 +19,7 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.edc.ext.identity.did.crypto)
+    //implementation(libs.edc.ext.identity.did.crypto)
     implementation(libs.edc.util)
     implementation(libs.edc.spi.http)
     implementation(libs.edc.core.connector)

@@ -27,7 +27,7 @@ class InMemoryParticipantStoreTest extends ParticipantStoreTestBase {
     void setup() {
         store = new InMemoryParticipantStore();
     }
-    
+
     @Override
     protected ParticipantStore getStore() {
         return store;

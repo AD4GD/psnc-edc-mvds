@@ -13,7 +13,8 @@ services:
       - "38182:8182"
     depends_on:
       - registration-service-postgres
-  
+      - identity-provider
+
   registration-service-postgres:
     image: docker.io/bitnami/postgresql:11
     restart: always

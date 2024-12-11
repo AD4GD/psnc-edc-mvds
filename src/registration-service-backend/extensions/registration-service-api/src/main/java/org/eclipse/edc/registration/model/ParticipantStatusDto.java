@@ -24,4 +24,5 @@ public enum ParticipantStatusDto {
     ONBOARDING_IN_PROGRESS, // participant onboarding in progress
     ONBOARDED, // participant is fully onboarded
     DENIED, // participant onboarding request denied
+    DELETED,
 }

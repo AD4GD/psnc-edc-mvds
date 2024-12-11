@@ -26,11 +26,13 @@ import org.eclipse.edc.spi.system.ExecutorInstrumentation;
 import org.eclipse.edc.spi.telemetry.Telemetry;
 import org.eclipse.edc.statemachine.ProcessorImpl;
 import org.eclipse.edc.statemachine.StateMachineManager;
+import org.psnc.mvd.identity.IdentityProviderClient;
 
 import java.util.function.Function;
 
 import static org.eclipse.edc.registration.spi.model.ParticipantStatus.AUTHORIZED;
 import static org.eclipse.edc.registration.spi.model.ParticipantStatus.AUTHORIZING;
+import static org.eclipse.edc.registration.spi.model.ParticipantStatus.DELETED;
 import static org.eclipse.edc.registration.spi.model.ParticipantStatus.ONBOARDING_INITIATED;
 
 /**
@@ -43,13 +45,16 @@ public class ParticipantManagerOauth2 implements ParticipantManager {
     private final StateMachineManager stateMachineManager;
     private final VerifiableCredentialService vcService;
     private final Telemetry telemetry;
+    private final IdentityProviderClient identityProviderClient;
+
 
     public ParticipantManagerOauth2(Monitor monitor, ParticipantStore participantStore, OnboardingPolicyVerifier participantVerifier, ExecutorInstrumentation executorInstrumentation,
-                              VerifiableCredentialService vcService, Telemetry telemetry) {
+                              VerifiableCredentialService vcService, Telemetry telemetry, IdentityProviderClient identityProviderClient) {
         this.participantStore = participantStore;
         this.participantVerifier = participantVerifier;
         this.vcService = vcService;
         this.telemetry = telemetry;
+        this.identityProviderClient = identityProviderClient;
 
         // default wait five seconds
         WaitStrategy waitStrategy = () -> 5000L;
@@ -59,6 +64,7 @@ public class ParticipantManagerOauth2 implements ParticipantManager {
                 .processor(processParticipantsInState(ONBOARDING_INITIATED, this::processOnboardingInitiated))
                 .processor(processParticipantsInState(AUTHORIZING, this::processAuthorizing))
                 .processor(processParticipantsInState(AUTHORIZED, this::processAuthorized))
+                .processor(processParticipantsInState(DELETED, this::processDeleted))
                 .build();
     }
 
@@ -81,8 +87,12 @@ public class ParticipantManagerOauth2 implements ParticipantManager {
 
     @WithSpan
     private Boolean processAuthorizing(Participant participant) {
-        
-        participant.transitionAuthorized();
+        var result = identityProviderClient.addClient(participant.getDid());
+        if (result.succeeded()) {
+            participant.transitionAuthorized();
+        } else {
+            participant.transitionFailed();
+        }
         participantStore.save(participant);
         return true;
     }
@@ -93,7 +103,17 @@ public class ParticipantManagerOauth2 implements ParticipantManager {
         participantStore.save(participant);
         return true;
     }
-    
+
+    @WithSpan
+    private Boolean processDeleted(Participant participant) {
+        var result = identityProviderClient.deleteClient(participant.getDid());
+        if (result.failed()) {
+            return false;
+        }
+
+        participantStore.delete(participant.getDid());
+        return true;
+    }
 
     private ProcessorImpl<Participant> processParticipantsInState(ParticipantStatus status, Function<Participant, Boolean> function) {
         return ProcessorImpl.Builder.newInstance(() -> participantStore.listParticipantsWithStatus(status))

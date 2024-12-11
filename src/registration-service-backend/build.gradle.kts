@@ -12,10 +12,11 @@ val edcScmUrl: String by project
 
 buildscript {
     dependencies {
-        val edcGradlePluginsVersion: String by project
-        classpath("org.eclipse.edc.edc-build:org.eclipse.edc.edc-build.gradle.plugin:${edcGradlePluginsVersion}")
+        classpath(libs.edc.build.plugin)
     }
 }
+
+val edcVersion = libs.versions.edc
 
 allprojects {
 
@@ -23,7 +24,7 @@ allprojects {
 
     // configure which version of the annotation processor to use. defaults to the same version as the plugin
     configure<org.eclipse.edc.plugins.autodoc.AutodocExtension> {
-        processorVersion.set(annotationProcessorVersion)
+        processorVersion.set(edcVersion)
         outputDirectory.set(project.buildDir)
     }
 

@@ -20,9 +20,9 @@ plugins {
 
 dependencies {
     implementation(libs.edc.spi.core)
-    
+
     runtimeOnly(project(":core:registration-service"))
-    runtimeOnly(project(":core:registration-service-credential-service"))
+    //runtimeOnly(project(":core:registration-service-credential-service"))
     runtimeOnly(project(":extensions:registration-service-api"))
     runtimeOnly(libs.edc.ext.identity.did.web)
     runtimeOnly(libs.edc.ext.identity.did.core)
@@ -34,8 +34,8 @@ dependencies {
     runtimeOnly(libs.edc.ext.micrometer.jetty)
     runtimeOnly(libs.edc.ext.micrometer.jersey)
     runtimeOnly(libs.edc.ext.configuration.filesystem)
-    runtimeOnly(libs.ih.core.verifier)
-    runtimeOnly(libs.ih.ext.verifier.jwt)
+    //runtimeOnly(libs.ih.core.verifier)
+    //runtimeOnly(libs.ih.ext.verifier.jwt)
 
     runtimeOnly(project(":extensions:store:sql:participant-store-sql"))
 

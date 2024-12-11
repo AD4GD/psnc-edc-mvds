@@ -37,4 +37,3 @@ cd OtherDirectory
 mvn dependency:copy -Dartifact=org.eclipse.edc:registration-service-cli:1.0.0-SNAPSHOT:jar:all -DoutputDirectory=.
 java -jar registration-service-cli-1.0.0-SNAPSHOT-all.jar --help
 ```
-

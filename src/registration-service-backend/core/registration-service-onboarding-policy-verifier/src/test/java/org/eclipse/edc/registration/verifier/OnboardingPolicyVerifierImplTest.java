@@ -82,7 +82,7 @@ class OnboardingPolicyVerifierImplTest {
             return verifiableCredentials.equals(agent.getClaims()) &&
                     Map.of().equals(agent.getAttributes());
         };
-        
+
         when(policyEngine.evaluate(eq(PARTICIPANT_REGISTRATION_SCOPE), eq(policy), argThat(argumentMatcher)))
                 .thenReturn(Result.success());
 

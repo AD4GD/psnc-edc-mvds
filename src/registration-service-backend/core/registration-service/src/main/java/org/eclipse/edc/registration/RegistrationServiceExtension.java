@@ -33,6 +33,9 @@ import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.telemetry.Telemetry;
 import org.eclipse.edc.transaction.spi.TransactionContext;
 
+import org.psnc.mvd.identity.IdentityProviderClient;
+
+
 @Extension(RegistrationServiceExtension.NAME)
 public class RegistrationServiceExtension implements ServiceExtension {
 
@@ -54,6 +57,9 @@ public class RegistrationServiceExtension implements ServiceExtension {
     private VerifiableCredentialService vcService;
 
     @Inject
+    private IdentityProviderClient identityProviderClient;
+
+    @Inject
     private Telemetry telemetry;
 
     @Inject
@@ -68,7 +74,8 @@ public class RegistrationServiceExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        participantManager = new ParticipantManagerOauth2(monitor, participantStore, participantVerifier, executorInstrumentation, vcService, telemetry);
+        participantManager = new ParticipantManagerOauth2(
+            monitor, participantStore, participantVerifier, executorInstrumentation, vcService, telemetry, identityProviderClient);
     }
 
     @Override
@@ -83,7 +90,7 @@ public class RegistrationServiceExtension implements ServiceExtension {
 
     @Provider
     public RegistrationService registrationService() {
-        return new RegistrationServiceImpl(monitor, participantStore, telemetry, transactionContext);
+        return new RegistrationServiceImpl(monitor, participantStore, telemetry, transactionContext, identityProviderClient);
     }
 
     @Provider(isDefault = true)

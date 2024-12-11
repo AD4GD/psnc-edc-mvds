@@ -12,7 +12,7 @@ Please apply this [schema](docs/schema.sql) to your SQL database.
 
 ## Configuration
 
-| Key                             | Description                       | Mandatory | 
+| Key                             | Description                       | Mandatory |
 |:--------------------------------|:----------------------------------|-----------|
 | edc.datasource.participant.name | Datasource used by this extension | X         |
 

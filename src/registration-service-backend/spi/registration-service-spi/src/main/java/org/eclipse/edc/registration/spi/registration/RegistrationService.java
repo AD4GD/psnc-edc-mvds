@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.eclipse.edc.registration.spi.model.ParticipantStatus;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Registration service for dataspace participants.
@@ -49,6 +50,8 @@ public interface RegistrationService {
     void addParticipant(String did);
 
     void updateParticipantStatus(String did, ParticipantStatus newStatus);
+
+    void updateParticipantClaims(String did, Map<String, String> updatedClaims);
 
     void deleteParticipant(String did);
 }
