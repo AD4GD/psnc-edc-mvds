@@ -17,6 +17,7 @@ WORKDIR /app
 # Create gradlew caching layer
 COPY $PROJECT_PATH/gradlew /app/
 COPY $PROJECT_PATH/gradle /app/gradle
+RUN chmod +x /app/gradlew
 # Cache gradlew wrapper
 RUN ./gradlew init
 RUN ./gradlew wrapper
