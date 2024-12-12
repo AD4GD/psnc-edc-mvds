@@ -9,4 +9,3 @@ dependencies {
     //implementation(libs.edc.ext.identity.did.crypto)
     implementation(libs.keycloak.admin.client)
 }
-

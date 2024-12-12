@@ -3,37 +3,47 @@ FROM ${BASE_IMAGE}
 
 # available types: daps, no-daps
 ARG LAUNCHER_TYPE="daps"
-
 ARG JVM_ARGS=""
 
+ENV PROJECT_PATH="src/edc-connector"
+
+# Install required tools
 RUN apt update \
-    && apt install -y curl \
+    && apt install -y curl unzip \
     && rm -rf /var/cache/apt/archives /var/lib/apt/lists
 
 WORKDIR /app
 
-# Copy the source code
-COPY src/edc-connector/ /app/
+# Create gradlew caching layer
+COPY $PROJECT_PATH/gradlew /app/
+COPY $PROJECT_PATH/gradle /app/gradle
+# Cache gradlew wrapper
+RUN ./gradlew init
+RUN ./gradlew wrapper
 
-# Ensure the Gradle wrapper is executable
+# Copy the remaining source code
+COPY $PROJECT_PATH/ /app/
+
 RUN chmod +x /app/gradlew
 
-# Build the project inside the container
+# Build the project
 RUN ./gradlew launchers:$LAUNCHER_TYPE:build --no-daemon
-ENV CONNECTOR_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/connector.jar
-# Copy the built JAR to /app/app.jar
-RUN cp $CONNECTOR_BUILD_PATH /app/app.jar
 
-RUN touch /app/empty-vault.properties
-RUN mkdir /app/config
-RUN mkdir /app/certs
+# Define the path to the built JAR
+ENV APP_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/connector.jar
+
+# Copy the built JAR
+RUN cp $APP_BUILD_PATH /app/app.jar
+
+# Create directories and copy configurations
+RUN touch /app/empty-vault.properties \
+    && mkdir /app/config /app/certs
 COPY ./docker/connector/config/* /app/config/
 COPY ./docker/connector/certs/* /app/certs/
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 
-# Use "exec" for graceful termination (SIGINT) to reach JVM.
-# ARG can not be used in ENTRYPOINT so storing values in ENV variables
+# Define the entrypoint
 ENV JVM_ARGS=$JVM_ARGS
 ENTRYPOINT [ "sh", "-c", \
-    "exec java $JVM_ARGS -jar /app/app.jar"]
+    "exec java $JVM_ARGS -jar /app/app.jar" ]

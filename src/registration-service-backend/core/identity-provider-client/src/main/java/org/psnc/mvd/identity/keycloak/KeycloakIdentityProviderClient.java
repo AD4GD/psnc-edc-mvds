@@ -44,7 +44,7 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
 
     @Override
     public StatusResult<IdentityClientModel> getClient(String clientId) {
-        
+
         var realm = settings.getIdentityRealm();
         List<ClientRepresentation> clients = keycloakClient.realm(realm).clients().findAll();
 
@@ -52,7 +52,7 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
                 .filter(c -> clientId.equals(c.getClientId()))
                 .findFirst()
                 .orElse(null);
-        
+
         var clientModel = new IdentityClientModel(clientId, null);
 
         String clientUuid = keycloakClient.realm(realm).clients().findByClientId(clientId).get(0).getId();
@@ -61,7 +61,7 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
         for (ClientScopeRepresentation scope : clientScopes) {
             monitor.debug("Client Scope Name: " + scope.getName());
         }
-        
+
         return StatusResult.success(clientModel);
     }
 
@@ -80,7 +80,7 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
 
     @Override
     public StatusResult<Void> updateClient(String clientId, Map<String, String> claims) {
-        var realm = settings.getIdentityRealm();        
+        var realm = settings.getIdentityRealm();
         var clientInternalId = getInternalClientId(clientId);
         var clientResource = keycloakClient.realm(realm).clients().get(clientInternalId);
         var protocolMappers = clientResource.getProtocolMappers();
@@ -95,7 +95,7 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
 
         var realm = settings.getIdentityRealm();
         String clientInternalId = getInternalClientId(clientId);
-        
+
         if (clientInternalId != null) {
             keycloakClient.realm(realm).clients().get(clientInternalId).remove();
         }
@@ -116,11 +116,11 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
     }
 
     private void createOrUpdate(ProtocolMappersResource mappers, String clientId, Map<String, String> claims) {
-        
+
         for (var claim : claims.entrySet()) {
             var claimId = claim.getKey();
             var claimValue = claim.getValue();
-            
+
             var isExists = mappers.getMappers().stream().anyMatch(x -> x.getName().equals(claimId));
 
             if (isExists) {

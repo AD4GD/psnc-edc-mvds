@@ -40,7 +40,7 @@ public class IdentityProviderClientServiceExtension implements ServiceExtension 
 
     @Inject
     private Monitor monitor;
-    
+
     @Override
     public String name() {
         return NAME;
@@ -68,13 +68,13 @@ public class IdentityProviderClientServiceExtension implements ServiceExtension 
         var identityRealm = context.getSetting(IDENTITYPROVIDER_IDENTITY_REALM_NAME_SETTING, "DAPS");
 
         var settings = new IdentityProviderSettings(
-                adminLogin, 
-                adminPassword, 
-                serverUrl, 
-                realm, 
+                adminLogin,
+                adminPassword,
+                serverUrl,
+                realm,
                 adminClient,
                 identityRealm
-        ); 
+        );
 
         return new KeycloakIdentityProviderClient(monitor, settings);
     }
