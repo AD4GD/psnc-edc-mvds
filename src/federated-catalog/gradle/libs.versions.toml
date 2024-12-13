@@ -10,6 +10,7 @@ jackson = "2.18.1"
 jupiter = "5.11.3"
 assertj = "3.26.3"
 postgres = "42.7.4"
+flyway = "9.0.1"
 
 [libraries]
 edc-build-plugin = { module = "org.eclipse.edc.edc-build:org.eclipse.edc.edc-build.gradle.plugin", version.ref = "edc" }
@@ -36,6 +37,11 @@ edc-dpf-selector-spi = { module = "org.eclipse.edc:data-plane-selector-spi", ver
 edc-ext-http = { module = "org.eclipse.edc:http", version.ref = "edc" }
 edc-iam-mock = { module = "org.eclipse.edc:iam-mock", version.ref = "edc" }
 
+edc-fc-target-node-directory-sql = { module = "org.eclipse.edc:target-node-directory-sql", version.ref = "edc" }
+edc-fc-catalog-cache-sql = { module = "org.eclipse.edc:federated-catalog-cache-sql", version.ref = "edc" }
+
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway"}
+
 edc-dsp-catalog-http-dispatcher = { module = "org.eclipse.edc:dsp-catalog-http-dispatcher", version.ref = "edc" }
 
 edc-oauth2-core = { module = "org.eclipse.edc:oauth2-core", version.ref = "edc" }
@@ -55,8 +61,11 @@ edc-did-web = { module = "org.eclipse.edc:identity-did-web", version.ref = "edc"
 edc-oauth2-client = { module = "org.eclipse.edc:oauth2-client", version.ref = "edc" }
 edc-sql-core = { module = "org.eclipse.edc:sql-core", version.ref = "edc" }
 edc-sql-pool = { module = "org.eclipse.edc:sql-pool-apache-commons", version.ref = "edc" }
-edc-sql-transactionlocal = { module = "org.eclipse.edc:transaction-local", version.ref = "edc" }
+edc-sql-transaction-local = { module = "org.eclipse.edc:transaction-local", version.ref = "edc" }
 edc-sql-bootstrapper = { module = "org.eclipse.edc:sql-bootstrapper", version.ref = "edc" }
+
+edc-crawler-spi = { module = "org.eclipse.edc:crawler-spi", version.ref = "edc" }
+
 edc-junit = { module = "org.eclipse.edc:junit", version.ref = "edc" }
 edc-json-ld-lib = { module = "org.eclipse.edc:json-ld-lib", version.ref = "edc" }
 edc-spi-catalog = { module = "org.eclipse.edc:catalog-spi", version.ref = "edc" }
@@ -69,9 +78,10 @@ edc-spi-jsonld = { module = "org.eclipse.edc:json-ld-spi", version.ref = "edc" }
 edc-spi-transform = { module = "org.eclipse.edc:transform-spi", version.ref = "edc" }
 edc-spi-dataplane-selector = { module = "org.eclipse.edc:data-plane-selector-spi", version.ref = "edc" }
 edc-spi-transaction-datasource = { module = "org.eclipse.edc:transaction-datasource-spi", version.ref = "edc" }
+edc-spi-transaction = { module = "org.eclipse.edc:transaction-spi", version.ref = "edc" }
+
 failsafe-core = { module = "dev.failsafe:failsafe", version.ref = "failsafe" }
 restAssured = { module = "io.rest-assured:rest-assured", version.ref = "restAssured" }
-
 
 # EDC libs
 edc-lib-boot = { module = "org.eclipse.edc:boot-lib", version.ref = "edc" }
@@ -97,7 +107,7 @@ edc-controlplane-transform = { module = "org.eclipse.edc:control-plane-transform
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jupiter" }
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
-postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres" }
 
 [bundles]
 edc-connector = ["edc-boot", "edc-core-connector", "edc-core-jersey", "edc-api-observability", "edc-config-filesystem",
