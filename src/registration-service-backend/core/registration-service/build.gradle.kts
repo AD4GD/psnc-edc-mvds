@@ -7,6 +7,7 @@ dependencies {
     api(libs.edc.spi.transaction)
 
     implementation(project(":core:identity-provider-client"))
+    implementation(project(":core:federated-catalog-client"))
 
     implementation(libs.edc.core.stateMachine)
     implementation(libs.edc.ext.http)

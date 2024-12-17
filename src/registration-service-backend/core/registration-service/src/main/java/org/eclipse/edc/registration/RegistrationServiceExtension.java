@@ -32,7 +32,7 @@ import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.telemetry.Telemetry;
 import org.eclipse.edc.transaction.spi.TransactionContext;
-
+import org.psnc.mvd.fc.FederatedCatalogClient;
 import org.psnc.mvd.identity.IdentityProviderClient;
 
 
@@ -58,6 +58,9 @@ public class RegistrationServiceExtension implements ServiceExtension {
 
     @Inject
     private IdentityProviderClient identityProviderClient;
+
+    @Inject
+    private FederatedCatalogClient federatedCatalogClient;
 
     @Inject
     private Telemetry telemetry;
@@ -90,7 +93,8 @@ public class RegistrationServiceExtension implements ServiceExtension {
 
     @Provider
     public RegistrationService registrationService() {
-        return new RegistrationServiceImpl(monitor, participantStore, telemetry, transactionContext, identityProviderClient);
+        return new RegistrationServiceImpl(
+            monitor, participantStore, telemetry, transactionContext, identityProviderClient, federatedCatalogClient);
     }
 
     @Provider(isDefault = true)

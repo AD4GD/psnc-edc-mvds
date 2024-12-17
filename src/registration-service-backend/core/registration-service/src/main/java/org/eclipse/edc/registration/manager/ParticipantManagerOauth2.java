@@ -26,6 +26,7 @@ import org.eclipse.edc.spi.system.ExecutorInstrumentation;
 import org.eclipse.edc.spi.telemetry.Telemetry;
 import org.eclipse.edc.statemachine.ProcessorImpl;
 import org.eclipse.edc.statemachine.StateMachineManager;
+import org.psnc.mvd.fc.FederatedCatalogClient;
 import org.psnc.mvd.identity.IdentityProviderClient;
 
 import java.util.function.Function;
@@ -41,18 +42,15 @@ import static org.eclipse.edc.registration.spi.model.ParticipantStatus.ONBOARDIN
 public class ParticipantManagerOauth2 implements ParticipantManager {
 
     private final ParticipantStore participantStore;
-    private final OnboardingPolicyVerifier participantVerifier;
     private final StateMachineManager stateMachineManager;
-    private final VerifiableCredentialService vcService;
     private final Telemetry telemetry;
     private final IdentityProviderClient identityProviderClient;
 
 
     public ParticipantManagerOauth2(Monitor monitor, ParticipantStore participantStore, OnboardingPolicyVerifier participantVerifier, ExecutorInstrumentation executorInstrumentation,
-                              VerifiableCredentialService vcService, Telemetry telemetry, IdentityProviderClient identityProviderClient) {
+                              VerifiableCredentialService vcService, Telemetry telemetry,
+                              IdentityProviderClient identityProviderClient) {
         this.participantStore = participantStore;
-        this.participantVerifier = participantVerifier;
-        this.vcService = vcService;
         this.telemetry = telemetry;
         this.identityProviderClient = identityProviderClient;
 

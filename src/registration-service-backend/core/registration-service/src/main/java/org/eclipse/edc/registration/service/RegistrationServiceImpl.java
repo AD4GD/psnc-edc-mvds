@@ -23,6 +23,7 @@ import org.eclipse.edc.spi.telemetry.Telemetry;
 import org.eclipse.edc.transaction.spi.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 import org.psnc.mvd.identity.IdentityProviderClient;
+import org.psnc.mvd.fc.FederatedCatalogClient;
 import org.eclipse.edc.registration.spi.model.ParticipantStatus;
 
 import java.util.List;
@@ -40,15 +41,22 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final Telemetry telemetry;
     private final TransactionContext transactionContext;
     private final IdentityProviderClient identityProviderClient;
+    private final FederatedCatalogClient federatedCatalogClient;
 
 
     public RegistrationServiceImpl(
-        Monitor monitor, ParticipantStore participantStore, Telemetry telemetry, TransactionContext transactionContext, IdentityProviderClient identityProviderClient) {
+        Monitor monitor,
+        ParticipantStore participantStore,
+        Telemetry telemetry,
+        TransactionContext transactionContext,
+        IdentityProviderClient identityProviderClient,
+        FederatedCatalogClient federatedCatalogClient) {
         this.monitor = monitor;
         this.participantStore = participantStore;
         this.telemetry = telemetry;
         this.transactionContext = transactionContext;
         this.identityProviderClient = identityProviderClient;
+        this.federatedCatalogClient = federatedCatalogClient;
     }
 
     @Nullable
@@ -62,8 +70,10 @@ public class RegistrationServiceImpl implements RegistrationService {
         return transactionContext.execute(participantStore::listParticipants);
     }
 
-    public void addParticipant(String did) {
+    public void addParticipant(String did, String protocolUrl) {
         monitor.info("Adding a participant in the dataspace.");
+
+        federatedCatalogClient.addParticipant(did, protocolUrl);
 
         var participant = Participant.Builder.newInstance()
                 .id(UUID.randomUUID().toString())
@@ -92,9 +102,13 @@ public class RegistrationServiceImpl implements RegistrationService {
     public void deleteParticipant(String did) {
         monitor.info("Deleting participant from the dataspace.");
 
+        federatedCatalogClient.removeParticipant(did);
+
         var participant = participantStore.findByDid(did);
         participant.forceTransitionTo(DELETED);
 
-        transactionContext.execute(() -> participantStore.save(participant));
+        transactionContext.execute(() -> {
+            participantStore.save(participant);
+        });
     }
 }

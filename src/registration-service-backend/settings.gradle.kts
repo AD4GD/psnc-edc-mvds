@@ -24,9 +24,8 @@ dependencyResolutionManagement {
 
 include(":core:registration-service")
 include(":core:identity-provider-client")
+include(":core:federated-catalog-client")
 include(":core:registration-service-client")
-//include(":core:registration-service-credential-service")
-//include(":core:registration-service-onboarding-policy-verifier")
 include(":extensions:registration-service-api")
 include(":extensions:store:sql:participant-store-sql")
 include(":launcher")

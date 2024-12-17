@@ -47,7 +47,7 @@ public interface RegistrationService {
      *
      * @param did the DID of the dataspace participant to add.
      */
-    void addParticipant(String did);
+    void addParticipant(String did, String protocolUrl);
 
     void updateParticipantStatus(String did, ParticipantStatus newStatus);
 

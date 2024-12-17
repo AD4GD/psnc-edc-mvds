@@ -159,10 +159,13 @@ public class RegistrationServiceApiController {
     @POST
     @Operation(description = "Asynchronously request to add a dataspace participant.")
     @ApiResponse(responseCode = "204", description = "No content")
-    public void addParticipant(@QueryParam("did") String did) {
+    public void addParticipant(
+        @QueryParam("did") String did,
+        @QueryParam("protocolUrl") String protocolUrl
+    ) {
         var issuer = Objects.requireNonNull(did);
 
-        service.addParticipant(issuer);
+        service.addParticipant(issuer, protocolUrl);
     }
 
     @Path("/participant/{did}")
