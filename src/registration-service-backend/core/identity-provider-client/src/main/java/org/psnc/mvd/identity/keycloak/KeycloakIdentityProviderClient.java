@@ -15,6 +15,7 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +71,18 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
         ClientRepresentation client = new ClientRepresentation();
         client.setClientId(clientId);
         client.setEnabled(true);
-        client.setRootUrl("http://example.com");
         client.setName(clientId);
+
+        // Enable Service Accounts
+        client.setServiceAccountsEnabled(true);
+        client.setStandardFlowEnabled(false);
+        client.setImplicitFlowEnabled(false);
+        client.setDirectAccessGrantsEnabled(false);
+        client.setAuthorizationServicesEnabled(false);
+
+        // Set the client's authentication type to Signed JWT (RS256)
+        client.setClientAuthenticatorType("client-jwt");
+        client.setAttributes(Collections.singletonMap("signatureAlgorithm", "RS256"));
 
         keycloakClient.realm(settings.getIdentityRealm()).clients().create(client);
 

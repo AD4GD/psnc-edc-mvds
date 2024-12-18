@@ -113,5 +113,8 @@ jetty-jakarta-servlet-api = { module = "org.eclipse.jetty.toolchain:jetty-jakart
 tractus-postgresql-data-plane-migration = { module = "org.eclipse.tractusx.edc:data-plane-migration", version.ref = "tractus" }
 tractus-postgresql-control-plane-migration = { module = "org.eclipse.tractusx.edc:control-plane-migration", version.ref = "tractus" }
 
+# EDC-Libs
+edc-lib-util = { module = "org.eclipse.edc:util-lib", version.ref = "edc" }
+
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }

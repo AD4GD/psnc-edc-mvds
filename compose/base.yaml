@@ -67,10 +67,7 @@ services:
       - "19192:19192"
     volumes:
       - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
-      - ../docker/connector/config/keystore.pfx:/app/keystore.pfx:ro
-      - ../docker/connector/config/fs-provider.vault:/app/fs.vault
-      - ../docker/connector/config/api_collection.json:/app/api_collection.json
-      - ../docker/connector/config/json_example.json:/app/json_example.json
+      - ../docker/connector/certs/provider-daps.jks:/app/certs/daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
       EDC_API_AUTH_KEY: "fifi-info-zaneta"
@@ -112,8 +109,7 @@ services:
       - "29192:29192"
     volumes:
       - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
-      - ../docker/connector/config/keystore.pfx:/app/keystore.pfx:ro
-      - ../docker/connector/config/fs-consumer.vault:/app/fs.vault
+      - ../docker/connector/certs/consumer-daps.jks:/app/certs/daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
       EDC_API_AUTH_KEY: "fifi-info-zaneta"
