@@ -75,30 +75,7 @@ public class RegistrationServiceApiController {
     }
 
     @GET
-    @Path("/participant")
-    @Operation(description = "Get a participant by caller DID.")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Dataspace participant.",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ParticipantDto.class)
-                            )
-                    }
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Dataspace participant not found."
-            )
-    })
-    public ParticipantDto getParticipantWithHeaderDid(@Context HttpHeaders headers) {
-        return getParticipant(headers.getHeaderString(CALLER_DID_HEADER));
-    }
-
-    @GET
-    @Path("/participant/{did}")
+    @Path("/participants/{did}")
     @Operation(description = "Get a participant by caller DID.")
     @ApiResponses(value = {
             @ApiResponse(
@@ -155,7 +132,7 @@ public class RegistrationServiceApiController {
                 .collect(Collectors.toList());
     }
 
-    @Path("/participant")
+    @Path("/participants")
     @POST
     @Operation(description = "Asynchronously request to add a dataspace participant.")
     @ApiResponse(responseCode = "204", description = "No content")
@@ -168,7 +145,7 @@ public class RegistrationServiceApiController {
         service.addParticipant(issuer, protocolUrl);
     }
 
-    @Path("/participant/{did}")
+    @Path("/participants/{did}")
     @PATCH
     @Operation(description = "Asynchronously updates dataspace participant's status.")
     @ApiResponse(responseCode = "204", description = "No content")
@@ -181,7 +158,7 @@ public class RegistrationServiceApiController {
         service.updateParticipantStatus(issuer, newStatus);
     }
 
-    @Path("/participant/claims/{did}")
+    @Path("/participants/{did}/claims")
     @PATCH
     @Operation(description = "Asynchronously updates dataspace participant's claims.")
     @ApiResponse(responseCode = "204", description = "No content")
@@ -192,7 +169,7 @@ public class RegistrationServiceApiController {
         service.updateParticipantClaims(did, updatedClaims);
     }
 
-    @Path("/participant/{did}")
+    @Path("/participants/{did}")
     @DELETE
     @Operation(description = "Asynchronously removes dataspace participant from the dataspace.")
     @ApiResponse(responseCode = "204", description = "No content")
