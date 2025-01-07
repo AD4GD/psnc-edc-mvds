@@ -3,10 +3,12 @@ plugins {
 }
 
 dependencies {
-    api(project(":spi:registration-service-store-spi"))
-    api(libs.edc.spi.transaction)
-    api(libs.edc.spi.transaction.datasource)
-    api(libs.edc.core.sql)
+    implementation(project(":spi:registration-service-store-spi"))
+    implementation(libs.edc.spi.transaction)
+    implementation(libs.edc.spi.transaction.datasource)
+    implementation(libs.edc.core.sql)
+
+    implementation(libs.edc.sql.bootstrapper)
 
     testImplementation(libs.edc.core.junit)
     testImplementation(testFixtures(libs.edc.core.sql))

@@ -22,12 +22,16 @@ import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.runtime.metamodel.annotation.Provider;
 import org.eclipse.edc.runtime.metamodel.annotation.Provides;
 import org.eclipse.edc.runtime.metamodel.annotation.Setting;
+import org.eclipse.edc.spi.persistence.EdcPersistenceException;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.edc.sql.QueryExecutor;
 import org.eclipse.edc.transaction.datasource.spi.DataSourceRegistry;
 import org.eclipse.edc.transaction.spi.TransactionContext;
+import org.eclipse.edc.sql.bootstrapper.SqlSchemaBootstrapper;
+import org.eclipse.edc.spi.monitor.Monitor;
+import org.eclipse.edc.sql.bootstrapper.SqlSchemaBootstrapperImpl;
 
 /**
  * Extension that provides a {@link ParticipantStore} with SQL as backend storage
@@ -52,9 +56,25 @@ public class SqlParticipantStoreExtension implements ServiceExtension {
     @Inject
     private QueryExecutor queryExecutor;
 
+    @Inject
+    private TransactionContext transactionContext;
+    @Inject
+    private Monitor monitor;
+
+
     @Override
     public String name() {
         return NAME;
+    }
+
+    @Override
+    public void initialize(ServiceExtensionContext context) {
+        var bootstrapper = new SqlSchemaBootstrapperImpl();
+        bootstrapper.addStatementFromResource(getDataSourceName(context), "registration-service-schema.sql", getClass().getClassLoader());
+        var statements = bootstrapper.getStatements();
+        new SqlDmlStatementRunner(trxContext, queryExecutor, monitor, dataSourceRegistry).executeSql(statements)
+                .orElseThrow(f -> new EdcPersistenceException("Failed to bootstrap SQL schema, error '%s'".formatted(f.getFailureDetail())));
+
     }
 
     @Provider

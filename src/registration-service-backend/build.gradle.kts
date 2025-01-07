@@ -29,14 +29,6 @@ allprojects {
     }
 
     configure<org.eclipse.edc.plugins.edcbuild.extensions.BuildExtension> {
-        versions {
-            // override default dependency versions here
-            metaModel.set(metaModelVersion)
-        }
-        pom {
-            scmConnection.set(edcScmConnection)
-            scmUrl.set(edcScmUrl)
-        }
         swagger {
             title.set("Registration Service REST API")
             description = "Registration Service REST APIs - merged by OpenApiMerger"
@@ -50,10 +42,9 @@ allprojects {
         configDirectory.set(rootProject.file("resources"))
     }
 
-    // EdcRuntimeExtension uses this to determine the runtime classpath of the module to run.
-    tasks.register("printClasspath") {
-        doLast {
-            println(sourceSets["main"].runtimeClasspath.asPath)
+    tasks.test {
+        testLogging {
+            showStandardStreams = true
         }
     }
 }
