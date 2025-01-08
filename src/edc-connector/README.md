@@ -39,7 +39,7 @@ There are two launchers:
 ## Policy
 Specified in ODRL notation. Every policy consists of set of rules. There are three types of rules: permission, obligation, prohibition.
 
-- permission - if we met defined condition, then the rule is met. For example it can be a time condition when we can transfer the data, like a specified time interval 
+- permission - if we met defined condition, then the rule is met. For example it can be a time condition when we can transfer the data, like a specified time interval
 - prohibition - similar to permission but inversely, if we met the condition, then this rule is not met
 - obligation - we should do some specified action first, only then this rule will be met. It's linked to a permission rule as a duty
 

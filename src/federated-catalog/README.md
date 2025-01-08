@@ -37,4 +37,3 @@ There are two launchers:
 ## Extensions
 - connector-persistence - required for adding a persistence layer for the connector's control plane. Creates required database scheme if it does not exists
 - policy-engine - adds policy rules which can be used for the policy creation
-
