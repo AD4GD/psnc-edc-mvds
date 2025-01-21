@@ -29,6 +29,10 @@ build-registration-service-backend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/openjd
 build-registration-service-backend: CONTEXT_PATH=../
 build-registration-service-backend: BASE_IMAGE=$(BUILDER_IMAGE)
 
+build-registration-service-frontend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
+build-registration-service-frontend: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
+build-registration-service-frontend: CONTEXT_PATH=../
+
 build-data-dashboard: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
 build-data-dashboard: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
 build-data-dashboard: CONTEXT_PATH=../

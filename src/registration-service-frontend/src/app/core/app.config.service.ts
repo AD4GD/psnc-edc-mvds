@@ -11,7 +11,7 @@ export class ConfigService {
   }
 
   loadConfig(): Promise<void> {
-    return fetch('/assets/app.config.json')
+    return fetch('/assets/config/app.config.json')
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Failed to load config.json: ${response.statusText}`);
