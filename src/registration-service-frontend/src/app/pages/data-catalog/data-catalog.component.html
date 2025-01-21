@@ -1,0 +1,75 @@
+<div class="page-container">
+    <div>
+        <div>
+            <div class="page-title">Catalog</div>
+            <div class="page-title-description">Catalog of all public Data Offers</div>
+        </div>
+        <div class="filtering-controls-container">
+            <div class="search-container">
+                <mat-form-field class="search-field" appearance="outline">
+                  <mat-label>Search</mat-label>
+                  <input matInput [formControl]="searchControl" placeholder="Type to search..." />
+                  <mat-icon matPrefix>search</mat-icon>
+                </mat-form-field>
+            </div>
+            <div class="sortby-container">
+                <mat-form-field appearance="outline">
+                    <mat-label>Sort by</mat-label>
+                    <mat-select [formControl]="sortControl" (selectionChange)="onSortChange($event)">
+                    <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+                        {{ option.label }}
+                    </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="paginator-container">
+            <mat-paginator
+            [length]="length"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex"
+            (page)="onPageChange($event)"
+            >
+            </mat-paginator>
+            <div class="icon-switch">
+                <!-- "Grid View" icon -->
+                <button mat-icon-button matTooltip="Grid view"
+                [ngClass]="{'active': isGridView}">
+                    <mat-icon
+                    >view_module</mat-icon>
+                </button>
+
+                <!-- "Table View" icon -->
+                <button mat-icon-button matTooltip="Table view"
+                [ngClass]="{'active': !isGridView}">
+                <mat-icon
+                  >view_list</mat-icon>
+                </button>
+            </div>
+        </div>
+        <div class="offer-cards-grid">
+            <div class="offer-card" *ngFor="let offer of offers">
+                <div class="offer-card-header">
+                    <mat-icon>dataset</mat-icon>
+                    <div>
+                        <div class="offer-card-title" [matTooltip]="offer.properties.name">{{offer.properties.name}}</div>
+                        <div class="offer-card-organization">{{offer.participantId}}</div>
+                    </div>
+                </div>
+                <div *ngIf="offer.description !== undefined" class="offer-card-text">{{offer.description}}</div>
+                <div *ngIf="offer.description === undefined" class="offer-card-template-text">No description were added</div>
+                <div class="offer-card-dates">
+                    <div *ngIf="offer.createdAt !== undefined" class="offer-card-date">
+                        <mat-icon>edit_today</mat-icon>
+                        <div>{{offer.createdAt}}</div>
+                    </div>
+                </div>
+                <button mat-button class="offer-card-view-button" (click)="openDetails(offer)">
+                    <span>View Asset</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

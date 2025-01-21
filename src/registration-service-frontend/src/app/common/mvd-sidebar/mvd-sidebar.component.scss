@@ -1,0 +1,135 @@
+.sidenav-container {
+    height: 100vh;
+}
+
+.sidenav {
+    height: 100vh;
+    width: 320px;
+    max-width: 320px;
+    align-items: center;
+    background-color: #FFFFFF;
+    border-right-width: 1;
+    border-right-color: #E0E0E0;
+    border-right-style: solid;
+    border-radius: 0;
+}
+
+$sidenav-padding: 10px;
+
+.sidenav-background {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: calc(100% - $sidenav-padding*2);
+    width: calc(100% - $sidenav-padding*2);
+    background-color: #FFFFFF;
+    padding: $sidenav-padding;
+}
+
+.logo {
+    padding-top: 12px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-text {
+    font-size: 20px;
+    color: #02578E;
+    font-weight: 700;
+}
+
+.sidebar-categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.sidebar-tabs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar-tab {
+    margin-bottom: 6px;
+
+    &:hover {
+        background-color: #e0e6fa !important; /* No hover effect */
+    }
+    &:active {
+        background-color: transparent !important;
+    }
+    &:focus {
+        background-color: transparent !important;
+    }
+
+    &.active-tab {
+        background-color: #e0e6fa !important; /* Highlighted background */
+        color: #00796b !important; /* Highlighted text color */
+        font-weight: bold;
+
+        pointer-events: none; /* Makes the tab unclickable */
+        cursor: default;
+
+        &:hover {
+            background-color: #e0e6fa !important; /* No hover effect */
+        }
+
+        mat-icon {
+          color: #02578E !important;
+        }
+    }
+}
+
+.sidebar-tab-category-title {
+    color: #6B7280;
+    padding-left: 18px;
+    padding-bottom: 8px;
+}
+
+.sidebar-tab-text {
+    font-weight: 500;
+}
+
+mat-sidenav-content {
+    flex: 1; /* Ensures it takes the remaining space */
+    display: flex;
+    flex-direction: column;
+}  
+
+.sidebar-tab-icon {
+    font-size: 24px;
+}
+
+@media (max-width: 768px) {
+    .sidenav {
+      width: 200px;
+    }
+  
+    .logo-text {
+      display: none;
+    }
+  
+    .sidebar-tab {
+      gap: 0;
+
+      .mdc-list-item {
+        justify-content: center !important;
+        align-content: center !important;
+        align-items: center !important;
+        justify-items: center !important;
+      }
+    }
+  
+    .sidebar-tab .sidebar-tab-text {
+        font-size: 14px;
+    }
+  
+    .sidebar-tab-category-title {
+      display: none;
+    }
+  }

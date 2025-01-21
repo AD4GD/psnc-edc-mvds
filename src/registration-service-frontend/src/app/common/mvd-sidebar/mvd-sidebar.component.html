@@ -1,0 +1,26 @@
+<mat-sidenav-container class="sidenav-container">
+    <mat-sidenav class="sidenav" mode="side" opened>
+        <div class="sidenav-background">
+            <div class="logo">
+                <img width="164px" height="60px" src="assets/psnclogo.png" alt="PSNC | Logo">
+                <div class="logo-text">Data Space Portal</div>
+            </div>
+            <mat-nav-list class="sidebar-categories-list">
+                <div *ngFor="let routeCategory of routesCategories">
+                    <div class="sidebar-tab-category-title">
+                        {{routeCategory.category}}
+                    </div>
+                    <a mat-list-item class="sidebar-tab" [ngClass]="{'active-tab': activeRoute === '/' + route.path}" *ngFor="let route of routeCategory.routes" [routerLink]="[route.path]">
+                        <mat-icon matListItemIcon class="sidebar-tab-icon">{{route.data?.icon}}</mat-icon>
+                        <div class="sidebar-tab-text">
+                            {{route.data?.title ?? route.path}}
+                        </div>
+                    </a>
+                </div>
+            </mat-nav-list>
+        </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>

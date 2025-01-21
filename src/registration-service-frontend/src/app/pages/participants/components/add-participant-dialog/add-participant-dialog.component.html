@@ -1,0 +1,26 @@
+<div mat-dialog-title class="dialog-header">
+    <div class="dialog-title">
+        Add a participant
+    </div>
+    <button mat-icon-button class="close-button" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+    <div class="section">
+        <mat-form-field appearance="outline">
+            <mat-label>DID</mat-label>
+            <input matInput [formControl]="didControl" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Protocol Url</mat-label>
+            <input matInput [formControl]="protocolUrlControl" />
+        </mat-form-field>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-raised-button color="accent" (click)="confirm()">Confirm</button>
+    <button mat-raised-button color="primary" (click)="close()">Close</button>
+</mat-dialog-actions>

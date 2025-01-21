@@ -1,0 +1,56 @@
+.dialog-header {
+    display: flex;
+    padding: 24px;
+}
+
+.dialog-content {
+    width: 100%;
+}
+
+.dialog-title {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    flex: 1;
+}
+
+.section {
+    padding: 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+
+    mat-form-field {
+        flex: 1;
+    }
+}
+
+.key-value-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+.key-value-editor-title {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+  .key-value-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .key-field,
+  .value-field {
+    flex: 1;
+  }
+
+.delete-button {
+    margin-bottom: 16px;
+}
+
+.add-button {
+    width: fit-content;
+}

@@ -1,0 +1,15 @@
+.dialog-header {
+    display: flex;
+    padding: 24px;
+}
+
+.dialog-content {
+    width: 100%;
+}
+
+.dialog-title {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    flex: 1;
+}

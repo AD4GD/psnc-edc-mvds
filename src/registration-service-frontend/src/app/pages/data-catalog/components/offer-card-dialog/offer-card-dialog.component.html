@@ -1,0 +1,112 @@
+<div mat-dialog-title class="dialog-header">
+    <div class="offer-card-header">
+        <mat-icon>dataset</mat-icon>
+        <div>
+            <div class="offer-card-title" [matTooltip]="offer.properties.name">{{offer.properties.name}}</div>
+            <div class="offer-card-organization">{{offer.participantId}}</div>
+        </div>
+    </div>
+    <button mat-icon-button class="close-button" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+    <div class="section">
+        <div class="section-title">Offer</div>
+        <div class="section-items-grid">
+            <div class="section-item">
+                <mat-icon>api</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Connector</div>
+                    <div [matTooltip]="offer.participantId">{{offer.participantId}}</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>category</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Type</div>
+                    <div>{{AssetType[offer.assetType]}}</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>numbers</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Version</div>
+                    <div *ngIf="offer.properties.version != ''">{{offer.properties.version}}</div>
+                    <div *ngIf="offer.properties.version == ''">No version</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>webhook</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Originator</div>
+                    <div [matTooltip]="offer.originator">{{offer.originator}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">Asset</div>
+        <div class="section-items-grid">
+            <div class="section-item">
+                <mat-icon>dataset</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">ID</div>
+                    <div [matTooltip]="offer.id">{{offer.id}}</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>short_text</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Name</div>
+                    <div [matTooltip]="offer.properties.name">{{offer.properties.name}}</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>data_array</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Content type</div>
+                    <div>{{offer.properties.contentType}}</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>http</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Base url</div>
+                    <div [matTooltip]="offer.properties.baseUrl">{{offer.properties.baseUrl}}</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>pattern</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Proxy path</div>
+                    <div>{{offer.properties.proxyPath}}</div>
+                </div>
+            </div>
+            <div class="section-item">
+                <mat-icon>question_mark</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Proxy query parameters</div>
+                    <div>{{offer.properties.proxyQueryParams}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">Policy</div>
+        <div class="section-items-grid">
+            <div class="section-item">
+                <mat-icon>policy</mat-icon>
+                <div class="section-item-text">
+                    <div class="section-item-title">Policy JSON-LD</div>
+                    <p class="clickable-text" (click)="openJsonLd()">Show Policy JSON-LD</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-raised-button color="primary" (click)="close()">Close</button>
+</mat-dialog-actions>
