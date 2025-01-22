@@ -42,6 +42,7 @@ import { RegistrationServiceClient } from '../../../../core/api/services/impl/re
 export class EditParticipantDialogComponent {
 
   didControl: FormControl;
+  protocolControl: FormControl;
   statusControl: FormControl;
   statusTypes = Object.values(ParticipantStatusType)
     .filter(key => isNaN(Number(key)))
@@ -58,8 +59,11 @@ export class EditParticipantDialogComponent {
     ) {
       this.participant = data;
       this.didControl = new FormControl(data.did);
+      this.protocolControl = new FormControl(data.protocolUrl);
       this.statusControl = new FormControl(data.status);
+      this.syncFromMap();
       this.didControl.disable();
+      this.protocolControl.disable();
   }
 
   close(): void {

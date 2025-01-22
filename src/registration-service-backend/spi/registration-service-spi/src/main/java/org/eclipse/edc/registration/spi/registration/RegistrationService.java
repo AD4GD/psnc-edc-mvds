@@ -15,6 +15,7 @@
 package org.eclipse.edc.registration.spi.registration;
 
 import org.eclipse.edc.registration.spi.model.Participant;
+import org.eclipse.edc.registration.spi.model.ParticipantFullRepresentation;
 import org.jetbrains.annotations.Nullable;
 import org.eclipse.edc.registration.spi.model.ParticipantStatus;
 
@@ -40,7 +41,7 @@ public interface RegistrationService {
      *
      * @return all participants.
      */
-    List<Participant> listParticipants();
+    List<ParticipantFullRepresentation> listParticipants();
 
     /**
      * Add a participant to a dataspace.

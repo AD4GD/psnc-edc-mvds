@@ -17,12 +17,15 @@ package org.eclipse.edc.registration.model;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.Map;
 import java.util.Objects;
 
 @Schema(description = "Dataspace Participant DTO")
 public class ParticipantDto {
     private String did;
     private ParticipantStatusDto status;
+    private String protocolUrl;
+    private Map<String, String> claims;
 
     private ParticipantDto() {
     }
@@ -33,6 +36,14 @@ public class ParticipantDto {
 
     public ParticipantStatusDto getStatus() {
         return status;
+    }
+
+    public String getProtocolUrl() {
+        return protocolUrl;
+    }
+
+    public Map<String, String> getClaims() {
+        return claims;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
@@ -54,6 +65,16 @@ public class ParticipantDto {
 
         public Builder status(ParticipantStatusDto status) {
             participantDto.status = status;
+            return this;
+        }
+
+        public Builder claims(Map<String, String> claims) {
+            participantDto.claims = claims;
+            return this;
+        }
+
+        public Builder protocolUrl(String protocolUrl) {
+            participantDto.protocolUrl = protocolUrl;
             return this;
         }
 

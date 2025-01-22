@@ -122,3 +122,19 @@ td {
 .mat-mdc-row:hover {
     background-color: #e0e6fa;
 }
+
+.claims-field {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.claim-label {
+  border-radius: 12px;
+  background-color: #e4f6ff;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 16px;
+  text-align: center;
+  color: #3f484d;
+}

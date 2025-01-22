@@ -43,25 +43,31 @@ public class KeycloakIdentityProviderClient implements IdentityProviderClient {
             .build();
     }
 
+    private boolean isCustomMapper(String mapper) {
+        return (
+            !mapper.equals("clientHost") &&
+            !mapper.equals("clientAddress") &&
+            !mapper.equals("client_id")
+        );
+    }
+
     @Override
     public StatusResult<IdentityClientModel> getClient(String clientId) {
-
         var realm = settings.getIdentityRealm();
-        List<ClientRepresentation> clients = keycloakClient.realm(realm).clients().findAll();
+        var clientInternalId = getInternalClientId(clientId);
+        var clientResource = keycloakClient.realm(realm).clients().get(clientInternalId);
+        var protocolMappers = clientResource.getProtocolMappers();
+        Map<String, String> claims = new HashMap<>();
+        protocolMappers.getMappers().stream().forEach(x -> {
+            var config = x.getConfig();
+            var key = config.get("claim.name");
+            var value = config.get("claim.value");
+            if (isCustomMapper(key)) {
+                claims.put(key, value);
+            }
+        });
 
-        ClientRepresentation existingClient = clients.stream()
-                .filter(c -> clientId.equals(c.getClientId()))
-                .findFirst()
-                .orElse(null);
-
-        var clientModel = new IdentityClientModel(clientId, null);
-
-        String clientUuid = keycloakClient.realm(realm).clients().findByClientId(clientId).get(0).getId();
-        List<ClientScopeRepresentation> clientScopes = keycloakClient.realm(realm).clients().get(clientUuid).getDefaultClientScopes();
-
-        for (ClientScopeRepresentation scope : clientScopes) {
-            monitor.debug("Client Scope Name: " + scope.getName());
-        }
+        var clientModel = new IdentityClientModel(clientId, claims);
 
         return StatusResult.success(clientModel);
     }

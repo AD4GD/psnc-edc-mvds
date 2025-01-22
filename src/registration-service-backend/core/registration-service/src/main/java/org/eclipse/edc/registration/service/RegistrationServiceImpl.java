@@ -16,6 +16,7 @@ package org.eclipse.edc.registration.service;
 
 
 import org.eclipse.edc.registration.spi.model.Participant;
+import org.eclipse.edc.registration.spi.model.ParticipantFullRepresentation;
 import org.eclipse.edc.registration.spi.registration.RegistrationService;
 import org.eclipse.edc.registration.store.spi.ParticipantStore;
 import org.eclipse.edc.spi.monitor.Monitor;
@@ -65,9 +66,18 @@ public class RegistrationServiceImpl implements RegistrationService {
         return participantStore.findByDid(did);
     }
 
-    public List<Participant> listParticipants() {
+    public List<ParticipantFullRepresentation> listParticipants() {
         monitor.info("List all participants of the dataspace.");
-        return transactionContext.execute(participantStore::listParticipants);
+        return transactionContext.execute(() -> {
+            var storedParticipants = participantStore.listParticipants();
+            var participantsWithClaims = storedParticipants.stream().map(x -> {
+                var participantWithClaims = new ParticipantFullRepresentation(x);
+                var identity = identityProviderClient.getClient(x.getDid());
+                participantWithClaims.setClaims(identity.getContent().getClaims());
+                return participantWithClaims;
+            });
+            return participantsWithClaims.toList();
+        });
     }
 
     public void addParticipant(String did, String protocolUrl) {
@@ -79,6 +89,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .id(UUID.randomUUID().toString())
                 .did(did)
                 .status(ONBOARDING_INITIATED)
+                .protocolUrl(protocolUrl)
                 .traceContext(telemetry.getCurrentTraceContext())
                 .build();
 

@@ -36,6 +36,11 @@ public interface ParticipantStatements {
         return "state";
     }
 
+    default String getProtocolColumn() {
+        return "protocol_url";
+    }
+
+
     default String getStateCountColumn() {
         return "state_count";
     }

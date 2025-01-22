@@ -37,7 +37,7 @@ import { DialogService } from '../../core/services/dialog.service';
 })
 export class ParticipantsComponent implements OnInit {
 
-  displayedColumns: string[] = ['did', 'status', 'claims', 'action'];
+  displayedColumns: string[] = ['did', 'protocolUrl', 'status', 'claims', 'action'];
   dataSource = new MatTableDataSource<Participant>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -52,6 +52,7 @@ export class ParticipantsComponent implements OnInit {
 
   refreshParticipants(): void {
     this.client.backend.getParticipants().subscribe((data) => {
+      data.forEach(x => x.claims = new Map(Object.entries(x.claims ?? [])));
       this.dataSource.data = data;
     });
   }
@@ -60,6 +61,15 @@ export class ParticipantsComponent implements OnInit {
     this.refreshParticipants();
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  getClaimsArray(participant: Participant): { key: string; value: string }[] {
+    if (!participant.claims) {
+      return [];
+    }
+    var array = Array.from(participant.claims, ([key, value]) => ({ key, value }));
+    console.log(array);
+    return array;
   }
 
   applyFilter(event: Event) {

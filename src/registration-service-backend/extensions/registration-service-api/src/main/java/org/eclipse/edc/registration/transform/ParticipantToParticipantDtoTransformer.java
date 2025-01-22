@@ -17,17 +17,18 @@ package org.eclipse.edc.registration.transform;
 import org.eclipse.edc.registration.model.ParticipantDto;
 import org.eclipse.edc.registration.model.ParticipantStatusDto;
 import org.eclipse.edc.registration.spi.model.Participant;
+import org.eclipse.edc.registration.spi.model.ParticipantFullRepresentation;
 import org.eclipse.edc.registration.spi.model.ParticipantStatus;
 import org.eclipse.edc.transform.spi.TransformerContext;
 import org.eclipse.edc.transform.spi.TypeTransformer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ParticipantToParticipantDtoTransformer implements TypeTransformer<Participant, ParticipantDto> {
+public class ParticipantToParticipantDtoTransformer implements TypeTransformer<ParticipantFullRepresentation, ParticipantDto> {
 
     @Override
-    public Class<Participant> getInputType() {
-        return Participant.class;
+    public Class<ParticipantFullRepresentation> getInputType() {
+        return ParticipantFullRepresentation.class;
     }
 
     @Override
@@ -36,10 +37,12 @@ public class ParticipantToParticipantDtoTransformer implements TypeTransformer<P
     }
 
     @Override
-    public @Nullable ParticipantDto transform(@Nullable Participant participant, @NotNull TransformerContext context) {
+    public @Nullable ParticipantDto transform(@Nullable ParticipantFullRepresentation participant, @NotNull TransformerContext context) {
         return ParticipantDto.Builder.newInstance()
                 .did(participant.getDid())
                 .status(mapToDtoStatus(participant.getStatus()))
+                .claims(participant.getClaims())
+                .protocolUrl(participant.getProtocolUrl())
                 .build();
     }
 

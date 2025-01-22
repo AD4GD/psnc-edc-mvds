@@ -27,11 +27,11 @@ public class BaseSqlParticipantStatements implements ParticipantStatements {
 
     @Override
     public String getInsertParticipantsTemplate() {
-        return format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES (?,?,?,?,?,?,?%s,?,?)",
-                getParticipantTable(), getParticipantIdColumn(), getDidColumn(), getStateColumn(),
-                getStateCountColumn(), getStateTimestampColumn(), getErrorDetailColumn(), getTraceContextColumn(), getCreatedAtColumn(), getUpdatedAtColumn(), getFormatJsonOperator());
+        return format("INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES (?,?,?,?,?,?,?,?%s,?,?)",
+                getParticipantTable(), getParticipantIdColumn(), getDidColumn(), getStateColumn(), getProtocolColumn(),
+                getStateCountColumn(), getStateTimestampColumn(), getErrorDetailColumn(), getTraceContextColumn(),
+                getCreatedAtColumn(), getUpdatedAtColumn(), getFormatJsonOperator());
     }
-
 
     @Override
     public String getSelectParticipantByDidTemplate() {

@@ -14,6 +14,12 @@
             <input matInput [formControl]="didControl" [value]="participant.did" />
         </mat-form-field>
         <mat-form-field appearance="outline">
+            <mat-label>Protocol url</mat-label>
+            <input matInput [formControl]="protocolControl" [value]="participant.protocolUrl" />
+        </mat-form-field>
+    </div>
+    <div class="section">
+        <mat-form-field appearance="outline">
             <mat-label>Status</mat-label>
             <mat-select [formControl]="statusControl">
             <mat-option *ngFor="let status of statusTypes" [value]="status.value">

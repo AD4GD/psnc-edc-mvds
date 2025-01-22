@@ -140,6 +140,7 @@ public class SqlParticipantStore extends AbstractSqlStore implements Participant
                 participant.getId(),
                 participant.getDid(),
                 participant.getState(),
+                participant.getProtocolUrl(),
                 participant.getStateCount(),
                 participant.getStateTimestamp(),
                 participant.getErrorDetail(),
@@ -153,6 +154,7 @@ public class SqlParticipantStore extends AbstractSqlStore implements Participant
         return Participant.Builder.newInstance()
                 .did(resultSet.getString(participantStatements.getDidColumn()))
                 .id(resultSet.getString(participantStatements.getParticipantIdColumn()))
+                .protocolUrl(resultSet.getString(participantStatements.getProtocolColumn()))
                 .traceContext(fromJson(resultSet.getString(participantStatements.getTraceContextColumn()), new TypeReference<>() {
                 }))
                 .createdAt(resultSet.getLong(participantStatements.getCreatedAtColumn()))

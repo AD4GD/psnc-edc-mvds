@@ -28,12 +28,24 @@
                 <td mat-cell *matCellDef="let element"> {{element.did}} </td>
               </ng-container>
 
+              <!-- Protocol Url Column -->
+              <ng-container matColumnDef="protocolUrl">
+                <th mat-header-cell *matHeaderCellDef> Protocol url </th>
+                <td mat-cell *matCellDef="let element"> {{element.protocolUrl}} </td>
+              </ng-container>
+
               <!-- Claims Column -->
               <ng-container matColumnDef="claims">
                 <th mat-header-cell *matHeaderCellDef> Claims </th>
                     <td mat-cell *matCellDef="let element">
                         <ng-container *ngIf="element.claims !== undefined && element.claims.size !== 0; else noClaimsTemplate">
-                            {{element.claims}}
+                          <div class="claims-field">
+                            <div *ngFor="let claim of getClaimsArray(element)" class="claim-label">
+                              {{claim.key}} :
+                              <span *ngIf="claim.value; else emptyValue">{{ claim.value }}</span>
+                              <ng-template #emptyValue><i>empty</i></ng-template>
+                            </div>
+                          </div>
                         </ng-container>
                         <ng-template #noClaimsTemplate>
                             No Claims Available

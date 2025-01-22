@@ -39,8 +39,9 @@ import static org.eclipse.edc.registration.spi.model.ParticipantStatus.ONBOARDIN
 public class Participant extends StatefulEntity<Participant> {
 
     private String did;
+    private String protocolUrl;
 
-    private Participant() {
+    public Participant() {
     }
 
     public String getDid() {
@@ -51,10 +52,28 @@ public class Participant extends StatefulEntity<Participant> {
         return ParticipantStatus.from(state);
     }
 
+    public String getProtocolUrl() {
+        return protocolUrl;
+    }
+
+    protected void setDid(String did) {
+        this.did = did;
+    }
+
+    protected void setStatus(int state) {
+        this.state = state;
+    }
+
+    protected void setProtocolUrl(String protocolUrl) {
+        this.protocolUrl = protocolUrl;
+    }
+
     @Override
     public Participant copy() {
         var builder = Builder.newInstance()
-                .did(did);
+                .did(did)
+                .state(state)
+                .protocolUrl(protocolUrl);
 
         return copy(builder);
     }
@@ -141,6 +160,11 @@ public class Participant extends StatefulEntity<Participant> {
             return this;
         }
 
+        public Builder protocolUrl(String protocolUrl) {
+            entity.protocolUrl = protocolUrl;
+            return this;
+        }
+
         @Override
         public Builder traceContext(Map<String, String> traceContext) {
             entity.traceContext = unmodifiableMap(traceContext);
@@ -150,6 +174,7 @@ public class Participant extends StatefulEntity<Participant> {
         @Override
         public Participant build() {
             Objects.requireNonNull(entity.did, "did");
+            Objects.requireNonNull(entity.protocolUrl, "protocolUrl");
             return super.build();
         }
 
