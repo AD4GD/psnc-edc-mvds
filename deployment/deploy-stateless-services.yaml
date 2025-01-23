@@ -14,6 +14,25 @@
       namespace: "{{ k8s_namespace }}"
 
   tasks:
+
+    - name: "deploy secret/{{ application }}-connectorconsumer"
+      when: "deploy_connector|bool"
+      tags:
+      - connector
+      - connectorconsumer
+      - secret
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ application }}-connectorconsumer-jks"
+            labels:
+              application: "{{ application }}"
+              component: connectorconsumer
+          data:
+            daps.jks: "{{ lookup('file', 'certs/consumer-daps.jks') | b64encode }}"
+
     - name: "deploy deployment/{{ application }}-connectorconsumer"
       when: "deploy_connector|bool"
       tags:
@@ -82,10 +101,18 @@
                     volumeMounts:
                       - name: "connectorconsumer-tmp"
                         mountPath: "/tmp"
+                      - name: "jks-volume"
+                        mountPath: "/certs"
                 volumes:
                   - name: "connectorconsumer-tmp"
                     emptyDir:
                       medium: "Memory"
+                  - name: "jks-volume"
+                    secret:
+                      secretName: "{{ application }}-connectorconsumer-jks"
+                      items:
+                        - key: "daps.jks"
+                          path: "daps.jks"
 
     - name: "deploy service/{{ application }}-connectorconsumer"
       when: "deploy_connector"
@@ -257,6 +284,24 @@
               application: "{{ application }}"
               component: consumerdashboard
 
+    - name: "deploy secret/{{ application }}-connectorprovider"
+      when: "deploy_connector|bool"
+      tags:
+        - connector
+        - connectorprovider
+        - secret
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ application }}-connectorprovider-jks"
+            labels:
+              application: "{{ application }}"
+              component: connectorprovider
+          data:
+            daps.jks: "{{ lookup('file', 'certs/daps.jks') | b64encode }}"
+
     - name: "deploy deployment/{{ application }}-connectorprovider"
       when: "deploy_connector|bool"
       tags:
@@ -325,10 +370,18 @@
                     volumeMounts:
                       - name: "connectorprovider-tmp"
                         mountPath: "/tmp"
+                      - name: "jks-volume"
+                        mountPath: "/certs"
                 volumes:
                   - name: "connectorprovider-tmp"
                     emptyDir:
                       medium: "Memory"
+                  - name: "jks-volume"
+                    secret:
+                      secretName: "{{ application }}-connectorprovider-jks"
+                      items:
+                        - key: "daps.jks"
+                          path: "daps.jks"
 
     - name: "deploy service/{{ application }}-connectorprovider"
       when: "deploy_connector"
@@ -878,7 +931,7 @@
                     protocol: "TCP"
                 containers:
                   - name: "registrationservicefrontend"
-                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/registration-service-frontend:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false
@@ -974,7 +1027,7 @@
                     protocol: "TCP"
                 containers:
                   - name: "registrationservicebackend"
-                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/registration-service-backend:{{ stateless_services_image_tag }}"
                     imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                     securityContext:
                       readOnlyRootFilesystem: false

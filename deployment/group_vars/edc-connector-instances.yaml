@@ -187,6 +187,7 @@ connectorconsumer_configmap__05_defaults:
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
+  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/daps.jks"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
   EDC_WEB_REST_CORS_ENABLED: true
@@ -224,6 +225,7 @@ connectorprovider_configmap__05_defaults:
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
+  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/daps.jks"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-provider.vault"
   EDC_WEB_REST_CORS_ENABLED: true
