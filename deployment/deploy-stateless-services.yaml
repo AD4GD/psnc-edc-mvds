@@ -300,7 +300,7 @@
               application: "{{ application }}"
               component: connectorprovider
           data:
-            daps.jks: "{{ lookup('file', 'certs/daps.jks') | b64encode }}"
+            daps.jks: "{{ lookup('file', 'certs/provider-daps.jks') | b64encode }}"
 
     - name: "deploy deployment/{{ application }}-connectorprovider"
       when: "deploy_connector|bool"
