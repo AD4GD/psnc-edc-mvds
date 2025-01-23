@@ -120,5 +120,32 @@ def request_consumer_pull_transfer(
     )
 
 
+def request_consumer_push_transfer(
+    provider_connector_id,
+    consumer_connector_management_url,
+    data_destination_endpoint,
+    counter_party_address_internal,
+    contract_agreement_id,
+    default_headers,
+):
+    return requests.post(
+        headers=default_headers,
+        data=json.dumps(
+            {
+                "@context": {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
+                "@type": "TransferRequestDto",
+                "connectorId": provider_connector_id,
+                "connectorAddress": f"{counter_party_address_internal}",
+                "contractId": f"{contract_agreement_id}",
+                "assetId": "assetId",
+                "protocol": "dataspace-protocol-http",
+                "transferType": "HttpData-PUSH",
+                "dataDestination": {"type": "HttpData", "baseUrl": f"{data_destination_endpoint}"},
+            }
+        ),
+        url=f"{consumer_connector_management_url}/v2/transferprocesses",
+    )
+
+
 def get_transfer_state(consumer_management_url, pull_transfer_id):
     return requests.get(f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state").json()
