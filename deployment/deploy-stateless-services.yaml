@@ -873,8 +873,7 @@
               {
                 "registrationServiceApiUrl": "https://registration-service-backend-edc-connector.apps.paas-dev.psnc.pl",
                 "federatedCatalogApiUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
-                "environment": "production",
-                "isUseFakeBackend": "false"
+                "environment": "production"
               }
             nginx.conf: |
               events {}
@@ -1020,10 +1019,10 @@
                 serviceAccountName: "run-any-uid"
                 ports:
                   - name: "api"
-                    containerPort: 8181
+                    containerPort: 38181
                     protocol: "TCP"
                   - name: "authority"
-                    containerPort: 8182
+                    containerPort: 38182
                     protocol: "TCP"
                 containers:
                   - name: "registrationservicebackend"
@@ -1066,9 +1065,9 @@
           spec:
             ports:
               - name: "api"
-                port: 8181
+                port: 38181
               - name: "authority"
-                port: 8182
+                port: 38182
             selector:
               application: "{{ application }}"
               component: registrationservicebackend
