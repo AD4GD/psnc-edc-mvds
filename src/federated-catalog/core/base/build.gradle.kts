@@ -17,5 +17,11 @@ dependencies {
     runtimeOnly(libs.edc.lib.boot)
     implementation(libs.edc.config.filesystem)
 
-    implementation(project(":extensions:catalog-node-resolver"))
+    implementation(project(":extensions:target-node-directory-sql"))
+    implementation(libs.edc.fc.catalog.cache.sql)
+    implementation(libs.edc.dsp.catalog.http.dispatcher)
+    implementation(libs.edc.sql.transaction.local)
+    implementation(libs.postgresql)
+    implementation(libs.flyway.core)
+    implementation(libs.edc.sql.pool)
 }

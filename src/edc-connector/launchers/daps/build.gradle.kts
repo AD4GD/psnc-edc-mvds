@@ -8,6 +8,7 @@ plugins {
 dependencies {
     implementation(project(":core:base"))
     implementation(project(":extensions:connector-persistence"))
+    implementation(project(":extensions:vault-keys-seeder"))
 
     // OAuth2 DAPS
     implementation(libs.edc.oauth2.core)

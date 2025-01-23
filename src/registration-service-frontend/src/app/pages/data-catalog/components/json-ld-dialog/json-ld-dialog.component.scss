@@ -1,0 +1,10 @@
+pre {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 14px;
+    white-space: pre-wrap; /* Ensure long lines wrap */
+    word-wrap: break-word; /* Break long words if needed */
+  }

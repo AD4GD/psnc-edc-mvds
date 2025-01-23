@@ -1,0 +1,621 @@
+[
+    {
+        "@id": "d4ea4a45-a859-48ac-9754-1f8d3ea5bfa4",
+        "@type": "dcat:Catalog",
+        "dcat:dataset": {
+            "@id": "consumer-asset",
+            "@type": "dcat:Dataset",
+            "odrl:hasPolicy": {
+                "@id": "Y29uc3VtZXItcG9sLWNk:Y29uc3VtZXItYXNzZXQ=:NmY3OTQwY2UtYjEyZC00ODdjLTk1ZGMtMDg5Yzk2NDZiODQ1",
+                "@type": "odrl:Offer",
+                "odrl:permission": [],
+                "odrl:prohibition": [],
+                "odrl:obligation": []
+            },
+            "dcat:distribution": [
+                {
+                    "@type": "dcat:Distribution",
+                    "dct:format": {
+                        "@id": "HttpData-PULL"
+                    },
+                    "dcat:accessService": {
+                        "@id": "dba26e77-1497-4f75-8b2a-3bdd1ad5d350",
+                        "@type": "dcat:DataService"
+                    }
+                },
+                {
+                    "@type": "dcat:Distribution",
+                    "dct:format": {
+                        "@id": "HttpData-PUSH"
+                    },
+                    "dcat:accessService": {
+                        "@id": "dba26e77-1497-4f75-8b2a-3bdd1ad5d350",
+                        "@type": "dcat:DataService"
+                    }
+                }
+            ],
+            "proxyPath": "true",
+            "version": "",
+            "name": "consumer-asset",
+            "proxyQueryParams": "true",
+            "id": "consumer-asset",
+            "contenttype": "application/json",
+            "baseUrl": "http://data-source:5000/data"
+        },
+        "dcat:distribution": [],
+        "dcat:service": {
+            "@id": "dba26e77-1497-4f75-8b2a-3bdd1ad5d350",
+            "@type": "dcat:DataService",
+            "dcat:endpointDescription": "dspace:connector",
+            "dcat:endpointUrl": "http://consumer-connector:29194/protocol",
+            "dcat:endpointURL": "http://consumer-connector:29194/protocol"
+        },
+        "dspace:participantId": "consumer",
+        "originator": "http://consumer-connector:29194/protocol",
+        "@context": {
+            "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+            "edc": "https://w3id.org/edc/v0.0.1/ns/",
+            "odrl": "http://www.w3.org/ns/odrl/2/",
+            "dcat": "http://www.w3.org/ns/dcat#",
+            "dct": "http://purl.org/dc/terms/",
+            "dspace": "https://w3id.org/dspace/v0.8/"
+        }
+    },
+    {
+        "@id": "16fb192c-76de-4354-af14-f2fd247de344",
+        "@type": "dcat:Catalog",
+        "dcat:dataset": [
+            {
+                "@id": "asset-workshop-demo-by-api",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": [
+                    {
+                        "@id": "ZGVmYXVsdA==:YXNzZXQtd29ya3Nob3AtZGVtby1ieS1hcGk=:MGZmYWU2YWItNzA4Yy00ZjRjLTlmYWUtZTkwZjE4NmUyNWRm",
+                        "@type": "odrl:Offer",
+                        "odrl:permission": [],
+                        "odrl:prohibition": [],
+                        "odrl:obligation": []
+                    },
+                    {
+                        "@id": "dGVzdC1jZC0wMDE=:YXNzZXQtd29ya3Nob3AtZGVtby1ieS1hcGk=:ODRlNGYzZjItOWEyOC00NjI0LTk4OTYtYzQ2ZDNiOGM0NThm",
+                        "@type": "odrl:Offer",
+                        "odrl:permission": [],
+                        "odrl:prohibition": [],
+                        "odrl:obligation": []
+                    }
+                ],
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "name": "test of asset, just to have another one on board",
+                "id": "asset-workshop-demo-by-api",
+                "contenttype": "application/json"
+            },
+            {
+                "@id": "test-asset-data-source-01",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": [
+                    {
+                        "@id": "c3RhbmRhcmQtdGVzdC1jb250cmFjdC1kZWZpbml0aW9u:dGVzdC1hc3NldC1kYXRhLXNvdXJjZS0wMQ==:MThjMjgxODktYWZiMy00ODdhLWIzZjAtYTk5Yjg3MDc1MTll",
+                        "@type": "odrl:Offer",
+                        "odrl:permission": [],
+                        "odrl:prohibition": [],
+                        "odrl:obligation": []
+                    },
+                    {
+                        "@id": "ZGVmYXVsdC0y:dGVzdC1hc3NldC1kYXRhLXNvdXJjZS0wMQ==:MmY4Mjk3ZjYtMjA2YS00YWI1LWE2OTgtNmRkNjkzNjNlNmM1",
+                        "@type": "odrl:Offer",
+                        "odrl:permission": [],
+                        "odrl:prohibition": [],
+                        "odrl:obligation": []
+                    }
+                ],
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "test-asset-data-source-01",
+                "proxyQueryParams": "true",
+                "id": "test-asset-data-source-01",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data/"
+            },
+            {
+                "@id": "test-asset-data-source-02",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "ZGVmYXVsdC0y:dGVzdC1hc3NldC1kYXRhLXNvdXJjZS0wMg==:N2Q1NzE2ODctNTFkZi00MWM2LTkxYWMtOTJlN2Y2MGE5MDY5",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": [],
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "test-asset-data-source-02",
+                "proxyQueryParams": "true",
+                "id": "test-asset-data-source-02",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data/"
+            },
+            {
+                "@id": "intervaled-asset",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "dGltZWQtaW50ZXJ2YWwtY29udC1kZWYtMg==:aW50ZXJ2YWxlZC1hc3NldA==:ZGQ4ZWUzM2UtNjcxYi00NTIzLTkzNGUtMWFlZDhlNDUxMTlj",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": {
+                        "odrl:action": {
+                            "@id": "odrl:use"
+                        },
+                        "odrl:constraint": [
+                            {
+                                "odrl:leftOperand": {
+                                    "@id": "edc:timeInterval"
+                                },
+                                "odrl:operator": {
+                                    "@id": "odrl:gteq"
+                                },
+                                "odrl:rightOperand": "2024-11-18T09:00:00.000Z"
+                            },
+                            {
+                                "odrl:leftOperand": {
+                                    "@id": "edc:timeInterval"
+                                },
+                                "odrl:operator": {
+                                    "@id": "odrl:lteq"
+                                },
+                                "odrl:rightOperand": "2024-11-18T10:00:00.000Z"
+                            }
+                        ]
+                    },
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "intervaled-asset",
+                "proxyQueryParams": "true",
+                "id": "intervaled-asset",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data/"
+            },
+            {
+                "@id": "intervaled-asset-02",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "ZGVmYXVsdC0y:aW50ZXJ2YWxlZC1hc3NldC0wMg==:ZTYxMTg0YzItMGJmMy00ZTU0LWI1NTktOWEzZmE4OWYwNjli",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": [],
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "intervaled-asset-02",
+                "proxyQueryParams": "true",
+                "id": "intervaled-asset-02",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data/"
+            },
+            {
+                "@id": "test-policies-asset-special",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "Y2RkZA==:dGVzdC1wb2xpY2llcy1hc3NldC1zcGVjaWFs:YmZhNGU5YmMtY2I5OS00OGE3LWFmZjAtM2I3MzE3MzI5NzQ2",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": {
+                        "odrl:action": {
+                            "@id": "odrl:use"
+                        },
+                        "odrl:constraint": {
+                            "odrl:leftOperand": {
+                                "@id": "edc:purpose"
+                            },
+                            "odrl:operator": {
+                                "@id": "odrl:eq"
+                            },
+                            "odrl:rightOperand": "marketing"
+                        }
+                    },
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "test-policies-asset-special",
+                "proxyQueryParams": "true",
+                "id": "test-policies-asset-special",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data/"
+            },
+            {
+                "@id": "Large asset",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "bGFyZ2UtYXNzZXQtZGVm:TGFyZ2UgYXNzZXQ=:N2IyNjMzMzMtZjUwZi00MWU1LWI4ZTQtZmI4ZGQyNzhmNTlj",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": [],
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "Large asset",
+                "proxyQueryParams": "true",
+                "id": "Large asset",
+                "contenttype": "application/json",
+                "baseUrl": " https://sensor-things-api-sensor-things-api.apps.dcw1.paas.psnc.pl/BerlinLakesWaterLevel/api/v1.0/Observations/ "
+            },
+            {
+                "@id": "data-with",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "dHJhaWxpbmctY2Q=:ZGF0YS13aXRo:MTUwMGYzOWItZmQxZi00ZGFhLWJiZDgtZmUyZGZmYTY4YzI4",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": [],
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "data-with",
+                "proxyQueryParams": "true",
+                "id": "data-with",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data/"
+            },
+            {
+                "@id": "data-without",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": [
+                    {
+                        "@id": "dHJhaWxpbmctY2Q=:ZGF0YS13aXRob3V0:YTZiZDZiZGYtOWJlZS00MzE3LTlmNDMtNzUzYmY1Y2U0YWE3",
+                        "@type": "odrl:Offer",
+                        "odrl:permission": [],
+                        "odrl:prohibition": [],
+                        "odrl:obligation": []
+                    },
+                    {
+                        "@id": "dHJhaWxpbmctY2QtMDI=:ZGF0YS13aXRob3V0:MDAzYjA5YWItOGEwMy00NWYzLWJmZDgtMzc4Y2U5MTNhNGIx",
+                        "@type": "odrl:Offer",
+                        "odrl:permission": [],
+                        "odrl:prohibition": [],
+                        "odrl:obligation": []
+                    }
+                ],
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "data-without",
+                "proxyQueryParams": "true",
+                "id": "data-without",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data"
+            },
+            {
+                "@id": "last-local-test-01",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "bGFzdC1jZA==:bGFzdC1sb2NhbC10ZXN0LTAx:OTYxZjE1MzEtM2M1Mi00Yjk2LWJmNTctNGU2NTk5MWNjMWE4",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": {
+                        "odrl:action": {
+                            "@id": "odrl:use"
+                        },
+                        "odrl:constraint": [
+                            {
+                                "odrl:leftOperand": {
+                                    "@id": "edc:timeInterval"
+                                },
+                                "odrl:operator": {
+                                    "@id": "odrl:gteq"
+                                },
+                                "odrl:rightOperand": "2024-11-26T10:28:40.000Z"
+                            },
+                            {
+                                "odrl:leftOperand": {
+                                    "@id": "edc:timeInterval"
+                                },
+                                "odrl:operator": {
+                                    "@id": "odrl:lteq"
+                                },
+                                "odrl:rightOperand": "2024-11-26T10:31:41.000Z"
+                            }
+                        ]
+                    },
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "proxyPath": "true",
+                "version": "",
+                "name": "last-local-test-01",
+                "proxyQueryParams": "true",
+                "id": "last-local-test-01",
+                "contenttype": "application/json",
+                "baseUrl": "http://data-source:5000/data"
+            },
+            {
+                "@id": "registration-service-notebook-example-asset",
+                "@type": "dcat:Dataset",
+                "odrl:hasPolicy": {
+                    "@id": "cmVnaXN0cmF0aW9uLXNlcnZpY2Utbm90ZWJvb2stZXhhbXBsZS1jb250cmFjdC1kZWZpbml0aW9u:cmVnaXN0cmF0aW9uLXNlcnZpY2Utbm90ZWJvb2stZXhhbXBsZS1hc3NldA==:YzY1YjdlYTktYWM5OS00YTRkLTg2Y2ItMTIyMGU1N2MwYmYz",
+                    "@type": "odrl:Offer",
+                    "odrl:permission": {
+                        "odrl:action": {
+                            "@id": "odrl:use"
+                        },
+                        "odrl:constraint": {
+                            "odrl:leftOperand": {
+                                "@id": "edc:regionLocation"
+                            },
+                            "odrl:operator": {
+                                "@id": "odrl:eq"
+                            },
+                            "odrl:rightOperand": "pl"
+                        }
+                    },
+                    "odrl:prohibition": [],
+                    "odrl:obligation": []
+                },
+                "dcat:distribution": [
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PULL"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    },
+                    {
+                        "@type": "dcat:Distribution",
+                        "dct:format": {
+                            "@id": "HttpData-PUSH"
+                        },
+                        "dcat:accessService": {
+                            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+                            "@type": "dcat:DataService"
+                        }
+                    }
+                ],
+                "name": "registration-service-notebook-example-asset",
+                "id": "registration-service-notebook-example-asset",
+                "contenttype": "application/json"
+            }
+        ],
+        "dcat:distribution": [],
+        "dcat:service": {
+            "@id": "14729db3-b53a-461b-aee1-e10a9b0f025d",
+            "@type": "dcat:DataService",
+            "dcat:endpointDescription": "dspace:connector",
+            "dcat:endpointUrl": "http://provider-connector:19194/protocol",
+            "dcat:endpointURL": "http://provider-connector:19194/protocol"
+        },
+        "dspace:participantId": "provider",
+        "originator": "http://provider-connector:19194/protocol",
+        "@context": {
+            "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+            "edc": "https://w3id.org/edc/v0.0.1/ns/",
+            "odrl": "http://www.w3.org/ns/odrl/2/",
+            "dcat": "http://www.w3.org/ns/dcat#",
+            "dct": "http://purl.org/dc/terms/",
+            "dspace": "https://w3id.org/dspace/v0.8/"
+        }
+    }
+]

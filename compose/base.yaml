@@ -2,6 +2,42 @@ version: '3.8'
 
 services:
 
+  registration-service-frontend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/registration-service-frontend:${IMAGE_TAG}
+    ports:
+      - "38080:80"
+    volumes:
+        - ../docker/registration-service-frontend/config/app.nginx.conf:/etc/nginx/nginx.conf
+        - ../docker/registration-service-frontend/config/app.config.json:/usr/share/nginx/html/assets/config/app.config.json
+    user: "root"
+    depends_on:
+      - registration-service-backend
+
+  registration-service-backend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/registration-service-backend:${IMAGE_TAG}
+    volumes:
+      - ../docker/registration-service-backend/config/configuration.properties:/app/configuration.properties:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    ports:
+      - "38181:8181"
+      - "38182:8182"
+    depends_on:
+      - registration-service-postgres
+      - identity-provider
+
+  registration-service-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5435:5432'
+    volumes:
+      - 'registration-service-postgresql:/bitnami/postgresql'
+
   federated-catalog:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
     volumes:
@@ -42,10 +78,7 @@ services:
       - "19192:19192"
     volumes:
       - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
-      - ../docker/connector/config/keystore.pfx:/app/keystore.pfx:ro
-      - ../docker/connector/config/fs-provider.vault:/app/fs.vault
-      - ../docker/connector/config/api_collection.json:/app/api_collection.json
-      - ../docker/connector/config/json_example.json:/app/json_example.json
+      - ../docker/connector/certs/provider-daps.jks:/app/certs/daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
       EDC_API_AUTH_KEY: "fifi-info-zaneta"
@@ -87,8 +120,7 @@ services:
       - "29192:29192"
     volumes:
       - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
-      - ../docker/connector/config/keystore.pfx:/app/keystore.pfx:ro
-      - ../docker/connector/config/fs-consumer.vault:/app/fs.vault
+      - ../docker/connector/certs/consumer-daps.jks:/app/certs/daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
       EDC_API_AUTH_KEY: "fifi-info-zaneta"
@@ -172,4 +204,6 @@ volumes:
   provider-postgresql:
     driver: local
   identity-provider-postgresql:
+    driver: local
+  registration-service-postgresql:
     driver: local

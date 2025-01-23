@@ -1,0 +1,26 @@
+.dialog-header {
+    display: flex;
+    padding: 24px;
+}
+
+.dialog-content {
+    width: 100%;
+}
+
+.dialog-title {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    flex: 1;
+}
+
+.section {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    mat-form-field {
+        flex: 1;
+    }
+}

@@ -1,0 +1,78 @@
+<div class="page-container">
+    <div>
+        <div>
+            <div class="page-title">Participants</div>
+            <div class="page-title-description">List of all participants of the dataspace</div>
+        </div>
+        <div class="filtering-controls-container">
+            <div class="search-container">
+                <mat-form-field class="search-field" appearance="outline">
+                  <mat-label>Search</mat-label>
+                  <input matInput (keyup)="applyFilter($event)" placeholder="consumer">
+                  <mat-icon matPrefix>search</mat-icon>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="table-container">
+            <div class="table-top-actions">
+              <button mat-button color="primary" (click)="openAddDialog()">
+                <mat-icon>add</mat-icon>Add a participant
+              </button>
+              <button matTooltip="Refresh participants" mat-icon-button color="primary" (click)="refreshParticipants()"><mat-icon>refresh</mat-icon></button>
+            </div>
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+              <!-- DID Column -->
+              <ng-container matColumnDef="did">
+                <th mat-header-cell *matHeaderCellDef> DID </th>
+                <td mat-cell *matCellDef="let element"> {{element.did}} </td>
+              </ng-container>
+
+              <!-- Protocol Url Column -->
+              <ng-container matColumnDef="protocolUrl">
+                <th mat-header-cell *matHeaderCellDef> Protocol url </th>
+                <td mat-cell *matCellDef="let element"> {{element.protocolUrl}} </td>
+              </ng-container>
+
+              <!-- Claims Column -->
+              <ng-container matColumnDef="claims">
+                <th mat-header-cell *matHeaderCellDef> Claims </th>
+                    <td mat-cell *matCellDef="let element">
+                        <ng-container *ngIf="element.claims !== undefined && element.claims.size !== 0; else noClaimsTemplate">
+                          <div class="claims-field">
+                            <div *ngFor="let claim of getClaimsArray(element)" class="claim-label">
+                              {{claim.key}} :
+                              <span *ngIf="claim.value; else emptyValue">{{ claim.value }}</span>
+                              <ng-template #emptyValue><i>empty</i></ng-template>
+                            </div>
+                          </div>
+                        </ng-container>
+                        <ng-template #noClaimsTemplate>
+                            No Claims Available
+                        </ng-template>
+                    </td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element">
+                    <span class="status" [ngClass]="element.status.toLowerCase()"> {{element.status}} </span>
+                  </td>
+                </ng-container>
+
+              <!-- Action Column -->
+            <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef> Action </th>
+                <td mat-cell *matCellDef="let element">
+                <button matTooltip="Edit participant" mat-icon-button color="primary" (click)="openEditDialog(element)"><mat-icon>mode_edit</mat-icon></button>
+                <button matTooltip="Delete participant" mat-icon-button color="primary" (click)="openDeleteParticipantDialog(element)"><mat-icon>delete_forever</mat-icon></button>
+                </td>
+            </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        </div>
+    </div>
+</div>

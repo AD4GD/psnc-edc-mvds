@@ -92,12 +92,29 @@ federatedcatalog_resources:
     cpu: "1"
     memory: "2000Mi"
 
+registrationservicefrontend_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+registrationservicebackend_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
 deploy_stateful_services: true
 
 deploy_connector: "{{ deploy_stateful_services }}"
 deploy_datadashboard: "{{ deploy_stateful_services }}"
 deploy_minio: "{{ deploy_stateful_services }}"
 deploy_identityprovider: "{{ deploy_stateful_services }}"
+deploy_registrationservice: "{{ deploy_stateful_services }}"
 
 minio_pvc_storage_size: "2Gi"
 minio_pvc_storage_class_name: ""
@@ -290,9 +307,34 @@ federatedcatalog_configmap__05_defaults:
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
 
+registrationservicebackend_configmap__05_defaults:
+  JVM_ARGS: ""
+  SERVICE_HOST: "https://registration-service-backend-edc-connector.apps.paas-dev.psnc.pl"
+  WEB_HTTP_PORT: "8181"
+  WEB_HTTP_PATH: "/api"
+  WEB_HTTP_CATALOG_PORT: "8182"
+  WEB_HTTP_AUTHORITY_PATH: "/authority"
+  EDC_WEB_REST_CORS_ENABLED: true
+  EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
+  EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
+  EDC_IDS_ID: "urn:federatedcatalog:psnc"
+  EDC_PARTICIPANT_ID: "federated-catalog"
+  EDC_OAUTH_PROVIDER_JWKS_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/certs"
+  EDC_OAUTH_TOKEN_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_CLIENT_ID: "federated-catalog"
+  EDC_OAUTH_CERTIFICATE_ALIAS: "dapsPublic"
+  EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
+  EDC_OAUTH_PROVIDER_AUDIENCE: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
+  EDC_AGENT_IDENTITY_KEY: "client_id"
+  EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
+
+
 # DO NOT CHANGE DEFINITIONS BELOW
 #
-deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback', 'federatedcatalog' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else []) + (['minio'] if deploy_minio else [])  + (['identityprovider'] if deploy_identityprovider else [])}}"
+deployed_parameters_packs: "{{ (['connectorconsumer', 'connectorprovider', 'consback', 'federatedcatalog' ] if deploy_connector else []) + (['consumerdashboard', 'providerdashboard'] if deploy_datadashboard else []) + (['minio'] if deploy_minio else [])  + (['identityprovider'] if deploy_identityprovider else []) + (['registrationservicefrontend', 'registrationservicebackend' ] if deploy_registrationservice else [])}}"
 
 # definitions below are helper definitions - do not change this
 

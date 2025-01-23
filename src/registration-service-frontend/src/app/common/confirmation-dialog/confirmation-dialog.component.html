@@ -1,0 +1,15 @@
+<div mat-dialog-title class="dialog-header">
+    <div class="dialog-title">
+        Confirmation
+    </div>
+    <button mat-icon-button class="close-button" (click)="onNoClick()">
+      <mat-icon>close</mat-icon>
+    </button>
+</div>
+<div mat-dialog-content>
+  <p>{{ data.message }}</p>
+</div>
+<div mat-dialog-actions>
+    <button mat-raised-button color="primary" (click)="onYesClick()">Yes</button>
+  <button mat-raised-button (click)="onNoClick()">No</button>
+</div>
