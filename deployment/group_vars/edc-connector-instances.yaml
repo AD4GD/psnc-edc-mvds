@@ -318,6 +318,7 @@ registrationservicebackend_configmap__05_defaults:
   WEB_HTTP_AUTHORITY_PATH: "/authority"
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
+  EDC_WEB_REST_CORS_METHODS: GET, POST, DELETE, PUT, OPTIONS, PATCH
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
