@@ -13,12 +13,12 @@ import { HttpClient } from "@angular/common/http";
 
 export const getCatalogApi = (configService: ConfigService, edcConnectorClient: EdcConnectorClient): CatalogApi => {
   const isUseFakeApi = configService.getConfig().isUseFakeBackend;
-  return isUseFakeApi ? new MockCatalogApiService() : new CatalogApiService(edcConnectorClient);
+  return isUseFakeApi === true ? new MockCatalogApiService() : new CatalogApiService(edcConnectorClient);
 };
 
 export const getBackendApi = (configService: ConfigService, http: HttpClient): BackendApi => {
   const isUseFakeApi = configService.getConfig().isUseFakeBackend;
-  return isUseFakeApi ? new MockBackendApiService() : new BackendApiService(configService, http);
+  return isUseFakeApi === true ? new MockBackendApiService() : new BackendApiService(configService, http);
 }
 
 export const getClient = (

@@ -187,6 +187,7 @@ connectorconsumer_configmap__05_defaults:
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
+  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/daps.jks"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
   EDC_WEB_REST_CORS_ENABLED: true
@@ -224,6 +225,7 @@ connectorprovider_configmap__05_defaults:
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
+  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/daps.jks"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-provider.vault"
   EDC_WEB_REST_CORS_ENABLED: true
@@ -310,12 +312,13 @@ federatedcatalog_configmap__05_defaults:
 registrationservicebackend_configmap__05_defaults:
   JVM_ARGS: ""
   SERVICE_HOST: "https://registration-service-backend-edc-connector.apps.paas-dev.psnc.pl"
-  WEB_HTTP_PORT: "8181"
+  WEB_HTTP_PORT: "38181"
   WEB_HTTP_PATH: "/api"
-  WEB_HTTP_CATALOG_PORT: "8182"
+  WEB_HTTP_AUTHORITY_PORT: "38182"
   WEB_HTTP_AUTHORITY_PATH: "/authority"
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
+  EDC_WEB_REST_CORS_METHODS: GET, POST, DELETE, PUT, OPTIONS, PATCH
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
