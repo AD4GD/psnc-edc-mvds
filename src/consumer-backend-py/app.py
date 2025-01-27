@@ -101,10 +101,10 @@ async def edr_endpoint(
 
     response = await get_asset_from_provider(transfer_process, proxy_path, proxy_query_params)
 
-    content_type = response.headers.get("content-type")
+    asset_id = transfer_process.payload.asset_id
 
     print("Start uploading...")
-    upload_asset_to_storage(minio_client, response)
+    upload_asset_to_storage(minio_client, response, asset_id)
 
     return JSONResponse(content={"status": "success"}, status_code=200)
 
@@ -134,18 +134,17 @@ async def get_asset_from_provider(request, proxy_path, proxy_query_params):
         return response
 
 
-def upload_asset_to_storage(minio_client, response):
+def upload_asset_to_storage(minio_client, response, asset_id):
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    filename = os.path.join("data", f"{timestamp}.bin")
 
     _mime = magic.from_buffer(response.content, mime=True)
     _ext = mimetypes.guess_extension(_mime)
     print(_mime, _ext)
 
     if _ext:
-        final_filename = os.path.join("data", f"{timestamp}{_ext}")
+        final_filename = os.path.join("data", f"{asset_id}-{timestamp}{_ext}")
     else:
-        final_filename = os.path.join("data", f"{timestamp}.bin")
+        final_filename = os.path.join("data", f"{asset_id}-{timestamp}.bin")
 
     writable_content = io.BytesIO(response.content)
 

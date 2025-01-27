@@ -12,16 +12,25 @@
   <div>
     <mat-form-field class="form-field" color="accent">
       <mat-label>Content Type</mat-label>
-      <input [(ngModel)]="contenttype" matInput [placeholder]="'text/plain'">
+      <mat-select [(value)]="contenttype" (selectionChange)="onContentTypeChange($event.value)">
+        <mat-option *ngFor="let type of mediaTypes" [value]="type">
+          {{ type }}
+        </mat-option>
+        <mat-option value="other">Other</mat-option>
+      </mat-select>
     </mat-form-field>
-
-    <mat-form-field class="form-field" color="accent">
-      <mat-label>Version</mat-label>
-      <input [(ngModel)]="version" matInput [placeholder]="'1.0'">
+    
+    <mat-form-field *ngIf="isOtherSelected" class="form-field" color="accent">
+      <mat-label>Enter Custom Content Type</mat-label>
+      <input matInput [(ngModel)]="contenttype" placeholder="Enter content type">
     </mat-form-field>
   </div>
 
   <div>
+    <mat-form-field class="form-field" color="accent">
+      <mat-label>Version</mat-label>
+      <input [(ngModel)]="version" matInput [placeholder]="'1.0'">
+    </mat-form-field>
     <mat-form-field class="form-field" color="accent" id="form-field-baseurl">
       <mat-label>Base url</mat-label>
       <input [(ngModel)]="baseUrl" matInput>

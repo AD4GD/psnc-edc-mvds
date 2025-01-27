@@ -3,6 +3,7 @@ import { AssetInput } from "@think-it-labs/edc-connector-client";
 import { MatDialogRef } from "@angular/material/dialog";
 import { StorageType } from "../../models/storage-type";
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { getMediaTypes } from 'src/modules/mgmt-api-client';
 
 
 @Component({
@@ -15,7 +16,6 @@ export class AssetEditorDialog implements OnInit {
   id: string = '';
   version: string = '';
   name: string = '';
-  contenttype: string = '';
 
   storageTypeId: string = 'AzureStorage';
   account: string = '';
@@ -34,9 +34,13 @@ export class AssetEditorDialog implements OnInit {
 
   isDisplayBaseUrl: boolean = true;
 
+  mediaTypes: string[] = getMediaTypes(); // Get all available media types
+  contenttype: string = 'application/json'; // Default selected content type
+  isOtherSelected: boolean = false; // Flag to show/hide custom input
 
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
       @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
+        this.mediaTypes = getMediaTypes();
   }
 
   ngOnInit(): void {
@@ -56,6 +60,13 @@ export class AssetEditorDialog implements OnInit {
     };
 
     this.dialogRef.close({ assetInput });
+  }
+
+  onContentTypeChange(selectedValue: string): void {
+    this.isOtherSelected = selectedValue === 'other';
+    if (!this.isOtherSelected) {
+      this.contenttype = selectedValue; // Update content type for predefined options
+    }
   }
 
   getProperties() {
