@@ -2,6 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {
   AssetService,
   ContractAgreementService,
+  MIME_TO_EXTENSION,
   TransferProcessService
 } from "../../../mgmt-api-client";
 import {forkJoin, from, Observable, of} from "rxjs";
@@ -299,26 +300,25 @@ export class ContractViewerComponent implements OnInit {
       console.log(e);
       this.notificationService.showError(message);
     }
-
   }
 
   private saveFileToDownloads = async (data: Response, transfer: TransferProcess) => {
-
-    const jsonData = await data.json();
-    console.log(jsonData);
-    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    const contentType = data.headers.get('Content-Type') || 'application/octet-stream';
+    const blob = await data.blob();
+  
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${transfer.assetId}.json`;
+    
+    const extension = MIME_TO_EXTENSION[contentType] || '';
+    a.download = `${transfer.assetId}${extension}`;
+  
     document.body.appendChild(a);
     a.click();
-
     URL.revokeObjectURL(url);
     document.body.removeChild(a);
-  }
-
+  };
+  
   // A fast fix for the problem related to a request to <service-name>:<port> on dev. env. (need localhost)
   // Temporary http scheme will be considered as a sign of a dev. environment
   private adjustServiceUrl = (url: string): string => {
