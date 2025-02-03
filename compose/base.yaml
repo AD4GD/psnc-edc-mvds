@@ -81,7 +81,6 @@ services:
       - ../docker/connector/certs/provider-daps.jks:/app/certs/daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
-      EDC_API_AUTH_KEY: "fifi-info-zaneta"
     user: "root"
     depends_on:
       - provider-postgres
@@ -123,7 +122,6 @@ services:
       - ../docker/connector/certs/consumer-daps.jks:/app/certs/daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
-      EDC_API_AUTH_KEY: "fifi-info-zaneta"
     user: "root"
     depends_on:
       - consumer-postgres
