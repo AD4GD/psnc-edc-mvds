@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { routes } from '../../app-routing.module';
 import { Title } from '@angular/platform-browser';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Component({
   selector: 'app-navigation',
@@ -22,6 +23,19 @@ export class NavigationComponent {
 
   constructor(
     public titleService: Title,
-    private breakpointObserver: BreakpointObserver) {
+    private breakpointObserver: BreakpointObserver,
+    private oauthService: OAuthService) {
+  }
+  
+  logout() {
+    this.oauthService.logOut();
+  }
+
+  isLoggedIn() {
+    return this.oauthService.getAccessToken() != null;
+  }
+
+  getUsername() {
+    return this.oauthService.getIdentityClaims()?.preferred_username;
   }
 }

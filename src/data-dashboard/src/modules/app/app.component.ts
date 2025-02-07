@@ -3,6 +3,8 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import {AppConfigService} from "./app-config.service";
+import { OAuthService } from 'angular-oauth2-oidc';
+import { FetchInterceptorService } from './fetch-edc.interceptor';
 
 @Component({
   selector: 'app-root',
@@ -15,10 +17,17 @@ export class AppComponent implements OnInit {
     private router: Router,
     private titleService: Title,
     private configService: AppConfigService,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute,
+    private oauthService: OAuthService,
+    private fetchInterceptor: FetchInterceptorService) {
+      fetchInterceptor.initFetchInterceptor();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    if (this.configService.isOAuthConfigured()) {
+      this.oauthService.configure(this.configService.getOAuthConfig()!);
+    }
+
     const appTitle = this.titleService.getTitle();
     this.router
       .events
@@ -33,7 +42,7 @@ export class AppComponent implements OnInit {
         })
       ).subscribe((title: string) => {
         this.titleService.setTitle(title);
-      });
+    });
   }
 
   themeClass(): string | undefined {

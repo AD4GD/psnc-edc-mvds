@@ -40,10 +40,7 @@ dependencies {
 
     implementation(libs.edc.api.observability)
 
-    implementation(libs.edc.auth.configuration)
-    implementation(project(":extensions:auth-composite"))
-    implementation(libs.edc.auth.tokenbased)
-    implementation(libs.edc.auth.delegated)
+    implementation(libs.psnc.auth.composite)
 
     // enable callbacks
     implementation(libs.edc.callback.event.dispatcher)

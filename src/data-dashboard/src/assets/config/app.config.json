@@ -1,9 +1,8 @@
 {
-  "apiKey": "ApiKeyDefaultValue",
-  "managementApiUrl": "http://localhost:4200/management",
-  "catalogUrl": "http://localhost:4200/catalog",
-  "storageAccount": "company2assets",
-  "storageExplorerLinkTemplate": "storageexplorer://v=1",
+  "managementApiUrl": "http://localhost:28080/management",
+  "catalogUrl": "http://localhost:9181/catalog",
   "theme": "theme-2",
-  "backendUrl": ""
+  "backendUrl": "",
+  "oauthIssuer": "http://localhost:8081/realms/Organizations",
+  "oauthClientId": "data-space"
 }
