@@ -61,7 +61,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             compositeTypes = objectMapper.readValue(compositeTypesString, String[].class);
-            System.out.println(Arrays.toString(compositeTypes));
+            monitor.debug(Arrays.toString(compositeTypes));
         } catch (Exception e) {
             e.printStackTrace();
         }
