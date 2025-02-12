@@ -34,8 +34,6 @@ WORKDIR /app
 # Copy the remaining source code
 COPY $PROJECT_PATH/ /app/
 
-COPY $PROJECT_PATH/ /app/
-
 RUN chmod +x /app/gradlew
 
 # Build the project

@@ -68,7 +68,6 @@ export class ParticipantsComponent implements OnInit {
       return [];
     }
     var array = Array.from(participant.claims, ([key, value]) => ({ key, value }));
-    console.log(array);
     return array;
   }
 

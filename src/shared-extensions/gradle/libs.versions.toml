@@ -11,5 +11,6 @@ edc-boot = { module = "org.eclipse.edc:boot", version.ref = "edc" }
 jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "rsApi" }
 edc-auth-spi = { module = "org.eclipse.edc:auth-spi", version.ref = "edc" }
 edc-auth-delegated = { module = "org.eclipse.edc:auth-delegated", version.ref = "edc" }
+edc-core-token = { module = "org.eclipse.edc:token-core", version.ref = "edc" }
 edc-auth-tokenbased = { module = "org.eclipse.edc:auth-tokenbased", version.ref = "edc" }
 edc-auth-configuration = { module = "org.eclipse.edc:auth-configuration", version.ref = "edc" }

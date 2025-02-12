@@ -51,6 +51,8 @@ dependencies {
 
     implementation(libs.edc.sql.pool.apache.commons)
 
+    implementation(libs.psnc.auth.composite)
+
     // JDK Logger
     runtimeOnly(libs.edc.ext.jdklogger)
 

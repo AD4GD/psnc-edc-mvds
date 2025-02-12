@@ -12,6 +12,7 @@ dependencies {
     implementation(libs.edc.auth.configuration)
     implementation(libs.edc.auth.tokenbased)
     implementation(libs.edc.auth.delegated)
+    implementation(libs.edc.core.token)
 }
 
 group = "com.psnc.mvds"

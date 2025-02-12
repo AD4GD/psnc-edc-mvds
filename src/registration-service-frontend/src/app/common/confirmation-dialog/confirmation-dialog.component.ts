@@ -1,12 +1,11 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SharedModule } from '../../shared/shared.module';
 
 @Component({
   selector: 'app-confirmation-dialog',
-  imports: [SharedModule],
   templateUrl: './confirmation-dialog.component.html',
-  styleUrl: './confirmation-dialog.component.scss'
+  styleUrl: './confirmation-dialog.component.scss',
+  standalone: false,
 })
 export class ConfirmationDialogComponent {
   constructor(

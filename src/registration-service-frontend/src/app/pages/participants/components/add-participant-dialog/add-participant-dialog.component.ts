@@ -2,16 +2,13 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RegistrationServiceClient } from '../../../../core/api/services/impl/registration-service-client';
-import { SharedModule } from '../../../../shared/shared.module';
-import { Participant } from '../../../../core/api/models/participant';
-import { HttpResponse } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-add-participant-dialog',
-  imports: [SharedModule],
   templateUrl: './add-participant-dialog.component.html',
-  styleUrl: './add-participant-dialog.component.scss'
+  styleUrl: './add-participant-dialog.component.scss',
+  standalone: false,
 })
 export class AddParticipantDialogComponent {
 
