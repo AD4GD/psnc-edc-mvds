@@ -165,7 +165,9 @@
                 "managementApiUrl": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/management",
                 "catalogUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-3",
-                "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
+                "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint",
+                "oauthIssuer": "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations",
+                "oauthClientId": "data-space"
               }
             nginx.conf: |
               events {}
@@ -434,7 +436,9 @@
                 "managementApiUrl": "https://provider-edc-connector.apps.paas-dev.psnc.pl/management",
                 "catalogUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
                 "theme": "theme-2",
-                "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint"
+                "backendUrl": "https://consback-edc-connector.apps.paas-dev.psnc.pl/edr-endpoint",
+                "oauthIssuer": "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations",
+                "oauthClientId": "data-space"
               }
             nginx.conf: |
               events {}
@@ -873,7 +877,9 @@
               {
                 "registrationServiceApiUrl": "https://registration-service-backend-edc-connector.apps.paas-dev.psnc.pl",
                 "federatedCatalogApiUrl": "https://federatedcatalog-edc-connector.apps.paas-dev.psnc.pl/catalog",
-                "environment": "production"
+                "environment": "production",
+                "oauthIssuer": "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations",
+                "oauthClientId": "data-space"
               }
             nginx.conf: |
               events {}
