@@ -6,6 +6,7 @@ ARG LAUNCHER_TYPE="daps"
 ARG JVM_ARGS=""
 
 ENV PROJECT_PATH="src/edc-connector"
+ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
 
 # Install required tools
 RUN apt update \
@@ -21,6 +22,14 @@ RUN chmod +x /app/gradlew
 # Cache gradlew wrapper
 RUN ./gradlew init
 RUN ./gradlew wrapper
+
+# Publish local maven packages
+WORKDIR /libs
+COPY $SHARED_EXTENSIONS_PATH/ /libs/
+RUN chmod +x /libs/gradlew
+RUN ./gradlew publishToMavenLocal --no-daemon
+
+WORKDIR /app
 
 # Copy the remaining source code
 COPY $PROJECT_PATH/ /app/
@@ -40,7 +49,7 @@ RUN cp $APP_BUILD_PATH /app/app.jar
 RUN touch /app/empty-vault.properties \
     && mkdir /app/config /app/certs
 COPY ./docker/connector/config/* /app/config/
-COPY ./docker/connector/certs/* /app/certs/
+COPY ./docker/connector/certs/daps.jks /app/certs/daps.jks
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 

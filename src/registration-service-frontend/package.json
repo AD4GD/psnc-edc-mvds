@@ -22,6 +22,7 @@
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
     "@think-it-labs/edc-connector-client": "^0.8.0",
+    "angular-oauth2-oidc": "^19.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

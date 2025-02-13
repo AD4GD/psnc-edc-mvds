@@ -57,8 +57,8 @@ def create_contract_definition(contract_definition_id, management_url, asset_id,
     )
 
 
-def fetch_catalog(federated_catalog_url):
-    return requests.post(f"{federated_catalog_url}/v1alpha/catalog/query")
+def fetch_catalog(federated_catalog_url, default_headers):
+    return requests.post(f"{federated_catalog_url}/v1alpha/catalog/query", headers=default_headers)
 
 
 def negotiate_contract(offer_id, consumer_management_url, provider_protocol_internal, permissions, default_headers):
@@ -147,5 +147,7 @@ def request_consumer_push_transfer(
     )
 
 
-def get_transfer_state(consumer_management_url, pull_transfer_id):
-    return requests.get(f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state").json()
+def get_transfer_state(consumer_management_url, pull_transfer_id, default_headers):
+    return requests.get(
+        f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers
+    ).json()

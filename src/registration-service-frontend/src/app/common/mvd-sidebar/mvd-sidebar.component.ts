@@ -4,7 +4,8 @@ import { ActivatedRoute, Route, Router, RouterModule, RouterOutlet } from '@angu
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { routes } from '../../app.routes'
+import { routes } from '../../app-routes.module'
+import { OAuthService } from 'angular-oauth2-oidc';
 
 export interface SidebarCategory {
   category: string,
@@ -13,23 +14,20 @@ export interface SidebarCategory {
 
 @Component({
   selector: 'mvd-sidebar',
-  imports: [
-    CommonModule,
-    RouterModule,
-    RouterOutlet, 
-    MatSidenavModule, 
-    MatListModule,
-    MatIconModule
-  ],
   templateUrl: './mvd-sidebar.component.html',
-  styleUrl: './mvd-sidebar.component.scss'
+  styleUrl: './mvd-sidebar.component.scss',
+  standalone: false,
 })
 export class MvdSidebarComponent implements OnInit {
 
   routesCategories: SidebarCategory[];
   activeRoute: string | null = null;
 
-  constructor(private router: Router , private activatedRoute: ActivatedRoute) {
+  constructor(
+    private router: Router, 
+    private activatedRoute: ActivatedRoute,
+    private oauthService: OAuthService
+  ) {
     const filteredRoutes = routes.filter((x) => x.path !== '');
 
     const categoryMap = this.groupRoutesByCategories(filteredRoutes);
@@ -42,11 +40,22 @@ export class MvdSidebarComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events.subscribe(() => {
-      this.activeRoute = this.router.url; // Tracks the current active route
+      this.activeRoute = this.router.url;
     });
 
-    // Set initial active route when the page loads
     this.activeRoute = this.router.url;
+  }
+
+  logout() {
+    this.oauthService.logOut();
+  }
+
+  isLoggedIn() {
+    return this.oauthService.getAccessToken() != null;
+  }
+
+  getUsername() {
+    return this.oauthService.getIdentityClaims()?.preferred_username;
   }
 
   private groupRoutesByCategories = (routes: Route[]) => {

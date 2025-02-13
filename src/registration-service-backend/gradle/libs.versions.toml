@@ -19,8 +19,11 @@ openApiTools = "0.2.6"
 picocli = "4.7.4"
 postgres = "42.4.0"
 flyway = "9.0.1"
+shared-extensions = "1.0.0"
 
 [libraries]
+psnc-auth-composite = { module = "com.psnc.mvds:auth-composite", version.ref = "shared-extensions" }
+
 edc-build-plugin = { module = "org.eclipse.edc.edc-build:org.eclipse.edc.edc-build.gradle.plugin", version.ref = "edc" }
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }

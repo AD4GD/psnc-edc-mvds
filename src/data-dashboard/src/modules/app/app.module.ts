@@ -17,13 +17,12 @@ import {MAT_FORM_FIELD_DEFAULT_OPTIONS} from '@angular/material/form-field';
 import {AppConfigService} from "./app-config.service";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {CONNECTOR_CATALOG_API, CONNECTOR_MANAGEMENT_API, LOCAL_STORAGE_TYPE, MINIO_STORAGE_TYPE} from "./variables";
-import {HTTP_INTERCEPTORS} from "@angular/common/http";
-import {EdcApiKeyInterceptor} from "./edc.apikey.interceptor";
-import {environment} from "../../environments/environment";
 import { EdcConnectorClient } from "@think-it-labs/edc-connector-client";
 import { MatChipsModule } from '@angular/material/chips';
 import { CUSTOM_PRESET, LOCATION_PRESET, PURPOSE_PRESET, TIME_INTERVAL_PRESET } from './policy-presets';
 import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from './policy-rule-types';
+import { OAuthModule } from 'angular-oauth2-oidc';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 @NgModule({
@@ -39,7 +38,9 @@ import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from './policy-rul
     MatListModule,
     EdcDemoModule,
     MatSnackBarModule,
-    MatChipsModule
+    MatChipsModule,
+    OAuthModule.forRoot(),
+    MatMenuModule,
   ],
   declarations: [
     AppComponent,
@@ -81,18 +82,9 @@ import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from './policy-rul
       useFactory: () => [PERMISSION_RULE, PROHIBITION_RULE, OBLIGATION_RULE]
     },
     {
-      provide: HTTP_INTERCEPTORS, multi: true, useFactory: () => {
-        let i = new EdcApiKeyInterceptor();
-        // TODO: read this from app.config.json??
-        i.apiKey = environment.apiKey
-        return i;
-      }, deps: [AppConfigService]
-    },
-    {
       provide: EdcConnectorClient,
       useFactory: (s: AppConfigService) => {
         return new EdcConnectorClient.Builder()
-          .apiToken(environment.apiKey)
           .managementUrl(s.getConfig()?.managementApiUrl as string)
           .federatedCatalogUrl(s.getConfig()?.catalogUrl as string)
           .build();

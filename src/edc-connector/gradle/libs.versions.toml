@@ -20,9 +20,10 @@ postgres = "42.4.0"
 flyway = "9.0.1"
 lombok = "1.18.28"
 tractus = "0.8.0-rc5"
+shared-extensions = "1.0.0"
 
 [libraries]
-edc-auth-tokenbased = { module = "org.eclipse.edc:auth-tokenbased", version.ref = "edc" }
+psnc-auth-composite = { module = "com.psnc.mvds:auth-composite", version.ref = "shared-extensions" }
 
 edc-boot = { module = "org.eclipse.edc:boot", version.ref = "edc" }
 edc-build-plugin = { module = "org.eclipse.edc.edc-build:org.eclipse.edc.edc-build.gradle.plugin", version.ref = "edc" }

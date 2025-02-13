@@ -40,6 +40,8 @@ dependencies {
 
     implementation(libs.edc.api.observability)
 
+    implementation(libs.psnc.auth.composite)
+
     // enable callbacks
     implementation(libs.edc.callback.event.dispatcher)
     implementation(libs.edc.callback.http.dispatcher)

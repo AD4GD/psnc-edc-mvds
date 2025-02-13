@@ -17,6 +17,29 @@
                         </div>
                     </a>
                 </div>
+                <ng-container *ngIf="isLoggedIn()">
+                    <div class="sidebar-tab-category-title">
+                        User
+                    </div>
+                    <a mat-list-item class="sidebar-tab" [matMenuTriggerFor]="userMenu">
+                        <mat-icon matListItemIcon class="sidebar-tab-icon">person</mat-icon>
+                        <div class="sidebar-tab-user">
+                            <div class="sidebar-tab-text">
+                                {{ getUsername() }}
+                            </div>
+                            <mat-icon class="sidebar-tab-dropdown-icon">arrow_drop_down</mat-icon>
+                        </div>
+                    </a>
+                    <mat-menu #userMenu="matMenu">
+                        <button mat-menu-item [disabled]>
+                            <mat-icon>account_circle</mat-icon> Profile
+                        </button>
+                        <button mat-menu-item (click)="logout()">
+                            <mat-icon>logout</mat-icon> Logout
+                        </button>
+                    </mat-menu>
+                </ng-container>
+        
             </mat-nav-list>
         </div>
     </mat-sidenav>

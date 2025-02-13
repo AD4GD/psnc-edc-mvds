@@ -11,45 +11,53 @@ import {
 } from '../edc-demo/components/transfer-history/transfer-history-viewer.component';
 import {PolicyViewComponent} from "../edc-demo/components/policy-view/policy-view.component";
 import {ContractViewerComponent} from "../edc-demo/components/contract-viewer/contract-viewer.component";
+import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'introduction',
     component: IntroductionComponent,
-    data: {title: 'Getting Started', icon: 'info_outline'}
+    data: {title: 'Getting Started', icon: 'info_outline'},
+    canActivate: [authGuard],
   },
   {
     path: 'browse-catalog',
     component: CatalogBrowserComponent,
-    data: {title: 'Catalog Browser', icon: 'sim_card'}
+    data: {title: 'Catalog Browser', icon: 'sim_card'},
+    canActivate: [authGuard],
   },
   {
     path: 'contracts',
     component: ContractViewerComponent,
-    data: {title: 'Contracts', icon: 'attachment'}
+    data: {title: 'Contracts', icon: 'attachment'},
+    canActivate: [authGuard],
   },
   {
     path: 'transfer-history',
     component: TransferHistoryViewerComponent,
-    data: {title: 'Transfer History', icon: 'assignment'}
+    data: {title: 'Transfer History', icon: 'assignment'},
+    canActivate: [authGuard],
   },
   {
     path: 'contract-definitions',
     component: ContractDefinitionViewerComponent,
-    data: {title: 'Contract Definitions', icon: 'rule'}
+    data: {title: 'Contract Definitions', icon: 'rule'},
+    canActivate: [authGuard],
   },
   {
     path: 'policies',
     component: PolicyViewComponent,
-    data: {title: 'Policies', icon: 'policy'}
+    data: {title: 'Policies', icon: 'policy'},
+    canActivate: [authGuard],
   },
   {
     path: 'my-assets', // must not be "assets" to prevent conflict with assets directory
     component: AssetViewerComponent,
-    data: {title: 'Assets', icon: 'upload'}
+    data: {title: 'Assets', icon: 'upload'},
+    canActivate: [authGuard],
   },
   {
-    path: '', redirectTo: 'introduction', pathMatch: 'full'
+    path: '', redirectTo: 'introduction', pathMatch: 'full',
   }
 ];
 

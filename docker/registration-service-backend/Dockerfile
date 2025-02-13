@@ -4,6 +4,7 @@ FROM ${BASE_IMAGE}
 ARG JVM_ARGS=""
 
 ENV PROJECT_PATH="src/registration-service-backend"
+ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
 
 # Install required tools
 RUN apt update \
@@ -19,6 +20,14 @@ RUN chmod +x /app/gradlew
 # Need for gradlew wrapper
 RUN ./gradlew init
 RUN ./gradlew wrapper
+
+# Publish local maven packages
+WORKDIR /libs
+COPY $SHARED_EXTENSIONS_PATH/ /libs/
+RUN chmod +x /libs/gradlew
+RUN ./gradlew publishToMavenLocal --no-daemon
+
+WORKDIR /app
 
 # Copy the remaining source code
 COPY $PROJECT_PATH/ /app/

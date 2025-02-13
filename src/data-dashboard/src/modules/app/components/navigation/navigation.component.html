@@ -22,6 +22,23 @@
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
       <span>{{titleService.getTitle()}}</span>
+      <span class="spacer"></span>
+
+      <!-- User Profile Dropdown -->
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" *ngIf="isLoggedIn()">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item disabled>
+          <mat-icon>person</mat-icon>
+          {{ getUsername() }}
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          Logout
+        </button>
+      </mat-menu>
     </mat-toolbar>
     <router-outlet></router-outlet>
   </mat-sidenav-content>

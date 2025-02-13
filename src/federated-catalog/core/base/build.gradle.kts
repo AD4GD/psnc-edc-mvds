@@ -24,4 +24,6 @@ dependencies {
     implementation(libs.postgresql)
     implementation(libs.flyway.core)
     implementation(libs.edc.sql.pool)
+
+    implementation(libs.psnc.auth.composite)
 }

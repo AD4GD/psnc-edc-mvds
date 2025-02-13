@@ -1,12 +1,15 @@
-import { Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { DataCatalogComponent } from './pages/data-catalog/data-catalog.component';
 import { ParticipantsComponent } from './pages/participants/participants.component';
+import { authGuard } from './core/auth/auth.guard';
+import { NgModule } from '@angular/core';
 
 export const routes: Routes = [
     {
         path: 'catalog',
         component: DataCatalogComponent,
-        data: {title: 'Catalog', icon: 'dataset', category: "Home"}
+        data: {title: 'Catalog', icon: 'dataset', category: "Home"},
+        canActivate: [authGuard],
     },
     /*
     {
@@ -34,7 +37,8 @@ export const routes: Routes = [
     {
       path: 'participants',
       component: ParticipantsComponent,
-      data: {title: 'Participants', icon: 'people_outline', category: "Data Space Authority"}
+      data: {title: 'Participants', icon: 'people_outline', category: "Data Space Authority"},
+      canActivate: [authGuard],
     },
     /*
     {
@@ -52,3 +56,9 @@ export const routes: Routes = [
         path: '', redirectTo: 'catalog', pathMatch: 'full'
     }
 ];
+
+@NgModule({
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
+})
+export class AppRoutingModule { }
