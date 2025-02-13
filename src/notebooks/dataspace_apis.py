@@ -148,4 +148,6 @@ def request_consumer_push_transfer(
 
 
 def get_transfer_state(consumer_management_url, pull_transfer_id, default_headers):
-    return requests.get(f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers).json()
+    return requests.get(
+        f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers
+    ).json()
