@@ -183,7 +183,7 @@ connectorconsumer_configmap__05_defaults:
   WEB_HTTP_CONTROL_PORT: "29192"
   WEB_HTTP_CONTROL_PATH: "/control"
   WEB_HTTP_MANAGEMENT_AUTH_TYPE: "composite"
-  WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: "['tokenbased', 'delegated']"
+  WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: '["tokenbased", "delegated"]'
   WEB_HTTP_MANAGEMENT_AUTH_CONTEXT: "management-api"
   WEB_HTTP_MANAGEMENT_AUTH_KEY: "edc"
   WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations/protocol/openid-connect/certs"
@@ -233,7 +233,7 @@ connectorprovider_configmap__05_defaults:
   WEB_HTTP_CONTROL_PORT: "19192"
   WEB_HTTP_CONTROL_PATH: "/control"
   WEB_HTTP_MANAGEMENT_AUTH_TYPE: "composite"
-  WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: "['tokenbased', 'delegated']"
+  WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: '["tokenbased", "delegated"]'
   WEB_HTTP_MANAGEMENT_AUTH_CONTEXT: "management-api"
   WEB_HTTP_MANAGEMENT_AUTH_KEY: "edc"
   WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations/protocol/openid-connect/certs"
@@ -316,9 +316,9 @@ federatedcatalog_configmap__05_defaults:
   WEB_HTTP_CATALOG_PORT: "8181"
   WEB_HTTP_CATALOG_PATH: "/catalog"
   WEB_HTTP_CATALOG_AUTH_TYPE: "composite"
-  WEB_HTTP_CATALOG_AUTH_INCLUDES: "['tokenbased', 'delegated']"
+  WEB_HTTP_CATALOG_AUTH_INCLUDES: '["tokenbased", "delegated"]'
   WEB_HTTP_CATALOG_AUTH_KEY: "edc"
-  WEB_HTTP_CATALOG_AUTH_DAC_KEY_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+  WEB_HTTP_CATALOG_AUTH_DAC_KEY_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations/protocol/openid-connect/certs"
   EDC_API_AUTH_DAC_KEY_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations/protocol/openid-connect/certs"
   WEB_HTTP_DEFAULT_AUTH_TYPE: "tokenbased"
   WEB_HTTP_DEFAULT_AUTH_CONTEXT: "default-api"
@@ -349,10 +349,10 @@ registrationservicebackend_configmap__05_defaults:
   WEB_HTTP_AUTHORITY_PORT: "38182"
   WEB_HTTP_AUTHORITY_PATH: "/authority"
   WEB_HTTP_AUTHORITY_AUTH_TYPE: "composite"
-  WEB_HTTP_AUTHORITY_AUTH_INCLUDES: "['tokenbased', 'delegated']"
+  WEB_HTTP_AUTHORITY_AUTH_INCLUDES: '["tokenbased", "delegated"]'
   WEB_HTTP_AUTHORITY_AUTH_KEY: "edc"
-  WEB_HTTP_AUTHORITY_AUTH_DAC_KEY_URL: "http://identity-provider:8080/realms/Organizations/protocol/openid-connect/certs"
-  EDC_API_AUTH_DAC_KEY_URL: "http://identity-provider:8080/realms/Organizations/protocol/openid-connect/certs"
+  WEB_HTTP_AUTHORITY_AUTH_DAC_KEY_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations/protocol/openid-connect/certs"
+  EDC_API_AUTH_DAC_KEY_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/Organizations/protocol/openid-connect/certs"
   WEB_HTTP_DEFAULT_AUTH_TYPE: "tokenbased"
   WEB_HTTP_DEFAULT_AUTH_CONTEXT: "default-api"
   WEB_HTTP_DEFAULT_AUTH_KEY: "edc"
