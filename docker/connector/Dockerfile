@@ -11,6 +11,7 @@ ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
 # Install required tools
 RUN apt update \
     && apt install -y curl unzip \
+    && apt clean \
     && rm -rf /var/cache/apt/archives /var/lib/apt/lists
 
 WORKDIR /app
@@ -49,7 +50,7 @@ RUN cp $APP_BUILD_PATH /app/app.jar
 RUN touch /app/empty-vault.properties \
     && mkdir /app/config /app/certs
 COPY ./docker/connector/config/* /app/config/
-COPY ./docker/connector/certs/daps.jks /app/certs/daps.jks
+COPY ./docker/certs/* /app/certs/
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 
