@@ -3,7 +3,6 @@ rootProject.name = "federated-catalog"
 include(":core:base")
 include(":launchers:daps")
 include(":launchers:no-daps")
-// include(":shared-extensions:vault-keys-seeder")
 include(":extensions:catalog-node-resolver")
 include(":extensions:target-node-directory-sql")
 
