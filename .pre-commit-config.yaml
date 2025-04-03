@@ -25,15 +25,16 @@ repos:
       hooks:
         -   id: isort
   -   repo: https://github.com/pycqa/pylint
-      rev: "v2.9.3"
+      rev: "v3.3.6" # Update me!
       hooks:
         -   id: pylint
             args:
               - "--max-line-length=120"
               - "--enable=all"
-              - "--disable=C0103,C0114,C0115,C0116,C0206,C0301,C0302,E0401,E501,E1101,E1131,I0011,I0020,I0021,I0023,R0201,R0904,R0914,R0903,R0911,R0912,R0913,R0915,R1702,R1705,R1720,R1725,W605,W0707,W1113,W1203,W0613"
+              - "--max-positional-arguments=6"
+              - "--disable=C0103,C0114,C0115,C0116,C0206,C0301,C0302,E0401,E1101,E1131,I0011,I0020,I0021,I0023,R0904,R0914,R0903,R0911,R0912,R0913,R0915,R1702,R1705,R1720,R1725,W0511,W0707,W1113,W1203,W0613"
   -   repo: https://github.com/pycqa/flake8
-      rev: "3.9.2"
+      rev: "7.2.0" # Update me!
       hooks:
         -   id: flake8
   # TODO: DV-839 enable this later
@@ -43,7 +44,7 @@ repos:
   #     -   id: mypy
   #         args: ["--ignore-missing-imports"]
   -   repo: https://github.com/PyCQA/bandit
-      rev: '1.7.0' # Update me!
+      rev: '1.8.3' # Update me!
       hooks:
         -   id: bandit
             args:

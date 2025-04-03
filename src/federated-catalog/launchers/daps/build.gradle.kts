@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation(project(":core:base"))
     implementation(libs.psnc.vault.keys.seeder)
-    
+
     // OAuth2 DAPS
     implementation(libs.edc.oauth2.core)
     implementation(libs.edc.oauth2.daps)

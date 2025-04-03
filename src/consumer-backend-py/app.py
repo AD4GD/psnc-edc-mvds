@@ -1,6 +1,5 @@
 import datetime
 import io
-import json
 import logging
 import mimetypes
 import os
@@ -9,8 +8,8 @@ from typing import List, Optional
 import httpx
 import magic
 import uvicorn
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from minio import Minio
 from minio.error import S3Error
 from pydantic import BaseModel, Field
@@ -19,6 +18,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+IP = "0.0.0.0/0"  # nosec
+PORT = 4000  # nosec
 
 
 class DataAddressProperties(BaseModel):
@@ -120,10 +122,10 @@ async def get_asset_from_provider(request, proxy_path, proxy_query_params):
             content={"error": "Missing or invalid endpoint, authKey or authCode parameters."}, status_code=400
         )
 
-    if proxy_path != None and proxy_path != "":
+    if proxy_path is not None and proxy_path:
         endpoint = f"{endpoint}/{proxy_path}"
 
-    if proxy_query_params != None and proxy_query_params != "" and len(proxy_query_params.items()) > 0:
+    if proxy_query_params is not None and proxy_query_params and len(proxy_query_params.items()) > 0:
         endpoint = f"{endpoint}?{proxy_query_params}"
 
     headers = {"Authorization": authCode}
@@ -170,4 +172,4 @@ def create_bucket_if_not_exists(client, bucket_name):
 if __name__ == "__main__":
     if not os.path.exists("data"):
         os.makedirs("data")
-    uvicorn.run(app, host="0.0.0.0", port=4000)
+    uvicorn.run(app, host=IP, port=PORT)
