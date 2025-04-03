@@ -199,7 +199,7 @@ connectorconsumer_configmap__05_defaults:
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
-  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/daps.jks"
+  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/consumer-daps.jks"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-consumer.vault"
   EDC_WEB_REST_CORS_ENABLED: true
@@ -249,7 +249,7 @@ connectorprovider_configmap__05_defaults:
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
-  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/daps.jks"
+  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/provider-daps.jks"
   EDC_KEYSTORE: "/app/certs/cert.pfx"
   EDC_VAULT: "/app/config/fs-provider.vault"
   EDC_WEB_REST_CORS_ENABLED: true
@@ -329,6 +329,7 @@ federatedcatalog_configmap__05_defaults:
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: "dapsPrivate"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: "dapsPublic"
+  PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/federated-catalog-daps.jks"
   EDC_IDS_ID: "urn:federatedcatalog:psnc"
   EDC_PARTICIPANT_ID: "federated-catalog"
   EDC_OAUTH_PROVIDER_JWKS_URL: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl/realms/DAPS/protocol/openid-connect/certs"
