@@ -83,6 +83,30 @@
             </mat-form-field>
           </div>
         </mat-tab>
+        <mat-tab label="OAuth 2.0">
+          <div class="tab-content">
+            <mat-form-field class="form-field">
+              <mat-label>client id (grant type password)</mat-label>
+              <input matInput [(ngModel)]="iamClientId" placeholder="Enter Client Id">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>client secret</mat-label>
+              <input matInput [(ngModel)]="iamClientSecret" placeholder="Enter Client Secret">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>username</mat-label>
+              <input matInput [(ngModel)]="iamUsername" placeholder="Enter Username">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>password</mat-label>
+              <input matInput [(ngModel)]="iamPassword" placeholder="Enter Password">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>endpoint</mat-label>
+              <input matInput [(ngModel)]="iamEndpoint" placeholder="Enter Endpoint">
+            </mat-form-field>
+          </div>
+        </mat-tab>
       </mat-tab-group>
 
       <h5>Static headers (Optional)</h5>

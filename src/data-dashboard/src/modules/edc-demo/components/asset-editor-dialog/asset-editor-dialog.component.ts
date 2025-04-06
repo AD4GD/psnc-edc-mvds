@@ -38,6 +38,13 @@ export class AssetEditorDialog implements OnInit {
   contenttype: string = 'application/json'; // Default selected content type
   isOtherSelected: boolean = false; // Flag to show/hide custom input
 
+  iamClientId: string = '';
+  iamClientSecret: string = '';
+  iamUsername: string = '';
+  iamPassword: string = '';
+  iamEndpoint: string = '';
+
+
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
       @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
         this.mediaTypes = getMediaTypes();
@@ -46,30 +53,23 @@ export class AssetEditorDialog implements OnInit {
   ngOnInit(): void {
   }
 
-  onSave() {
-    
-    this.baseUrl = this.getWithoutTrailingSlashIfExists(this.baseUrl);
+  getPrivateProperties() {
+    if (this.authorizationTypeTab != "OAuth 2.0") {
+      return undefined;
+    }
 
-    const properties = this.getProperties();
-    const dataAddress = this.getDataAddress();
-
-    const assetInput: AssetInput = {
-      "@id": this.id,
-      properties: properties,
-      dataAddress: dataAddress
+    const properties: any = {
+      "iamClientId": this.iamClientId,
+      "iamClientSecret": this.iamClientSecret,
+      "iamUsername": this.iamUsername,
+      "iamPassword": this.iamPassword,
+      "iamEndpoint": this.iamEndpoint,
     };
 
-    this.dialogRef.close({ assetInput });
+    return properties;
   }
 
-  onContentTypeChange(selectedValue: string): void {
-    this.isOtherSelected = selectedValue === 'other';
-    if (!this.isOtherSelected) {
-      this.contenttype = selectedValue; // Update content type for predefined options
-    }
-  }
-
-  getProperties() {
+  getPublicProperties() {
     const properties: any = {
       "name": this.name,
       "version": this.version,
@@ -83,6 +83,31 @@ export class AssetEditorDialog implements OnInit {
     }
 
     return properties;
+  }
+
+  onSave() {
+    
+    this.baseUrl = this.getWithoutTrailingSlashIfExists(this.baseUrl);
+
+    const publicProperties = this.getPublicProperties();
+    const privateProperties = this.getPrivateProperties();
+    const dataAddress = this.getDataAddress();
+
+    const assetInput: AssetInput = {
+      "@id": this.id,
+      properties: publicProperties,
+      dataAddress: dataAddress,
+      privateProperties: privateProperties
+    };
+
+    this.dialogRef.close({ assetInput });
+  }
+
+  onContentTypeChange(selectedValue: string): void {
+    this.isOtherSelected = selectedValue === 'other';
+    if (!this.isOtherSelected) {
+      this.contenttype = selectedValue; // Update content type for predefined options
+    }
   }
 
   getDataAddress() {
