@@ -50,7 +50,7 @@ RUN cp $APP_BUILD_PATH /app/app.jar
 RUN touch /app/empty-vault.properties \
     && mkdir /app/config /app/certs
 COPY ./docker/federated-catalog/config/* /app/config/
-COPY ./docker/certs/federated-catalog-daps.jks /app/certs/federated-catalog-daps.jks
+COPY ./docker/federated-catalog/certs/federated-catalog-daps.jks /app/certs/federated-catalog-daps.jks
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 

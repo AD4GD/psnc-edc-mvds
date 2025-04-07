@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Str
 
 app = FastAPI()
 
-IP = "0.0.0.0/0"  # nosec
+IP = "0.0.0.0"  # nosec
 PORT = 5000  # nosec
 
 

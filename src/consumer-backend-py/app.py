@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-IP = "0.0.0.0/0"  # nosec
+IP = "0.0.0.0"  # nosec
 PORT = 4000  # nosec
 
 
