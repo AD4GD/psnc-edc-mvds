@@ -783,7 +783,7 @@
               application: "{{ application }}"
               component: federatedcatalog
           data:
-            federated-catalog-daps.jks: "{{ lookup('file', 'certs/federated-catalog.jks') | b64encode }}"
+            federated-catalog-daps.jks: "{{ lookup('file', 'certs/federated-catalog-daps.jks') | b64encode }}"
 
     - name: "deploy deployment/{{ application }}-federatedcatalog"
       when: "deploy_connector|bool"
@@ -854,7 +854,7 @@
                     secret:
                       secretName: "{{ application }}-federatedcatalog-jks"
                       items:
-                        - federated-catalog-key: "daps.jks"
+                        - key: "federated-catalog-daps.jks"
                           path: "federated-catalog-daps.jks"
 
     - name: "deploy service/{{ application }}-federatedcatalog"
