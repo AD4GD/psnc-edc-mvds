@@ -94,6 +94,9 @@ edc-data-plane-signaling-api = { module = "org.eclipse.edc:data-plane-signaling-
 edc-control-api-configuration = { module = "org.eclipse.edc:control-api-configuration", version.ref = "edc" }
 edc-data-plane-iam = { module = "org.eclipse.edc:data-plane-iam", version.ref = "edc" }
 edc-token-core = { module = "org.eclipse.edc:token-core", version.ref = "edc" }
+edc-token-spi = { module = "org.eclipse.edc:token-spi", version.ref = "edc" }
+edc-jwt-spi = { module = "org.eclipse.edc:jwt-spi", version.ref = "edc" }
+edc-oauth2-spi = { module = "org.eclipse.edc:oauth2-spi", version.ref = "edc" }
 
 edc-contract-spi = { module = "org.eclipse.edc:contract-spi", version.ref = "edc" }
 edc-policy-engine-spi = { module = "org.eclipse.edc:policy-engine-spi", version.ref = "edc" }

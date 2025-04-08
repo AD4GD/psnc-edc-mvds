@@ -4,6 +4,7 @@ import { MatDialogRef } from "@angular/material/dialog";
 import { StorageType } from "../../models/storage-type";
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { getMediaTypes } from 'src/modules/mgmt-api-client';
+import { OAuth2AssetProps } from '../../models/oauth2-asset-props';
 
 
 @Component({
@@ -40,9 +41,13 @@ export class AssetEditorDialog implements OnInit {
 
   iamClientId: string = '';
   iamClientSecret: string = '';
-  iamUsername: string = '';
+  iamTokenUrl: string = '';
+  iamScope: string = '';
+  iamGrantType: string = 'client_credentials';
+  iamUser: string = '';
   iamPassword: string = '';
-  iamEndpoint: string = '';
+
+  grantTypes: string[] = ['client_credentials', 'password']
 
 
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
@@ -51,22 +56,6 @@ export class AssetEditorDialog implements OnInit {
   }
 
   ngOnInit(): void {
-  }
-
-  getPrivateProperties() {
-    if (this.authorizationTypeTab != "OAuth 2.0") {
-      return undefined;
-    }
-
-    const properties: any = {
-      "iamClientId": this.iamClientId,
-      "iamClientSecret": this.iamClientSecret,
-      "iamUsername": this.iamUsername,
-      "iamPassword": this.iamPassword,
-      "iamEndpoint": this.iamEndpoint,
-    };
-
-    return properties;
   }
 
   getPublicProperties() {
@@ -90,14 +79,12 @@ export class AssetEditorDialog implements OnInit {
     this.baseUrl = this.getWithoutTrailingSlashIfExists(this.baseUrl);
 
     const publicProperties = this.getPublicProperties();
-    const privateProperties = this.getPrivateProperties();
     const dataAddress = this.getDataAddress();
 
     const assetInput: AssetInput = {
       "@id": this.id,
       properties: publicProperties,
       dataAddress: dataAddress,
-      privateProperties: privateProperties
     };
 
     this.dialogRef.close({ assetInput });
@@ -134,13 +121,32 @@ export class AssetEditorDialog implements OnInit {
 
     const resultDataAddress = {
       ...dataAddress,
-      ...this.staticHeaders.reduce((acc, { key, value }) => {
-            acc[`header:${key}`] = value;
-            return acc;
-        }, {} as any)
+      ...this.getHeaderProps(),
+      ...(this.authorizationTypeTab != "OAuth 2.0" ? this.getOAuth2Props(): {})
     };
 
     return resultDataAddress;
+  }
+
+  getHeaderProps() {
+    return this.staticHeaders.reduce((acc, { key, value }) => {
+      acc[`header:${key}`] = value;
+      return acc;
+    }, {} as any)
+  }
+
+  getOAuth2Props() {
+    const oauthProps: OAuth2AssetProps = {
+      "oauth2:tokenUrl": this.iamTokenUrl,
+      "oauth2:clientId": this.iamClientId,
+      "oauth2:clientSecret": this.iamClientSecret,
+      "oauth2:grantType": this.iamGrantType,
+      "oauth2:user": this.iamUser == '' ? undefined : this.iamUser,
+      "oauth2:password": this.iamPassword == '' ? undefined : this.iamPassword,
+      "oauth2:scope": this.iamScope == '' ? undefined : this.iamScope,
+    };
+
+    return oauthProps;
   }
 
   addOrReplaceHeader(headerKey: string, headerValue: string) {
