@@ -15,6 +15,7 @@ shared-extensions = "1.0.0"
 
 [libraries]
 psnc-auth-composite = { module = "com.psnc.mvds:auth-composite", version.ref = "shared-extensions" }
+psnc-vault-keys-seeder = { module = "com.psnc.mvds:vault-keys-seeder", version.ref = "shared-extensions" }
 
 edc-build-plugin = { module = "org.eclipse.edc.edc-build:org.eclipse.edc.edc-build.gradle.plugin", version.ref = "edc" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }

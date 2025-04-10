@@ -1,11 +1,13 @@
 import csv
-from io import BytesIO, StringIO
-from typing import Optional
+from io import StringIO
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, StreamingResponse
 
 app = FastAPI()
+
+IP = "0.0.0.0"  # nosec
+PORT = 5000  # nosec
 
 
 @app.get("/data/{extra_path:path}")
@@ -86,4 +88,4 @@ async def get_csv():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host=IP, port=PORT)

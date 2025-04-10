@@ -1,8 +1,8 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
-# available types: catalog-iam-daps, catalog-iam-mocked
-ARG LAUNCHER_TYPE="catalog-iam-daps"
+# available types: daps, no-daps
+ARG LAUNCHER_TYPE="daps"
 ARG JVM_ARGS=""
 
 ENV PROJECT_PATH="src/federated-catalog"
@@ -11,6 +11,7 @@ ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
 # Install required tools
 RUN apt update \
     && apt install -y curl unzip \
+    && apt clean \
     && rm -rf /var/cache/apt/archives /var/lib/apt/lists
 
 WORKDIR /app
@@ -47,7 +48,7 @@ RUN cp $APP_BUILD_PATH /app/app.jar
 
 # Create directories and copy configurations
 RUN touch /app/empty-vault.properties \
-    && mkdir /app/config
+    && mkdir /app/config /app/certs
 COPY ./docker/federated-catalog/config/* /app/config/
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health

@@ -19,7 +19,7 @@ def create_asset(asset_id, management_url, default_headers, baseUrl="https://jso
     )
 
 
-def create_policy(policy_id, management_url, default_headers, permissions=[]):
+def create_policy(policy_id, management_url, default_headers, permissions=None):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
@@ -29,7 +29,7 @@ def create_policy(policy_id, management_url, default_headers, permissions=[]):
                 "policy": {
                     "@context": "http://www.w3.org/ns/odrl.jsonld",
                     "@type": "Set",
-                    "odrl:permission": permissions,
+                    "odrl:permission": [] if permissions is None else permissions,
                     "odrl:prohibition": [],
                     "odrl:obligation": [],
                 },
