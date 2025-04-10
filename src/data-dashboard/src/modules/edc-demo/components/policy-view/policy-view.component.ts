@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {PolicyService} from "../../../mgmt-api-client";
+import {PolicyService, QUERY_LIMIT} from "../../../mgmt-api-client";
 import {BehaviorSubject, Observable, Observer, of} from "rxjs";
 import {first, map, switchMap} from "rxjs/operators";
 import {MatDialog} from "@angular/material/dialog";
@@ -7,6 +7,7 @@ import {NewPolicyDialogComponent} from "../new-policy-dialog/new-policy-dialog.c
 import {NotificationService} from "../../services/notification.service";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
 import {PolicyDefinition, PolicyDefinitionInput, IdResponse} from "../../../mgmt-api-client/model";
+import { SorterService } from '../../services/common/sorter.service';
 
 @Component({
   selector: 'app-policy-view',
@@ -20,9 +21,12 @@ export class PolicyViewComponent implements OnInit {
   private fetch$ = new BehaviorSubject(null);
   private readonly errorOrUpdateSubscriber: Observer<IdResponse>;
 
-  constructor(private policyService: PolicyService,
-              private notificationService: NotificationService,
-              private readonly dialog: MatDialog) {
+  constructor(
+    private policyService: PolicyService,
+    private notificationService: NotificationService,
+    private readonly dialog: MatDialog,
+    private readonly sorterService: SorterService
+  ) {
 
     this.errorOrUpdateSubscriber = {
       next: x => this.fetch$.next(null),
@@ -31,13 +35,21 @@ export class PolicyViewComponent implements OnInit {
         this.notificationService.showInfo("Successfully completed")
       },
     }
-
   }
 
   ngOnInit(): void {
     this.filteredPolicies$ = this.fetch$.pipe(
       switchMap(() => {
-        const policyDefinitions = this.policyService.queryAllPolicies();
+        const policyDefinitions = this.policyService.queryAllPolicies({
+          limit : QUERY_LIMIT,
+          offset : 0,
+        }).pipe(
+          map(policies => { 
+            console.log(policies); 
+            return policies.sort((a, b) => 
+              this.sorterService.naturalSort(a.id || '', b.id || ''))
+            })
+        );;
         return !!this.searchText ?
           policyDefinitions.pipe(map(policies => policies.filter(policy => this.isFiltered(policy, this.searchText))))
           :

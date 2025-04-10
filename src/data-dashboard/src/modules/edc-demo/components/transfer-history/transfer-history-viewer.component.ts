@@ -1,10 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {TransferProcessService} from "../../../mgmt-api-client";
+import {map, Observable, of} from 'rxjs';
+import {QUERY_LIMIT, TransferProcessService} from "../../../mgmt-api-client";
 import {TransferProcess} from "../../../mgmt-api-client/model";
 import {AppConfigService} from "../../../app/app-config.service";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
+import { SorterService } from '../../services/common/sorter.service';
 
 @Component({
   selector: 'edc-demo-transfer-history',
@@ -17,10 +18,12 @@ export class TransferHistoryViewerComponent implements OnInit {
   transferProcesses$: Observable<TransferProcess[]> = of([]);
   storageExplorerLinkTemplate: string | undefined;
 
-  constructor(private transferProcessService: TransferProcessService,
-              private dialog : MatDialog,
-              private appConfigService: AppConfigService) {
-  }
+  constructor(
+    private transferProcessService: TransferProcessService,
+    private dialog : MatDialog,
+    private appConfigService: AppConfigService,
+    private readonly sorterService: SorterService
+  ) { }
 
   ngOnInit(): void {
     this.loadTransferProcesses();
@@ -51,7 +54,22 @@ export class TransferHistoryViewerComponent implements OnInit {
   }
 
   loadTransferProcesses() {
-     this.transferProcesses$ = this.transferProcessService.queryAllTransferProcesses();
+    this.transferProcesses$ = this.transferProcessService.queryAllTransferProcesses({
+      limit : QUERY_LIMIT,
+      offset : 0
+    }).pipe(
+      map(transferProcesses => { 
+        return transferProcesses.sort((a, b) => {
+          // Sort by contractSigningDate (descending)
+          const dateA = a.createdAt || 0;
+          const dateB = b.createdAt || 0;
+          if (dateA !== dateB) {
+            return dateB - dateA; // Newest first
+          }
+          return this.sorterService.naturalSort(a.id, b.id); // Fallback to natural sort on createdAt)
+        })
+      })
+    );
   }
 
   asDate(epochMillis?: number) {

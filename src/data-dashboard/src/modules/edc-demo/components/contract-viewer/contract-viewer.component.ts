@@ -1,11 +1,12 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, Query} from '@angular/core';
 import {
   AssetService,
   ContractAgreementService,
   MIME_TO_EXTENSION,
+  QUERY_LIMIT,
   TransferProcessService
 } from "../../../mgmt-api-client";
-import {forkJoin, from, Observable, of} from "rxjs";
+import {asyncScheduler, forkJoin, Observable, of, scheduled} from "rxjs";
 import { Asset, ContractAgreement, TransferProcessInput, IdResponse, TransferProcess } from "../../../mgmt-api-client/model";
 import {ContractOffer} from "../../models/contract-offer";
 import {filter, first, map, switchMap, tap} from "rxjs/operators";
@@ -21,7 +22,8 @@ import { AppConfigService } from '../../../app/app-config.service';
 import { MINIO_STORAGE_TYPE } from 'src/modules/app/variables';
 import { EdrService } from 'src/modules/mgmt-api-client/api/edr.service';
 import { PublicService } from 'src/modules/mgmt-api-client/api/public.service';
-import { EdcConnectorClientContext } from '@think-it-labs/edc-connector-client';
+import { EdcConnectorClientContext, QuerySpec } from '@think-it-labs/edc-connector-client';
+import { SorterService } from '../../services/common/sorter.service';
 
 interface RunningTransferProcess {
   processId: string;
@@ -48,16 +50,18 @@ export class ContractViewerComponent implements OnInit {
   private runningTransfers: RunningTransferProcess[] = [];
   private pollingHandleTransfer?: any;
 
-  constructor(private contractAgreementService: ContractAgreementService,
-              private edrService: EdrService,
-              private publicService: PublicService,
-              public dialog: MatDialog,
-              @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
-              private transferService: TransferProcessService,
-              private catalogService: CatalogBrowserService,
-              private router: Router,
-              private notificationService: NotificationService,
-              private appConfigService: AppConfigService) {
+  constructor(
+    private contractAgreementService: ContractAgreementService,
+    private edrService: EdrService,
+    private publicService: PublicService,
+    public dialog: MatDialog,
+    @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
+    private transferService: TransferProcessService,
+    private catalogService: CatalogBrowserService,
+    private router: Router,
+    private notificationService: NotificationService,
+    private appConfigService: AppConfigService,
+    private sorterService: SorterService) {
   }
 
   private static isFinishedState(state: string): boolean {
@@ -69,8 +73,23 @@ export class ContractViewerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.contracts$ = this.contractAgreementService.queryAllAgreements().pipe(
-      switchMap(contracts => this.loadContractsWithAssets(contracts))
+    this.contracts$ = this.contractAgreementService.queryAllAgreements({
+      limit : QUERY_LIMIT,
+      offset : 0,
+    }).pipe(
+      switchMap(contracts => {
+        return this.loadContractsWithAssets(
+          contracts.sort((a, b) => {
+            // Sort by contractSigningDate (descending)
+            const dateA = a.contractSigningDate || 0;
+            const dateB = b.contractSigningDate || 0;
+            if (dateA !== dateB) {
+              return dateB - dateA; // Newest first
+            }
+
+            return this.sorterService.naturalSort(a.assetId || '', b.assetId || '');
+          })
+      )})
     );
   }
 
@@ -82,7 +101,7 @@ export class ContractViewerComponent implements OnInit {
           const contractWithOffer = contract as ContractAgreementWithOfferData;
           contractWithOffer.contractOffer = offerData;
           // Wrap the result in an observable
-          return of(contractWithOffer);
+          return scheduled([contractWithOffer], asyncScheduler);
         });
   
         // Combine all observables
@@ -200,7 +219,7 @@ export class ContractViewerComponent implements OnInit {
   }
 
   private getContractOfferForAssetId(assetId: string, contractOffers: ContractOffer[]): ContractOffer | null {
-    console.log(assetId);
+    // console.log(assetId);
     const offer = contractOffers.find(o => o.assetId === assetId);
     if (offer) {
       return offer;
@@ -230,7 +249,7 @@ export class ContractViewerComponent implements OnInit {
 
   private pollRunningTransfers() {
     return () => {
-      from(this.runningTransfers) //create from array
+      scheduled(this.runningTransfers, asyncScheduler) //create from array
         .pipe(switchMap(runningTransferProcess => this.catalogService.getTransferProcessesById(runningTransferProcess.processId).pipe(
           map(transferProcess => ({ runningTransferProcess, transferProcess })) // Combine both into an object
           )

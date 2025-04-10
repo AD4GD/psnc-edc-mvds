@@ -1,11 +1,12 @@
 import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Inject, Injectable} from '@angular/core';
-import {EMPTY, from, Observable} from 'rxjs';
+import {asyncScheduler, EMPTY, Observable, scheduled} from 'rxjs';
 import {catchError, map, reduce} from 'rxjs/operators';
 import {Catalog} from '../models/catalog';
 import {ContractOffer} from '../models/contract-offer';
 import {
   ContractNegotiationService,
+  QUERY_LIMIT,
   TransferProcessService,
 } from "../../mgmt-api-client";
 import {CONNECTOR_CATALOG_API, CONNECTOR_MANAGEMENT_API} from "../../app/variables";
@@ -17,7 +18,7 @@ import {
   TransferProcess,
   TransferProcessInput
 } from "../../mgmt-api-client/model";
-import { EdcConnectorClient } from '@think-it-labs/edc-connector-client';
+import { ContractAgreement, EdcConnectorClient } from '@think-it-labs/edc-connector-client';
 
 
 
@@ -39,11 +40,12 @@ export class CatalogBrowserService {
 
   getContractOffers(): Observable<ContractOffer[]> {
     let federatedCatalog = this.edcConnectorClient.federatedCatalog;
-    let queryObservable = from(federatedCatalog.queryAll({
+    let queryObservable = scheduled(federatedCatalog.queryAll({
       // TODO: add pagination
-      limit: 100,
+      limit: QUERY_LIMIT,
+      offset: 0,
       sortOrder: "DESC"
-    }));
+    }), asyncScheduler);
 
     const w3Prefix = "http://www.w3.org/ns/dcat#";
     const edcPrefix = "https://w3id.org/edc/v0.0.1/ns/";
@@ -58,8 +60,8 @@ export class CatalogBrowserService {
           datasets = [datasets];
         }
 
-        console.log(catalog);
-        console.log(datasets);
+        // console.log(catalog);
+        // console.log(datasets);
 
         for(let i = 0; i < datasets.length; i++) {
           const dataSet: any = datasets[i];
@@ -76,7 +78,7 @@ export class CatalogBrowserService {
           const assetId = dataSet["@id"];
 
           const hasPolicy = this.getFirstPolicy(this.getItemProperty(dataSet, "hasPolicy", odrlPrefix));
-          console.log(hasPolicy);
+          // console.log(hasPolicy);
 
           const policy: PolicyInput = {
             //currently hardcoded to Set since parsed type is {"@policytype": "set"}
@@ -106,8 +108,8 @@ export class CatalogBrowserService {
         }
         return arr;
       })), reduce((acc, val) => {
-        for(let i = 0; i < val.length; i++){
-          for(let j = 0; j < val[i].length; j++){
+        for (let i = 0; i < val.length; i++) {
+          for (let j = 0; j < val[i].length; j++) {
             acc.push(val[i][j]);
           }
         }
