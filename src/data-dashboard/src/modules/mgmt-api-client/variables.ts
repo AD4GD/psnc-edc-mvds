@@ -2,7 +2,7 @@ import { InjectionToken } from '@angular/core';
 
 export const BASE_PATH = new InjectionToken<string>('basePath');
 
-export const QUERY_LIMIT = 100;
+export const QUERY_LIMIT = 1000;
 
 export const COLLECTION_FORMATS = {
     'csv': ',',
