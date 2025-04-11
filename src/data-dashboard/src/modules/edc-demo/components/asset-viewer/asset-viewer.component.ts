@@ -1,12 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
-import {first, map, switchMap} from 'rxjs/operators';
+import {first, map, switchMap, tap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {AssetInput, Asset } from "../../../mgmt-api-client/model";
-import {AssetService} from "../../../mgmt-api-client";
+import {AssetService, QUERY_LIMIT} from "../../../mgmt-api-client";
 import {AssetEditorDialog} from "../asset-editor-dialog/asset-editor-dialog.component";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
 import {NotificationService} from "../../services/notification.service";
+import { SorterService } from '../../services/common/sorter.service';
 
 
 @Component({
@@ -21,10 +22,12 @@ export class AssetViewerComponent implements OnInit {
   isTransferring = false;
   private fetch$ = new BehaviorSubject(null);
 
-  constructor(private assetService: AssetService,
-              private notificationService: NotificationService,
-              private readonly dialog: MatDialog) {
-}
+  constructor(
+    private assetService: AssetService,
+    private notificationService: NotificationService,
+    private readonly dialog: MatDialog,
+    private readonly sorterService: SorterService
+  ) { }
 
   private showError(error: string, errorMessage: string) {
     this.notificationService.showError(errorMessage);
@@ -35,9 +38,21 @@ export class AssetViewerComponent implements OnInit {
     this.filteredAssets$ = this.fetch$
       .pipe(
         switchMap(() => {
-          const assets$ = this.assetService.requestAssets();
+          const assets$ = this.assetService.requestAssets({
+            limit: QUERY_LIMIT,
+            offset: 0,
+          }).pipe(
+            map(assets => { 
+              console.log(assets); 
+              return assets.sort((a, b) => 
+                this.sorterService.naturalSort(a.properties.optionalValue<string>('edc', 'name') || '', b.properties.optionalValue<string>('edc', 'name') || ''))
+              })
+          );
           return !!this.searchText
-            ? assets$.pipe(map(assets => assets.filter(asset => asset.properties.optionalValue<string>('edc', 'name')?.includes(this.searchText))))
+            ? assets$.pipe(map(assets => assets.filter(asset => 
+              asset.properties.optionalValue<string>('edc', 'name')?.includes(this.searchText) 
+              || asset.id.toLowerCase().includes(this.searchText.toLowerCase())
+            )))
             : assets$;
         }));
   }

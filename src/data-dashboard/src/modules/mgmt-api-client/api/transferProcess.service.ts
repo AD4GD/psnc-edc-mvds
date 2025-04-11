@@ -11,10 +11,10 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Injectable }                      from '@angular/core';
-import { HttpResponse, HttpEvent, HttpContext }              from '@angular/common/http';
-import { Observable, from }                                        from 'rxjs';
-import {EdcConnectorClient} from "@think-it-labs/edc-connector-client";
+import { Injectable } from '@angular/core';
+import { HttpResponse, HttpEvent, HttpContext } from '@angular/common/http';
+import { Observable, asyncScheduler, scheduled } from 'rxjs';
+import { EdcConnectorClient } from "@think-it-labs/edc-connector-client";
 import { TransferProcessState, TransferProcess, TransferProcessInput, QuerySpec, IdResponse } from "../model";
 
 
@@ -38,7 +38,7 @@ export class TransferProcessService {
     public cancelTransferProcess(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<any>>;
     public cancelTransferProcess(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<any>>;
     public cancelTransferProcess(id: string): Observable<any> {
-        return from(this.transferProcessService.terminate(id, "Call by DataDashboard."));
+        return scheduled(this.transferProcessService.terminate(id, "Call by DataDashboard."), asyncScheduler);
     }
 
     /**
@@ -51,7 +51,7 @@ export class TransferProcessService {
     public deprovisionTransferProcess(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<any>>;
     public deprovisionTransferProcess(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<any>>;
     public deprovisionTransferProcess(id: string): Observable<any> {
-      return from(this.transferProcessService.deprovision(id))
+      return scheduled(this.transferProcessService.deprovision(id), asyncScheduler)
     }
 
     /**
@@ -64,7 +64,7 @@ export class TransferProcessService {
     public getTransferProcess(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<TransferProcess>>;
     public getTransferProcess(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<TransferProcess>>;
     public getTransferProcess(id: string): Observable<any> {
-        return from(this.transferProcessService.get(id))
+        return scheduled(this.transferProcessService.get(id), asyncScheduler)
     }
 
     /**
@@ -77,7 +77,7 @@ export class TransferProcessService {
     public getTransferProcessState(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<TransferProcessState>>;
     public getTransferProcessState(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<TransferProcessState>>;
     public getTransferProcessState(id: string): Observable<any> {
-        return from(this.transferProcessService.getState(id))
+        return scheduled(this.transferProcessService.getState(id), asyncScheduler)
     }
 
     /**
@@ -90,7 +90,7 @@ export class TransferProcessService {
     public initiateTransfer(transferRequestInput: TransferProcessInput, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<IdResponse>>;
     public initiateTransfer(transferRequestInput: TransferProcessInput, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<IdResponse>>;
     public initiateTransfer(transferRequestInput: TransferProcessInput): Observable<any> {
-      return from(this.transferProcessService.initiate(transferRequestInput))
+      return scheduled(this.transferProcessService.initiate(transferRequestInput), asyncScheduler)
     }
 
     /**
@@ -103,7 +103,7 @@ export class TransferProcessService {
     public queryAllTransferProcesses(querySpec?: QuerySpec, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<TransferProcess>>>;
     public queryAllTransferProcesses(querySpec?: QuerySpec, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<TransferProcess>>>;
     public queryAllTransferProcesses(querySpec?: QuerySpec): Observable<any> {
-      return from(this.transferProcessService.queryAll(querySpec))
+      return scheduled(this.transferProcessService.queryAll(querySpec), asyncScheduler)
     }
 
 }
