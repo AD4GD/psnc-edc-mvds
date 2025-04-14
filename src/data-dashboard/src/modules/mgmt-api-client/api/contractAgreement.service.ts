@@ -13,7 +13,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpResponse, HttpEvent, HttpContext } from '@angular/common/http';
-import { Observable, from } from 'rxjs';
+import { Observable, scheduled, asyncScheduler } from 'rxjs';
 
 import { EdcConnectorClient } from '@think-it-labs/edc-connector-client';
 import { ContractAgreement, QuerySpec } from '../model'
@@ -40,7 +40,7 @@ export class ContractAgreementService {
     public queryAllAgreements(querySpec?: QuerySpec, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<ContractAgreement>>>;
     public queryAllAgreements(querySpec?: QuerySpec, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<ContractAgreement>>>;
     public queryAllAgreements(querySpec?: QuerySpec): Observable<any> {
-        return from(this.contractAgreements.queryAll(querySpec))
+        return scheduled(this.contractAgreements.queryAll(querySpec), asyncScheduler)
     }
 
 }

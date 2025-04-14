@@ -26,4 +26,5 @@ dependencies {
     implementation(libs.edc.sql.pool)
 
     implementation(libs.psnc.auth.composite)
+    implementation(libs.psnc.vault.keys.seeder)
 }

@@ -1,6 +1,6 @@
-import { Injectable }                      from '@angular/core';
-import { HttpResponse, HttpEvent, HttpContext }              from '@angular/common/http';
-import { Observable, from }                                        from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpResponse, HttpEvent, HttpContext } from '@angular/common/http';
+import { Observable, asyncScheduler, scheduled } from 'rxjs';
 import {EdcConnectorClient, EdcConnectorClientContext} from "@think-it-labs/edc-connector-client";
 
 
@@ -23,7 +23,7 @@ export class PublicService {
         };
         const url = context.public;
 
-        return from(this.transferData(url, headers));
+        return scheduled(this.transferData(url, headers), asyncScheduler);
     }
 
     // fixed method, original .getTransferredData doesn't work correctly

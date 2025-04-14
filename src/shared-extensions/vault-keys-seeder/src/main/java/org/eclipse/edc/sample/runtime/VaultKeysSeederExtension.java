@@ -54,8 +54,8 @@ public class VaultKeysSeederExtension implements ServiceExtension {
     }
 
     private void processJksFile(String keystorePath, String keystorePassword) {
-        var alias = "dapsPrivate";
-        try{
+        var alias = DAPS_PRIVATE_KEY;
+        try {
 
             FileInputStream fis = new FileInputStream(keystorePath);
             KeyStore keystore = getKeyStore(keystorePath);
@@ -97,7 +97,7 @@ public class VaultKeysSeederExtension implements ServiceExtension {
         else if (extension.equals("pfx") || extension.equals("p12")) {
             keyStoreType = "PKCS12";
         }
-        monitor.info("Key Store type: "+keyStoreType);
+        monitor.info("Key Store type: " + keyStoreType);
 
         return KeyStore.getInstance(keyStoreType);
     }
@@ -116,7 +116,7 @@ public class VaultKeysSeederExtension implements ServiceExtension {
                 """, begin, keyValue, end);
         }
 
-        monitor.info("Store: "+keyType);
+        monitor.info("Store: " + keyType);
         monitor.info(keyValue);
 
         vault.storeSecret(vaultKey, keyValue);

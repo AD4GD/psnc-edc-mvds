@@ -13,7 +13,7 @@
 
 import {Injectable} from '@angular/core';
 import {HttpResponse, HttpEvent, HttpContext} from '@angular/common/http';
-import {Observable, from} from 'rxjs';
+import {Observable, asyncScheduler, scheduled} from 'rxjs';
 import {EdcConnectorClient} from "@think-it-labs/edc-connector-client";
 import { PolicyDefinition, PolicyDefinitionInput, IdResponse, QuerySpec } from "../model"
 
@@ -39,7 +39,7 @@ export class PolicyService {
   public createPolicy(input: PolicyDefinitionInput, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<IdResponse>>;
   public createPolicy(input: PolicyDefinitionInput, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<IdResponse>>;
   public createPolicy(input: PolicyDefinitionInput): Observable<any> {
-      return from(this.policyDefinition.create(input));
+      return scheduled(this.policyDefinition.create(input), asyncScheduler);
   }
 
   /**
@@ -55,7 +55,7 @@ export class PolicyService {
     if (id === null || id === undefined) {
       throw new Error('Required parameter id was null or undefined when calling deletePolicy.');
     }
-    return from(this.policyDefinition.delete(id))
+    return scheduled(this.policyDefinition.delete(id), asyncScheduler)
   }
 
   /**
@@ -71,9 +71,7 @@ export class PolicyService {
     if (id === null || id === undefined) {
       throw new Error('Required parameter id was null or undefined when calling getPolicy.');
     }
-
-    return from(this.policyDefinition.get(id))
-
+    return scheduled(this.policyDefinition.get(id), asyncScheduler)
   }
 
   /**
@@ -86,6 +84,6 @@ export class PolicyService {
   public queryAllPolicies(querySpec?: QuerySpec, observe?: 'response', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpResponse<Array<PolicyDefinition>>>;
   public queryAllPolicies(querySpec?: QuerySpec, observe?: 'events', reportProgress?: boolean, options?: { httpHeaderAccept?: 'application/json', context?: HttpContext }): Observable<HttpEvent<Array<PolicyDefinition>>>;
   public queryAllPolicies(querySpec?: QuerySpec): Observable<any> {
-      return from(this.policyDefinition.queryAll(querySpec))
+      return scheduled(this.policyDefinition.queryAll(querySpec), asyncScheduler)
   }
 }

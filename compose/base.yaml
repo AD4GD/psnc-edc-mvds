@@ -43,6 +43,7 @@ services:
     volumes:
       - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
       - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
+      - ../docker/federated-catalog/certs/federated-catalog-daps.jks:/app/certs/federated-catalog-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     ports:
@@ -78,7 +79,7 @@ services:
       - "19192:19192"
     volumes:
       - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/provider-daps.jks:/app/certs/daps.jks
+      - ../docker/connector/certs/provider-daps.jks:/app/certs/provider-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -119,7 +120,7 @@ services:
       - "29192:29192"
     volumes:
       - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/consumer-daps.jks:/app/certs/daps.jks
+      - ../docker/connector/certs/consumer-daps.jks:/app/certs/consumer-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"

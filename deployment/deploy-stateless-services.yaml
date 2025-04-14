@@ -31,7 +31,7 @@
               application: "{{ application }}"
               component: connectorconsumer
           data:
-            daps.jks: "{{ lookup('file', 'certs/consumer-daps.jks') | b64encode }}"
+            consumer-daps.jks: "{{ lookup('file', 'certs/consumer-daps.jks') | b64encode }}"
 
     - name: "deploy deployment/{{ application }}-connectorconsumer"
       when: "deploy_connector|bool"
@@ -111,8 +111,8 @@
                     secret:
                       secretName: "{{ application }}-connectorconsumer-jks"
                       items:
-                        - key: "daps.jks"
-                          path: "daps.jks"
+                        - key: "consumer-daps.jks"
+                          path: "consumer-daps.jks"
 
     - name: "deploy service/{{ application }}-connectorconsumer"
       when: "deploy_connector"
@@ -302,7 +302,7 @@
               application: "{{ application }}"
               component: connectorprovider
           data:
-            daps.jks: "{{ lookup('file', 'certs/provider-daps.jks') | b64encode }}"
+            provider-daps.jks: "{{ lookup('file', 'certs/provider-daps.jks') | b64encode }}"
 
     - name: "deploy deployment/{{ application }}-connectorprovider"
       when: "deploy_connector|bool"
@@ -382,8 +382,8 @@
                     secret:
                       secretName: "{{ application }}-connectorprovider-jks"
                       items:
-                        - key: "daps.jks"
-                          path: "daps.jks"
+                        - key: "provider-daps.jks"
+                          path: "provider-daps.jks"
 
     - name: "deploy service/{{ application }}-connectorprovider"
       when: "deploy_connector"
@@ -768,6 +768,22 @@
                 "consumer": "https://consumer-edc-connector.apps.paas-dev.psnc.pl/protocol",
                 "provider": "https://provider-edc-connector.apps.paas-dev.psnc.pl/protocol"
               }
+    - name: "deploy secret/{{ application }}-federatedcatalog"
+      when: "deploy_connector|bool"
+      tags:
+        - federatedcatalog
+        - secret
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ application }}-federatedcatalog-jks"
+            labels:
+              application: "{{ application }}"
+              component: federatedcatalog
+          data:
+            federated-catalog-daps.jks: "{{ lookup('file', 'certs/federated-catalog-daps.jks') | b64encode }}"
 
     - name: "deploy deployment/{{ application }}-federatedcatalog"
       when: "deploy_connector|bool"
@@ -834,6 +850,12 @@
                   - name: "federatedcatalog-participants-config"
                     configMap:
                       name: "{{ application }}-federatedcatalog"
+                  - name: "jks-volume"
+                    secret:
+                      secretName: "{{ application }}-federatedcatalog-jks"
+                      items:
+                        - key: "federated-catalog-daps.jks"
+                          path: "federated-catalog-daps.jks"
 
     - name: "deploy service/{{ application }}-federatedcatalog"
       when: "deploy_connector"

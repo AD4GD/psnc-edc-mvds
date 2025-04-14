@@ -13,7 +13,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpResponse, HttpEvent, HttpContext } from '@angular/common/http';
-import { Observable, from } from 'rxjs';
+import { Observable, asyncScheduler, scheduled } from 'rxjs';
 import { EdcConnectorClient } from '@think-it-labs/edc-connector-client';
 import { ContractDefinitionInput, ContractDefinition, IdResponse, QuerySpec } from "../model"
 
@@ -38,7 +38,7 @@ export class ContractDefinitionService {
     public createContractDefinition(input: ContractDefinitionInput, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<IdResponse>>;
     public createContractDefinition(input: ContractDefinitionInput, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<IdResponse>>;
     public createContractDefinition(input: ContractDefinitionInput): Observable<any> {
-        return from(this.contractDefinitions.create(input));
+        return scheduled(this.contractDefinitions.create(input), asyncScheduler);
     }
 
     /**
@@ -55,7 +55,7 @@ export class ContractDefinitionService {
           throw new Error('Required parameter id was null or undefined when calling deleteContractDefinition.');
       }
 
-      return from(this.contractDefinitions.delete(id))
+      return scheduled(this.contractDefinitions.delete(id), asyncScheduler)
     }
 
     /**
@@ -72,7 +72,7 @@ export class ContractDefinitionService {
             throw new Error('Required parameter id was null or undefined when calling getContractDefinition.');
         }
 
-        return from(this.contractDefinitions.get(id))
+        return scheduled(this.contractDefinitions.get(id), asyncScheduler)
     }
 
     /**
@@ -85,7 +85,7 @@ export class ContractDefinitionService {
     public queryAllContractDefinitions(querySpec?: QuerySpec, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<ContractDefinition>>>;
     public queryAllContractDefinitions(querySpec?: QuerySpec, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<ContractDefinition>>>;
     public queryAllContractDefinitions(querySpec?: QuerySpec): Observable<any> {
-        return from(this.contractDefinitions.queryAll(querySpec))
+        return scheduled(this.contractDefinitions.queryAll(querySpec), asyncScheduler)
     }
 
 }

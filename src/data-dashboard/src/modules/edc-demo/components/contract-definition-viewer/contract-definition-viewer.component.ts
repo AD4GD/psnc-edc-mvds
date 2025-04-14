@@ -1,14 +1,15 @@
 import {Component, OnInit} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
-import {first, map, switchMap} from 'rxjs/operators';
+import {first, map, switchMap, tap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {
   ContractDefinitionEditorDialog
 } from '../contract-definition-editor-dialog/contract-definition-editor-dialog.component';
-import { ContractDefinitionService } from "../../../mgmt-api-client";
+import { ContractDefinitionService, QUERY_LIMIT } from "../../../mgmt-api-client";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
 import {NotificationService} from "../../services/notification.service";
 import { ContractDefinitionInput, ContractDefinition } from "../../../mgmt-api-client/model"
+import { SorterService } from '../../services/common/sorter.service';
 
 
 @Component({
@@ -22,21 +23,30 @@ export class ContractDefinitionViewerComponent implements OnInit {
   searchText = '';
   private fetch$ = new BehaviorSubject(null);
 
-  constructor(private contractDefinitionService: ContractDefinitionService,
-              private notificationService: NotificationService,
-              private readonly dialog: MatDialog) {
-  }
+  constructor(
+    private contractDefinitionService: ContractDefinitionService,
+    private notificationService: NotificationService,
+    private readonly dialog: MatDialog,
+    private readonly sorterService: SorterService
+  ) { }
 
   ngOnInit(): void {
-    this.filteredContractDefinitions$ = this.fetch$
-      .pipe(
-        switchMap(() => {
-          const contractDefinitions$ = this.contractDefinitionService.queryAllContractDefinitions();
-          return !!this.searchText ?
-            contractDefinitions$.pipe(map(contractDefinitions => contractDefinitions.filter(contractDefinition => contractDefinition['@id']!.toLowerCase().includes(this.searchText))))
-            :
-            contractDefinitions$;
-        }));
+    this.filteredContractDefinitions$ = this.fetch$.pipe(
+      switchMap(() => {
+        const contractDefinitions$ = this.contractDefinitionService.queryAllContractDefinitions({
+          limit : QUERY_LIMIT,
+          offset : 0,
+        }).pipe(
+          tap(contractDefinitions => {
+            return contractDefinitions.sort((a, b) => 
+              this.sorterService.naturalSort(a.id, b.id))
+            })
+        );
+        return !!this.searchText ?
+          contractDefinitions$.pipe(map(contractDefinitions => contractDefinitions.filter(contractDefinition => contractDefinition['@id']!.toLowerCase().includes(this.searchText.toLowerCase()))))
+          :
+          contractDefinitions$;
+      }));
   }
 
   onSearch() {

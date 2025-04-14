@@ -13,7 +13,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpResponse, HttpEvent, HttpContext } from '@angular/common/http';
-import { Observable, from }                                        from 'rxjs';
+import { Observable, asyncScheduler, scheduled } from 'rxjs';
 
 import { EdcConnectorClient } from '@think-it-labs/edc-connector-client';
 import { AssetInput, Asset, IdResponse, QuerySpec } from "../model"
@@ -38,7 +38,7 @@ export class AssetService {
     public createAsset(assetEntryDto: AssetInput, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<IdResponse>>;
     public createAsset(assetEntryDto: AssetInput, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<IdResponse>>;
     public createAsset(assetEntryDto: AssetInput): Observable<any> {
-        return from(this.assets.create(assetEntryDto))
+        return scheduled(this.assets.create(assetEntryDto), asyncScheduler)
     }
 
     /**
@@ -55,7 +55,7 @@ export class AssetService {
             throw new Error('Required parameter id was null or undefined when calling getAsset.');
         }
 
-        return from(this.assets.get(id))
+        return scheduled(this.assets.get(id), asyncScheduler)
 
     }
 
@@ -73,7 +73,7 @@ export class AssetService {
             throw new Error('Required parameter id was null or undefined when calling removeAsset.');
         }
 
-        return from(this.assets.delete(id))
+        return scheduled(this.assets.delete(id), asyncScheduler)
     }
 
     /**
@@ -86,7 +86,7 @@ export class AssetService {
     public requestAssets(querySpec?: QuerySpec, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<Asset>>>;
     public requestAssets(querySpec?: QuerySpec, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<Asset>>>;
     public requestAssets(querySpec?: QuerySpec): Observable<any> {
-        return from(this.assets.queryAll(querySpec))
+        return scheduled(this.assets.queryAll(querySpec), asyncScheduler)
     }
 
 }

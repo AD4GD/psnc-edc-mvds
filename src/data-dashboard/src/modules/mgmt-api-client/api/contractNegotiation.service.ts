@@ -11,9 +11,9 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Injectable }                      from '@angular/core';
-import { HttpResponse, HttpEvent, HttpContext}       from '@angular/common/http';
-import {from, Observable} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpResponse, HttpEvent, HttpContext} from '@angular/common/http';
+import {asyncScheduler, Observable, scheduled} from 'rxjs';
 import {EdcConnectorClient, IdResponse, QuerySpec} from "@think-it-labs/edc-connector-client";
 import {ContractNegotiation, ContractNegotiationState, ContractNegotiationRequest} from "../model"
 
@@ -38,7 +38,7 @@ export class ContractNegotiationService {
     public cancelNegotiation(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<any>>;
     public cancelNegotiation(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<any>>;
     public cancelNegotiation(id: string): Observable<any> {
-        return from(this.contractNegotiation.terminate(id, "Cancelled by DataDashboard"))
+        return scheduled(this.contractNegotiation.terminate(id, "Cancelled by DataDashboard"), asyncScheduler)
     }
 
     /**
@@ -51,7 +51,7 @@ export class ContractNegotiationService {
     public declineNegotiation(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<any>>;
     public declineNegotiation(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<any>>;
     public declineNegotiation(id: string): Observable<any> {
-        return from(this.contractNegotiation.terminate(id, "Terminated by the DataDashboard"))
+        return scheduled(this.contractNegotiation.terminate(id, "Terminated by the DataDashboard"), asyncScheduler)
     }
 
     /**
@@ -64,7 +64,7 @@ export class ContractNegotiationService {
     public getNegotiation(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<ContractNegotiation>>;
   public getNegotiation(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<ContractNegotiation>>;
   public getNegotiation(id: string): Observable<any> {
-    return from(this.contractNegotiation.get(id))
+    return scheduled(this.contractNegotiation.get(id), asyncScheduler)
   }
 
     /**
@@ -77,7 +77,7 @@ export class ContractNegotiationService {
      public getNegotiationState(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<ContractNegotiationState>>;
     public getNegotiationState(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<ContractNegotiationState>>;
     public getNegotiationState(id: string): Observable<any> {
-        return from(this.contractNegotiation.getState(id))
+        return scheduled(this.contractNegotiation.getState(id), asyncScheduler)
     }
 
     /**
@@ -90,7 +90,7 @@ export class ContractNegotiationService {
     public initiateContractNegotiation(negotiationInitiateRequest: ContractNegotiationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<IdResponse>>;
     public initiateContractNegotiation(negotiationInitiateRequest: ContractNegotiationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<IdResponse>>;
     public initiateContractNegotiation(negotiationInitiateRequest: ContractNegotiationRequest): Observable<any> {
-        return from(this.contractNegotiation.initiate(negotiationInitiateRequest));
+        return scheduled(this.contractNegotiation.initiate(negotiationInitiateRequest), asyncScheduler);
     }
 
     /**
@@ -103,7 +103,7 @@ export class ContractNegotiationService {
     public queryNegotiations(querySpec: QuerySpec, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpResponse<Array<ContractNegotiation>>>;
     public queryNegotiations(querySpec: QuerySpec, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext}): Observable<HttpEvent<Array<ContractNegotiation>>>;
     public queryNegotiations(querySpec: QuerySpec): Observable<any> {
-        return from(this.contractNegotiation.queryAll(querySpec))
+        return scheduled(this.contractNegotiation.queryAll(querySpec), asyncScheduler)
     }
 
 }

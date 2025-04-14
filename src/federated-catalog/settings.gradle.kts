@@ -1,10 +1,9 @@
 rootProject.name = "federated-catalog"
 
 include(":core:base")
-include(":launchers:catalog-iam-daps")
-include(":launchers:catalog-iam-mocked")
+include(":launchers:daps")
+include(":launchers:no-daps")
 include(":extensions:catalog-node-resolver")
-include(":extensions:seed-in-memory-vault")
 include(":extensions:target-node-directory-sql")
 
 // this is needed to have access to snapshot builds of plugins
