@@ -44,7 +44,11 @@ export class CatalogBrowserComponent implements OnInit {
         switchMap(() => {
           const contractOffers$ = this.apiService.getContractOffers();
           return !!this.searchText ?
-            contractOffers$.pipe(map(contractOffers => contractOffers.filter(contractOffer => contractOffer.id.toLowerCase().includes(this.searchText))))
+            contractOffers$.pipe(map(contractOffers => contractOffers.filter(contractOffer => 
+              contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase())
+              || contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase())
+              || contractOffer.properties.name?.toLowerCase().includes(this.searchText.toLowerCase())
+            )))
             :
             contractOffers$;
         }));

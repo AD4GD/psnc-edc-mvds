@@ -1,7 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {
-  AssetService, PolicyService
+  AssetService, PolicyService,
+  QUERY_LIMIT
 } from "../../../mgmt-api-client";
 import { Asset, ContractDefinitionInput, PolicyDefinition } from "../../../mgmt-api-client/model"
 
@@ -38,12 +39,18 @@ export class ContractDefinitionEditorDialog implements OnInit {
   }
 
   ngOnInit(): void {
-    this.policyService.queryAllPolicies().subscribe(policyDefinitions => {
+    this.policyService.queryAllPolicies({
+      limit: QUERY_LIMIT,
+      offset: 0,
+    }).subscribe(policyDefinitions => {
       this.policies = policyDefinitions;
       this.accessPolicy = this.policies.find(policy => policy['@id'] === this.contractDefinition.accessPolicyId);
       this.contractPolicy = this.policies.find(policy => policy['@id'] === this.contractDefinition.contractPolicyId);
     });
-    this.assetService.requestAssets().subscribe(assets => {
+    this.assetService.requestAssets({
+      limit: QUERY_LIMIT,
+      offset: 0,
+    }).subscribe(assets => {
       this.availableAssets = assets;
       // preselection
       if (this.contractDefinition) {

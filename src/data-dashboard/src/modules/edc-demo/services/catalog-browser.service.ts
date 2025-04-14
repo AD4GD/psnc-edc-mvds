@@ -30,13 +30,14 @@ import { ContractAgreement, EdcConnectorClient } from '@think-it-labs/edc-connec
 })
 export class CatalogBrowserService {
 
-  constructor(private httpClient: HttpClient,
-              private transferProcessService: TransferProcessService,
-              private negotiationService: ContractNegotiationService,
-              @Inject(CONNECTOR_MANAGEMENT_API) private managementApiUrl: string,
-              @Inject(CONNECTOR_CATALOG_API) private catalogApiUrl: string,
-              private edcConnectorClient: EdcConnectorClient) {
-  }
+  constructor(
+    private httpClient: HttpClient,
+    private transferProcessService: TransferProcessService,
+    private negotiationService: ContractNegotiationService,
+    @Inject(CONNECTOR_MANAGEMENT_API) private managementApiUrl: string,
+    @Inject(CONNECTOR_CATALOG_API) private catalogApiUrl: string,
+    private edcConnectorClient: EdcConnectorClient
+  ) { }
 
   getContractOffers(): Observable<ContractOffer[]> {
     let federatedCatalog = this.edcConnectorClient.federatedCatalog;
