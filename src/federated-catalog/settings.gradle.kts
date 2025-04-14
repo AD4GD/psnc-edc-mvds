@@ -3,8 +3,8 @@ rootProject.name = "federated-catalog"
 include(":core:base")
 include(":launchers:daps")
 include(":launchers:no-daps")
+include(":extensions:target-node-directory-sql")
 include(":extensions:catalog-node-static-resolver")
-// include(":extensions:target-node-directory-sql")
 
 // this is needed to have access to snapshot builds of plugins
 pluginManagement {
