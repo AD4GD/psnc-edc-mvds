@@ -34,7 +34,7 @@ public class DataPlaneHttpOauth2AccessTokenExtension implements ServiceExtension
     public String name() {
         return NAME;
     }
- 
+
     @Override
     public void initialize(ServiceExtensionContext context) {
         var requestFactory = new DataPlaneHttpOauth2CredentialsRequestFactory(monitor, clock);

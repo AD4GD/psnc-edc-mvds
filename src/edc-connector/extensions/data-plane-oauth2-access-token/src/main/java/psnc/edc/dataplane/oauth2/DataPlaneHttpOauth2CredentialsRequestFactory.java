@@ -19,19 +19,19 @@ import org.eclipse.edc.spi.monitor.Monitor;
  * Factory class that provides methods to build {@link Oauth2CredentialsRequest} instances
 */
 public class DataPlaneHttpOauth2CredentialsRequestFactory {
- 
+
     private static final String GRANT_TYPE_SCHEMA = "oauth2:grantType";
     private static final String USERNAME_SCHEMA = "oauth2:username";
     private static final String PASSWORD_SCHEMA = "oauth2:password";
     private static final String CLIENT_SECRET_SCHEMA = "oauth2:clientSecret";
-    
+
     private static final long DEFAULT_TOKEN_VALIDITY = TimeUnit.MINUTES.toSeconds(5);
     private static final String GRANT_CLIENT_CREDENTIALS = "client_credentials";
     private static final String GRANT_PASSWORD = "password";
 
     private final Clock clock;
     private final Monitor monitor;
- 
+
 
     public DataPlaneHttpOauth2CredentialsRequestFactory(Monitor monitor, Clock clock) {
         this.clock = clock;
@@ -50,7 +50,7 @@ public class DataPlaneHttpOauth2CredentialsRequestFactory {
             return createSharedSecretClientCredentialsRequest(dataAddress);
         }
     }
- 
+
     @NotNull
     private Result<Oauth2CredentialsRequest> createSharedSecretClientCredentialsRequest(DataAddress dataAddress) {
         return Result.success(SharedSecretOauth2CredentialsRequest.Builder.newInstance()
@@ -74,7 +74,7 @@ public class DataPlaneHttpOauth2CredentialsRequestFactory {
                 .scope(dataAddress.getStringProperty(SCOPE))
                 .build());
     }
- 
+
     @Nullable
     private Long parseLong(String v) {
         try {
