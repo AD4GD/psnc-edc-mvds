@@ -10,7 +10,7 @@ public class SharedSecretOauth2CredentialsPasswordRequest extends Oauth2Credenti
 
     private static final String CLIENT_ID = "client_id";
     private static final String CLIENT_SECRET = "client_secret";
-    private static final String USER = "user";
+    private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
 
     @NotNull
@@ -25,7 +25,7 @@ public class SharedSecretOauth2CredentialsPasswordRequest extends Oauth2Credenti
 
     @NotNull
     public String getUser() {
-        return params.get(USER);
+        return params.get(USERNAME);
     }
 
     @NotNull
@@ -54,8 +54,8 @@ public class SharedSecretOauth2CredentialsPasswordRequest extends Oauth2Credenti
             return self();
         }
 
-        public B user(String secret) {
-            param(USER, secret);
+        public B username(String secret) {
+            param(USERNAME, secret);
             return self();
         }
 
@@ -74,7 +74,7 @@ public class SharedSecretOauth2CredentialsPasswordRequest extends Oauth2Credenti
         public SharedSecretOauth2CredentialsPasswordRequest build() {
             Objects.requireNonNull(request.params.get(CLIENT_ID), CLIENT_ID);
             Objects.requireNonNull(request.params.get(CLIENT_SECRET), CLIENT_SECRET);
-            Objects.requireNonNull(request.params.get(USER), USER);
+            Objects.requireNonNull(request.params.get(USERNAME), USERNAME);
             Objects.requireNonNull(request.params.get(PASSWORD), PASSWORD);
             return super.build();
         }

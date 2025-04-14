@@ -1,5 +1,5 @@
 {
-  "managementApiUrl": "http://localhost:28080/management",
+  "managementApiUrl": "http://localhost:18080/management",
   "catalogUrl": "http://localhost:9181/catalog",
   "theme": "theme-2",
   "backendUrl": "",

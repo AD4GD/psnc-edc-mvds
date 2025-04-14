@@ -122,7 +122,7 @@ export class AssetEditorDialog implements OnInit {
     const resultDataAddress = {
       ...dataAddress,
       ...this.getHeaderProps(),
-      ...(this.authorizationTypeTab != "OAuth 2.0" ? this.getOAuth2Props(): {})
+      ...(this.authorizationTypeTab == "OAuth 2.0" ? this.getOAuth2Props(): {})
     };
 
     return resultDataAddress;
@@ -141,7 +141,7 @@ export class AssetEditorDialog implements OnInit {
       "oauth2:clientId": this.iamClientId,
       "oauth2:clientSecret": this.iamClientSecret,
       "oauth2:grantType": this.iamGrantType,
-      "oauth2:user": this.iamUser == '' ? undefined : this.iamUser,
+      "oauth2:username": this.iamUser == '' ? undefined : this.iamUser,
       "oauth2:password": this.iamPassword == '' ? undefined : this.iamPassword,
       "oauth2:scope": this.iamScope == '' ? undefined : this.iamScope,
     };

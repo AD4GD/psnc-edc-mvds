@@ -6,6 +6,6 @@ export interface OAuth2AssetProps {
     "oauth2:grantType": string;
     "oauth2:scope"?: string;
     // in case of password grant-type
-    "oauth2:user"?: string;
+    "oauth2:username"?: string;
     "oauth2:password"?: string;
 }
