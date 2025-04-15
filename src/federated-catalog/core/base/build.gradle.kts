@@ -19,7 +19,9 @@ dependencies {
 
     implementation(project(":extensions:target-node-directory-sql"))
     implementation(project(":extensions:catalog-node-static-resolver"))
-    implementation(libs.edc.fc.catalog.cache.sql)
+    if (System.getenv("DB_CONNECTED")?.trim() == "1") {
+        implementation(libs.edc.fc.catalog.cache.sql)
+    }
     implementation(libs.edc.dsp.catalog.http.dispatcher)
     implementation(libs.edc.sql.transaction.local)
     implementation(libs.postgresql)
