@@ -4,6 +4,7 @@ import { MatDialogRef } from "@angular/material/dialog";
 import { StorageType } from "../../models/storage-type";
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { getMediaTypes } from 'src/modules/mgmt-api-client';
+import { OAuth2AssetProps } from '../../models/oauth2-asset-props';
 
 
 @Component({
@@ -38,6 +39,17 @@ export class AssetEditorDialog implements OnInit {
   contenttype: string = 'application/json'; // Default selected content type
   isOtherSelected: boolean = false; // Flag to show/hide custom input
 
+  iamClientId: string = '';
+  iamClientSecret: string = '';
+  iamTokenUrl: string = '';
+  iamScope: string = '';
+  iamGrantType: string = 'client_credentials';
+  iamUser: string = '';
+  iamPassword: string = '';
+
+  grantTypes: string[] = ['client_credentials', 'password']
+
+
   constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
       @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
         this.mediaTypes = getMediaTypes();
@@ -46,30 +58,7 @@ export class AssetEditorDialog implements OnInit {
   ngOnInit(): void {
   }
 
-  onSave() {
-    
-    this.baseUrl = this.getWithoutTrailingSlashIfExists(this.baseUrl);
-
-    const properties = this.getProperties();
-    const dataAddress = this.getDataAddress();
-
-    const assetInput: AssetInput = {
-      "@id": this.id,
-      properties: properties,
-      dataAddress: dataAddress
-    };
-
-    this.dialogRef.close({ assetInput });
-  }
-
-  onContentTypeChange(selectedValue: string): void {
-    this.isOtherSelected = selectedValue === 'other';
-    if (!this.isOtherSelected) {
-      this.contenttype = selectedValue; // Update content type for predefined options
-    }
-  }
-
-  getProperties() {
+  getPublicProperties() {
     const properties: any = {
       "name": this.name,
       "version": this.version,
@@ -83,6 +72,29 @@ export class AssetEditorDialog implements OnInit {
     }
 
     return properties;
+  }
+
+  onSave() {
+    
+    this.baseUrl = this.getWithoutTrailingSlashIfExists(this.baseUrl);
+
+    const publicProperties = this.getPublicProperties();
+    const dataAddress = this.getDataAddress();
+
+    const assetInput: AssetInput = {
+      "@id": this.id,
+      properties: publicProperties,
+      dataAddress: dataAddress,
+    };
+
+    this.dialogRef.close({ assetInput });
+  }
+
+  onContentTypeChange(selectedValue: string): void {
+    this.isOtherSelected = selectedValue === 'other';
+    if (!this.isOtherSelected) {
+      this.contenttype = selectedValue; // Update content type for predefined options
+    }
   }
 
   getDataAddress() {
@@ -109,13 +121,32 @@ export class AssetEditorDialog implements OnInit {
 
     const resultDataAddress = {
       ...dataAddress,
-      ...this.staticHeaders.reduce((acc, { key, value }) => {
-            acc[`header:${key}`] = value;
-            return acc;
-        }, {} as any)
+      ...this.getHeaderProps(),
+      ...(this.authorizationTypeTab == "OAuth 2.0" ? this.getOAuth2Props(): {})
     };
 
     return resultDataAddress;
+  }
+
+  getHeaderProps() {
+    return this.staticHeaders.reduce((acc, { key, value }) => {
+      acc[`header:${key}`] = value;
+      return acc;
+    }, {} as any)
+  }
+
+  getOAuth2Props() {
+    const oauthProps: OAuth2AssetProps = {
+      "oauth2:tokenUrl": this.iamTokenUrl,
+      "oauth2:clientId": this.iamClientId,
+      "oauth2:clientSecret": this.iamClientSecret,
+      "oauth2:grantType": this.iamGrantType,
+      "oauth2:username": this.iamUser == '' ? undefined : this.iamUser,
+      "oauth2:password": this.iamPassword == '' ? undefined : this.iamPassword,
+      "oauth2:scope": this.iamScope == '' ? undefined : this.iamScope,
+    };
+
+    return oauthProps;
   }
 
   addOrReplaceHeader(headerKey: string, headerValue: string) {

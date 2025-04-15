@@ -83,6 +83,44 @@
             </mat-form-field>
           </div>
         </mat-tab>
+        <mat-tab label="OAuth 2.0">
+          <div class="tab-content">
+            <mat-form-field class="form-field">
+              <mat-label>client id</mat-label>
+              <input matInput [(ngModel)]="iamClientId" placeholder="Enter Client Id">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>client secret</mat-label>
+              <input matInput [(ngModel)]="iamClientSecret" placeholder="Enter Client Secret">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>endpoint</mat-label>
+              <input matInput [(ngModel)]="iamTokenUrl" placeholder="Enter IAM Endpoint">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>scope (optional)</mat-label>
+              <input matInput [(ngModel)]="iamScope" placeholder="Enter token scope (optional)">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+              <mat-label>Grant Type</mat-label>
+              <mat-select [(ngModel)]="iamGrantType" placeholder="Select grant type">
+                <mat-option *ngFor="let grant of grantTypes" [value]="grant">
+                  {{ grant }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <ng-container *ngIf="iamGrantType==='password'">
+              <mat-form-field class="form-field">
+                <mat-label>user</mat-label>
+                <input matInput [(ngModel)]="iamUser" placeholder="Enter user">
+              </mat-form-field>
+              <mat-form-field class="form-field">
+                <mat-label>password</mat-label>
+                <input matInput [(ngModel)]="iamPassword" placeholder="Enter password">
+              </mat-form-field>
+            </ng-container>
+          </div>
+        </mat-tab>
       </mat-tab-group>
 
       <h5>Static headers (Optional)</h5>
