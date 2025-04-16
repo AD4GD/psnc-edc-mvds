@@ -28,7 +28,6 @@ import org.eclipse.edc.sql.QueryExecutor;
 import org.eclipse.edc.sql.bootstrapper.SqlSchemaBootstrapper;
 import org.eclipse.edc.transaction.datasource.spi.DataSourceRegistry;
 import org.eclipse.edc.transaction.spi.TransactionContext;
-import org.eclipse.edc.spi.monitor.Monitor;
 
 @Provides(TargetNodeDirectory.class)
 @Extension(value = "SQL target node directory")
@@ -55,11 +54,7 @@ public class SqlTargetNodeDirectoryExtension implements ServiceExtension {
     @Override
     public void initialize(ServiceExtensionContext context) {
         var dataSourceName = context.getSetting(DATA_SOURCE_NAME_SETTING, DataSourceRegistry.DEFAULT_DATASOURCE);
-        if (dataSourceName == null) {
-            var monitor = context.getMonitor();
-            monitor.debug("No configuration for database. Initializing fallback node static resolver.");
-            return ;
-        }
+        
         typeManager.registerTypes(TargetNode.class);
         var targetNodeDirectory = new SqlTargetNodeDirectory(dataSourceRegistry, dataSourceName, trxContext,
                 typeManager.getMapper(), queryExecutor, getStatementImpl());

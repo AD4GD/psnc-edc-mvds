@@ -17,10 +17,11 @@ dependencies {
     runtimeOnly(libs.edc.lib.boot)
     implementation(libs.edc.config.filesystem)
 
-    implementation(project(":extensions:target-node-directory-sql"))
-    implementation(project(":extensions:catalog-node-static-resolver"))
-    if (System.getenv("DB_CONNECTED")?.trim() == "1") {
+    if (System.getenv("PERSISTENCE_MODE")?.trim().equals("database")) {
+        implementation(project(":extensions:target-node-directory-sql"))
         implementation(libs.edc.fc.catalog.cache.sql)
+    } else {
+        implementation(project(":extensions:catalog-node-static-resolver"))
     }
     implementation(libs.edc.dsp.catalog.http.dispatcher)
     implementation(libs.edc.sql.transaction.local)
