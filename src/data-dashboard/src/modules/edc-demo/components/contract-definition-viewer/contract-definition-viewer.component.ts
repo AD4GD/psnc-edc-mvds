@@ -37,7 +37,7 @@ export class ContractDefinitionViewerComponent implements OnInit {
           limit : QUERY_LIMIT,
           offset : 0,
         }).pipe(
-          tap(contractDefinitions => {
+          map(contractDefinitions => {
             return contractDefinitions.sort((a, b) => 
               this.sorterService.naturalSort(a.id, b.id))
             })

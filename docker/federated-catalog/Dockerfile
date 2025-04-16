@@ -5,6 +5,8 @@ FROM ${BASE_IMAGE}
 ARG LAUNCHER_TYPE="daps"
 ARG JVM_ARGS=""
 
+# available values: "database", "in-memory"
+ENV PERSISTENCE_MODE="database"
 ENV PROJECT_PATH="src/federated-catalog"
 ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
 
