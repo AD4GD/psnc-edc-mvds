@@ -54,7 +54,7 @@ public class SqlTargetNodeDirectoryExtension implements ServiceExtension {
     @Override
     public void initialize(ServiceExtensionContext context) {
         var dataSourceName = context.getSetting(DATA_SOURCE_NAME_SETTING, DataSourceRegistry.DEFAULT_DATASOURCE);
-        
+
         typeManager.registerTypes(TargetNode.class);
         var targetNodeDirectory = new SqlTargetNodeDirectory(dataSourceRegistry, dataSourceName, trxContext,
                 typeManager.getMapper(), queryExecutor, getStatementImpl());
