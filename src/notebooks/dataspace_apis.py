@@ -151,3 +151,65 @@ def get_transfer_state(consumer_management_url, pull_transfer_id, default_header
     return requests.get(
         f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers
     ).json()
+
+
+def get_transfer_data_credentials(consumer_management_url, pull_transfer_id, default_headers):
+    return requests.get(
+        url=f"{consumer_management_url}/v3/edrs/{pull_transfer_id}/dataaddress",
+        headers=default_headers,
+    ).json()
+
+
+def get_data_locally(publicUrl, auth):
+    headers = {"Authorization": auth}
+
+    return requests.get(
+        publicUrl,
+        headers=headers,
+    )
+
+
+# Fetch for all the contracts that are in the catalog
+def get_contracts(consumer_management_url: str, default_headers: dict = None):
+    """
+    Get all contracts from the provider.
+    """
+    return requests.post(
+        f"{consumer_management_url}/v3/contractagreements/request",
+        headers=default_headers,
+        data=json.dumps(
+            {
+                "@context": {"@vocab": "https://w3id.org/edc/v0.0.1/ns/"},
+                "@type": "QuerySpec",
+                "limit": 1000,
+                "offset": 0,
+            }
+        ),
+    )
+
+
+def get_transfers(consumer_management_url: str, default_headers: dict = None):
+    """
+    Get all transfers from the provider.
+    """
+    return requests.post(
+        f"{consumer_management_url}/v3/transferprocesses/request",
+        headers=default_headers,
+        data=json.dumps(
+            {
+                "@context": {"@vocab": "https://w3id.org/edc/v0.0.1/ns/"},
+                "limit": 1000,
+                "offset": 0,
+            }
+        ),
+    )
+
+
+def get_transfer(transfer_id: str, consumer_management_url: str, default_headers: dict = None):
+    """
+    Get a specific transfer by ID.
+    """
+    return requests.get(
+        f"{consumer_management_url}/v3/transferprocesses/{transfer_id}",
+        headers=default_headers,
+    )
