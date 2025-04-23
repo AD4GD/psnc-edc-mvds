@@ -837,6 +837,9 @@
                       - configMapRef:
                           name: "{{ application }}-federatedcatalog"
                           optional: true
+                      - secretRef:
+                          name: "{{ application }}-federatedcatalog"
+                          optional: true
                     volumeMounts:
                       - name: "federatedcatalog-tmp"
                         mountPath: "/tmp"
