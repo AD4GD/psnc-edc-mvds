@@ -1,3 +1,0 @@
-#!/bin/bash
-export COMPOSE_PROJECT_NAME_SCRIPT=cmd
-exec ./compose -f cmd.yaml "$@"

@@ -1,3 +1,0 @@
-#!/bin/bash
-export COMPOSE_PROJECT_NAME_SCRIPT=stack
-exec ./compose_m1 -f base_m1.yaml -f stack_m1.yaml -f local_m1.yaml "$@"
