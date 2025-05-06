@@ -3,7 +3,12 @@ import json
 import requests
 
 
-def create_asset(asset_id, management_url, default_headers, baseUrl="https://jsonplaceholder.typicode.com/users"):
+def create_asset(
+    asset_id: str,
+    management_url: str,
+    default_headers: dict,
+    baseUrl: str = "https://jsonplaceholder.typicode.com/users",
+):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
@@ -19,7 +24,7 @@ def create_asset(asset_id, management_url, default_headers, baseUrl="https://jso
     )
 
 
-def create_policy(policy_id, management_url, default_headers, permissions=None):
+def create_policy(policy_id: str, management_url: str, default_headers: dict, permissions: list = None):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
@@ -39,7 +44,9 @@ def create_policy(policy_id, management_url, default_headers, permissions=None):
     )
 
 
-def create_contract_definition(contract_definition_id, management_url, asset_id, policy_id, default_headers):
+def create_contract_definition(
+    contract_definition_id: str, management_url: str, asset_id: str, policy_id: str, default_headers: dict
+):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
@@ -57,11 +64,17 @@ def create_contract_definition(contract_definition_id, management_url, asset_id,
     )
 
 
-def fetch_catalog(federated_catalog_url, default_headers):
+def fetch_catalog(federated_catalog_url: str, default_headers: dict):
     return requests.post(f"{federated_catalog_url}/v1alpha/catalog/query", headers=default_headers)
 
 
-def negotiate_contract(offer_id, consumer_management_url, provider_protocol_internal, permissions, default_headers):
+def negotiate_contract(
+    offer_id: str,
+    consumer_management_url: str,
+    provider_protocol_internal: str,
+    permissions: list,
+    default_headers: dict,
+):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
@@ -84,19 +97,19 @@ def negotiate_contract(offer_id, consumer_management_url, provider_protocol_inte
     )
 
 
-def get_contract_agreement_id(contract_negotiation_id, management_url, default_headers):
+def get_contract_agreement_id(contract_negotiation_id: str, management_url: str, default_headers: dict):
     return requests.get(
         headers=default_headers, url=f"{management_url}/v2/contractnegotiations/{contract_negotiation_id}"
     )
 
 
 def request_consumer_pull_transfer(
-    provider_connector_id,
-    consumer_connector_management_url,
-    consumer_callback_backend_url,
-    counter_party_address_internal,
-    contract_agreement_id,
-    default_headers,
+    provider_connector_id: str,
+    consumer_connector_management_url: str,
+    consumer_callback_backend_url: str,
+    counter_party_address_internal: str,
+    contract_agreement_id: str,
+    default_headers: dict,
 ):
 
     return requests.post(
@@ -121,12 +134,12 @@ def request_consumer_pull_transfer(
 
 
 def request_consumer_push_transfer(
-    provider_connector_id,
-    consumer_connector_management_url,
-    data_destination_endpoint,
-    counter_party_address_internal,
-    contract_agreement_id,
-    default_headers,
+    provider_connector_id: str,
+    consumer_connector_management_url: str,
+    data_destination_endpoint: str,
+    counter_party_address_internal: str,
+    contract_agreement_id: str,
+    default_headers: dict,
 ):
     return requests.post(
         headers=default_headers,
@@ -147,20 +160,20 @@ def request_consumer_push_transfer(
     )
 
 
-def get_transfer_state(consumer_management_url, pull_transfer_id, default_headers):
+def get_transfer_state(consumer_management_url: str, pull_transfer_id: str, default_headers: dict):
     return requests.get(
         f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers
     ).json()
 
 
-def get_transfer_data_credentials(consumer_management_url, pull_transfer_id, default_headers):
+def get_transfer_data_credentials(consumer_management_url: str, pull_transfer_id: str, default_headers: dict):
     return requests.get(
         url=f"{consumer_management_url}/v3/edrs/{pull_transfer_id}/dataaddress",
         headers=default_headers,
     ).json()
 
 
-def get_data_locally(publicUrl, auth):
+def get_data_locally(publicUrl: str, auth):
     headers = {"Authorization": auth}
 
     return requests.get(
@@ -213,3 +226,72 @@ def get_transfer(transfer_id: str, consumer_management_url: str, default_headers
         f"{consumer_management_url}/v3/transferprocesses/{transfer_id}",
         headers=default_headers,
     )
+
+
+def get_offer_id(fetched_catalog, asset_id) -> str | None:
+    """
+    Fetch for id of the offer (contract definition) in the catalog
+    """
+
+    catalogs_array = []
+    if isinstance(fetched_catalog, list):
+        catalogs_array = fetched_catalog
+    else:
+        catalogs_array = [fetched_catalog]
+
+    offer_id = None
+    for catalog in catalogs_array:
+        dcat_dataset = catalog["dcat:dataset"]
+        dataset_array = []
+        if isinstance(dcat_dataset, list):
+            dataset_array = dcat_dataset
+        else:
+            dataset_array = [dcat_dataset]
+
+        for asset in dataset_array:
+            if asset["@id"] == asset_id:
+                policy = asset["odrl:hasPolicy"]
+                if isinstance(policy, list):
+                    return policy[0]["@id"]
+                else:
+                    return policy["@id"]
+    return offer_id
+
+
+# Check if there is an existing negotiation for the asset
+def check_existing_negotiation(asset_id: str, consumer_management_url: str, default_headers: dict) -> str | None:
+    """
+    Check if there is an existing negotiation for the asset.
+    """
+    response = get_contracts(consumer_management_url, default_headers)
+    if response.status_code != 200:
+        print("Error fetching negotiations:", response.status_code)
+        return None
+    contracts = response.json()
+    for contract in contracts:
+        if contract["assetId"] == asset_id:
+            return contract["@id"]
+    return None
+
+
+# Check if there is an existing transfer negotiation for the given asset and contract agreement
+def check_existing_transfer(
+    asset_id: str, contract_id: str, callback_address: str, consumer_management_url: str, default_headers: dict
+) -> str | None:
+    """
+    Check if there is an existing transfer for the asset.
+    """
+    response = get_transfers(consumer_management_url, default_headers)
+    if response.status_code != 200:
+        print("Error fetching transfers:", response.status_code)
+        return None
+    transfers = response.json()
+    for transfer in transfers:
+        if (
+            transfer["assetId"] == asset_id
+            and transfer["contractId"] == contract_id
+            and "uri" in transfer["callbackAddresses"]
+            and transfer["callbackAddresses"]["uri"] == callback_address
+        ):
+            return transfer["@id"]
+    return None

@@ -1,9 +1,0 @@
-version: '3.3'
-services:
-
-  postgres:
-    tmpfs:
-      - "/var/lib/postgresql/data:uid=999,gid=999"
-
-networks:
-  default:
