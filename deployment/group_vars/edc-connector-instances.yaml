@@ -375,6 +375,10 @@ registrationservicebackend_configmap__05_defaults:
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
 
+idpfiller_configmap__05_defaults:
+  WEB_HTTP_IDP_URI: "https://identityprovider-edc-connector.apps.paas-dev.psnc.pl"
+  WEB_HTTP_RS_URI: "https://registration-service-backend-edc-connector.apps.paas-dev.psnc.pl"
+  RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
 
 # DO NOT CHANGE DEFINITIONS BELOW
 #

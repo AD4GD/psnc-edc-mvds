@@ -673,7 +673,6 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:4200/*",
         "*"
       ],
       "webOrigins": [
