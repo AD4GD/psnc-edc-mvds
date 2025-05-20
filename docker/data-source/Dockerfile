@@ -2,7 +2,7 @@ ARG BUILDER_IMAGE
 FROM ${BUILDER_IMAGE}
 
 WORKDIR /app
-COPY . /app
+COPY ./docker/data-source/* /app
 COPY src/data-source /app
 
 RUN mkdir /app/data && chmod -R 777 /app/data
