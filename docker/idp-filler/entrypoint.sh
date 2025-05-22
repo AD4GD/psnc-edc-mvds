@@ -235,10 +235,10 @@ if [[ $(./$CONNECTION_SCRIPT $WEB_HTTP_RS_URI) == "1" ]]; then
 	RS_ACCESS_TOKEN=$(auth_flow $ORGANIZATIONS_REALM $RS_CLIENT_ID $RS_REDIRECT_URI $RS_USERNAME $RS_PASSWORD)
 
 	ADD_PARTICIPANT_RES=$(curl -s -L \
-	-X POST "$WEB_HTTP_RS_URI/authority/registry/participants?did=consumer&protocolUrl=http://consumer-connector:29194/protocol/" \
+	-X POST "$WEB_HTTP_RS_URI/authority/registry/participants?did=consumer&protocolUrl=http://consumer-connector:29194/protocol" \
 	-H "Authorization: Bearer $RS_ACCESS_TOKEN")
 	ADD_PARTICIPANT_RES=$(curl -s -L \
-	-X POST "$WEB_HTTP_RS_URI/authority/registry/participants?did=provider&protocolUrl=http://provider-connector:19194/protocol/" \
+	-X POST "$WEB_HTTP_RS_URI/authority/registry/participants?did=provider&protocolUrl=http://provider-connector:19194/protocol" \
 	-H "Authorization: Bearer $RS_ACCESS_TOKEN")
 	echo "Participants added to registration service" >> $LOG_FILE
 else
