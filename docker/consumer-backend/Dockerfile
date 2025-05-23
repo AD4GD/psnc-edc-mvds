@@ -2,7 +2,7 @@ ARG BUILDER_IMAGE
 FROM ${BUILDER_IMAGE}
 
 WORKDIR /app
-COPY . /app
+COPY ./docker/consumer-backend/* /app
 COPY src/consumer-backend-py /app
 
 RUN mkdir /app/data && chmod -R 777 /app/data

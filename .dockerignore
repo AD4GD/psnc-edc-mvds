@@ -5,3 +5,5 @@
 **/.coverage
 **/venv
 **/reports
+**/node_modules
+**/dist
