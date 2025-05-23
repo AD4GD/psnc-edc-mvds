@@ -1,8 +1,5 @@
-# default:
-#   image: registry.paas.psnc.pl/devlab/gitlab-runner:v1
-
 default:
-  image: registry.paas.psnc.pl/devlab/gitlab-runner:branch-increase_ulimit
+  image: registry.paas.psnc.pl/devlab/gitlab-runner:v1
 
 variables:
   GIT_STRATEGY: clone
@@ -23,6 +20,8 @@ Run pre-commit check:
 
 Build images:
   stage: build
+  variables:
+    ULIMIT_NOFILE: "16384:16384"
   script:
     - devlab_build_images
 
