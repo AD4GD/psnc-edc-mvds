@@ -1102,3 +1102,78 @@
             selector:
               application: "{{ application }}"
               component: registrationservicebackend
+
+    - name: "deploy deployment/{{ application }}-idpfiller"
+      when: "deploy_identityprovider|bool"
+      tags:
+        - idpfiller
+        - deployment
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: "{{ application }}-idpfiller"
+            labels:
+              component: idpfiller
+              application: "{{ application }}"
+          spec:
+            progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+            replicas: "{{ initial_replicas }}"
+            strategy:
+              type: RollingUpdate
+            selector:
+              matchLabels:
+                component: idpfiller
+                application: "{{ application }}"
+            template:
+              metadata:
+                labels:
+                  component: idpfiller
+                  application: "{{ application }}"
+                  image_tag: "{{ stateless_services_image_tag }}"
+                  parameters_digest: "{{ (idpfiller_configmap_digest + idpfiller_secret_digest)|hash('sha1') }}"
+              spec:
+                serviceAccountName: "run-any-uid"
+                containers:
+                  - name: "idpfiller"
+                    image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/idp-filler:{{ stateless_services_image_tag }}"
+                    imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                    # securityContext:
+                    #   readOnlyRootFilesystem: false
+                    #   runAsNonRoot: true
+                    #   runAsUser: 1000
+                    resources: "{{ idpfiller_resources }}"
+                    envFrom:
+                      - configMapRef:
+                          name: "{{ application }}-idpfiller"
+                          optional: true
+                      - secretRef:
+                          name: "{{ application }}-idpfiller"
+                          optional: true
+
+    - name: "deploy service/{{ application }}-idpfiller"
+      when: "deploy_identityprovider"
+      tags:
+        - idpfiller
+        - service
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: "{{ application }}-idpfiller"
+            labels:
+              application: "{{ application }}"
+              component: idpfiller
+          spec:
+            selector:
+              application: "{{ application }}"
+              component: idpfiller
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-idpfiller"
+                optional: true
+            - secretRef:
+                name: "{{ application }}-idpfiller"
+                optional: true
