@@ -267,5 +267,3 @@ echo "=== Uploading certificates to clients ===" > /dev/stderr
 upload_certificate "$PROVIDER_ID" "$PROVIDER_KEY" "$IDP_ACCESS_TOKEN"
 upload_certificate "$CONSUMER_ID" "$CONSUMER_KEY" "$IDP_ACCESS_TOKEN"
 upload_certificate "$FEDERATED_CATALOG_ID" "$FEDERATED_CATALOG_KEY" "$IDP_ACCESS_TOKEN"
-
-echo "=== Logs from idp-filler container ==="
