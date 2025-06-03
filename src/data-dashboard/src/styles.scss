@@ -18,7 +18,11 @@ body {
   color: black;
 }
 
-.code{
+.code {
   font-family: monospace;
-  font-size: larger;
+}
+
+mat-card-header, mat-card-title {
+  cursor: default;
+  font-size: 20px;
 }

@@ -67,6 +67,11 @@ export class ContractDefinitionViewerComponent implements OnInit {
 
   }
 
+  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
+    if (!element || !value) return false;
+    return element.offsetWidth < element.scrollWidth;
+  }
+
   onCreate() {
     const dialogRef = this.dialog.open(ContractDefinitionEditorDialog);
     dialogRef.afterClosed().pipe(first()).subscribe((result: { contractDefinition?: ContractDefinitionInput }) => {

@@ -42,3 +42,10 @@ mat-paginator {
   word-wrap: break-word;
   overflow: visible;
 }
+
+.overflow-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
+}

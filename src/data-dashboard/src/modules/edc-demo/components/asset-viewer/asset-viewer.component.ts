@@ -57,6 +57,11 @@ export class AssetViewerComponent implements OnInit {
         }));
   }
 
+  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
+    if (!element || !value) return false;
+    return element.offsetWidth < element.scrollWidth;
+  }
+
   isBusy() {
     return this.isTransferring;
   }

@@ -61,6 +61,11 @@ export class PolicyViewComponent implements OnInit {
     this.fetch$.next(null);
   }
 
+  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
+    if (!element || !value) return false;
+    return element.offsetWidth < element.scrollWidth;
+  }
+
   onCreate() {
     const dialogRef = this.dialog.open(NewPolicyDialogComponent);
     dialogRef.afterClosed().pipe(first()).subscribe({ next: (newPolicyDefinition: PolicyDefinitionInput) => {

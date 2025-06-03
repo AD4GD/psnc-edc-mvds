@@ -135,6 +135,11 @@ export class CatalogBrowserComponent implements OnInit {
     });
   }
 
+  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
+    if (!element || !value) return false;
+    return element.offsetWidth < element.scrollWidth;
+  }
+
   isBusy(contractOffer: ContractOffer) {
     return this.runningNegotiations.get(contractOffer.id) !== undefined || !!this.runningTransferProcesses.find(tp => tp.assetId === contractOffer.assetId);
   }

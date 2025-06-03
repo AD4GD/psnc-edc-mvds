@@ -20,25 +20,57 @@
 
         <mat-card *ngFor="let contractOffer of filteredContractOffers" class="asset-card">
             <mat-card-header>
-                <mat-icon mat-card-avatar>sim_card</mat-icon>
-                <mat-card-title>{{contractOffer.properties.name}}</mat-card-title>
+                <mat-icon mat-card-avatar>attachment</mat-icon>
+                <mat-card-title
+                  class="overflow-ellipsis"
+                  #nameDiv
+                  [matTooltip]="shouldShowTooltip(nameDiv, contractOffer.properties.name) ? contractOffer.properties.name : ''"
+                  matTooltipPosition="below"
+                  matTooltipClass="tooltip"
+                >
+                  {{contractOffer.properties.name}}
+                </mat-card-title>
             </mat-card-header>
             <mat-card-content>
                 <mat-list dense>
                     <mat-list-item>
-                        <mat-icon matListItemIcon>category</mat-icon>
+                      <mat-icon matListItemIcon>category</mat-icon>
                       <div class="asset-property-name" matListItemTitle>Type</div>
-                        <div matListItemLine>{{contractOffer.properties.type}}</div>
+                        <div matListItemLine
+                          class="overflow-ellipsis"
+                          #typeDiv
+                          [matTooltip]="shouldShowTooltip(typeDiv, contractOffer.properties.type) ? contractOffer.properties.type : ''"
+                          matTooltipPosition="below"
+                          matTooltipClass="tooltip"
+                        >
+                          {{contractOffer.properties.type}}
+                        </div>
                     </mat-list-item>
                     <mat-list-item>
-                        <mat-icon matListItemIcon>key</mat-icon>
+                      <mat-icon matListItemIcon>key</mat-icon>
                       <div class="asset-property-name" matListItemTitle>Id</div>
-                        <div matListItemLine>{{contractOffer.assetId}}</div>
+                        <div matListItemLine
+                          class="overflow-ellipsis"
+                          #assetIdDiv
+                          [matTooltip]="shouldShowTooltip(assetIdDiv, contractOffer.assetId) ? contractOffer.assetId : ''"
+                          matTooltipPosition="below"
+                          matTooltipClass="tooltip"
+                        >
+                          {{contractOffer.assetId}}
+                        </div>
                     </mat-list-item>
                     <mat-list-item *ngIf="contractOffer.originator">
                         <mat-icon matListItemIcon>link</mat-icon>
                       <div class="asset-property-name" matListItemTitle>Originator</div>
-                        <div matListItemLine>{{contractOffer.originator}}</div>
+                        <div matListItemLine
+                          class="overflow-ellipsis"
+                          #originatorDiv
+                          [matTooltip]="shouldShowTooltip(originatorDiv, contractOffer.originator) ? contractOffer.originator : ''"
+                          matTooltipPosition="below"
+                          matTooltipClass="tooltip"
+                        >
+                          {{contractOffer.originator}}
+                        </div>
                     </mat-list-item>
                 </mat-list>
                 
