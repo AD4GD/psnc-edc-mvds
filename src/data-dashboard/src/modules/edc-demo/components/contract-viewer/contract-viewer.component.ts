@@ -10,12 +10,8 @@ import {asyncScheduler, forkJoin, Observable, of, scheduled} from "rxjs";
 import { Asset, ContractAgreement, TransferProcessInput, IdResponse, TransferProcess } from "../../../mgmt-api-client/model";
 import {ContractOffer} from "../../models/contract-offer";
 import {filter, first, map, switchMap, tap} from "rxjs/operators";
-import {NotificationService} from "../../services/notification.service";
-import {
-  CatalogBrowserTransferDialog
-} from "../catalog-browser-transfer-dialog/catalog-browser-transfer-dialog.component";
+import { CatalogBrowserTransferDialog } from "../catalog-browser-transfer-dialog/catalog-browser-transfer-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
-import {CatalogBrowserService} from "../../services/catalog-browser.service";
 import {Router} from "@angular/router";
 import {TransferProcessStates} from "../../models/transfer-process-states";
 import { AppConfigService } from '../../../app/app-config.service';
@@ -23,7 +19,7 @@ import { MINIO_STORAGE_TYPE } from 'src/modules/app/variables';
 import { EdrService } from 'src/modules/mgmt-api-client/api/edr.service';
 import { PublicService } from 'src/modules/mgmt-api-client/api/public.service';
 import { EdcConnectorClientContext, QuerySpec } from '@think-it-labs/edc-connector-client';
-import { SorterService } from '../../services/common/sorter.service';
+import { SorterService, CatalogBrowserService, NotificationService, UtilService } from '../../services';
 
 interface RunningTransferProcess {
   processId: string;
@@ -61,8 +57,9 @@ export class ContractViewerComponent implements OnInit {
     private router: Router,
     private notificationService: NotificationService,
     private appConfigService: AppConfigService,
-    private sorterService: SorterService) {
-  }
+    private sorterService: SorterService,
+    public readonly utilService: UtilService,
+  ) { }
 
   private static isFinishedState(state: string): boolean {
     return [
