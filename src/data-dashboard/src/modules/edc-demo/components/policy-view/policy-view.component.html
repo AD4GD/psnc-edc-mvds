@@ -25,7 +25,7 @@
         <mat-icon mat-card-avatar>attachment</mat-icon>
         <mat-card-title
           class="code overflow-ellipsis"
-          [matTooltip]="shouldShowTooltip(idDiv, policyDef.id) ? policyDef.id : ''"
+          [matTooltip]="utilService.shouldShowTooltip(idDiv, policyDef.id) ? policyDef.id : ''"
           #idDiv
           matTooltipPosition="below"
           matTooltipClass="tooltip"

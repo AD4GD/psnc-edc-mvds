@@ -27,7 +27,7 @@
                 <mat-card-title
                     class="overflow-ellipsis"
                     #idDiv
-                    [matTooltip]="shouldShowTooltip(idDiv, contractDefinition.id) ? contractDefinition.id : ''"
+                    [matTooltip]="utilService.shouldShowTooltip(idDiv, contractDefinition.id) ? contractDefinition.id : ''"
                     matTooltipPosition="below"
                     matTooltipClass="tooltip"
                 >

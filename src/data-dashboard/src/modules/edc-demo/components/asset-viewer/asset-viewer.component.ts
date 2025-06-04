@@ -6,8 +6,7 @@ import {AssetInput, Asset } from "../../../mgmt-api-client/model";
 import {AssetService, QUERY_LIMIT} from "../../../mgmt-api-client";
 import {AssetEditorDialog} from "../asset-editor-dialog/asset-editor-dialog.component";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
-import {NotificationService} from "../../services/notification.service";
-import { SorterService } from '../../services/common/sorter.service';
+import { NotificationService, SorterService, UtilService } from "../../services";
 
 
 @Component({
@@ -26,7 +25,8 @@ export class AssetViewerComponent implements OnInit {
     private assetService: AssetService,
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly sorterService: SorterService
+    private readonly sorterService: SorterService,
+    public readonly utilService: UtilService,
   ) { }
 
   private showError(error: string, errorMessage: string) {
@@ -55,11 +55,6 @@ export class AssetViewerComponent implements OnInit {
             )))
             : assets$;
         }));
-  }
-
-  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
-    if (!element || !value) return false;
-    return element.offsetWidth < element.scrollWidth;
   }
 
   isBusy() {

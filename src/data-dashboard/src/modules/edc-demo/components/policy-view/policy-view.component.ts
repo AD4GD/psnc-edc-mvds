@@ -4,10 +4,9 @@ import {BehaviorSubject, Observable, Observer, of} from "rxjs";
 import {first, map, switchMap} from "rxjs/operators";
 import {MatDialog} from "@angular/material/dialog";
 import {NewPolicyDialogComponent} from "../new-policy-dialog/new-policy-dialog.component";
-import {NotificationService} from "../../services/notification.service";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
 import {PolicyDefinition, PolicyDefinitionInput, IdResponse} from "../../../mgmt-api-client/model";
-import { SorterService } from '../../services/common/sorter.service';
+import { NotificationService, SorterService, UtilService } from '../../services';
 
 @Component({
   selector: 'app-policy-view',
@@ -25,7 +24,8 @@ export class PolicyViewComponent implements OnInit {
     private policyService: PolicyService,
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly sorterService: SorterService
+    private readonly sorterService: SorterService,
+    public readonly utilService: UtilService,
   ) {
 
     this.errorOrUpdateSubscriber = {
@@ -59,11 +59,6 @@ export class PolicyViewComponent implements OnInit {
 
   onSearch() {
     this.fetch$.next(null);
-  }
-
-  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
-    if (!element || !value) return false;
-    return element.offsetWidth < element.scrollWidth;
   }
 
   onCreate() {

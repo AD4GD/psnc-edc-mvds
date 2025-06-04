@@ -7,9 +7,8 @@ import {
 } from '../contract-definition-editor-dialog/contract-definition-editor-dialog.component';
 import { ContractDefinitionService, QUERY_LIMIT } from "../../../mgmt-api-client";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
-import {NotificationService} from "../../services/notification.service";
+import { NotificationService, SorterService, UtilService } from "../../services";
 import { ContractDefinitionInput, ContractDefinition } from "../../../mgmt-api-client/model"
-import { SorterService } from '../../services/common/sorter.service';
 
 
 @Component({
@@ -27,7 +26,8 @@ export class ContractDefinitionViewerComponent implements OnInit {
     private contractDefinitionService: ContractDefinitionService,
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly sorterService: SorterService
+    private readonly sorterService: SorterService,
+    public readonly utilService: UtilService,
   ) { }
 
   ngOnInit(): void {
@@ -65,11 +65,6 @@ export class ContractDefinitionViewerComponent implements OnInit {
       }
     });
 
-  }
-
-  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
-    if (!element || !value) return false;
-    return element.offsetWidth < element.scrollWidth;
   }
 
   onCreate() {

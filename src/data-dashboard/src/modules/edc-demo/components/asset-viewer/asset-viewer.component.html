@@ -22,10 +22,9 @@
     <mat-card *ngFor="let asset of assets" class="asset-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>attachment</mat-icon>
-        <!-- <mat-icon class="avatar-icon" mat-card-avatar>id</mat-icon> -->
         <mat-card-title
           class="overflow-ellipsis"
-          [matTooltip]="shouldShowTooltip(idDiv, asset.id) ? asset.id : ''"
+          [matTooltip]="utilService.shouldShowTooltip(idDiv, asset.id) ? asset.id : ''"
           #idDiv
           matTooltipPosition="below"
           matTooltipClass="tooltip"
@@ -42,7 +41,7 @@
               matListItemLine
               class="overflow-ellipsis"
               #nameDiv
-              [matTooltip]="shouldShowTooltip(nameDiv, asset.properties.optionalValue('edc','name')) ? asset.properties.optionalValue('edc','name') ?? '' : ''"
+              [matTooltip]="utilService.shouldShowTooltip(nameDiv, asset.properties.optionalValue('edc','name')) ? asset.properties.optionalValue('edc','name') ?? '' : ''"
               matTooltipPosition="below"
               matTooltipClass="tooltip"
             >
@@ -61,7 +60,7 @@
               matListItemLine 
               class="no-truncate overflow-ellipsis"
               #baseUrlDiv
-              [matTooltip]="shouldShowTooltip(baseUrlDiv, asset.dataAddress.optionalValue('edc','baseUrl')) ? asset.dataAddress.optionalValue('edc','baseUrl') ?? '' : ''"
+              [matTooltip]="utilService.shouldShowTooltip(baseUrlDiv, asset.dataAddress.optionalValue('edc','baseUrl')) ? asset.dataAddress.optionalValue('edc','baseUrl') ?? '' : ''"
               matTooltipPosition="below"
               matTooltipClass="tooltip"
             >
@@ -90,7 +89,7 @@
         </mat-list>
       </mat-card-content>
 
-      <mat-divider inset></mat-divider>
+      <mat-divider inset />
       <mat-card-actions class="card-actions">
         <button (click)="onDelete(asset)" [disabled]="isBusy()" color="warn" mat-stroked-button>
           <mat-icon>delete_sweep</mat-icon> Delete
