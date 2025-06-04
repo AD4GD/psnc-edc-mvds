@@ -2,8 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
-import {CatalogBrowserService} from "../../services/catalog-browser.service";
-import {NotificationService} from "../../services/notification.service";
+import { CatalogBrowserService, NotificationService, UtilService } from "../../services";
 import {Router} from "@angular/router";
 import {TransferProcessStates} from "../../models/transfer-process-states";
 import {ContractOffer} from "../../models/contract-offer";
@@ -31,12 +30,14 @@ export class CatalogBrowserComponent implements OnInit {
   private fetch$ = new BehaviorSubject(null);
   private pollingHandleNegotiation?: any;
 
-  constructor(private apiService: CatalogBrowserService,
-              public dialog: MatDialog,
-              private router: Router,
-              private notificationService: NotificationService,
-              @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string) {
-  }
+  constructor(
+    private apiService: CatalogBrowserService,
+    public dialog: MatDialog,
+    private router: Router,
+    private notificationService: NotificationService,
+    @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
+    public readonly utilService: UtilService
+  ) { }
 
   ngOnInit(): void {
     this.filteredContractOffers$ = this.fetch$
@@ -133,11 +134,6 @@ export class CatalogBrowserComponent implements OnInit {
       console.error(error);
       this.notificationService.showError("Error starting negotiation");
     });
-  }
-
-  shouldShowTooltip(element: HTMLElement, value: string | undefined): boolean {
-    if (!element || !value) return false;
-    return element.offsetWidth < element.scrollWidth;
   }
 
   isBusy(contractOffer: ContractOffer) {
