@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
@@ -36,7 +36,8 @@ export class CatalogBrowserComponent implements OnInit {
     private router: Router,
     private notificationService: NotificationService,
     @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
-    public readonly utilService: UtilService
+    private readonly cdref: ChangeDetectorRef,
+    public readonly utilService: UtilService,
   ) { }
 
   ngOnInit(): void {
@@ -158,4 +159,7 @@ export class CatalogBrowserComponent implements OnInit {
     return this.finishedNegotiations.get(contractOffer.id) !== undefined;
   }
 
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
+  }
 }

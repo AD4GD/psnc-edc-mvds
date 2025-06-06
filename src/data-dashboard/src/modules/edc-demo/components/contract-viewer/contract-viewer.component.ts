@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit, Query} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, OnInit, Query} from '@angular/core';
 import {
   AssetService,
   ContractAgreementService,
@@ -58,6 +58,7 @@ export class ContractViewerComponent implements OnInit {
     private notificationService: NotificationService,
     private appConfigService: AppConfigService,
     private sorterService: SorterService,
+    private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
   ) { }
 
@@ -382,5 +383,9 @@ export class ContractViewerComponent implements OnInit {
     }
 
     return result;
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
   }
 }

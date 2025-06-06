@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {
   AssetService, PolicyService,
@@ -33,6 +33,7 @@ export class ContractDefinitionEditorDialog implements OnInit {
     private policyService: PolicyService,
     private assetService: AssetService,
     private dialogRef: MatDialogRef<ContractDefinitionEditorDialog>,
+    private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
     @Inject(MAT_DIALOG_DATA) contractDefinition?: ContractDefinitionInput,
   ) {
@@ -79,5 +80,9 @@ export class ContractDefinitionEditorDialog implements OnInit {
     this.dialogRef.close({
       "contractDefinition": this.contractDefinition
     });
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
   }
 }

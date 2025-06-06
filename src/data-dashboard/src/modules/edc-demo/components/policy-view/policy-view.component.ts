@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {PolicyService, QUERY_LIMIT} from "../../../mgmt-api-client";
 import {BehaviorSubject, Observable, Observer, of} from "rxjs";
 import {first, map, switchMap} from "rxjs/operators";
@@ -25,6 +25,7 @@ export class PolicyViewComponent implements OnInit {
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
     private readonly sorterService: SorterService,
+    private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
   ) {
 
@@ -109,5 +110,9 @@ export class PolicyViewComponent implements OnInit {
   private showError(error: Error, errorMessage: string) {
     console.error(error);
     this.notificationService.showError(errorMessage);
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
   }
 }

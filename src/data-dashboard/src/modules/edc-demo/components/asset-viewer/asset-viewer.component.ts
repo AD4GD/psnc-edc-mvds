@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {first, map, switchMap, tap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
@@ -26,6 +26,7 @@ export class AssetViewerComponent implements OnInit {
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
     private readonly sorterService: SorterService,
+    private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
   ) { }
 
@@ -93,6 +94,10 @@ export class AssetViewerComponent implements OnInit {
           complete: () => this.notificationService.showInfo("Successfully created"),
         })
       }
-  })
-}
+    })
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
+  }
 }
