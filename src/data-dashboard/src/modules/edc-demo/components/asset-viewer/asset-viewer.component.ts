@@ -1,12 +1,14 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {BehaviorSubject, Observable, of} from 'rxjs';
-import {first, map, switchMap, tap} from 'rxjs/operators';
-import {MatDialog} from '@angular/material/dialog';
-import {AssetInput, Asset } from "../../../mgmt-api-client/model";
-import {AssetService, QUERY_LIMIT} from "../../../mgmt-api-client";
-import {AssetEditorDialog} from "../asset-editor-dialog/asset-editor-dialog.component";
-import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { first, map, switchMap } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { AssetInput, Asset } from "../../../mgmt-api-client/model";
+import { AssetService, QUERY_LIMIT } from "../../../mgmt-api-client";
+import { AssetEditorDialog } from "../asset-editor-dialog/asset-editor-dialog.component";
+import { ConfirmationDialogComponent, ConfirmDialogModel } from "../confirmation-dialog/confirmation-dialog.component";
 import { NotificationService, SorterService, UtilService } from "../../services";
+import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
+import { METADATA_CONTEXT } from 'src/modules/app/variables';
 
 
 @Component({
@@ -25,6 +27,7 @@ export class AssetViewerComponent implements OnInit {
     private assetService: AssetService,
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
+    private readonly metadataViewDialog: MatDialog,
     private readonly sorterService: SorterService,
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
@@ -66,6 +69,10 @@ export class AssetViewerComponent implements OnInit {
     this.fetch$.next(null);
   }
 
+  isArray(val: any): val is any[] {
+    return Array.isArray(val);
+  }
+
   onDelete(asset: Asset) {
     const dialogData = ConfirmDialogModel.forDelete("asset", `"${asset.id}"`)
     const ref = this.dialog.open(ConfirmationDialogComponent, {data: dialogData});
@@ -95,6 +102,17 @@ export class AssetViewerComponent implements OnInit {
         })
       }
     })
+  }
+
+  onSelect(asset: Asset) {
+    console.log(asset.properties[METADATA_CONTEXT]?.[0]);
+    const dialogRef = this.metadataViewDialog.open(MetadataDisplayComponent, {
+      data: { 
+        metadata: asset.properties[METADATA_CONTEXT]?.[0],
+        asset_name: asset.properties.optionalValue<string>('edc', 'name') || asset.id,
+      },
+    });
+    dialogRef.afterClosed().subscribe( );
   }
 
   ngAfterContentChecked() {

@@ -11,3 +11,5 @@ export const COLLECTION_FORMATS = {
 }
 export const MINIO_STORAGE_TYPE = "minio";
 export const LOCAL_STORAGE_TYPE = "local";
+export const METADATA_CONTEXT = 'https://w3id.org/edc/v0.0.1/ns/metadata';
+export const DATASET_CONTEXT = 'http://www.w3.org/ns/dcat#dataset';

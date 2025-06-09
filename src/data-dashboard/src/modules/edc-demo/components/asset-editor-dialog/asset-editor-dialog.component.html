@@ -142,6 +142,11 @@
       <button mat-stroked-button color="primary" (click)="addHeader()">
         <mat-icon>add</mat-icon> Add Header
       </button>
+
+      <!-- Metadata Entries Section as JSONld parser -->
+      <h5>Additional metadata (Optional)</h5>
+      <jsonld-code-display [content]="metadataEntries" [isCopyButton]="false" [isEditable]="true" (contentChange)="onJsonLdUpdated($event)"/>
+
     </div>
   </div>
 </mat-dialog-content>

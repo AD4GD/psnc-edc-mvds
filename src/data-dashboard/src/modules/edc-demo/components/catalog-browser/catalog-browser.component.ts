@@ -1,13 +1,15 @@
-import {ChangeDetectorRef, Component, Inject, OnInit} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
-import {BehaviorSubject, Observable, of} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { CatalogBrowserService, NotificationService, UtilService } from "../../services";
-import {Router} from "@angular/router";
-import {TransferProcessStates} from "../../models/transfer-process-states";
-import {ContractOffer} from "../../models/contract-offer";
-import {NegotiationResult} from "../../models/negotiation-result";
-import {ContractNegotiation, ContractNegotiationRequest, Policy} from "../../../mgmt-api-client/model";
+import { Router} from "@angular/router";
+import { TransferProcessStates } from "../../models/transfer-process-states";
+import { ContractOffer } from "../../models/contract-offer";
+import { NegotiationResult } from "../../models/negotiation-result";
+import { ContractNegotiation } from "../../../mgmt-api-client/model";
+import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
+import { METADATA_CONTEXT, DATASET_CONTEXT } from 'src/modules/app/variables';
 
 interface RunningTransferProcess {
   processId: string;
@@ -29,10 +31,10 @@ export class CatalogBrowserComponent implements OnInit {
   finishedNegotiations: Map<string, ContractNegotiation> = new Map<string, ContractNegotiation>(); // contractOfferId, contractAgreementId
   private fetch$ = new BehaviorSubject(null);
   private pollingHandleNegotiation?: any;
-
+  
   constructor(
     private apiService: CatalogBrowserService,
-    public dialog: MatDialog,
+    private readonly metadataViewDialog: MatDialog,
     private router: Router,
     private notificationService: NotificationService,
     @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
@@ -58,6 +60,22 @@ export class CatalogBrowserComponent implements OnInit {
 
   onSearch() {
     this.fetch$.next(null);
+  }
+
+  onSelect(offer: ContractOffer) {
+    console.log("Displaying metadata for offer: ", offer);
+    const findMetadataOfAsset = (assetId : string) => {
+      return offer[DATASET_CONTEXT].filter((_asset : any) => {
+        return _asset['@id'] === assetId || _asset.id === assetId;
+      })?.[0]?.[METADATA_CONTEXT]?.[0] || {};
+    }
+    const dialogRef = this.metadataViewDialog.open(MetadataDisplayComponent, {
+      data: { 
+        metadata: findMetadataOfAsset(offer.assetId),
+        asset_name: offer.properties.name || offer.assetId,
+      },
+    });
+    dialogRef.afterClosed().subscribe( );
   }
 
    onNegotiateClicked(contractOffer: ContractOffer) {
@@ -160,6 +178,10 @@ export class CatalogBrowserComponent implements OnInit {
   }
 
   ngAfterContentChecked() {
+    this.cdref.detectChanges();
+  }
+
+  ngAfterViewInit() {
     this.cdref.detectChanges();
   }
 }

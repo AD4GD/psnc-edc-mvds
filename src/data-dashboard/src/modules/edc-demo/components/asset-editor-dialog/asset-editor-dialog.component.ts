@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { AssetInput } from "@think-it-labs/edc-connector-client";
+import { AssetInput, JsonLdObject } from "@think-it-labs/edc-connector-client";
 import { MatDialogRef } from "@angular/material/dialog";
 import { StorageType } from "../../models/storage-type";
 import { MatTabChangeEvent } from '@angular/material/tabs';
@@ -32,6 +32,7 @@ export class AssetEditorDialog implements OnInit {
 
   authorizationTypeTab: string = 'Authorization Token';
   staticHeaders: { key: string; value: string }[] = [];
+  metadataEntries: JsonLdObject = {} as JsonLdObject;
 
   isDisplayBaseUrl: boolean = true;
 
@@ -50,9 +51,11 @@ export class AssetEditorDialog implements OnInit {
   grantTypes: string[] = ['client_credentials', 'password']
 
 
-  constructor(private dialogRef: MatDialogRef<AssetEditorDialog>,
-      @Inject('STORAGE_TYPES') public storageTypes: StorageType[]) {
-        this.mediaTypes = getMediaTypes();
+  constructor(
+    private dialogRef: MatDialogRef<AssetEditorDialog>,
+    @Inject('STORAGE_TYPES') public storageTypes: StorageType[]
+  ) {
+    this.mediaTypes = getMediaTypes();
   }
 
   ngOnInit(): void {
@@ -65,6 +68,7 @@ export class AssetEditorDialog implements OnInit {
       "contenttype": this.contenttype,
       "proxyPath": this.isProxyPath.toString(),
       "proxyQueryParams": this.isProxyQueryParams.toString(),
+      "metadata": this.metadataEntries,
     };
 
     if (this.isDisplayBaseUrl) {
@@ -86,7 +90,6 @@ export class AssetEditorDialog implements OnInit {
       properties: publicProperties,
       dataAddress: dataAddress,
     };
-
     this.dialogRef.close({ assetInput });
   }
 
@@ -95,6 +98,10 @@ export class AssetEditorDialog implements OnInit {
     if (!this.isOtherSelected) {
       this.contenttype = selectedValue; // Update content type for predefined options
     }
+  }
+
+  onJsonLdUpdated(updatedJson: any) {
+    this.metadataEntries = updatedJson;
   }
 
   getDataAddress() {
