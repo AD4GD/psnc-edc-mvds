@@ -21,15 +21,32 @@
   <div fxLayout="row wrap" fxLayoutAlign="start start">
     <mat-card *ngFor="let asset of assets" class="asset-card">
       <mat-card-header>
-        <mat-icon class="avatar-icon" mat-card-avatar>id</mat-icon>
-        <mat-card-title>{{asset.id}}</mat-card-title>
+        <mat-icon mat-card-avatar>attachment</mat-icon>
+        <mat-card-title
+          class="overflow-ellipsis"
+          [matTooltip]="utilService.shouldShowTooltip(idDiv, asset.id) ? asset.id : ''"
+          #idDiv
+          matTooltipPosition="below"
+          matTooltipClass="tooltip"
+        >
+          {{asset.id}}
+        </mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <mat-list dense>
           <mat-list-item>
             <mat-icon matListItemIcon>info</mat-icon>
             <div class="asset-property" matListItemTitle>Name</div>
-            <div matListItemLine>{{asset.properties.optionalValue('edc','name')}}</div>
+            <div 
+              matListItemLine
+              class="overflow-ellipsis"
+              #nameDiv
+              [matTooltip]="utilService.shouldShowTooltip(nameDiv, asset.properties.optionalValue('edc','name')) ? asset.properties.optionalValue('edc','name') ?? '' : ''"
+              matTooltipPosition="below"
+              matTooltipClass="tooltip"
+            >
+              {{asset.properties.optionalValue('edc','name')}}
+            </div>
           </mat-list-item>
           <mat-list-item>
             <mat-icon matListItemIcon>category</mat-icon>
@@ -39,7 +56,14 @@
           <mat-list-item>
             <mat-icon matListItemIcon>http</mat-icon>
             <div class="asset-property" matListItemTitle>Base url</div>
-            <div matListItemLine class="no-truncate">
+            <div 
+              matListItemLine 
+              class="no-truncate overflow-ellipsis"
+              #baseUrlDiv
+              [matTooltip]="utilService.shouldShowTooltip(baseUrlDiv, asset.dataAddress.optionalValue('edc','baseUrl')) ? asset.dataAddress.optionalValue('edc','baseUrl') ?? '' : ''"
+              matTooltipPosition="below"
+              matTooltipClass="tooltip"
+            >
               {{asset.dataAddress.optionalValue('edc','baseUrl')}}
             </div>
           </mat-list-item>
@@ -65,7 +89,7 @@
         </mat-list>
       </mat-card-content>
 
-      <mat-divider inset></mat-divider>
+      <mat-divider inset />
       <mat-card-actions class="card-actions">
         <button (click)="onDelete(asset)" [disabled]="isBusy()" color="warn" mat-stroked-button>
           <mat-icon>delete_sweep</mat-icon> Delete

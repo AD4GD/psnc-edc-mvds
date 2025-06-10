@@ -11,13 +11,31 @@
           <mat-list-item>
             <mat-icon mat-list-icon>category</mat-icon>
             <div class="contract-property-header" matListItemTitle>Asset</div>
-            <div class="contract-property-value" matListItemLine>{{contract.assetId}}</div>
+            <div 
+              class="contract-property-value overflow-ellipsis"
+              matListItemLine
+              #assetIdDiv
+              [matTooltip]="utilService.shouldShowTooltip(assetIdDiv, contract.assetId) ? contract.assetId : ''"
+              matTooltipPosition="below"
+              matTooltipClass="tooltip"
+            >
+              {{contract.assetId}}
+            </div>
           </mat-list-item>
 
           <mat-list-item *ngIf="contract.contractOffer?.properties.baseUrl">
             <mat-icon mat-list-icon>http</mat-icon>
             <div class="contract-property-header" matListItemTitle>Base Url</div>
-            <div class="contract-property-value" matListItemLine>{{contract.contractOffer!.properties.baseUrl}}</div>
+            <div 
+              class="contract-property-value overflow-ellipsis"
+              matListItemLine
+              #baseUrlDiv
+              [matTooltip]="utilService.shouldShowTooltip(baseUrlDiv, contract.contractOffer!.properties.baseUrl) ? contract.contractOffer!.properties.baseUrl : ''"
+              matTooltipPosition="below"
+              matTooltipClass="tooltip"
+            >
+              {{contract.contractOffer!.properties.baseUrl}}
+            </div>
           </mat-list-item>
 
           <!-- provider -->

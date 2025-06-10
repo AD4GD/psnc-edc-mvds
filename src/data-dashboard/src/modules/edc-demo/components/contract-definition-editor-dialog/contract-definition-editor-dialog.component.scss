@@ -32,3 +32,10 @@ mat-dialog-content {
 mat-card-actions {
     margin-left: 0;
 }
+
+.overflow-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 400px;
+}

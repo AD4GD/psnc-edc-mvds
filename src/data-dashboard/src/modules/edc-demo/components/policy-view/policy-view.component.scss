@@ -8,7 +8,7 @@
 
 .policy-card {
   margin-top: 10px;
-  width: 50%;
+  width: 400px;
 }
 
 .policy-card-content {
@@ -36,4 +36,11 @@ mat-paginator {
 
 .delete-policy-button {
   margin-top: 8px;
+}
+
+.overflow-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
 }

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {first, map, switchMap, tap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
@@ -6,8 +6,7 @@ import {AssetInput, Asset } from "../../../mgmt-api-client/model";
 import {AssetService, QUERY_LIMIT} from "../../../mgmt-api-client";
 import {AssetEditorDialog} from "../asset-editor-dialog/asset-editor-dialog.component";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
-import {NotificationService} from "../../services/notification.service";
-import { SorterService } from '../../services/common/sorter.service';
+import { NotificationService, SorterService, UtilService } from "../../services";
 
 
 @Component({
@@ -26,7 +25,9 @@ export class AssetViewerComponent implements OnInit {
     private assetService: AssetService,
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly sorterService: SorterService
+    private readonly sorterService: SorterService,
+    private readonly cdref: ChangeDetectorRef,
+    public readonly utilService: UtilService,
   ) { }
 
   private showError(error: string, errorMessage: string) {
@@ -93,6 +94,10 @@ export class AssetViewerComponent implements OnInit {
           complete: () => this.notificationService.showInfo("Successfully created"),
         })
       }
-  })
-}
+    })
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
+  }
 }

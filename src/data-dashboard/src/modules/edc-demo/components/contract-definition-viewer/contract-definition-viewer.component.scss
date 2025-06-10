@@ -39,4 +39,11 @@ mat-paginator {
     display: flex;
     align-items: center;
     gap: 10px;
-  }
+}
+
+.overflow-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 400px;
+}

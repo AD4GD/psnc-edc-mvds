@@ -1,13 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {PolicyService, QUERY_LIMIT} from "../../../mgmt-api-client";
 import {BehaviorSubject, Observable, Observer, of} from "rxjs";
 import {first, map, switchMap} from "rxjs/operators";
 import {MatDialog} from "@angular/material/dialog";
 import {NewPolicyDialogComponent} from "../new-policy-dialog/new-policy-dialog.component";
-import {NotificationService} from "../../services/notification.service";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
 import {PolicyDefinition, PolicyDefinitionInput, IdResponse} from "../../../mgmt-api-client/model";
-import { SorterService } from '../../services/common/sorter.service';
+import { NotificationService, SorterService, UtilService } from '../../services';
 
 @Component({
   selector: 'app-policy-view',
@@ -25,7 +24,9 @@ export class PolicyViewComponent implements OnInit {
     private policyService: PolicyService,
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly sorterService: SorterService
+    private readonly sorterService: SorterService,
+    private readonly cdref: ChangeDetectorRef,
+    public readonly utilService: UtilService,
   ) {
 
     this.errorOrUpdateSubscriber = {
@@ -109,5 +110,9 @@ export class PolicyViewComponent implements OnInit {
   private showError(error: Error, errorMessage: string) {
     console.error(error);
     this.notificationService.showError(errorMessage);
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
   }
 }

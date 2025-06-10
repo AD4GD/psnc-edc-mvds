@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {first, map, switchMap, tap} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
@@ -7,9 +7,8 @@ import {
 } from '../contract-definition-editor-dialog/contract-definition-editor-dialog.component';
 import { ContractDefinitionService, QUERY_LIMIT } from "../../../mgmt-api-client";
 import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
-import {NotificationService} from "../../services/notification.service";
+import { NotificationService, SorterService, UtilService } from "../../services";
 import { ContractDefinitionInput, ContractDefinition } from "../../../mgmt-api-client/model"
-import { SorterService } from '../../services/common/sorter.service';
 
 
 @Component({
@@ -27,7 +26,9 @@ export class ContractDefinitionViewerComponent implements OnInit {
     private contractDefinitionService: ContractDefinitionService,
     private notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly sorterService: SorterService
+    private readonly sorterService: SorterService,
+    private readonly cdref: ChangeDetectorRef,
+    public readonly utilService: UtilService,
   ) { }
 
   ngOnInit(): void {
@@ -82,4 +83,7 @@ export class ContractDefinitionViewerComponent implements OnInit {
     });
   }
 
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
+  }
 }

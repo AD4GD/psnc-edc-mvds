@@ -1,10 +1,11 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {
   AssetService, PolicyService,
   QUERY_LIMIT
 } from "../../../mgmt-api-client";
 import { Asset, ContractDefinitionInput, PolicyDefinition } from "../../../mgmt-api-client/model"
+import { UtilService } from '../../services';
 
 
 @Component({
@@ -28,10 +29,14 @@ export class ContractDefinitionEditorDialog implements OnInit {
     contractPolicyId: undefined!
   };
 
-  constructor(private policyService: PolicyService,
-              private assetService: AssetService,
-              private dialogRef: MatDialogRef<ContractDefinitionEditorDialog>,
-              @Inject(MAT_DIALOG_DATA) contractDefinition?: ContractDefinitionInput) {
+  constructor(
+    private policyService: PolicyService,
+    private assetService: AssetService,
+    private dialogRef: MatDialogRef<ContractDefinitionEditorDialog>,
+    private readonly cdref: ChangeDetectorRef,
+    public readonly utilService: UtilService,
+    @Inject(MAT_DIALOG_DATA) contractDefinition?: ContractDefinitionInput,
+  ) {
     if (contractDefinition) {
       this.contractDefinition = contractDefinition;
       this.editMode = true;
@@ -75,5 +80,9 @@ export class ContractDefinitionEditorDialog implements OnInit {
     this.dialogRef.close({
       "contractDefinition": this.contractDefinition
     });
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
   }
 }
