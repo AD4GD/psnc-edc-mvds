@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UtilService } from 'src/modules/edc-demo/services';
 
@@ -10,11 +10,16 @@ import { UtilService } from 'src/modules/edc-demo/services';
 export class MetadataDisplayComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
     public dialogRef: MatDialogRef<MetadataDisplayComponent>
   ) {}
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  ngAfterContentChecked() {
+    this.cdref.detectChanges();
   }
 }
