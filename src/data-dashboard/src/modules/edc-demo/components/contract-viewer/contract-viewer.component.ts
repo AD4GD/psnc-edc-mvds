@@ -1,25 +1,25 @@
-import {ChangeDetectorRef, Component, Inject, OnInit, Query} from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import {
-  AssetService,
   ContractAgreementService,
   MIME_TO_EXTENSION,
   QUERY_LIMIT,
   TransferProcessService
 } from "../../../mgmt-api-client";
-import {asyncScheduler, forkJoin, Observable, of, scheduled} from "rxjs";
-import { Asset, ContractAgreement, TransferProcessInput, IdResponse, TransferProcess } from "../../../mgmt-api-client/model";
-import {ContractOffer} from "../../models/contract-offer";
-import {filter, first, map, switchMap, tap} from "rxjs/operators";
+import { asyncScheduler, forkJoin, Observable, of, scheduled } from "rxjs";
+import { ContractAgreement, TransferProcessInput, IdResponse, TransferProcess } from "../../../mgmt-api-client/model";
+import { ContractOffer } from "../../models/contract-offer";
+import { filter, first, map, switchMap, tap } from "rxjs/operators";
 import { CatalogBrowserTransferDialog } from "../catalog-browser-transfer-dialog/catalog-browser-transfer-dialog.component";
-import {MatDialog} from "@angular/material/dialog";
-import {Router} from "@angular/router";
-import {TransferProcessStates} from "../../models/transfer-process-states";
+import { MatDialog } from "@angular/material/dialog";
+import { Router } from "@angular/router";
+import { TransferProcessStates } from "../../models/transfer-process-states";
 import { AppConfigService } from '../../../app/app-config.service';
-import { MINIO_STORAGE_TYPE } from 'src/modules/app/variables';
+import { DATASET_CONTEXT, METADATA_CONTEXT, MINIO_STORAGE_TYPE } from 'src/modules/app/variables';
 import { EdrService } from 'src/modules/mgmt-api-client/api/edr.service';
 import { PublicService } from 'src/modules/mgmt-api-client/api/public.service';
-import { EdcConnectorClientContext, QuerySpec } from '@think-it-labs/edc-connector-client';
+import { EdcConnectorClientContext } from '@think-it-labs/edc-connector-client';
 import { SorterService, CatalogBrowserService, NotificationService, UtilService } from '../../services';
+import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
 
 interface RunningTransferProcess {
   processId: string;
@@ -51,6 +51,7 @@ export class ContractViewerComponent implements OnInit {
     private edrService: EdrService,
     private publicService: PublicService,
     public dialog: MatDialog,
+    private readonly metadataViewDialog: MatDialog,
     @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
     private transferService: TransferProcessService,
     private catalogService: CatalogBrowserService,
@@ -383,6 +384,22 @@ export class ContractViewerComponent implements OnInit {
     }
 
     return result;
+  }
+
+  onSelect(offer: ContractOffer) {
+    console.log("Displaying metadata for offer: ", offer);
+    const findMetadataOfAsset = (assetId : string) => {
+      return offer[DATASET_CONTEXT].filter((_asset : any) => {
+        return _asset['@id'] === assetId || _asset.id === assetId;
+      })?.[0]?.[METADATA_CONTEXT]?.[0] || {};
+    }
+    const dialogRef = this.metadataViewDialog.open(MetadataDisplayComponent, {
+      data: { 
+        metadata: findMetadataOfAsset(offer.assetId),
+        asset_name: offer.properties.name || offer.assetId,
+      },
+    });
+    dialogRef.afterClosed().subscribe( );
   }
 
   ngAfterContentChecked() {
