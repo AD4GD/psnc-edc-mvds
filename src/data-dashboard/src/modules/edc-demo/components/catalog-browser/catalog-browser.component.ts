@@ -180,8 +180,4 @@ export class CatalogBrowserComponent implements OnInit {
   ngAfterContentChecked() {
     this.cdref.detectChanges();
   }
-
-  ngAfterViewInit() {
-    this.cdref.detectChanges();
-  }
 }
