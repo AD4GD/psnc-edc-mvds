@@ -62,7 +62,7 @@ integration-test:
   before_script:
     - cat /etc/os-release
     - apt-get update
-    - apt-get install curl jq docker-compose-plugin
+    - apt-get install curl jq
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
