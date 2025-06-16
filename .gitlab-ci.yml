@@ -57,7 +57,7 @@ Update inventory for atos-psnc integration:
 
 integration-test:
   stage: test
-  # image: docker:latest
+  image: docker:latest
   services:
     - docker:dind
   variables:
