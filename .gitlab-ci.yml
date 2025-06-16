@@ -61,7 +61,8 @@ integration-test:
     DOCKER_HOST: tcp://docker:2375/
   before_script:
     - cat /etc/os-release
-    - apt-get install curl jq docker-compose
+    - apt-get update
+    - apt-get install curl jq docker-compose-plugin
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
