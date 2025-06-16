@@ -65,7 +65,7 @@ integration-test:
   before_script:
     - apk add --no-cache curl jq docker-compose
   script:
-    - cd build
+    - cd ${CI_PROJECT_DIR}/docker
     - make build
     - cd ../bin
     - ./devstack up -d
@@ -77,7 +77,3 @@ integration-test:
     paths:
       - docker-compose.log
       - tests/test.log
-  only:
-    - merge_requests
-    - main
-    - master
