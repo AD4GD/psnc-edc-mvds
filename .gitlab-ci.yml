@@ -64,8 +64,8 @@ integration-test:
     DOCKER_HOST: tcp://docker:2375/
   before_script:
     - cat /etc/os-release
-    - apt-get update
-    - apt-get install -y curl jq
+    - apk update
+    - apk add -y curl jq
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
