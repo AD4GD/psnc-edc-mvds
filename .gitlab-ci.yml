@@ -71,7 +71,7 @@ integration-test:
     # - unset DOCKER_HOST
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
-    - cd ../bin
+    - cd ${CI_PROJECT_DIR}/bin
     - ./devstack up -d
     - ./tests
     - ./devstack logs > docker-compose.log
