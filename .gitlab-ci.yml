@@ -62,13 +62,13 @@ integration-test:
     - name: docker:24.0.7-dind
       alias: docker
   variables:
-    DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
   before_script:
     - cat /etc/os-release
     - apk update
     - apk add --no-cache make curl jq
   script:
+    - unset DOCKER_HOST
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
     - cd ../bin
