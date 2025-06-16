@@ -94,7 +94,7 @@
         <button (click)="onDelete(asset)" [disabled]="isBusy()" color="warn" mat-stroked-button>
           <mat-icon>delete_sweep</mat-icon> Delete
         </button>
-        <button (click)="onSelect(asset)" color="white" mat-stroked-button>
+        <button [disabled]="!shouldDisplayMetadata(asset)" (click)="onSelect(asset)" color="white" mat-stroked-button>
           <mat-icon>view_list</mat-icon>
           <h3>Display additional metadata</h3>
         </button>

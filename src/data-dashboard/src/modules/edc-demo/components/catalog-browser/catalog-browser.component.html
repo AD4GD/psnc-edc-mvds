@@ -135,9 +135,10 @@
                       </mat-list-item>
                       <mat-list-item>
                         <mat-icon matListItemIcon>view_list</mat-icon>
-                        <button 
-                          (click)="onSelect(contractOffer)" 
-                          color="white" 
+                        <button
+                          [disabled]="!shouldDisplayMetadata(contractOffer)"
+                          (click)="onSelect(contractOffer)"
+                          color="white"
                           mat-stroked-button
                         >
                           <h3>Display metadata</h3>

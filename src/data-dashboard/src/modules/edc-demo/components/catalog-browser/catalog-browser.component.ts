@@ -63,22 +63,31 @@ export class CatalogBrowserComponent implements OnInit {
   }
 
   onSelect(offer: ContractOffer) {
-    console.log("Displaying metadata for offer: ", offer);
-    const findMetadataOfAsset = (assetId : string) => {
-      return offer[DATASET_CONTEXT].filter((_asset : any) => {
-        return _asset['@id'] === assetId || _asset.id === assetId;
-      })?.[0]?.[METADATA_CONTEXT]?.[0] || {};
-    }
     const dialogRef = this.metadataViewDialog.open(MetadataDisplayComponent, {
       data: { 
-        metadata: findMetadataOfAsset(offer.assetId),
+        metadata: this.findMetadataForAsset(offer),
         asset_name: offer.properties.name || offer.assetId,
       },
     });
     dialogRef.afterClosed().subscribe( );
   }
 
-   onNegotiateClicked(contractOffer: ContractOffer) {
+  shouldDisplayMetadata(offer : ContractOffer) : boolean {
+    const metadata = this.findMetadataForAsset(offer)
+    for (var prop in metadata) {
+      if(metadata.hasOwnProperty(prop) && metadata[prop] !== null )
+        return true;
+    }
+    return false;
+  }
+
+  findMetadataForAsset(offer: ContractOffer) {
+    return offer[DATASET_CONTEXT].filter((_asset : any) => {
+      return _asset['@id'] === offer.assetId || _asset.id === offer.assetId;
+    })?.[0]?.[METADATA_CONTEXT]?.[0] || {};
+  }
+
+  onNegotiateClicked(contractOffer: ContractOffer) {
     console.log("Negotiation cliked");
     console.log(`Contract Offer Id: ${contractOffer.id!} | assetId: ${contractOffer.assetId}`);
     console.log(contractOffer);

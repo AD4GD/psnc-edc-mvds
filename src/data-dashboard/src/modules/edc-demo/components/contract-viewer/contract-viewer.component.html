@@ -59,7 +59,12 @@
               <mat-icon>downloading</mat-icon>
               Transfer
             </button>
-            <button (click)="onSelect(contract.contractOffer!)" color="white" mat-stroked-button>
+            <button
+              [disabled]="!shouldDisplayMetadata(contract.contractOffer!)"
+              (click)="onSelect(contract.contractOffer!)" 
+              color="white" 
+              mat-stroked-button
+            >
               <mat-icon>view_list</mat-icon>
               <h3>Display additional metadata</h3>
             </button>

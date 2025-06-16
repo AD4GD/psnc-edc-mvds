@@ -105,14 +105,26 @@ export class AssetViewerComponent implements OnInit {
   }
 
   onSelect(asset: Asset) {
-    console.log(asset.properties[METADATA_CONTEXT]?.[0]);
     const dialogRef = this.metadataViewDialog.open(MetadataDisplayComponent, {
       data: { 
-        metadata: asset.properties[METADATA_CONTEXT]?.[0],
+        metadata: this.findMetadataForAsset(asset),
         asset_name: asset.properties.optionalValue<string>('edc', 'name') || asset.id,
       },
     });
     dialogRef.afterClosed().subscribe( );
+  }
+  
+  shouldDisplayMetadata(asset : Asset) : boolean {
+    const metadata = this.findMetadataForAsset(asset)
+    for (var prop in metadata) {
+      if(metadata.hasOwnProperty(prop) && metadata[prop] !== null )
+        return true;
+    }
+    return false;
+  }
+
+  findMetadataForAsset(asset: Asset) {
+    return asset.properties[METADATA_CONTEXT]?.[0]
   }
 
   ngAfterContentChecked() {
