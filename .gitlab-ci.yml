@@ -60,7 +60,8 @@ integration-test:
   variables:
     DOCKER_HOST: tcp://docker:2375/
   before_script:
-    - apt install curl jq docker-compose
+    - cat /etc/os-release
+    - apt-get install curl jq docker-compose
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
