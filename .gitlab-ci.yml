@@ -57,6 +57,9 @@ Update inventory for atos-psnc integration:
 
 integration-test:
   stage: test
+  # image: docker:latest
+  services:
+    - docker:dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
   before_script:
