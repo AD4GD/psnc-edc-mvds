@@ -57,18 +57,18 @@ Update inventory for atos-psnc integration:
 
 integration-test:
   stage: test
-  image: docker:24.0.7
-  services:
-    - name: docker:24.0.7-dind
-      alias: docker
-  variables:
-    DOCKER_TLS_CERTDIR: ""
+  # image: docker:24.0.7
+  # services:
+  #   - name: docker:24.0.7-dind
+  #     alias: docker
+  # variables:
+  #   DOCKER_TLS_CERTDIR: ""
   before_script:
     - cat /etc/os-release
     - apk update
     - apk add --no-cache make curl jq
   script:
-    - unset DOCKER_HOST
+    # - unset DOCKER_HOST
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
     - cd ../bin
