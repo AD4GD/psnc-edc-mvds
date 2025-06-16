@@ -65,6 +65,7 @@ integration-test:
   #   DOCKER_TLS_CERTDIR: ""
   before_script:
     - cat /etc/os-release
+    - pwd
     - apt-get update
     - apt-get install -y make curl jq
   script:
