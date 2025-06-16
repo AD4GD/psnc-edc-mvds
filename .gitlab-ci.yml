@@ -57,9 +57,10 @@ Update inventory for atos-psnc integration:
 
 integration-test:
   stage: test
-  image: docker:latest
+  image: docker:24.0.7
   services:
-    - docker:dind
+    - name: docker:24.0.7-dind
+      alias: docker
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
