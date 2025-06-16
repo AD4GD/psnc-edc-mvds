@@ -23,6 +23,7 @@ import { CUSTOM_PRESET, LOCATION_PRESET, PURPOSE_PRESET, TIME_INTERVAL_PRESET } 
 import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from './policy-rule-types';
 import { OAuthModule } from 'angular-oauth2-oidc';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatChipsModule,
     OAuthModule.forRoot(),
     MatMenuModule,
+    MatDialogModule,
   ],
   declarations: [
     AppComponent,

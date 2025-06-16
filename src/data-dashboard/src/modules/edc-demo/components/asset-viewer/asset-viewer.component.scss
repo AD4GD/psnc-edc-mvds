@@ -19,7 +19,8 @@
 }
 
 .card-actions {
-  margin-left: 0;
+  justify-content: space-around;
+  display: flex;
 }
 
 .asset-property {
@@ -48,4 +49,8 @@ mat-paginator {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 400px;
+}
+
+.metadata-entry-showable {
+  display: contents;
 }

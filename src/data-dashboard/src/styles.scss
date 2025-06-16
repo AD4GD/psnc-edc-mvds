@@ -26,3 +26,7 @@ mat-card-header, mat-card-title {
   cursor: default;
   font-size: 20px;
 }
+
+.mat-divider.mat-divider-inset {
+  margin-left: 0px !important;
+}

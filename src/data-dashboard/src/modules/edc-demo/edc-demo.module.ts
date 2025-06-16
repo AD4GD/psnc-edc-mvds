@@ -47,6 +47,7 @@ import {NewPolicyDialogComponent} from "./components/new-policy-dialog/new-polic
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { PolicyRuleModalComponent } from './components/policy-rule-modal/policy-rule-modal.component';
 import { JsonLdCodeDisplayComponent } from './components/common/jsonld-code-display/jsonld-code-display';
+import { MetadataDisplayComponent } from './components/common/metadata-display/metadata-display.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -107,6 +108,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ConfirmationDialogComponent,
     PolicyRuleModalComponent,
     JsonLdCodeDisplayComponent,
+    MetadataDisplayComponent,
   ],
   exports: [
     CatalogBrowserComponent,
