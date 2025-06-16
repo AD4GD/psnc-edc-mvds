@@ -9,8 +9,8 @@ BUILD_DIR := $(PWD)
 DOCKERFILES := $(shell find * -type f -name Dockerfile)
 
 # check forbidden chains in branch name, commit history and files content
-RESULT_CHAINS = $(foreach CHAIN,$(FORBIDDEN_CHAINS),$(shell ((git rev-parse --abbrev-ref HEAD | grep -i $(CHAIN) --quiet) || (grep -ir $(CHAIN) .. --quiet) || (git log --pretty=%B | grep -i $(CHAIN) --quiet)) && echo forbidden || echo allowed))
-IS_FORBIDDEN := $(shell ((echo $(RESULT_CHAINS) | grep forbidden --quiet) && echo true || echo false))
+RESULT_CHAINS = $(foreach CHAIN,$(FORBIDDEN_CHAINS),$(shell ((git rev-parse --abbrev-ref HEAD | grep -i $(CHAIN) -q) || (grep -ir $(CHAIN) .. -q) || (git log --pretty=%B | grep -i $(CHAIN) -q)) && echo forbidden || echo allowed))
+IS_FORBIDDEN := $(shell ((echo $(RESULT_CHAINS) | grep forbidden -q) && echo true || echo false))
 
 # check whether tree is clean - only then proper tags are created
 $(shell git diff --exit-code --quiet)
