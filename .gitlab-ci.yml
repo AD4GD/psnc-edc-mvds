@@ -7,6 +7,7 @@ variables:
 stages:
   - precommit
   - build
+  - test
   - upload
   - update_inventory
 
@@ -53,3 +54,30 @@ Update inventory for atos-psnc integration:
   only:
     variables:
       - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_atos_psnc
+
+integration-test:
+  stage: test
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+  before_script:
+    - apk add --no-cache curl jq docker-compose
+  script:
+    - cd build
+    - make build
+    - cd ../bin
+    - ./devstack up -d
+    - ./tests
+    - ./devstack logs > docker-compose.log
+    - ./devstack down
+  artifacts:
+    when: always
+    paths:
+      - docker-compose.log
+      - tests/test.log
+  only:
+    - merge_requests
+    - main
+    - master
