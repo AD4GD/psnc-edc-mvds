@@ -65,7 +65,7 @@ integration-test:
   before_script:
     - cat /etc/os-release
     - apk update
-    - apk add -y curl jq
+    - apk add curl jq
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
