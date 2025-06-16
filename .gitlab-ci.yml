@@ -65,8 +65,8 @@ integration-test:
   #   DOCKER_TLS_CERTDIR: ""
   before_script:
     - cat /etc/os-release
-    - apk update
-    - apk add --no-cache make curl jq
+    - apt-get update
+    - ap-get install -y make curl jq
   script:
     # - unset DOCKER_HOST
     - cd ${CI_PROJECT_DIR}/docker
