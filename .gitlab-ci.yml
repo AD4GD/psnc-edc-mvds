@@ -57,10 +57,6 @@ Update inventory for atos-psnc integration:
 
 integration-test:
   stage: test
-  # variables:
-  #   IMAGE_TAG: $CI_IMAGE_TAG
-  #   REPO_DIR: $CI_PROJECT_DIR
-  #   REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
   before_script:
     - cat /etc/os-release
     - pwd
@@ -74,6 +70,7 @@ integration-test:
     - echo "REPO_DIR=$CI_PROJECT_DIR" >> ${CI_PROJECT_DIR}/compose/.env
     - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> ${CI_PROJECT_DIR}/compose/.env
     - cat ${CI_PROJECT_DIR}/compose/.env
+    - docker-compose version || docker compose version
     - ./devstack up -d
     - ./tests
     - ./devstack logs > docker-compose.log
