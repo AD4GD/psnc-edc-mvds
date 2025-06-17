@@ -63,10 +63,12 @@ integration-test:
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
-    - echo "IMAGE_TAG=$CI_IMAGE_TAG" > ${CI_PROJECT_DIR}/compose/.env
-    - echo "REPO_DIR=$CI_PROJECT_DIR" >> ${CI_PROJECT_DIR}/compose/.env
-    - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> ${CI_PROJECT_DIR}/compose/.env
-    - docker-compose -f ${CI_PROJECT_DIR}/compose/base.yaml up -d
+    - cd ${CI_PROJECT_DIR}/compose
+    - echo "IMAGE_TAG=$CI_IMAGE_TAG" > .env
+    - echo "REPO_DIR=$CI_PROJECT_DIR" >> .env
+    - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> .env
+    - source compose.defaults
+    - docker-compose -f base.yaml up -d
     - cd ${CI_PROJECT_DIR}/bin
     - ./tests
     - docker-compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > docker-compose.log
