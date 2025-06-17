@@ -71,7 +71,6 @@ integration-test:
     - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> ${CI_PROJECT_DIR}/compose/.env
     - cat ${CI_PROJECT_DIR}/compose/.env
     - docker-compose version
-    - docker compose version
     - docker-compose -f base.yaml up -d
     - ./tests
     - docker-compose -f base.yaml logs > docker-compose.log
