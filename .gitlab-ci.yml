@@ -57,19 +57,16 @@ Update inventory for atos-psnc integration:
 
 integration-test:
   stage: test
-  # image: docker:24.0.7
-  # services:
-  #   - name: docker:24.0.7-dind
-  #     alias: docker
-  # variables:
-  #   DOCKER_TLS_CERTDIR: ""
+  variables:
+    IMAGE_TAG: $CI_IMAGE_TAG
+    REPO_DIR: $CI_PROJECT_DIR
+    REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
   before_script:
     - cat /etc/os-release
     - pwd
     - apt-get update
-    - apt-get install -y make curl jq
+    - apt-get install -y jq
   script:
-    # - unset DOCKER_HOST
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
     - cd ${CI_PROJECT_DIR}/bin
