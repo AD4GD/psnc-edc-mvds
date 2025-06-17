@@ -68,6 +68,7 @@ integration-test:
     - echo "REPO_DIR=$CI_PROJECT_DIR" >> .env
     - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> .env
     - source ${CI_PROJECT_DIR}/bin/compose.defaults
+    - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
     - docker-compose -f base.yaml up -d
     - cd ${CI_PROJECT_DIR}/bin
     - ./tests
