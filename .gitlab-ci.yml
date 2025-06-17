@@ -58,23 +58,19 @@ Update inventory for atos-psnc integration:
 integration-test:
   stage: test
   before_script:
-    - cat /etc/os-release
-    - pwd
     - apt-get update
     - apt-get install -y jq
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
-    - cd ${CI_PROJECT_DIR}/bin
     - echo "IMAGE_TAG=$CI_IMAGE_TAG" > ${CI_PROJECT_DIR}/compose/.env
     - echo "REPO_DIR=$CI_PROJECT_DIR" >> ${CI_PROJECT_DIR}/compose/.env
     - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> ${CI_PROJECT_DIR}/compose/.env
-    - cat ${CI_PROJECT_DIR}/compose/.env
-    - docker-compose version
-    - docker-compose -f base.yaml up -d
+    - docker-compose -f ${CI_PROJECT_DIR}/compose/base.yaml up -d
+    - cd ${CI_PROJECT_DIR}/bin
     - ./tests
-    - docker-compose -f base.yaml logs > docker-compose.log
-    - docker-compose -f base.yaml down
+    - docker-compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > docker-compose.log
+    - docker-compose -f ${CI_PROJECT_DIR}/compose/base.yaml down
   artifacts:
     when: always
     paths:
