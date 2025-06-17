@@ -70,11 +70,12 @@ integration-test:
     - echo "REPO_DIR=$CI_PROJECT_DIR" >> ${CI_PROJECT_DIR}/compose/.env
     - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> ${CI_PROJECT_DIR}/compose/.env
     - cat ${CI_PROJECT_DIR}/compose/.env
-    - docker-compose version || docker compose version
-    - ./devstack up -d
+    - docker-compose version
+    - docker compose version
+    - docker-compose -f base.yaml up -d
     - ./tests
-    - ./devstack logs > docker-compose.log
-    - ./devstack down
+    - docker-compose -f base.yaml logs > docker-compose.log
+    - docker-compose -f base.yaml down
   artifacts:
     when: always
     paths:
