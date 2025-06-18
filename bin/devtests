@@ -1,3 +1,4 @@
-#!/bin/bash
+#!/bin/sh
+
 export COMPOSE_PROJECT_NAME_SCRIPT=devtests
 exec ./compose.tests -f tests.yaml "$@"
