@@ -58,12 +58,15 @@ Update inventory for atos-psnc integration:
 integration-test:
   stage: test
   image: docker:latest
-  services:
-    - docker:dind
+  # services:
+  #   - docker:dind
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
   before_script:
-    - unset DOCKER_HOST
+    # - unset DOCKER_HOST
     - apk update
     - apk add --no-cache make curl jq
+    # - docker run --rm -v /certs:/certs -v $CI_PROJECT_DIR/docker/connector/certs:/from busybox cp /from/provider-daps.jks /certs/
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
