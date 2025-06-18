@@ -67,7 +67,7 @@ integration-test:
   before_script:
     - apk update
     - apk add --no-cache make curl jq
-    - docker run --rm -v /certs:/certs -v $CI_PROJECT_DIR/docker/connector/certs:/from busybox cp /from/provider-daps.jks /certs/
+    # - docker run --rm -v /certs:/certs -v $CI_PROJECT_DIR/docker/connector/certs:/from busybox cp /from/provider-daps.jks /certs/
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
