@@ -61,22 +61,24 @@ integration-test:
   services:
     - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
+    CI_IMAGE_TAG: $CI_IMAGE_TAG
+    CI_PROJECT_DIR: $CI_PROJECT_DIR
+    CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
   before_script:
-    - cat /etc/os-release
     - apk update
     - apk add --no-cache make curl jq
+    - docker run --rm -v /certs:/certs -v $CI_PROJECT_DIR/docker/connector/certs:/from busybox cp /from/provider-daps.jks /certs/
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
-    - cd ../bin
-    - ./devstack up -d
+    - cd ${CI_PROJECT_DIR}/compose
+    # - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
+    - ./devtests up -d
+    - cd ${CI_PROJECT_DIR}/bin
     - ./tests
-    - ./devstack logs > docker-compose.log
-    - ./devstack down
+    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
+    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml down
   artifacts:
     when: always
     paths:
-      - docker-compose.log
-      - tests/test.log
+      - ${CI_PROJECT_DIR}/docker-compose.log
