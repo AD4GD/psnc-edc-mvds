@@ -69,11 +69,8 @@ integration-test:
     - apk add --no-cache make curl jq
   script:
     - cd ${CI_PROJECT_DIR}/docker
-    - ls -al ${CI_PROJECT_DIR}/bin
     - make build clean
-    # - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
     - cd ${CI_PROJECT_DIR}/bin
-    - cat devtests
     - ./devtests up -d
     - ./tests
     - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
