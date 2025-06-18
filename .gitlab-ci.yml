@@ -72,7 +72,7 @@ integration-test:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
     - cd ${CI_PROJECT_DIR}/compose
-    # - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
+    - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
     - ./devtests up -d
     - cd ${CI_PROJECT_DIR}/bin
     - ./tests
