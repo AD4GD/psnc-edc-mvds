@@ -67,13 +67,11 @@ integration-test:
   before_script:
     - apk update
     - apk add --no-cache make curl jq
-    # - docker run --rm -v /certs:/certs -v $CI_PROJECT_DIR/docker/connector/certs:/from busybox cp /from/provider-daps.jks /certs/
   script:
     - cd ${CI_PROJECT_DIR}/docker
-    - ls ${CI_PROJECT_DIR}/bin
+    - ls -al ${CI_PROJECT_DIR}/bin
     - make build clean
-    # - cd ${CI_PROJECT_DIR}/compose
-    - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
+    # - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up -d
     - ./tests
