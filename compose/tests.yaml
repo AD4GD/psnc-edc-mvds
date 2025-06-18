@@ -5,8 +5,12 @@ services:
     ports:
       - "38080:80"
     volumes:
-        - ../docker/registration-service-frontend/config/app.nginx.conf:/etc/nginx/nginx.conf
-        - ../docker/registration-service-frontend/config/app.config.json:/usr/share/nginx/html/assets/config/app.config.json
+        - type: bind
+          source: ../docker/registration-service-frontend/config/app.nginx.conf
+          target: /etc/nginx/nginx.conf
+        - type: bind
+          source: ../docker/registration-service-frontend/config/app.config.json
+          target: /usr/share/nginx/html/assets/config/app.config.json
     user: "root"
     depends_on:
       - registration-service-backend
