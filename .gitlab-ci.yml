@@ -62,7 +62,7 @@ integration-test:
     - docker:dind
   variables:
     CI_IMAGE_TAG: $CI_IMAGE_TAG
-    CI_PROJECT_DIR: $CI_PROJECT_DIR
+    CI_PROJECT_DIR: $CI_REPO_DIR
     CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
   before_script:
     - apk update
@@ -71,10 +71,10 @@ integration-test:
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
-    - cd ${CI_PROJECT_DIR}/compose
+    # - cd ${CI_PROJECT_DIR}/compose
     - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
-    - ./devtests up -d
     - cd ${CI_PROJECT_DIR}/bin
+    - ./devtests up -d
     - ./tests
     - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
     - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml down
