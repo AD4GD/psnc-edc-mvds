@@ -73,11 +73,11 @@ integration-test:
     - echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> .env
     - source ${CI_PROJECT_DIR}/bin/compose.defaults
     - cat /builds/daisd-public/dpi-pipelines/psnc-edc-mvds/psnc-edc-mvds/docker/connector/certs/provider-daps.jks
-    - docker-compose -f base.yaml up -d
+    - docker compose -f base.yaml up -d
     - cd ${CI_PROJECT_DIR}/bin
     - ./tests
-    - docker-compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > docker-compose.log
-    - docker-compose -f ${CI_PROJECT_DIR}/compose/base.yaml down
+    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > docker-compose.log
+    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml down
   artifacts:
     when: always
     paths:
