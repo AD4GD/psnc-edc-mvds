@@ -76,10 +76,9 @@ integration-test:
     - docker compose -f base.yaml up -d
     - cd ${CI_PROJECT_DIR}/bin
     - ./tests
-    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > docker-compose.log
+    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
     - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml down
   artifacts:
     when: always
     paths:
-      - docker-compose.log
-      - tests/test.log
+      - ${CI_PROJECT_DIR}/docker-compose.log
