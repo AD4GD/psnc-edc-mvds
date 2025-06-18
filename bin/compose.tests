@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source compose.defaults
+
+cd ../compose/
+set -e
+
+echo "IMAGE_TAG=$CI_IMAGE_TAG" > .env
+echo "REPO_DIR=$CI_PROJECT_DIR" >> .env
+echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> .env
+
+echo running: docker compose "$@"
+exec docker compose "$@"

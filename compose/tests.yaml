@@ -1,10 +1,225 @@
-# TODO compose containers for testing
-version: '3.3'
+version: '3.8'
+
 services:
 
-  postgres:
-    tmpfs:
-      - "/var/lib/postgresql/data:uid=999,gid=999"
+  registration-service-frontend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/registration-service-frontend:${IMAGE_TAG}
+    ports:
+      - "38080:80"
+    volumes:
+        - ../docker/registration-service-frontend/config/app.nginx.conf:/etc/nginx/nginx.conf
+        - ../docker/registration-service-frontend/config/app.config.json:/usr/share/nginx/html/assets/config/app.config.json
+    user: "root"
+    depends_on:
+      - registration-service-backend
 
-networks:
-  default:
+  registration-service-backend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/registration-service-backend:${IMAGE_TAG}
+    volumes:
+      - ../docker/registration-service-backend/config/configuration.properties:/app/configuration.properties:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    ports:
+      - "38181:8181"
+      - "38182:8182"
+    depends_on:
+      - registration-service-postgres
+      - identity-provider
+
+  registration-service-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5435:5432'
+    volumes:
+      - 'registration-service-postgresql:/bitnami/postgresql'
+
+  federated-catalog:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
+    volumes:
+      - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
+      - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
+      - ../docker/federated-catalog/certs/federated-catalog-daps.jks:/app/certs/federated-catalog-daps.jks:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    ports:
+      - "9080:8080"
+      - "9181:8181"
+    depends_on:
+      - consumer-connector
+      - provider-connector
+
+  data-source:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-source:${IMAGE_TAG}
+    ports:
+      - "5000:5000"
+
+  provider-dashboard:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
+    ports:
+      - "18080:80"
+    volumes:
+      - ../docker/data-dashboard/config/conf-provider/provider.nginx.conf:/etc/nginx/nginx.conf
+      - ../docker/data-dashboard/config/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
+    user: "root"
+    depends_on:
+      - provider-connector
+
+  provider-connector:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
+    ports:
+      - "19191:19191"
+      - "19193:19193"
+      - "19194:19194"
+      - "19291:19291"
+      - "19192:19192"
+    volumes:
+      - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
+      - ../docker/connector/certs/provider-daps.jks:/app/certs/provider-daps.jks:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    user: "root"
+    depends_on:
+      - provider-postgres
+      - identity-provider
+
+  provider-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'provider-postgresql:/bitnami/postgresql'
+
+  consumer-dashboard:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
+    ports:
+      - "28080:80"
+    volumes:
+      - ../docker/data-dashboard/config/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
+      - ../docker/data-dashboard/config/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
+    user: "root"
+    depends_on:
+      - consumer-connector
+
+  consumer-connector:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
+    ports:
+      - "29191:29191"
+      - "29193:29193"
+      - "29194:29194"
+      - "29291:29291"
+      - "29192:29192"
+    volumes:
+      - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ../docker/connector/certs/consumer-daps.jks:/app/certs/consumer-daps.jks:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    user: "root"
+    depends_on:
+      - consumer-postgres
+      - identity-provider
+
+  consumer-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5433:5432'
+    volumes:
+      - 'consumer-postgresql:/bitnami/postgresql'
+
+  consumer-backend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
+    ports:
+      - "4000:4000"
+    environment:
+      MINIO_ENDPOINT: "minio:9001"
+      MINIO_ACCESS_KEY: minio-user
+      MINIO_SECRET_KEY: minio-password
+    depends_on:
+      - minio
+
+  minio:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}
+    command: server /storage --address :9001
+    environment:
+      - HOSTNAME=minio
+      - MINIO_ACCESS_KEY=minio-user
+      - MINIO_SECRET_KEY=minio-password
+      - MINIO_IS_SECURE=False
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+
+  identity-provider:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
+    restart: always
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: identity-provider-postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_SCHEMA: public
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: edc
+      KC_HOSTNAME_URL: http://localhost:8081
+      KC_HOSTNAME_ADMIN_URL: http://localhost:8081
+      KC_HTTP_ENABLED: 'true'
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: edc
+      KEYCLOAK_FRONTEND_URL: http://identity-provider:8080
+    depends_on:
+      - identity-provider-postgres
+    ports:
+      - "8081:8080"
+
+  identity-provider-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: keycloak
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: keycloak
+    ports:
+      - '5434:5432'
+    volumes:
+      - 'identity-provider-postgresql:/bitnami/postgresql'
+
+  idp-filler:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
+    restart: no
+    tty: true
+    environment:
+      RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
+      WEB_HTTP_IDP_URI: http://identity-provider:8080
+      WEB_HTTP_RS_URI: http://registration-service-backend:8182
+      IDP_USERNAME : admin
+      IDP_PASSWORD : edc
+      RS_USERNAME : psnc
+      RS_PASSWORD : edc
+    entrypoint: "./entrypoint.sh"
+    depends_on:
+      - identity-provider
+      - registration-service-frontend
+
+volumes:
+  consumer-postgresql:
+    driver: local
+  provider-postgresql:
+    driver: local
+  identity-provider-postgresql:
+    driver: local
+  registration-service-postgresql:
+    driver: local
