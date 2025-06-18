@@ -57,9 +57,13 @@ Update inventory for atos-psnc integration:
 
 integration-test:
   stage: test
+  image: docker:latest
+  services:
+    - docker:dind
   before_script:
-    - apt-get update
-    - apt-get install -y jq
+    - unset DOCKER_HOST
+    - apk update
+    - apk add --no-cache make curl jq
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
