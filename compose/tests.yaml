@@ -5,12 +5,8 @@ services:
     ports:
       - "38080:80"
     volumes:
-        - type: bind
-          source: ../docker/registration-service-frontend/config/app.nginx.conf
-          target: /etc/nginx/nginx.conf
-        - type: bind
-          source: ../docker/registration-service-frontend/config/app.config.json
-          target: /usr/share/nginx/html/assets/config/app.config.json
+        - registration_frontend_nginx:/etc/nginx
+        - registration_frontend_config:/usr/share/nginx/html/assets/config
     user: "root"
     depends_on:
       - registration-service-backend
@@ -45,7 +41,7 @@ services:
     volumes:
       - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
       - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
-      - ../docker/federated-catalog/certs/federated-catalog-daps.jks:/app/certs/federated-catalog-daps.jks:ro
+      - federated_catalog_daps_jks:/app/certs
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     ports:
@@ -227,3 +223,6 @@ volumes:
     driver: local
   provider_daps_jks:
   consumer_daps_jks:
+  # federated_catalog_daps_jks:
+  registration_frontend_nginx:
+  registration_frontend_config:
