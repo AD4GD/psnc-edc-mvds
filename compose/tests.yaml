@@ -81,7 +81,7 @@ services:
       - "19192:19192"
     volumes:
       - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/provider-daps.jks:/app/certs/provider-daps.jks:ro
+      - provider_daps_jks:/app/certs/provider-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -122,7 +122,7 @@ services:
       - "29192:29192"
     volumes:
       - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/consumer-daps.jks:/app/certs/consumer-daps.jks:ro
+      - consumer_daps_jks.jks:/app/certs/consumer-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -225,3 +225,5 @@ volumes:
     driver: local
   registration-service-postgresql:
     driver: local
+  provider_daps_jks:
+  consumer_daps_jks:
