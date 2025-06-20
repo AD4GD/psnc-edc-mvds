@@ -81,7 +81,7 @@ services:
       - "19192:19192"
     volumes:
       - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
-      - provider_daps_jks:/app/certs/provider-daps.jks
+      - provider_daps_jks:/app/certs
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
