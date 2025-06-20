@@ -223,6 +223,6 @@ volumes:
     driver: local
   provider_daps_jks:
   consumer_daps_jks:
-  # federated_catalog_daps_jks:
+  federated_catalog_daps_jks:
   registration_frontend_nginx:
   registration_frontend_config:
