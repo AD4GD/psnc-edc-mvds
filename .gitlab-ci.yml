@@ -70,6 +70,10 @@ integration-test:
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
+    # Utwórz volume (jeśli nie istnieje)
+    - docker volume create provider_daps_jks
+    # Skopiuj plik do volume przez tymczasowy kontener
+    - docker run --rm -v provider_daps_jks:/target -v $PWD/connector/certs:/from busybox cp /from/provider-daps.jks /target/provider-daps.jks
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up -d
     - ./tests
