@@ -75,7 +75,7 @@ integration-test:
     # - docker volume create provider_daps_jks
     # Skopiuj plik do volume przez tymczasowy kontener
     - ls -l $PWD/connector/certs
-    - docker run --rm -v consumer_daps_jks:/target -v $PWD/connector/certs:/from busybox cp /from/consumer-daps.jks /target/consumer-daps.jks
+    - docker run --rm -v consumer_daps_jks:/target -v $PWD/connector/certs:/from busybox cp -a /from/consumer-daps.jks /target/consumer-daps.jks
     # - docker run --rm -v provider_daps_jks:/target -v $PWD/connector/certs:/from busybox cp /from/provider-daps.jks /target/provider-daps.jks
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up -d
