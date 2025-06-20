@@ -1,4 +1,35 @@
 #!/bin/sh
 
-export COMPOSE_PROJECT_NAME_SCRIPT=tests
-echo "tests"
+ASSET_ID="test-asset"
+POLICY_ID="test-policy"
+CONTRACT_DEFINITON_ID="test-contract-definition"
+LOCALHOST="http://localhost"
+PROVIDER_MANAGEMENT="$LOCALHOST:19193/management"
+PROVIDER_API="$LOCALHOST:19191/api"
+CONSUMER_MANAGEMENT="$LOCALHOST:19193/management"
+CONSUMER_API="$LOCALHOST:29191/api"
+
+DEFAULT_HEADERS="-H x-api-key:edc -H Content-Type:application/json"
+RETURN_CODE='--output /dev/null --write-out %{http_code}'
+
+echo "== Check health =="
+PROVIDER_HEALTH=$(curl -sL $DEFAULT_HEADERS $RETURN_CODE $PROVIDER_API/check/health)
+CONSUMER_HEALTH=$(curl -sL $DEFAULT_HEADERS $RETURN_CODE $CONSUMER_API/check/health)
+
+echo $PROVIDER_HEALTH
+echo $CONSUMER_HEALTH
+
+echo "== Add asset =="
+ASSET_PAYLOAD=$( jq -n \
+    --arg asset_id "$ASSET_ID" \
+    --arg baseUrl "https://example.com/data" 
+    '{
+        "@context" : { "edc": "https://w3id.org/edc/v0.0.1/ns/" },
+        "@id" : $asset_id,
+        properties : { name : $asset_id, contenttype : "application/json" },
+        private_properties : { name : $asset_id, contenttype : "application/json" },
+        dataAddress : { name : "Test data", baseUrl : $baseUrl, type : "HttpData" }, 
+    }'
+)
+
+ASSET_RES=$(curl -s -X POST $DEFAULT_HEADERS -d "$ASSET_PAYLOAD" $PROVIDER_MANAGEMENT/v3/assets)
