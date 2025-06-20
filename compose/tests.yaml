@@ -13,8 +13,6 @@ services:
 
   registration-service-backend:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/registration-service-backend:${IMAGE_TAG}
-    # volumes:
-      # - ../docker/registration-service-backend/config/configuration.properties:/app/configuration.properties:ro
     environment:
       EDC_FS_CONFIG: /app/config/configuration.properties
     ports:
@@ -39,9 +37,6 @@ services:
   federated-catalog:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
     volumes:
-      # - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
-      # - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
-      # - federated_catalog_daps_jks:/app
       - federated_catalog_config_jks:/app/config
       - federated_catalog_daps_jks:/app/certs
     environment:
@@ -63,8 +58,6 @@ services:
     ports:
       - "18080:80"
     volumes:
-      # - ../docker/data-dashboard/config/conf-provider/provider.nginx.conf:/etc/nginx/nginx.conf
-      # - ../docker/data-dashboard/config/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
       - provider_dashboard_nginx:/etc/nginx
       - provider_dashboard_config:/usr/share/nginx/html/assets/config
     user: "root"
@@ -80,7 +73,6 @@ services:
       - "19291:19291"
       - "19192:19192"
     volumes:
-      # - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
       - provider_daps_jks:/app/certs
     environment:
       EDC_FS_CONFIG: /app/config/configuration-provider.properties
@@ -106,8 +98,6 @@ services:
     ports:
       - "28080:80"
     volumes:
-      # - ../docker/data-dashboard/config/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
-      # - ../docker/data-dashboard/config/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
       - consumer_dashboard_nginx:/etc/nginx
       - consumer_dashboard_config:/usr/share/nginx/html/assets/config
     user: "root"
@@ -123,7 +113,6 @@ services:
       - "29291:29291"
       - "29192:29192"
     volumes:
-      # - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
       - consumer_daps_jks:/app/certs
     environment:
       EDC_FS_CONFIG: /app/config/configuration-consumer.properties
@@ -200,23 +189,6 @@ services:
       - '5434:5432'
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
-
-  # idp-filler:
-  #   image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
-  #   restart: no
-  #   tty: true
-  #   environment:
-  #     RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
-  #     WEB_HTTP_IDP_URI: http://identity-provider:8080
-  #     WEB_HTTP_RS_URI: http://registration-service-backend:8182
-  #     IDP_USERNAME : admin
-  #     IDP_PASSWORD : edc
-  #     RS_USERNAME : psnc
-  #     RS_PASSWORD : edc
-  #   entrypoint: "./entrypoint.sh"
-  #   depends_on:
-  #     - identity-provider
-  #     - registration-service-frontend
 
 volumes:
   consumer-postgresql:
