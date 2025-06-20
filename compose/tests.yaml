@@ -13,7 +13,7 @@ services:
 
   registration-service-backend:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/registration-service-backend:${IMAGE_TAG}
-    volumes:
+    # volumes:
       # - ../docker/registration-service-backend/config/configuration.properties:/app/configuration.properties:ro
     environment:
       EDC_FS_CONFIG: /app/config/configuration.properties
@@ -123,7 +123,7 @@ services:
       - "29291:29291"
       - "29192:29192"
     volumes:
-      - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
+      # - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
       - consumer_daps_jks:/app/certs
     environment:
       EDC_FS_CONFIG: /app/config/configuration-consumer.properties
@@ -201,22 +201,22 @@ services:
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
 
-  idp-filler:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
-    restart: no
-    tty: true
-    environment:
-      RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
-      WEB_HTTP_IDP_URI: http://identity-provider:8080
-      WEB_HTTP_RS_URI: http://registration-service-backend:8182
-      IDP_USERNAME : admin
-      IDP_PASSWORD : edc
-      RS_USERNAME : psnc
-      RS_PASSWORD : edc
-    entrypoint: "./entrypoint.sh"
-    depends_on:
-      - identity-provider
-      - registration-service-frontend
+  # idp-filler:
+  #   image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
+  #   restart: no
+  #   tty: true
+  #   environment:
+  #     RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
+  #     WEB_HTTP_IDP_URI: http://identity-provider:8080
+  #     WEB_HTTP_RS_URI: http://registration-service-backend:8182
+  #     IDP_USERNAME : admin
+  #     IDP_PASSWORD : edc
+  #     RS_USERNAME : psnc
+  #     RS_PASSWORD : edc
+  #   entrypoint: "./entrypoint.sh"
+  #   depends_on:
+  #     - identity-provider
+  #     - registration-service-frontend
 
 volumes:
   consumer-postgresql:
