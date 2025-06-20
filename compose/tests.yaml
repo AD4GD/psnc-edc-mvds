@@ -39,8 +39,10 @@ services:
   federated-catalog:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
     volumes:
-      - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
-      - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
+      # - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
+      # - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
+      # - federated_catalog_daps_jks:/app
+      - federated_catalog_config_jks:/app/config
       - federated_catalog_daps_jks:/app/certs
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
@@ -224,5 +226,6 @@ volumes:
   provider_daps_jks:
   consumer_daps_jks:
   federated_catalog_daps_jks:
+  federated_catalog_config_jks:
   registration_frontend_nginx:
   registration_frontend_config:
