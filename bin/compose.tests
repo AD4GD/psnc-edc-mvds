@@ -24,8 +24,3 @@ echo "REGISTRY_DOMAIN=$CI_REGISTRY_DOMAIN" >> .env
 
 echo running: docker compose "$@"
 exec docker compose "$@"
-
-# wait for the containers to be up
-echo "Waiting for containers to be up..."
-sleep 10
-./tests

@@ -72,6 +72,9 @@ integration-test:
     - make build clean
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up -d
+    # Waiting for services to be ready
+    - sleep 15
+    - ./tests
     - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
     - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml down
   artifacts:
