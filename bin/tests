@@ -2,7 +2,7 @@
 set -e
 
 # URLs
-LOCALHOST="http://localhost"
+LOCALHOST="http://docker"
 PROVIDER_API="$LOCALHOST:19191/api"
 PROVIDER_MANAGEMENT="$LOCALHOST:19193/management"
 CONSUMER_API="$LOCALHOST:29191/api"
