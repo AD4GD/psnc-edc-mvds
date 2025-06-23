@@ -72,9 +72,8 @@ integration-test:
     - make build clean
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up -d
-    - ./tests
-    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
-    - docker compose -f ${CI_PROJECT_DIR}/compose/base.yaml down
+    - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
+    - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml down
   artifacts:
     when: always
     paths:
