@@ -12,19 +12,20 @@ CONSUMER_BACKEND_EDR="$LOCALHOST:4000/edr-endpoint"
 PROVIDER_PROTOCOL_INTERNAL="http://provider-connector:19194/protocol"
 
 # Default headers
-HEADERS=(-H 'Content-Type: application/json' -H 'x-api-key: edc')
+# HEADERS="-H 'Content-Type: application/json' -H 'x-api-key: edc'"
+HEADERS="-H x-api-key:edc -H Content-Type:application/json"
 RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 
 # 1. Conn Check
 echo "=== Conn Check ==="
 # curl -s -X GET $RETURN_CODE "${HEADERS[@]}" "${PROVIDER_API}/check/health/"
-if [[ $(curl -s -X GET $RETURN_CODE "${HEADERS[@]}" "${PROVIDER_API}/check/health/") -ne 200 ]]; then
+if [[ $(curl -s -X GET $HEADERS $RETURN_CODE "${PROVIDER_API}/check/health/") -ne 200 ]]; then
 	echo "[ERROR] Provider API is not reachable!"
 	exit 1
 else
 	echo "Provider API is reachable."
 fi
-if [[ $(curl -s -X GET $RETURN_CODE "${HEADERS[@]}" "${CONSUMER_API}/check/health/") -ne 200 ]]; then
+if [[ $(curl -s -X GET $RETURN_CODE $HEADERS "${CONSUMER_API}/check/health/") -ne 200 ]]; then
 	echo "[ERROR] Consumer API is not reachable!"
 	exit 1
 else
@@ -59,7 +60,7 @@ ASSET_PAYLOAD=$(jq -n \
 			"baseUrl" : "https://jsonplaceholder.typicode.com/users"
 		},
 	}')
-ASSET_RES=$(curl -s -X POST $RETURN_CODE "${HEADERS[@]}" "${PROVIDER_MANAGEMENT}/v3/assets" -d "$ASSET_PAYLOAD")
+ASSET_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "$PROVIDER_MANAGEMENT/v3/assets" -d "$ASSET_PAYLOAD")
 
 if [[ $ASSET_RES -eq 200 ]] || [[ $ASSET_RES -eq 409 ]] ; then
 	echo "=== Asset added successfully ==="
@@ -87,7 +88,7 @@ POLICY_PAYLOAD=$(jq -n \
 			"odrl:obligation": [],
 		},
 	}')
-POLICY_RES=$(curl -s -X POST $RETURN_CODE "${HEADERS[@]}" "${PROVIDER_MANAGEMENT}/v2/policydefinitions" -d "$POLICY_PAYLOAD")
+POLICY_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "${PROVIDER_MANAGEMENT}/v2/policydefinitions" -d "$POLICY_PAYLOAD")
 if [[ $POLICY_RES -eq 200 ]] || [[ $POLICY_RES -eq 409 ]] ; then
 	echo "=== Policy added successfully ==="
 	echo $POLICY_RES
@@ -116,7 +117,7 @@ CONTRACT_DEF_PAYLOAD=$(jq -n \
 			}
 		],
 	}')
-CDEF_RES=$(curl -s -X POST $RETURN_CODE "${HEADERS[@]}" "${PROVIDER_MANAGEMENT}/v2/contractdefinitions" -d "$CONTRACT_DEF_PAYLOAD")
+CDEF_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "$PROVIDER_MANAGEMENT/v2/contractdefinitions" -d "$CONTRACT_DEF_PAYLOAD")
 if [[ $CDEF_RES -eq 200 ]] || [[ $CDEF_RES -eq 409 ]] ; then
 	echo "=== Contract definition added successfully ==="
 	echo $CDEF_RES
@@ -135,7 +136,7 @@ fi
 
 # 5. Pobranie katalogu
 echo "=== Fetch catalog ==="
-CATALOG=$(curl -X POST "${HEADERS[@]}" "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
+CATALOG=$(curl -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
 if [ ${#CATALOG[@]} -eq 0 ]; then
     echo "Error: Catalog is empty!"
 	exit 1
@@ -179,7 +180,7 @@ NEGOTIATION_PAYLOAD=$(jq -n \
 		"permission" : $permissions,
 	},
 }')
-NEGOTIATION=$(curl -s -X POST "${HEADERS[@]}" "${CONSUMER_MANAGEMENT}/v3/contractnegotiations" -d "$NEGOTIATION_PAYLOAD")
+NEGOTIATION=$(curl -s -X POST $HEADERS "${CONSUMER_MANAGEMENT}/v3/contractnegotiations" -d "$NEGOTIATION_PAYLOAD")
 
 NEGOTIATION_ID=$(echo "$NEGOTIATION" | jq -r '.["@id"]')
 
@@ -192,7 +193,7 @@ fi
 
 echo "=== Waiting for contract agreement ==="
 for i in {1..30}; do
-	AGREEMENT=$(curl -s "${HEADERS[@]}" "$CONSUMER_MANAGEMENT/v2/contractnegotiations/$NEGOTIATION_ID")
+	AGREEMENT=$(curl -s $HEADERS "$CONSUMER_MANAGEMENT/v2/contractnegotiations/$NEGOTIATION_ID")
 	AGREEMENT_ID=$(echo "$AGREEMENT" | jq -r '.contractAgreementId // empty')
 	if [[ -n "$AGREEMENT_ID" ]]; then
 		echo "AgreementId: $AGREEMENT_ID"
@@ -226,7 +227,7 @@ TRANSFER_PAYLOAD=$(jq -n \
 	},
 	"callbackAddresses": [{ "events" : ["transfer.process.started"], "uri" : $CONSUMER_BACKEND_EDR }],
 }')
-TRANSFER_RES=$(curl -s -X POST $RETURN_CODE "${HEADERS[@]}" "${CONSUMER_MANAGEMENT}/v2/transferprocesses" -d "$TRANSFER_PAYLOAD")
+TRANSFER_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "${CONSUMER_MANAGEMENT}/v2/transferprocesses" -d "$TRANSFER_PAYLOAD")
 if [[ $TRANSFER_RES -eq 200 ]] ; then
 	echo "=== Transfer successfull ==="
 	echo $TRANSFER_RES
