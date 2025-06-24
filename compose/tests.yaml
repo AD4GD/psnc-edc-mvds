@@ -210,8 +210,8 @@ services:
       - federated-catalog
       - consumer-backend
     volumes:
-      - integration_tests:/app
-    working_dir: /app
+      - integration_tests:/home
+    working_dir: /home
     entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl jq && echo '=== RUNNING INTEGRATION TESTS ===' && chmod +x tests.sh && ./tests.sh"]
 
 volumes:
