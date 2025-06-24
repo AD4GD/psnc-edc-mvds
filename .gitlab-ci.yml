@@ -71,7 +71,7 @@ integration-test:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
     - cd ${CI_PROJECT_DIR}/bin
-    - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
+    - ./devtests up --abort-on-container-exit --exit-code-from
     # - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
     # - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml down
   artifacts:

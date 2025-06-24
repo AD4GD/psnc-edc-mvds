@@ -14,6 +14,7 @@ docker run --rm -v provider_dashboard_config:/target -v $PWD/data-dashboard/conf
 docker run --rm -v consumer_dashboard_nginx:/target -v $PWD/data-dashboard/config/conf-consumer/:/from busybox cp -a /from/consumer.nginx.conf /target/nginx.conf
 docker run --rm -v consumer_dashboard_config:/target -v $PWD/data-dashboard/config/conf-consumer/:/from busybox cp -a /from/consumer.config.json /target/app.config.json
 ls -l $CI_PROJECT_DIR/bin/tests.sh
+docker volume create integration_tests
 docker run --rm -v integration_tests:/target -v $CI_PROJECT_DIR/bin/:/from busybox cp -a /from/tests.sh /target/tests.sh
 
 cd ../compose/
