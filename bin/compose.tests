@@ -2,6 +2,7 @@
 
 source compose.defaults
 
+docker run --rm -v integration_tests:/target -v $PWD/:/from busybox cp -a /from/tests /target/entrypoint.sh
 cd ../docker/
 
 docker run --rm -v consumer_daps_jks:/target -v $PWD/connector/certs:/from busybox cp -a /from/consumer-daps.jks /target/consumer-daps.jks
@@ -14,7 +15,6 @@ docker run --rm -v provider_dashboard_nginx:/target -v $PWD/data-dashboard/confi
 docker run --rm -v provider_dashboard_config:/target -v $PWD/data-dashboard/config/conf-provider/:/from busybox cp -a /from/provider.config.json /target/app.config.json
 docker run --rm -v consumer_dashboard_nginx:/target -v $PWD/data-dashboard/config/conf-consumer/:/from busybox cp -a /from/consumer.nginx.conf /target/nginx.conf
 docker run --rm -v consumer_dashboard_config:/target -v $PWD/data-dashboard/config/conf-consumer/:/from busybox cp -a /from/consumer.config.json /target/app.config.json
-docker run --rm -v integration_tests:/target -v $PWD/bin/:/from busybox cp -a /from/tests /target/entrypoint.sh
 
 cd ../compose/
 set -e
