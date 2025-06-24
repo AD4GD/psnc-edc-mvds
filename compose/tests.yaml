@@ -213,8 +213,7 @@ services:
       - integration_tests:/app/tests
     working_dir: /app/tests
     entrypoint: ["/bin/sh", "-c"]
-    command: |
-      apk add --no-cache curl jq && chmod +x ./entrypoint.sh && ./entrypoint.sh
+    command: apk add --no-cache curl jq && chmod +x ./entrypoint.sh && ./entrypoint.sh
 
 volumes:
   consumer-postgresql:
