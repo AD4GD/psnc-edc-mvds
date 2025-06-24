@@ -5,5 +5,5 @@
 __pycache__
 venv
 build
-*/**/bin/
+src/**/bin/
 **/.DS_Store
