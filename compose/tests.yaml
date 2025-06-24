@@ -47,9 +47,9 @@ services:
     depends_on:
       - consumer-connector
       - provider-connector
-    networks:
-      - default
-      - bridge
+    # networks:
+    #   - default
+    #   - bridge
 
   data-source:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-source:${IMAGE_TAG}
@@ -83,9 +83,9 @@ services:
     depends_on:
       - provider-postgres
       - identity-provider
-    networks:
-      - default
-      - bridge
+    # networks:
+    #   - default
+    #   - bridge
 
   provider-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -126,9 +126,9 @@ services:
     depends_on:
       - consumer-postgres
       - identity-provider
-    networks:
-      - default
-      - bridge
+    # networks:
+    #   - default
+    #   - bridge
 
   consumer-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -152,9 +152,9 @@ services:
       MINIO_SECRET_KEY: minio-password
     depends_on:
       - minio
-    networks:
-      - default
-      - bridge
+    # networks:
+    #   - default
+    #   - bridge
 
   minio:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}
@@ -201,9 +201,6 @@ services:
       - '5434:5432'
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
-networks:
-  mynet:
-    driver: bridge
 
 volumes:
   consumer-postgresql:
