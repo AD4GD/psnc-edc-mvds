@@ -73,8 +73,7 @@ integration-test:
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up -d
     # Waiting for services to be ready
-    - RUNNER_CONTAINER=$(docker ps --format '{{.ID}} {{.Names}}' | grep "$hostname" | awk '{print $2}') && \
-      docker network connect compose_default "$RUNNER_CONTAINER"
+    - RUNNER_CONTAINER=$(docker ps --format '{{.ID}} {{.Names}}' | grep "$hostname" | awk '{print $2}') && docker network connect compose_default "$RUNNER_CONTAINER"
     # - docker network connect compose_default $(hostname)
     - docker ps --format "table {{.Names}}\t{{.Networks}}"
     - docker network ls
