@@ -75,7 +75,7 @@ integration-test:
     # Waiting for services to be ready
     - docker ps --format "table {{.Names}}\t{{.Networks}}"
     - docker network ls
-    - RUNNER_CONTAINER=$(docker ps --format '{{.ID}} {{.Names}}' | grep "runner-" | awk '{print $2}') && docker network connect compose_default "$RUNNER_CONTAINER"
+    - RUNNER_CONTAINER=$(docker ps --format '{{.ID}} {{.Names}}' | grep "^runner-" | awk '{print $2}') && docker network connect compose_default "$RUNNER_CONTAINER"
     - ./tests
     - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
     - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml down
