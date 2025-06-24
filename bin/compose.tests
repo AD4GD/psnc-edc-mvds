@@ -13,7 +13,7 @@ docker run --rm -v provider_dashboard_nginx:/target -v $PWD/data-dashboard/confi
 docker run --rm -v provider_dashboard_config:/target -v $PWD/data-dashboard/config/conf-provider/:/from busybox cp -a /from/provider.config.json /target/app.config.json
 docker run --rm -v consumer_dashboard_nginx:/target -v $PWD/data-dashboard/config/conf-consumer/:/from busybox cp -a /from/consumer.nginx.conf /target/nginx.conf
 docker run --rm -v consumer_dashboard_config:/target -v $PWD/data-dashboard/config/conf-consumer/:/from busybox cp -a /from/consumer.config.json /target/app.config.json
-docker run --rm -v integration_tests:/target -v $CI_PROJECT_DIR/bin:/from busybox cp -ar /from/ /target/
+docker run --rm -v integration_tests:/target -v $CI_PROJECT_DIR/bin:/from busybox cp -a /from/tests.sh /target/tests.sh
 
 cd ../compose/
 set -e
