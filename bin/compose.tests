@@ -1,7 +1,7 @@
 #!/bin/sh
 
 source compose.defaults
-
+ls $PWD
 docker run --rm -v integration_tests:/target -v $PWD:/from busybox cp -a /from/tests.sh /target/entrypoint.sh
 cd ../docker/
 

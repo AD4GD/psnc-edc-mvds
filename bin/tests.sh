@@ -1,10 +1,6 @@
 #!/bin/sh
 set -e
 
-apk add --no-cache curl jq 
-echo "=== RUNNING INTEGRATION TESTS ===" 
-
-
 # URLs
 LOCALHOST="http://localhost"
 PROVIDER_API="http://provider-connector:19191/api"
