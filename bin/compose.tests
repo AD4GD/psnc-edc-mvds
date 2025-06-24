@@ -2,7 +2,7 @@
 
 source compose.defaults
 ls $PWD
-docker run --rm -v integration_tests:/target -v $PWD:/from busybox cp -a /from/tests.sh /target/entrypoint.sh
+docker run --rm -v integration_tests:/target -v $PWD/:/from busybox cp -a /from/tests.sh /target/tests.sh
 cd ../docker/
 
 docker run --rm -v consumer_daps_jks:/target -v $PWD/connector/certs:/from busybox cp -a /from/consumer-daps.jks /target/consumer-daps.jks
