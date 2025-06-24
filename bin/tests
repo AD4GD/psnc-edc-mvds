@@ -2,7 +2,7 @@
 set -e
 
 # URLs
-LOCALHOST="http://docker"
+LOCALHOST="http://localhost"
 PROVIDER_API="$LOCALHOST:19191/api"
 PROVIDER_MANAGEMENT="$LOCALHOST:19193/management"
 CONSUMER_API="$LOCALHOST:29191/api"
@@ -18,19 +18,36 @@ RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 
 # 1. Conn Check
 echo "=== Conn Check ==="
-# curl -s -X GET $RETURN_CODE "${HEADERS[@]}" "${PROVIDER_API}/check/health/"
-if [[ $(curl -s -X GET $HEADERS $RETURN_CODE "${PROVIDER_API}/check/health/") -ne 200 ]]; then
-	echo "[ERROR] Provider API is not reachable!"
-	exit 1
-else
-	echo "Provider API is reachable."
-fi
-if [[ $(curl -s -X GET $RETURN_CODE $HEADERS "${CONSUMER_API}/check/health/") -ne 200 ]]; then
-	echo "[ERROR] Consumer API is not reachable!"
-	exit 1
-else
-	echo "Consumer API is reachable."
-fi
+x=1
+while :;
+do
+	if [[ $(curl -s -X GET $HEADERS $RETURN_CODE "${PROVIDER_API}/check/health/") -eq 200 && $(curl -s -X GET $HEADERS $RETURN_CODE "${CONSUMER_API}/check/health/") -eq 200 ]]; then
+		echo "=== Provider API is running ==="
+		echo "=== Consumer API is running ==="
+		break
+	elif [[ $x -gt 60 ]]; then
+		echo "[ERROR] Provider is not running"
+		echo "[ERROR] Consumer is not running"
+		exit 1
+	else
+		echo "=== Waiting for providers to be ready ==="
+		sleep 1
+	fi
+	x=$(( x + 1 ))
+done
+
+# if [[ $(curl -s -X GET $HEADERS $RETURN_CODE "${PROVIDER_API}/check/health/") -ne 200 ]]; then
+# 	echo "[ERROR] Provider API is not reachable!"
+# 	exit 1
+# else
+# 	echo "Provider API is reachable."
+# fi
+# if [[ $(curl -s -X GET $RETURN_CODE $HEADERS "${CONSUMER_API}/check/health/") -ne 200 ]]; then
+# 	echo "[ERROR] Consumer API is not reachable!"
+# 	exit 1
+# else
+# 	echo "Consumer API is reachable."
+# fi
 
 # IDs
 ASSET_ID="test-asset"
