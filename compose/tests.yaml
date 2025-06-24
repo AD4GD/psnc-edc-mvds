@@ -202,8 +202,8 @@ services:
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
 networks:
-  bridge:
-    external: true
+  mynet:
+    driver: bridge
 
 volumes:
   consumer-postgresql:
