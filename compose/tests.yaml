@@ -201,6 +201,20 @@ services:
       - '5434:5432'
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
+  
+  integration-tests:
+    image: alpine:latest
+    depends_on:
+      - provider-connector
+      - consumer-connector
+      - federated-catalog
+      - consumer-backend
+    volumes:
+      - integration_tests:/app/tests
+    working_dir: /app/tests
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      apk add --no-cache curl jq && chmod +x ./entrypoint.sh && ./entrypoint.sh
 
 volumes:
   consumer-postgresql:
@@ -221,3 +235,4 @@ volumes:
   provider_dashboard_config:
   consumer_dashboard_nginx:
   consumer_dashboard_config:
+  integration_tests:

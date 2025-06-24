@@ -71,14 +71,9 @@ integration-test:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
     - cd ${CI_PROJECT_DIR}/bin
-    - ./devtests up -d
-    # Waiting for services to be ready
-    - docker ps --format "table {{.Names}}\t{{.Networks}}"
-    - docker network ls
-    - RUNNER_CONTAINER=$(docker ps --format '{{.ID}} {{.Names}}' | grep "^runner-" | awk '{print $2}') && docker network connect compose_default "$RUNNER_CONTAINER"
-    - ./tests
-    - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
-    - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml down
+    - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
+    # - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml logs > ${CI_PROJECT_DIR}/docker-compose.log
+    # - docker compose -f ${CI_PROJECT_DIR}/compose/tests.yaml down
   artifacts:
     when: always
     paths:
