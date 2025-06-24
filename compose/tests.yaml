@@ -212,7 +212,7 @@ services:
     volumes:
       - integration_tests:/app
     working_dir: /app
-    entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl jq && echo '=== RUNNING INTEGRATION TESTS ===' && ./tests.sh"]
+    entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl jq && echo '=== RUNNING INTEGRATION TESTS ===' && chmod +x tests.sh && ./tests.sh"]
 
 volumes:
   consumer-postgresql:
