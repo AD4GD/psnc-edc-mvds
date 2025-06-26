@@ -155,8 +155,7 @@ fi
 # 5. Pobranie katalogu
 echo "=== Fetch catalog ==="
 echo "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
-curl "http://federated-catalog:8181"
-curl "http://federated-catalog:9181"
+curl "$FEDERATED_CATALOG_URL"
 curl "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
 CATALOG=$(curl -L -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
 if [ ${#CATALOG[@]} -eq 0 ]; then
