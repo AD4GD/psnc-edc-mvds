@@ -41,8 +41,6 @@ services:
 
   data-source:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-source:${IMAGE_TAG}
-    ports:
-      - "5000:5000"
 
   provider-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
