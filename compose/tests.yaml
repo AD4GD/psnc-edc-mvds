@@ -47,9 +47,6 @@ services:
     depends_on:
       - consumer-connector
       - provider-connector
-    # networks:
-    #   - default
-    #   - bridge
 
   data-source:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-source:${IMAGE_TAG}
@@ -83,9 +80,6 @@ services:
     depends_on:
       - provider-postgres
       - identity-provider
-    # networks:
-    #   - default
-    #   - bridge
 
   provider-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -126,9 +120,6 @@ services:
     depends_on:
       - consumer-postgres
       - identity-provider
-    # networks:
-    #   - default
-    #   - bridge
 
   consumer-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -152,9 +143,6 @@ services:
       MINIO_SECRET_KEY: minio-password
     depends_on:
       - minio
-    # networks:
-    #   - default
-    #   - bridge
 
   minio:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}
@@ -211,6 +199,23 @@ services:
       - consumer-backend
     entrypoint: ./entrypoint.sh
 
+  idp-filler:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
+    restart: no
+    tty: true
+    environment:
+      RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
+      WEB_HTTP_IDP_URI: http://identity-provider:8080
+      WEB_HTTP_RS_URI: http://registration-service-backend:8182
+      IDP_USERNAME : admin
+      IDP_PASSWORD : edc
+      RS_USERNAME : psnc
+      RS_PASSWORD : edc
+    entrypoint: "./entrypoint.sh"
+    depends_on:
+      - identity-provider
+      - registration-service-backend
+
 volumes:
   consumer-postgresql:
     driver: local
@@ -220,13 +225,13 @@ volumes:
     driver: local
   registration-service-postgresql:
     driver: local
-  provider_daps_jks:
-  consumer_daps_jks:
-  federated_catalog_daps_jks:
-  federated_catalog_config_jks:
   registration_frontend_nginx:
   registration_frontend_config:
+  federated_catalog_daps_jks:
+  federated_catalog_config_jks:
   provider_dashboard_nginx:
   provider_dashboard_config:
+  provider_daps_jks:
   consumer_dashboard_nginx:
   consumer_dashboard_config:
+  consumer_daps_jks:
