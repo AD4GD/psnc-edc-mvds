@@ -136,24 +136,15 @@ fi
 
 # Wait for catalog to update
 log "=== Waiting for catalog to update ==="
-sleep 100
-# if [[ $CDEF_RES -eq 200 ]] ; then
-#     sleep 60
-# elif [[ $CDEF_RES -eq 409 ]] ; then
-# 	sleep 1
-# fi
+sleep 60
 
 # 5. Pobranie katalogu
 log "=== Fetch catalog ==="
-log "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
 CATALOG=$(curl -L -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
 if [ ${#CATALOG[@]} -eq 0 ]; then
     log "Error: Catalog is empty!"
 	exit 1
 fi
-
-log $CATALOG
-echo $CATALOG | jq .
 
 # Extract offer_id for given asset_id
 OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
