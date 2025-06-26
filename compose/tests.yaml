@@ -214,6 +214,8 @@ services:
       - consumer-connector
       - federated-catalog
       - consumer-backend
+      - idp-filler:
+        condition: service_completed_successfully
     entrypoint: ["/bin/bash", "-c", "./entrypoint.sh"]
 
 volumes:
