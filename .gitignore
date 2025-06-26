@@ -1,5 +1,5 @@
 /.idea/
-/compose/.env
+**/.env
 /src/.gradle/8.0/executionHistory/executionHistory.bin
 .vscode
 __pycache__
