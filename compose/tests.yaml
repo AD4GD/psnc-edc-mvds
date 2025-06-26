@@ -203,16 +203,13 @@ services:
       - 'identity-provider-postgresql:/bitnami/postgresql'
   
   integration-tests:
-    image: alpine:latest
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG} # alpine:latest
     depends_on:
       - provider-connector
       - consumer-connector
       - federated-catalog
       - consumer-backend
-    volumes:
-      - integration_tests_volume:/home/app
-    working_dir: /home/app
-    entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl jq && echo '=== RUNNING INTEGRATION TESTS ===' && chmod +x tests.sh && ./tests.sh"]
+    entrypoint: ./entrypoint.sh
 
 volumes:
   consumer-postgresql:
