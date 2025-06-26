@@ -136,7 +136,7 @@ fi
 
 # Wait for catalog to update
 log "=== Waiting for catalog to update ==="
-sleep 60
+# sleep 60
 
 # 5. Pobranie katalogu
 log "=== Fetch catalog ==="
