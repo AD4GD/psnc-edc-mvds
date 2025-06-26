@@ -195,28 +195,26 @@ services:
     restart: no
     tty: true
     environment:
-      RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
+      RUN_SCRIPT: 0 # 1 if need to execute, 0 if db already filled
       WEB_HTTP_IDP_URI: http://identity-provider:8080
       WEB_HTTP_RS_URI: http://registration-service-backend:8182
       IDP_USERNAME : admin
       IDP_PASSWORD : edc
       RS_USERNAME : psnc
       RS_PASSWORD : edc
-    # entrypoint: ["/bin/bash", "-c", "./entrypoint.sh && tail -f /dev/null"]
-    entrypoint: ["/bin/bash", "-c", "./entrypoint.sh"]
+    entrypoint: ["/bin/bash", "-c", "./entrypoint.sh && tail -f /dev/null"]
     depends_on:
       - identity-provider
       - registration-service-backend
 
-  # integration-tests:
-  #   image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
-  #   depends_on:
-  #     - provider-connector
-  #     - consumer-connector
-  #     - federated-catalog
-  #     - consumer-backend
-  #     - idp-filler
-  #   entrypoint: ["/bin/bash", "-c", "./entrypoint.sh"]
+  integration-tests:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
+    depends_on:
+      - provider-connector
+      - consumer-connector
+      - federated-catalog
+      - consumer-backend
+    entrypoint: ["/bin/bash", "-c", "./entrypoint.sh"]
 
 volumes:
   consumer-postgresql:

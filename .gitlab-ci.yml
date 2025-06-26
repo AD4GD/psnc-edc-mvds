@@ -72,7 +72,7 @@ integration-test:
     - make build clean
     - cd ${CI_PROJECT_DIR}/bin
     - ls -l
-    - ./devtests up --abort-on-container-exit # --exit-code-from integration-tests
+    - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
   # artifacts:
   #   when: always
   #   paths:
