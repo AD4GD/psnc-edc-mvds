@@ -136,7 +136,7 @@ fi
 
 # Wait for catalog to update
 log "=== Waiting for catalog to update ==="
-sleep 10
+sleep 100
 # if [[ $CDEF_RES -eq 200 ]] ; then
 #     sleep 60
 # elif [[ $CDEF_RES -eq 409 ]] ; then
@@ -151,7 +151,6 @@ if [ ${#CATALOG[@]} -eq 0 ]; then
     log "Error: Catalog is empty!"
 	exit 1
 fi
-sleep 20
 
 log $CATALOG
 echo $CATALOG | jq .
