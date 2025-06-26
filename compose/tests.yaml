@@ -189,7 +189,7 @@ services:
       - '5434:5432'
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
-  
+
   integration-tests:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
     depends_on:
