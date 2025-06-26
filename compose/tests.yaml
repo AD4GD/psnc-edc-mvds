@@ -203,7 +203,7 @@ services:
       - 'identity-provider-postgresql:/bitnami/postgresql'
   
   integration-tests:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG} # alpine:latest
+    image: alpine:latest
     depends_on:
       - provider-connector
       - consumer-connector
