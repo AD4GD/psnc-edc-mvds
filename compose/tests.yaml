@@ -190,15 +190,6 @@ services:
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
 
-  integration-tests:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
-    depends_on:
-      - provider-connector
-      - consumer-connector
-      - federated-catalog
-      - consumer-backend
-    entrypoint: ./entrypoint.sh
-
   idp-filler:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
     restart: no
@@ -215,6 +206,15 @@ services:
     depends_on:
       - identity-provider
       - registration-service-backend
+
+  integration-tests:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
+    depends_on:
+      - provider-connector
+      - consumer-connector
+      - federated-catalog
+      - consumer-backend
+    entrypoint: ["/bin/bash", "-c", "./entrypoint.sh"]
 
 volumes:
   consumer-postgresql:
