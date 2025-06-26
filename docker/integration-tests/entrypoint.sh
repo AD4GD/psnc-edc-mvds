@@ -21,9 +21,10 @@ HEADERS="-H x-api-key:edc -H Content-Type:application/json"
 RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 
 # IDs
-ASSET_ID="test-asset"
-POLICY_ID="test-policy"
-CONTRACT_DEF_ID="test-contract-definition"
+UUID=$(cat /proc/sys/kernel/random/uuid)
+ASSET_ID="asset-$UUID"
+POLICY_ID="policy-$UUID"
+CONTRACT_DEF_ID="contract-definition-$UUID"
 
 # 1. Conn Check
 log "=== Conn Check ==="
@@ -136,7 +137,7 @@ fi
 
 # Wait for catalog to update
 log "=== Waiting for catalog to update ==="
-# sleep 60
+sleep 60
 
 # 5. Pobranie katalogu
 log "=== Fetch catalog ==="
