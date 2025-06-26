@@ -17,9 +17,13 @@ CONSUMER_BACKEND_EDR="http://consumer-backend:4000/edr-endpoint"
 PROVIDER_PROTOCOL_INTERNAL="http://provider-connector:19194/protocol"
 
 # Default headers
-# HEADERS="-H 'Content-Type: application/json' -H 'x-api-key: edc'"
 HEADERS="-H x-api-key:edc -H Content-Type:application/json"
 RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
+
+# IDs
+ASSET_ID="test-asset"
+POLICY_ID="test-policy"
+CONTRACT_DEF_ID="test-contract-definition"
 
 # 1. Conn Check
 log "=== Conn Check ==="
@@ -40,24 +44,6 @@ do
 	fi
 	x=$(( x + 1 ))
 done
-
-# if [[ $(curl -s -X GET $HEADERS $RETURN_CODE "${PROVIDER_API}/check/health/") -ne 200 ]]; then
-# 	log "[ERROR] Provider API is not reachable!"
-# 	exit 1
-# else
-# 	log "Provider API is reachable."
-# fi
-# if [[ $(curl -s -X GET $RETURN_CODE $HEADERS "${CONSUMER_API}/check/health/") -ne 200 ]]; then
-# 	log "[ERROR] Consumer API is not reachable!"
-# 	exit 1
-# else
-# 	log "Consumer API is reachable."
-# fi
-
-# IDs
-ASSET_ID="test-asset"
-POLICY_ID="test-policy"
-CONTRACT_DEF_ID="test-contract-definition"
 
 # 2. Asset upload
 log "=== Add asset ==="
@@ -165,6 +151,7 @@ if [ ${#CATALOG[@]} -eq 0 ]; then
     log "Error: Catalog is empty!"
 	exit 1
 fi
+sleep 20
 
 log $CATALOG
 echo $CATALOG | jq .
