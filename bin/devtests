@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Link to gitlab issue resolving problem with docker volumes inside gitlab runner:
 # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41227#note_52029664
 
