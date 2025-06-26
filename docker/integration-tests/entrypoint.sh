@@ -160,6 +160,9 @@ if [ ${#CATALOG[@]} -eq 0 ]; then
 	exit 1
 fi
 
+echo $CATALOG
+echo $CATALOG | jq .
+
 # Extract offer_id for given asset_id
 OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
   .[]
