@@ -66,10 +66,9 @@ integration-test:
     CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
   before_script:
     - apk update
-    - apk add --no-cache make curl jq
+    - apk add --no-cache make
   script:
     - cd ${CI_PROJECT_DIR}/docker
     - make build clean
     - cd ${CI_PROJECT_DIR}/bin
-    - ls -l
     - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
