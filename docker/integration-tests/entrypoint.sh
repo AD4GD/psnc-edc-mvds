@@ -160,8 +160,6 @@ sleep 10
 # 5. Pobranie katalogu
 log "=== Fetch catalog ==="
 log "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
-curl "$FEDERATED_CATALOG_URL"
-curl "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
 CATALOG=$(curl -L -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
 if [ ${#CATALOG[@]} -eq 0 ]; then
     log "Error: Catalog is empty!"
@@ -169,7 +167,7 @@ if [ ${#CATALOG[@]} -eq 0 ]; then
 fi
 
 log $CATALOG
-log $CATALOG | jq .
+echo $CATALOG | jq .
 
 # Extract offer_id for given asset_id
 OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
@@ -211,7 +209,7 @@ NEGOTIATION_PAYLOAD=$(jq -n \
 }')
 NEGOTIATION=$(curl -s -X POST $HEADERS "${CONSUMER_MANAGEMENT}/v3/contractnegotiations" -d "$NEGOTIATION_PAYLOAD")
 
-NEGOTIATION_ID=$(log "$NEGOTIATION" | jq -r '.["@id"]')
+NEGOTIATION_ID=$(echo "$NEGOTIATION" | jq -r '.["@id"]')
 
 if [[ -z "$NEGOTIATION_ID" ]]; then
 	log "[ERROR] Unable to retrieve negotiation ID!"
@@ -223,7 +221,7 @@ fi
 log "=== Waiting for contract agreement ==="
 for i in {1..30}; do
 	AGREEMENT=$(curl -s $HEADERS "$CONSUMER_MANAGEMENT/v2/contractnegotiations/$NEGOTIATION_ID")
-	AGREEMENT_ID=$(log "$AGREEMENT" | jq -r '.contractAgreementId // empty')
+	AGREEMENT_ID=$(echo "$AGREEMENT" | jq -r '.contractAgreementId // empty')
 	if [[ -n "$AGREEMENT_ID" ]]; then
 		log "AgreementId: $AGREEMENT_ID"
 		break
