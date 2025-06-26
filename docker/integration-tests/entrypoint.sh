@@ -105,6 +105,7 @@ else
 	log "[ERROR] Unable to add asset! Response code: $POLICY_RES"
 	exit 1
 fi
+
 # 4. Contract definition addition
 log "=== Add contract definition ==="
 CONTRACT_DEF_PAYLOAD=$(jq -n \
@@ -186,7 +187,6 @@ NEGOTIATION_PAYLOAD=$(jq -n \
 	},
 }')
 NEGOTIATION=$(curl -s -X POST $HEADERS "${CONSUMER_MANAGEMENT}/v3/contractnegotiations" -d "$NEGOTIATION_PAYLOAD")
-
 NEGOTIATION_ID=$(echo "$NEGOTIATION" | jq -r '.["@id"]')
 
 if [[ -z "$NEGOTIATION_ID" ]]; then
