@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "=== RUNNING INTEGRATION TESTS ==="
+function log() {
+	echo "$(date +'%Y-%m-%d %H:%M:%S') $1"
+}
+
+log "=== RUNNING INTEGRATION TESTS ==="
 # URLs
 LOCALHOST="http://localhost"
 PROVIDER_API="http://provider-connector:19191/api"
@@ -18,36 +22,36 @@ HEADERS="-H x-api-key:edc -H Content-Type:application/json"
 RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 
 # 1. Conn Check
-echo "=== Conn Check ==="
+log "=== Conn Check ==="
 x=1
 while :;
 do
 	if [[ $(curl -s -X GET $HEADERS $RETURN_CODE "${PROVIDER_API}/check/health/") -eq 200 && $(curl -s -X GET $HEADERS $RETURN_CODE "${CONSUMER_API}/check/health/") -eq 200 ]]; then
-		echo "=== Provider API is running ==="
-		echo "=== Consumer API is running ==="
+		log "=== Provider API is running ==="
+		log "=== Consumer API is running ==="
 		break
 	elif [[ $x -gt 60 ]]; then
-		echo "[ERROR] Provider is not running"
-		echo "[ERROR] Consumer is not running"
+		log "[ERROR] Provider is not running"
+		log "[ERROR] Consumer is not running"
 		exit 1
 	else
-		echo "=== Waiting for providers to be ready ==="
+		log "=== Waiting for providers to be ready ==="
 		sleep 1
 	fi
 	x=$(( x + 1 ))
 done
 
 # if [[ $(curl -s -X GET $HEADERS $RETURN_CODE "${PROVIDER_API}/check/health/") -ne 200 ]]; then
-# 	echo "[ERROR] Provider API is not reachable!"
+# 	log "[ERROR] Provider API is not reachable!"
 # 	exit 1
 # else
-# 	echo "Provider API is reachable."
+# 	log "Provider API is reachable."
 # fi
 # if [[ $(curl -s -X GET $RETURN_CODE $HEADERS "${CONSUMER_API}/check/health/") -ne 200 ]]; then
-# 	echo "[ERROR] Consumer API is not reachable!"
+# 	log "[ERROR] Consumer API is not reachable!"
 # 	exit 1
 # else
-# 	echo "Consumer API is reachable."
+# 	log "Consumer API is reachable."
 # fi
 
 # IDs
@@ -56,7 +60,7 @@ POLICY_ID="test-policy"
 CONTRACT_DEF_ID="test-contract-definition"
 
 # 2. Asset upload
-echo "=== Add asset ==="
+log "=== Add asset ==="
 ASSET_PAYLOAD=$(jq -n \
 	--arg id "$ASSET_ID" \
 	--arg properties_name "$ASSET_ID" \
@@ -81,15 +85,15 @@ ASSET_PAYLOAD=$(jq -n \
 ASSET_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "$PROVIDER_MANAGEMENT/v3/assets" -d "$ASSET_PAYLOAD")
 
 if [[ $ASSET_RES -eq 200 ]] || [[ $ASSET_RES -eq 409 ]] ; then
-	echo "=== Asset added successfully ==="
-	echo $ASSET_RES
+	log "=== Asset added successfully ==="
+	log $ASSET_RES
 else
-	echo "[ERROR] Unable to add asset! Response code: $ASSET_RES"
+	log "[ERROR] Unable to add asset! Response code: $ASSET_RES"
 	exit 1
 fi
 
 # 3. Policy addition
-echo "=== Add policy ==="
+log "=== Add policy ==="
 POLICY_PAYLOAD=$(jq -n \
 	--arg id "$POLICY_ID" \
 	'{
@@ -108,14 +112,14 @@ POLICY_PAYLOAD=$(jq -n \
 	}')
 POLICY_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "${PROVIDER_MANAGEMENT}/v2/policydefinitions" -d "$POLICY_PAYLOAD")
 if [[ $POLICY_RES -eq 200 ]] || [[ $POLICY_RES -eq 409 ]] ; then
-	echo "=== Policy added successfully ==="
-	echo $POLICY_RES
+	log "=== Policy added successfully ==="
+	log $POLICY_RES
 else
-	echo "[ERROR] Unable to add asset! Response code: $POLICY_RES"
+	log "[ERROR] Unable to add asset! Response code: $POLICY_RES"
 	exit 1
 fi
 # 4. Contract definition addition
-echo "=== Add contract definition ==="
+log "=== Add contract definition ==="
 CONTRACT_DEF_PAYLOAD=$(jq -n \
 	--arg cdef_id "$CONTRACT_DEF_ID" \
 	--arg policy_id "$POLICY_ID" \
@@ -137,15 +141,15 @@ CONTRACT_DEF_PAYLOAD=$(jq -n \
 	}')
 CDEF_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "$PROVIDER_MANAGEMENT/v2/contractdefinitions" -d "$CONTRACT_DEF_PAYLOAD")
 if [[ $CDEF_RES -eq 200 ]] || [[ $CDEF_RES -eq 409 ]] ; then
-	echo "=== Contract definition added successfully ==="
-	echo $CDEF_RES
+	log "=== Contract definition added successfully ==="
+	log $CDEF_RES
 else
-	echo "[ERROR] Unable to add asset! Response code: $CDEF_RES"
+	log "[ERROR] Unable to add asset! Response code: $CDEF_RES"
 	exit 1
 fi
 
 # Wait for catalog to update
-echo "=== Waiting for catalog to update ==="
+log "=== Waiting for catalog to update ==="
 sleep 10
 # if [[ $CDEF_RES -eq 200 ]] ; then
 #     sleep 60
@@ -154,18 +158,18 @@ sleep 10
 # fi
 
 # 5. Pobranie katalogu
-echo "=== Fetch catalog ==="
-echo "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
+log "=== Fetch catalog ==="
+log "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
 curl "$FEDERATED_CATALOG_URL"
 curl "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
 CATALOG=$(curl -L -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
 if [ ${#CATALOG[@]} -eq 0 ]; then
-    echo "Error: Catalog is empty!"
+    log "Error: Catalog is empty!"
 	exit 1
 fi
 
-echo $CATALOG
-echo $CATALOG | jq .
+log $CATALOG
+log $CATALOG | jq .
 
 # Extract offer_id for given asset_id
 OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
@@ -179,14 +183,14 @@ OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
 ')
 
 if [[ -z "$OFFER_ID" ]]; then
-	echo "[ERROR] Unable to retrieve offer ID!"
+	log "[ERROR] Unable to retrieve offer ID!"
 	exit 1
 else
-	echo "Offer: $OFFER_ID"
+	log "Offer: $OFFER_ID"
 fi
 
 # 7. Contract negotiation
-echo "=== Negotiate contract ==="
+log "=== Negotiate contract ==="
 NEGOTIATION_PAYLOAD=$(jq -n \
 	--arg offer_id "$OFFER_ID" \
 	--arg provider_protocol_internal "$PROVIDER_PROTOCOL_INTERNAL" \
@@ -207,33 +211,33 @@ NEGOTIATION_PAYLOAD=$(jq -n \
 }')
 NEGOTIATION=$(curl -s -X POST $HEADERS "${CONSUMER_MANAGEMENT}/v3/contractnegotiations" -d "$NEGOTIATION_PAYLOAD")
 
-NEGOTIATION_ID=$(echo "$NEGOTIATION" | jq -r '.["@id"]')
+NEGOTIATION_ID=$(log "$NEGOTIATION" | jq -r '.["@id"]')
 
 if [[ -z "$NEGOTIATION_ID" ]]; then
-	echo "[ERROR] Unable to retrieve negotiation ID!"
+	log "[ERROR] Unable to retrieve negotiation ID!"
 	exit 1
 else
-	echo "NegotiationId: $NEGOTIATION_ID"
+	log "NegotiationId: $NEGOTIATION_ID"
 fi
 
-echo "=== Waiting for contract agreement ==="
+log "=== Waiting for contract agreement ==="
 for i in {1..30}; do
 	AGREEMENT=$(curl -s $HEADERS "$CONSUMER_MANAGEMENT/v2/contractnegotiations/$NEGOTIATION_ID")
-	AGREEMENT_ID=$(echo "$AGREEMENT" | jq -r '.contractAgreementId // empty')
+	AGREEMENT_ID=$(log "$AGREEMENT" | jq -r '.contractAgreementId // empty')
 	if [[ -n "$AGREEMENT_ID" ]]; then
-		echo "AgreementId: $AGREEMENT_ID"
+		log "AgreementId: $AGREEMENT_ID"
 		break
 	fi
 	sleep 1
 done
 
 if [[ -z "$AGREEMENT_ID" ]]; then
-	echo "Błąd: nie uzyskano contractAgreementId!"
+	log "Błąd: nie uzyskano contractAgreementId!"
 	exit 1
 fi
 
 # 9. Transfer asset
-echo "=== Transfer asset ==="
+log "=== Transfer asset ==="
 TRANSFER_PAYLOAD=$(jq -n \
 	--arg contract_agreement_id "$AGREEMENT_ID" \
 	--arg counter_party_address_internal "$PROVIDER_PROTOCOL_INTERNAL" \
@@ -254,10 +258,10 @@ TRANSFER_PAYLOAD=$(jq -n \
 }')
 TRANSFER_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "${CONSUMER_MANAGEMENT}/v2/transferprocesses" -d "$TRANSFER_PAYLOAD")
 if [[ $TRANSFER_RES -eq 200 ]] ; then
-	echo "=== Transfer successfull ==="
-	echo $TRANSFER_RES
+	log "=== Transfer successfull ==="
+	log $TRANSFER_RES
 else
-	echo "[ERROR] Unable to make a transfer: $TRANSFER_RES"
+	log "[ERROR] Unable to make a transfer: $TRANSFER_RES"
 	exit 1
 fi
-echo "=== All tests finished successfully ==="
+log "=== All tests finished successfully ==="
