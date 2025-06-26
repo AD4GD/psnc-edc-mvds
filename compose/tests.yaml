@@ -41,6 +41,7 @@ services:
       - federated_catalog_daps_jks:/app/certs
     environment:
       EDC_FS_CONFIG: /app/config/configuration.properties
+      EDC_CATALOG_CACHE_EXECUTION_PERIOD_SECONDS: 4
     ports:
       - "9080:8080"
       - "9181:8181"

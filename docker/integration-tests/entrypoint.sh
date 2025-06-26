@@ -146,11 +146,12 @@ fi
 
 # Wait for catalog to update
 echo "=== Waiting for catalog to update ==="
-if [[ $CDEF_RES -eq 200 ]] ; then
-    sleep 60
-elif [[ $CDEF_RES -eq 409 ]] ; then
-	sleep 1
-fi
+sleep 10
+# if [[ $CDEF_RES -eq 200 ]] ; then
+#     sleep 60
+# elif [[ $CDEF_RES -eq 409 ]] ; then
+# 	sleep 1
+# fi
 
 # 5. Pobranie katalogu
 echo "=== Fetch catalog ==="
