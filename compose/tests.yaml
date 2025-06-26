@@ -202,7 +202,7 @@ services:
       IDP_PASSWORD : edc
       RS_USERNAME : psnc
       RS_PASSWORD : edc
-    entrypoint: "./entrypoint.sh"
+    entrypoint: ["/bin/bash", "-c", "./entrypoint.sh && tail -f /dev/null"]
     depends_on:
       - identity-provider
       - registration-service-backend
@@ -210,12 +210,11 @@ services:
   integration-tests:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
     depends_on:
-      # - provider-connector
-      # - consumer-connector
-      # - federated-catalog
-      # - consumer-backend
-      idp-filler:
-        condition: service_completed_successfully
+      - provider-connector
+      - consumer-connector
+      - federated-catalog
+      - consumer-backend
+      - idp-filler        
     entrypoint: ["/bin/bash", "-c", "./entrypoint.sh"]
 
 volumes:
