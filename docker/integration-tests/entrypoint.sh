@@ -154,6 +154,7 @@ fi
 
 # 5. Pobranie katalogu
 echo "=== Fetch catalog ==="
+echo "$FEDERATED_CATALOG_URL/v1alpha/catalog/query"
 CATALOG=$(curl -L -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
 if [ ${#CATALOG[@]} -eq 0 ]; then
     echo "Error: Catalog is empty!"
