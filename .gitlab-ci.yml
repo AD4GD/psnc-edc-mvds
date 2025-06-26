@@ -5,31 +5,31 @@ variables:
   GIT_STRATEGY: clone
 
 stages:
-  # - precommit
-  # - build
+  - precommit
+  - build
   - test
-  # - upload
+  - upload
   - update_inventory
 
-# Run pre-commit check:
-#   stage: precommit
-#   script:
-#     - devlab_run_pre_commit 2500
-#   artifacts:
-#     paths:
-#       - ./reports
+Run pre-commit check:
+  stage: precommit
+  script:
+    - devlab_run_pre_commit 2500
+  artifacts:
+    paths:
+      - ./reports
 
-# Build images:
-#   stage: build
-#   variables:
-#     ULIMIT_NOFILE: "16384:16384"
-#   script:
-#     - devlab_build_images
+Build images:
+  stage: build
+  variables:
+    ULIMIT_NOFILE: "16384:16384"
+  script:
+    - devlab_build_images
 
-# Upload images:
-#   stage: upload
-#   script:
-#     - devlab_push_images
+Upload images:
+  stage: upload
+  script:
+    - devlab_push_images
 
 Update inventory for main project:
   stage: update_inventory
