@@ -169,6 +169,10 @@ services:
 
   integration-tests:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
+    environment:
+      - MINIO_ACCESS_KEY=minio-user
+      - MINIO_SECRET_KEY=minio-password
+      - DATA_SOURCE_PORT=5000
     depends_on:
       - provider-connector
       - consumer-connector
