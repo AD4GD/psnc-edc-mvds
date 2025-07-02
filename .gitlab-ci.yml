@@ -67,5 +67,3 @@ integration-test:
   script:
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
-  after_script:
-    - docker volume prune --force
