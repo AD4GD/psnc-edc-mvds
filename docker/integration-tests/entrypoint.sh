@@ -17,15 +17,6 @@ MINIO_ADDRESS="http://minio:9001/minio/webrpc"
 CONSUMER_BACKEND_EDR="http://consumer-backend:4000/edr-endpoint"
 PROVIDER_PROTOCOL_INTERNAL="http://provider-connector:19194/protocol"
 DATA_SOURCE_ADDRESS="http://data-source:5000"
-# PROVIDER_API="$LOCALHOST:19191/api"
-# PROVIDER_MANAGEMENT="$LOCALHOST:19193/management"
-# CONSUMER_API="$LOCALHOST:29191/api"
-# CONSUMER_MANAGEMENT="$LOCALHOST:29193/management"
-# FEDERATED_CATALOG_URL="$LOCALHOST:9181/catalog"
-# MINIO_ADDRESS="$LOCALHOST:9001/minio/webrpc"
-# DATA_SOURCE_PORT="5000"
-# MINIO_ACCESS_KEY="minio-user"
-# MINIO_SECRET_KEY="minio-password"
 
 # Default headers
 HEADERS="-H x-api-key:edc -H Content-Type:application/json"
@@ -37,9 +28,6 @@ UUID=$(uuidgen)
 ASSET_ID="asset-$UUID"
 POLICY_ID="policy-$UUID"
 CONTRACT_DEF_ID="contract-definition-$UUID"
-# ASSET_ID="test-asset"
-# POLICY_ID="test-policy"
-# CONTRACT_DEF_ID="test-contract-definition"
 
 urls_to_download=("formats/csv" "formats/text" "formats/html" "formats/binary" "formats/file" "formats/stream")
 
@@ -184,7 +172,7 @@ fi
 
 # Wait for catalog to update
 log "=== Waiting for catalog to update ==="
-sleep 60
+sleep 61
 
 # 5. Pobranie katalogu
 log "=== Fetch catalog ==="
