@@ -32,11 +32,11 @@ RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 RETURN_SIZE='--write-out %{size_download}\n -o /dev/null'
 
 # IDs
-# UUID=$(cat /proc/sys/kernel/random/uuid)
-UUID=$(uuidgen)
+UUID=$(cat /proc/sys/kernel/random/uuid)
 ASSET_ID="asset-$UUID"
 POLICY_ID="policy-$UUID"
 CONTRACT_DEF_ID="contract-definition-$UUID"
+# UUID=$(uuidgen)
 # ASSET_ID="test-asset"
 # POLICY_ID="test-policy"
 # CONTRACT_DEF_ID="test-contract-definition"
