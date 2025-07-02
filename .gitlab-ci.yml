@@ -64,11 +64,8 @@ integration-test:
     CI_IMAGE_TAG: $CI_IMAGE_TAG
     CI_PROJECT_DIR: $CI_REPO_DIR
     CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
-  before_script:
-    - apk update
-    - apk add --no-cache make uuidgen
   script:
     - cd ${CI_PROJECT_DIR}/bin
     - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
   after_script:
-    - docker volume prune -y
+    - docker volume prune

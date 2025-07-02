@@ -178,6 +178,7 @@ services:
       - consumer-connector
       - federated-catalog
       - consumer-backend
+      - idp-filler
     entrypoint: ["/bin/bash", "-c", "./entrypoint.sh"]
 
 volumes:

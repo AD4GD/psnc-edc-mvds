@@ -32,16 +32,34 @@ RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 RETURN_SIZE='--write-out %{size_download}\n -o /dev/null'
 
 # IDs
-UUID=$(cat /proc/sys/kernel/random/uuid)
+# UUID=$(cat /proc/sys/kernel/random/uuid)
+UUID=$(uuidgen)
 ASSET_ID="asset-$UUID"
 POLICY_ID="policy-$UUID"
 CONTRACT_DEF_ID="contract-definition-$UUID"
-# UUID=$(uuidgen)
 # ASSET_ID="test-asset"
 # POLICY_ID="test-policy"
 # CONTRACT_DEF_ID="test-contract-definition"
 
 urls_to_download=("formats/csv" "formats/text" "formats/html" "formats/binary" "formats/file" "formats/stream")
+
+log "=== Waiting for idp-filler to finish ==="
+idp_x=0
+while :;
+do
+	if [[ $idp-x -gt 60 ]]; then
+		log "[ERROR] idp-filler is failing"
+		break
+	fi
+	{ ping idp-filler -c 1;
+	res=$?
+	if [[ res -ne 0 ]]; then
+		break 
+	else
+		sleep 1
+	fi } || { log "idp-filler finished job"; break; }
+	idp_x=$(( idp_x + 1 ))
+done
 
 # 1. Conn Check
 log "=== Conn Check ==="
@@ -175,6 +193,8 @@ if [ ${#CATALOG[@]} -eq 0 ]; then
     log "Error: Catalog is empty!"
 	exit 1
 fi
+
+log $CATALOG
 
 # Extract offer_id for given asset_id
 OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
