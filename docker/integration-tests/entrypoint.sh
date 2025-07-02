@@ -47,7 +47,7 @@ log "=== Waiting for idp-filler to finish ==="
 idp_x=0
 while :;
 do
-	if [[ $idp-x -gt 60 ]]; then
+	if [[ $idp_x -gt 20 ]]; then
 		log "[ERROR] idp-filler is failing"
 		break
 	fi
