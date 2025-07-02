@@ -162,8 +162,7 @@ services:
       IDP_PASSWORD : edc
       RS_USERNAME : psnc
       RS_PASSWORD : edc
-    # entrypoint: ["/bin/bash", "-c", "./entrypoint.sh && tail -f /dev/null"]
-    entrypoint: "./entrypoint.sh"
+    entrypoint: ["/bin/bash", "-c", "./entrypoint.sh && tail -f /dev/null"]
     depends_on:
       - identity-provider
       - registration-service-backend
