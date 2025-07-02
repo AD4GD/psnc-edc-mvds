@@ -131,7 +131,7 @@ POLICY_PAYLOAD=$(jq -n \
 			"odrl:obligation": [],
 		},
 	}')
-POLICY_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "${PROVIDER_MANAGEMENT}/v2/policydefinitions" -d "$POLICY_PAYLOAD")
+POLICY_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "${PROVIDER_MANAGEMENT}/v3/policydefinitions" -d "$POLICY_PAYLOAD")
 if [[ $POLICY_RES -eq 200 ]] || [[ $POLICY_RES -eq 409 ]] ; then
 	log "=== Policy added successfully ==="
 	log $POLICY_RES
@@ -161,7 +161,7 @@ CONTRACT_DEF_PAYLOAD=$(jq -n \
 			}
 		],
 	}')
-CDEF_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "$PROVIDER_MANAGEMENT/v2/contractdefinitions" -d "$CONTRACT_DEF_PAYLOAD")
+CDEF_RES=$(curl -s -X POST $RETURN_CODE $HEADERS "$PROVIDER_MANAGEMENT/v3/contractdefinitions" -d "$CONTRACT_DEF_PAYLOAD")
 if [[ $CDEF_RES -eq 200 ]] || [[ $CDEF_RES -eq 409 ]] ; then
 	log "=== Contract definition added successfully ==="
 	log $CDEF_RES
@@ -234,7 +234,7 @@ fi
 
 log "=== Waiting for contract agreement ==="
 for i in {1..30}; do
-	AGREEMENT=$(curl -s $HEADERS "$CONSUMER_MANAGEMENT/v2/contractnegotiations/$NEGOTIATION_ID")
+	AGREEMENT=$(curl -s $HEADERS "$CONSUMER_MANAGEMENT/v3/contractnegotiations/$NEGOTIATION_ID")
 	AGREEMENT_ID=$(echo "$AGREEMENT" | jq -r '.contractAgreementId // empty')
 	if [[ -n "$AGREEMENT_ID" ]]; then
 		log "AgreementId: $AGREEMENT_ID"
