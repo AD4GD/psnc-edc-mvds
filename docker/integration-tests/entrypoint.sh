@@ -51,7 +51,7 @@ do
 		log "[ERROR] idp-filler is failing"
 		break
 	fi
-	{ ping idp-filler -c 1;
+	{ ping -c 1 idp-filler;
 	res=$?
 	if [[ res -ne 0 ]]; then
 		break 
