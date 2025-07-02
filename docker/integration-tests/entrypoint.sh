@@ -16,6 +16,7 @@ FEDERATED_CATALOG_URL="http://federated-catalog:8181/catalog"
 MINIO_ADDRESS="http://minio:9001/minio/webrpc"
 CONSUMER_BACKEND_EDR="http://consumer-backend:4000/edr-endpoint"
 PROVIDER_PROTOCOL_INTERNAL="http://provider-connector:19194/protocol"
+DATA_SOURCE_ADDRESS="http://data-source:5000"
 # PROVIDER_API="$LOCALHOST:19191/api"
 # PROVIDER_MANAGEMENT="$LOCALHOST:19193/management"
 # CONSUMER_API="$LOCALHOST:29191/api"
@@ -32,7 +33,6 @@ RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 RETURN_SIZE='--write-out %{size_download}\n -o /dev/null'
 
 # IDs
-# UUID=$(cat /proc/sys/kernel/random/uuid)
 UUID=$(uuidgen)
 ASSET_ID="asset-$UUID"
 POLICY_ID="policy-$UUID"
@@ -87,7 +87,7 @@ ASSET_PAYLOAD=$(jq -n \
 	--arg id "$ASSET_ID" \
 	--arg properties_name "$ASSET_ID" \
 	--arg properties_contenttype "application/json" \
-	--arg baseUrl "http://data-source:$DATA_SOURCE_PORT" \
+	--arg baseUrl "$DATA_SOURCE_ADDRESS" \
 	'{
 		"@context" : { "edc" : "https://w3id.org/edc/v0.0.1/ns/" },
 		"@id" : $id,
@@ -193,8 +193,6 @@ if [ ${#CATALOG[@]} -eq 0 ]; then
     log "Error: Catalog is empty!"
 	exit 1
 fi
-
-log $CATALOG
 
 # Extract offer_id for given asset_id
 OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
@@ -349,7 +347,7 @@ MINIO_BUCKET_NAME=$(curl -s -X POST \
 	"params": { },
 	"method": "Web.ListBuckets"
   }' | jq -r '.result.buckets[0].name')
-echo "MINIO-BUCKET-NAME: $MINIO_BUCKET_NAME"
+log "MINIO-BUCKET-NAME: $MINIO_BUCKET_NAME"
 
 MINIO_BUCKET_PAYLOAD=$(jq -n \
 	--arg bucket_name $MINIO_BUCKET_NAME \
@@ -370,9 +368,10 @@ MINIO_ITEMS=$(curl -s -X POST \
   $MINIO_ADDRESS -d "$MINIO_BUCKET_PAYLOAD" | jq -r '.result.objects')
 
 MINIO_SIZES=($(echo "$MINIO_ITEMS" | jq '.[] | .size' | awk '{printf "%s ", $1}'))
+log "MINIO-SIZES: ${MINIO_SIZES[@]}"
 
 for index_url in "${!urls_to_download[@]}"; do
-	DS_SIZE=$(curl -s $RETURN_SIZE "$LOCALHOST:$DATA_SOURCE_PORT/${urls_to_download[$index_url]}")
+	DS_SIZE=$(curl -s $RETURN_SIZE "$DATA_SOURCE_ADDRESS/${urls_to_download[$index_url]}")
 	if [[ $DS_SIZE -ne ${MINIO_SIZES[$index_url]} ]]; then
 		log "[ERROR] Invalid size for ${MINIO_SIZES[$index_url]}: ${MINIO_SIZES[$index_url]} vs $DS_SIZE"
 		exit 1
