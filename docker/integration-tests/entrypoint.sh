@@ -32,22 +32,7 @@ CONTRACT_DEF_ID="contract-definition-$UUID"
 urls_to_download=("formats/csv" "formats/text" "formats/html" "formats/binary" "formats/file" "formats/stream")
 
 log "=== Waiting for idp-filler to finish ==="
-idp_x=0
-while :;
-do
-	if [[ $idp_x -gt 20 ]]; then
-		log "[ERROR] idp-filler is failing"
-		break
-	fi
-	{ ping -c 1 idp-filler;
-	res=$?
-	if [[ res -ne 0 ]]; then
-		break 
-	else
-		sleep 1
-	fi } || { log "idp-filler finished job"; break; }
-	idp_x=$(( idp_x + 1 ))
-done
+sleep 20
 
 # 1. Conn Check
 log "=== Conn Check ==="
@@ -171,36 +156,66 @@ else
 fi
 
 # Wait for catalog to update
-log "=== Waiting for catalog to update ==="
-sleep 61
+log "=== Waiting for offer to appear in the federated catalog ==="
+# sleep 61
+max_wait=150
+interval=5
+elapsed=0
+OFFER_ID=""
 
-# 5. Pobranie katalogu
-log "=== Fetch catalog ==="
-CATALOG=$(curl -sL -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
-if [ ${#CATALOG[@]} -eq 0 ]; then
-    log "Error: Catalog is empty!"
-	exit 1
+while [[ $elapsed -lt $max_wait ]]; do
+	CATALOG=$(curl -sL -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
+	# Extract offer_id for given asset_id
+	OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
+	.[]
+	| select(."@type" == "dcat:Catalog")
+	| .["dcat:dataset"] as $ds
+	| ($ds | type) as $dstype
+	| if $dstype == "array" then $ds[]? else $ds end
+	| select(.id == $asset_id)
+	| ."odrl:hasPolicy"."@id"
+	')
+
+	if [[ -n "$OFFER_ID" && "$OFFER_ID" != "null" ]]; then
+        log "Offer ID found: $OFFER_ID"
+        break
+    fi
+    sleep $interval
+    elapsed=$((elapsed + interval))
+    log "Waiting... ($elapsed/$max_wait s)"
+done
+
+if [[ -z "$OFFER_ID" || "$OFFER_ID" == "null" ]]; then
+    log "[ERROR] Unable to retrieve offer ID from federated catalog after $max_wait seconds!"
+    exit 1
 fi
+# # 5. Pobranie katalogu
+# log "=== Fetch catalog ==="
+# CATALOG=$(curl -sL -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
+# if [ ${#CATALOG[@]} -eq 0 ]; then
+#     log "Error: Catalog is empty!"
+# 	exit 1
+# fi
 
-log $CATALOG
+# log $CATALOG
 
-# Extract offer_id for given asset_id
-OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
-  .[]
-  | select(."@type" == "dcat:Catalog")
-  | .["dcat:dataset"] as $ds
-  | ($ds | type) as $dstype
-  | if $dstype == "array" then $ds[]? else $ds end
-  | select(.id == $asset_id)
-  | ."odrl:hasPolicy"."@id"
-')
+# # Extract offer_id for given asset_id
+# OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
+#   .[]
+#   | select(."@type" == "dcat:Catalog")
+#   | .["dcat:dataset"] as $ds
+#   | ($ds | type) as $dstype
+#   | if $dstype == "array" then $ds[]? else $ds end
+#   | select(.id == $asset_id)
+#   | ."odrl:hasPolicy"."@id"
+# ')
 
-if [[ -z "$OFFER_ID" ]]; then
-	log "[ERROR] Unable to retrieve offer ID!"
-	exit 1
-else
-	log "Offer: $OFFER_ID"
-fi
+# if [[ -z "$OFFER_ID" ]]; then
+# 	log "[ERROR] Unable to retrieve offer ID!"
+# 	exit 1
+# else
+# 	log "Offer: $OFFER_ID"
+# fi
 
 # 7. Contract negotiation
 log "=== Negotiate contract ==="
