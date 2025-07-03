@@ -1,8 +1,0 @@
--classpath '/home/janha/edc-connector/psnc-connector/backend-service/build/classes/java/main:/home/janha/edc-connector/psnc-connector/backend-service/build/resources/main:/home/janha/.gradle/caches/modules-2/files-2.1/org.eclipse.edc/runtime-metamodel/0.2.0/1fb6b24343b30f2dc91fd421af4e67d84391aa4a/runtime-metamodel-0.2.0.jar:/home/janha/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/24.0.1/13c5c75c4206580aa4d683bffee658caae6c9f43/annotations-24.0.1.jar:/home/janha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.15.2/4724a65ac8e8d156a24898d50fd5dbd3642870b8/jackson-annotations-2.15.2.jar:/home/janha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.15.2/30d16ec2aef6d8094c5e2dce1d95034ca8b6cb42/jackson-datatype-jsr310-2.15.2.jar:/home/janha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.15.2/9353b021f10c307c00328f52090de2bdb4b6ff9c/jackson-databind-2.15.2.jar:/home/janha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.15.2/a6fe1836469a69b3ff66037c324d75fc66ef137c/jackson-core-2.15.2.jar'
--d '/home/janha/edc-connector/psnc-connector/backend-service/build/docs/javadoc'
--doctitle 'backend-service 0.2.0 API'
--notimestamp
--quiet
--windowtitle 'backend-service 0.2.0 API'
-'/home/janha/edc-connector/psnc-connector/backend-service/src/main/java/org/eclipse/edc/handler/ReceiverHandler.java'
-'/home/janha/edc-connector/psnc-connector/backend-service/src/main/java/org/eclipse/edc/BackendService.java'

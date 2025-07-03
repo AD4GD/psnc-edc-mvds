@@ -99,6 +99,9 @@ services:
     volumes:
       - 'provider-postgresql:/bitnami/postgresql'
 
+  provider-identity-hub:
+    
+
   consumer-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
     ports:
@@ -196,23 +199,6 @@ services:
       - '5434:5432'
     volumes:
       - 'identity-provider-postgresql:/bitnami/postgresql'
-
-  idp-filler:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
-    restart: no
-    tty: true
-    environment:
-      RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled
-      WEB_HTTP_IDP_URI: http://identity-provider:8080
-      WEB_HTTP_RS_URI: http://registration-service-backend:8182
-      IDP_USERNAME : admin
-      IDP_PASSWORD : edc
-      RS_USERNAME : psnc
-      RS_PASSWORD : edc
-    entrypoint: "./entrypoint.sh"
-    depends_on:
-      - identity-provider
-      - registration-service-frontend
 
 volumes:
   consumer-postgresql:
