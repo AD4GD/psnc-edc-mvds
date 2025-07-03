@@ -5,19 +5,19 @@ variables:
   GIT_STRATEGY: clone
 
 stages:
-  # - precommit
+  - precommit
   - build
   - test
-  # - upload
+  - upload
   - update_inventory
 
-# Run pre-commit check:
-#   stage: precommit
-#   script:
-#     - devlab_run_pre_commit 2500
-#   artifacts:
-#     paths:
-#       - ./reports
+Run pre-commit check:
+  stage: precommit
+  script:
+    - devlab_run_pre_commit 2500
+  artifacts:
+    paths:
+      - ./reports
 
 Build images:
   stage: build
@@ -26,10 +26,10 @@ Build images:
   script:
     - devlab_build_images
 
-# Upload images:
-#   stage: upload
-#   script:
-#     - devlab_push_images
+Upload images:
+  stage: upload
+  script:
+    - devlab_push_images
 
 Update inventory for main project:
   stage: update_inventory
