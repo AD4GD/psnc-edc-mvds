@@ -17,12 +17,10 @@ MINIO_ADDRESS="http://minio:9001/minio/webrpc"
 CONSUMER_BACKEND_EDR="http://consumer-backend:4000/edr-endpoint"
 PROVIDER_PROTOCOL_INTERNAL="http://provider-connector:19194/protocol"
 DATA_SOURCE_ADDRESS="http://data-source:5000"
-
 # Default headers
 HEADERS="-H x-api-key:edc -H Content-Type:application/json"
 RETURN_CODE='--write-out %{http_code}\n -o /dev/null'
 RETURN_SIZE='--write-out %{size_download}\n -o /dev/null'
-
 # IDs
 UUID=$(uuidgen)
 ASSET_ID="asset-$UUID"
@@ -34,7 +32,7 @@ urls_to_download=("formats/csv" "formats/text" "formats/html" "formats/binary" "
 log "=== Waiting for idp-filler to finish ==="
 sleep 20
 
-# 1. Conn Check
+# Conn Check
 log "=== Conn Check ==="
 x=1
 while :;
@@ -54,7 +52,7 @@ do
 	x=$(( x + 1 ))
 done
 
-# 2. Asset upload
+# Asset upload
 log "=== Add asset ==="
 ASSET_PAYLOAD=$(jq -n \
 	--arg id "$ASSET_ID" \
@@ -98,7 +96,7 @@ else
 	exit 1
 fi
 
-# 3. Policy addition
+# Policy addition
 log "=== Add policy ==="
 POLICY_PAYLOAD=$(jq -n \
 	--arg id "$POLICY_ID" \
@@ -125,7 +123,7 @@ else
 	exit 1
 fi
 
-# 4. Contract definition addition
+# Contract definition addition
 log "=== Add contract definition ==="
 CONTRACT_DEF_PAYLOAD=$(jq -n \
 	--arg cdef_id "$CONTRACT_DEF_ID" \
@@ -157,12 +155,12 @@ fi
 
 # Wait for catalog to update
 log "=== Waiting for offer to appear in the federated catalog ==="
-# sleep 61
-max_wait=150
+max_wait=180
 interval=5
 elapsed=0
 OFFER_ID=""
 
+# Fetch the catalog and extract the offer_id for the given asset_id
 while [[ $elapsed -lt $max_wait ]]; do
 	CATALOG=$(curl -sL -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
 	# Extract offer_id for given asset_id
@@ -189,35 +187,8 @@ if [[ -z "$OFFER_ID" || "$OFFER_ID" == "null" ]]; then
     log "[ERROR] Unable to retrieve offer ID from federated catalog after $max_wait seconds!"
     exit 1
 fi
-# # 5. Pobranie katalogu
-# log "=== Fetch catalog ==="
-# CATALOG=$(curl -sL -X POST $HEADERS "$FEDERATED_CATALOG_URL/v1alpha/catalog/query")
-# if [ ${#CATALOG[@]} -eq 0 ]; then
-#     log "Error: Catalog is empty!"
-# 	exit 1
-# fi
 
-# log $CATALOG
-
-# # Extract offer_id for given asset_id
-# OFFER_ID=$(printf '%s' "$CATALOG" | jq -r --arg asset_id "$ASSET_ID" '
-#   .[]
-#   | select(."@type" == "dcat:Catalog")
-#   | .["dcat:dataset"] as $ds
-#   | ($ds | type) as $dstype
-#   | if $dstype == "array" then $ds[]? else $ds end
-#   | select(.id == $asset_id)
-#   | ."odrl:hasPolicy"."@id"
-# ')
-
-# if [[ -z "$OFFER_ID" ]]; then
-# 	log "[ERROR] Unable to retrieve offer ID!"
-# 	exit 1
-# else
-# 	log "Offer: $OFFER_ID"
-# fi
-
-# 7. Contract negotiation
+# Contract negotiation
 log "=== Negotiate contract ==="
 NEGOTIATION_PAYLOAD=$(jq -n \
 	--arg offer_id "$OFFER_ID" \
@@ -263,7 +234,7 @@ if [[ -z "$AGREEMENT_ID" ]]; then
 	exit 1
 fi
 
-# 9. Get MinIO credentials
+# Get MinIO credentials
 log "=== Get MinIO credentials ==="
 MINIO_LOGIN_PAYLOAD=$(jq -n \
 	--arg minio_user $MINIO_ACCESS_KEY \
@@ -284,7 +255,7 @@ MINIO_CREDENTIALS=$(curl -s \
 MINIO_TOKEN=$(echo $MINIO_CREDENTIALS | jq -r '.result.token')
 log "MINIO-TOKEN: $MINIO_TOKEN"
 
-# 10. Transfer asset
+# Transfer asset
 log "=== Transfer asset ==="
 for url in "${urls_to_download[@]}"; do
 	TRANSFER_PAYLOAD=$(jq -n \
