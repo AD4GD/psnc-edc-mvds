@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Asset's metadata</h2>
+<mat-dialog-content class="metadata-display-dialog-content">
+    <h3
+        class="no-truncate overflow-ellipsis"
+        #nameH3
+        [matTooltip]="utilService.shouldShowTooltip(nameH3, data.asset_name) ? data.asset_name : ''"
+        matTooltipPosition="below"
+        matTooltipClass="tooltip"
+    >
+        ID: {{ data.asset_name }}
+    </h3>
+    <jsonld-code-display [content]="data?.metadata" [isCopyButton]="true" [isEditable]="false" />
+</mat-dialog-content>

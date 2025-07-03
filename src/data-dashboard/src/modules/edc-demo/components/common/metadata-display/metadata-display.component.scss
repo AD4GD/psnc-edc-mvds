@@ -1,0 +1,25 @@
+.metadata-display-dialog-content {
+    max-height: 80vh;
+    width: 80vw;
+    ::ng-deep pre {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: break-spaces;
+        min-width: 50vw;
+        max-width: 80vw;
+        word-break: break-word;
+    }
+}
+
+.no-truncate {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
+}
+
+.overflow-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 75vw;
+}

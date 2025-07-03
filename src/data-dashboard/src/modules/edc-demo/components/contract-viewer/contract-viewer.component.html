@@ -59,6 +59,15 @@
               <mat-icon>downloading</mat-icon>
               Transfer
             </button>
+            <button
+              [disabled]="!shouldDisplayMetadata(contract.contractOffer!)"
+              (click)="onSelect(contract.contractOffer!)" 
+              color="white" 
+              mat-stroked-button
+            >
+              <mat-icon>view_list</mat-icon>
+              <h3>Display additional metadata</h3>
+            </button>
           </mat-card-actions>
           <mat-card-footer class="contract-card-footer">
             <mat-progress-bar *ngIf="isTransferInProgress(contract.id!)" color="accent" mode="indeterminate"></mat-progress-bar>

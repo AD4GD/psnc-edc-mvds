@@ -12,8 +12,6 @@
     <mat-paginator [length]="(filteredContractOffers)?.length" hidePageSize="true"
                    pageSize="(filteredContractOffers)?.length">
     </mat-paginator>
-
-        <!-- <button mat-button (click)="onSearch()">Search</button> -->
     </div>
 
     <div fxLayout="row wrap" fxLayoutAlign="start start">
@@ -135,12 +133,22 @@
                         <div matListItemLine title="{{contractOffer.properties.properties[additionalPropertyKey]}}">
                           {{contractOffer.properties.properties[additionalPropertyKey]}}</div>
                       </mat-list-item>
+                      <mat-list-item>
+                        <mat-icon matListItemIcon>view_list</mat-icon>
+                        <button
+                          [disabled]="!shouldDisplayMetadata(contractOffer)"
+                          (click)="onSelect(contractOffer)"
+                          color="white"
+                          mat-stroked-button
+                        >
+                          <h3>Display metadata</h3>
+                        </button>
+                      </mat-list-item>
                     </mat-list>
                 </mat-expansion-panel>
 
             </mat-card-content>
 
-            <mat-divider inset></mat-divider>
             <mat-card-actions class="card-actions">
               <button (click)="onNegotiateClicked(contractOffer)"
                       [disabled]="isBusy(contractOffer) || isNegotiated(contractOffer)"
