@@ -30,7 +30,7 @@ CONTRACT_DEF_ID="contract-definition-$UUID"
 urls_to_download=("formats/csv" "formats/text" "formats/html" "formats/binary" "formats/file" "formats/stream")
 
 log "=== Waiting for idp-filler to finish ==="
-sleep 20
+sleep 30
 
 # Conn Check
 log "=== Conn Check ==="
