@@ -1,3 +1,6 @@
-#!/bin/bash
+#!/bin/sh
+# Link to gitlab issue resolving problem with docker volumes inside gitlab runner:
+# https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41227#note_52029664
+
 export COMPOSE_PROJECT_NAME_SCRIPT=devtests
-exec ./compose -f base.yaml -f tests.yaml -f dev.yaml -f local.yaml "$@"
+exec ./compose.tests -f tests.yaml "$@"
