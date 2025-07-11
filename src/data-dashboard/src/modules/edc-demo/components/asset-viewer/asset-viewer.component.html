@@ -1,4 +1,4 @@
-<div *ngIf="filteredAssets$ | async as assets" id="wrapper">
+<div *ngIf="allAssets as assets" id="wrapper">
   <div class="container">
     <mat-form-field appearance="fill" appearance="outline" class="search-form-field" color="accent">
       <!-- <mat-label>Search assets</mat-label> -->
@@ -9,9 +9,15 @@
       </button>
     </mat-form-field>
 
-    <mat-paginator [length]="assets.length" hidePageSize="true" pageSize="contractDefinitions.length">
-    </mat-paginator>
-
+    <mat-paginator
+      [length]="filteredAssets.length"
+      [hidePageSize]="false"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChange($event)"
+    />
+    
     <button (click)="onCreate()" color="accent" mat-stroked-button>
       <mat-icon>add_circle_outline</mat-icon>
       Create asset
@@ -19,7 +25,7 @@
   </div>
 
   <div fxLayout="row wrap" fxLayoutAlign="start start">
-    <mat-card *ngFor="let asset of assets" class="asset-card">
+    <mat-card *ngFor="let asset of pagedAssets" class="asset-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>attachment</mat-icon>
         <mat-card-title
