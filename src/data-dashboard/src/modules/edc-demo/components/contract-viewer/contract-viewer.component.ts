@@ -5,7 +5,7 @@ import {
   QUERY_LIMIT,
   TransferProcessService
 } from "../../../mgmt-api-client";
-import { asyncScheduler, forkJoin, Observable, of, scheduled } from "rxjs";
+import { asyncScheduler, forkJoin, Observable, scheduled } from "rxjs";
 import { ContractAgreement, TransferProcessInput, IdResponse, TransferProcess } from "../../../mgmt-api-client/model";
 import { ContractOffer } from "../../models/contract-offer";
 import { filter, first, map, switchMap, tap } from "rxjs/operators";
@@ -20,6 +20,7 @@ import { PublicService } from 'src/modules/mgmt-api-client/api/public.service';
 import { EdcConnectorClientContext } from '@think-it-labs/edc-connector-client';
 import { SorterService, CatalogBrowserService, NotificationService, UtilService } from '../../services';
 import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
+import { PageEvent } from '@angular/material/paginator';
 
 interface RunningTransferProcess {
   processId: string;
@@ -42,7 +43,13 @@ interface ContractAgreementWithOfferData extends ContractAgreement {
 
 export class ContractViewerComponent implements OnInit {
 
-  contracts$: Observable<ContractAgreementWithOfferData[]> = of([]);
+  // contracts$: Observable<ContractAgreementWithOfferData[]> = of([]);
+  allContracts: ContractAgreementWithOfferData[] = [];
+  filteredContracts: ContractAgreementWithOfferData[] = [];
+  pagedContracts: ContractAgreementWithOfferData[] = [];
+  searchText = '';
+  pageIndex = 0;
+  pageSize = 20;
   private runningTransfers: RunningTransferProcess[] = [];
   private pollingHandleTransfer?: any;
 
@@ -52,7 +59,6 @@ export class ContractViewerComponent implements OnInit {
     private publicService: PublicService,
     public dialog: MatDialog,
     private readonly metadataViewDialog: MatDialog,
-    @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
     private transferService: TransferProcessService,
     private catalogService: CatalogBrowserService,
     private router: Router,
@@ -61,6 +67,7 @@ export class ContractViewerComponent implements OnInit {
     private sorterService: SorterService,
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
+    @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
   ) { }
 
   private static isFinishedState(state: string): boolean {
@@ -71,25 +78,70 @@ export class ContractViewerComponent implements OnInit {
       "ENDED"].includes(state);
   }
 
-  ngOnInit(): void {
-    this.contracts$ = this.contractAgreementService.queryAllAgreements({
-      limit : QUERY_LIMIT,
-      offset : 0,
+  loadContractAgreements() {
+    this.contractAgreementService.queryAllAgreements({
+      limit: QUERY_LIMIT,
+      offset: 0,
     }).pipe(
       switchMap(contracts => {
-        return this.loadContractsWithAssets(
-          contracts.sort((a, b) => {
-            // Sort by contractSigningDate (descending)
-            const dateA = a.contractSigningDate || 0;
-            const dateB = b.contractSigningDate || 0;
-            if (dateA !== dateB) {
-              return dateB - dateA; // Newest first
-            }
+        return this.loadContractsWithAssets( contracts )
+      })
+    ).subscribe(contracts => {
+      this.allContracts = contracts.sort((a, b) => {
+        // Sort by contractSigningDate (descending)
+        const dateA = a.contractSigningDate || 0;
+        const dateB = b.contractSigningDate || 0;
+        if (dateA !== dateB) {
+          return dateB - dateA; // Newest first
+        }
+        return this.sorterService.naturalSort(a.assetId || '', b.assetId || '');
+      });
+      this.applyFilterAndPagination();
+    });
+  }
 
-            return this.sorterService.naturalSort(a.assetId || '', b.assetId || '');
-          })
-      )})
-    );
+  ngOnInit(): void {
+    this.loadContractAgreements();
+  }
+
+  applyFilterAndPagination() {
+    // Filtering
+    if (this.searchText) {
+      this.filteredContracts = this.allContracts.filter(contractOffer =>
+        contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        contractOffer.providerId.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        contractOffer.contractOffer!.properties.baseUrl?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        this.utilService.searchThroughMetadata(this.findMetadataForAsset(contractOffer.contractOffer!), this.searchText)
+      );
+    } else {
+      this.filteredContracts = [...this.allContracts];
+    }
+    // Reset pageIndex if out of bands
+    if (this.pageIndex * this.pageSize >= this.filteredContracts.length && this.filteredContracts.length > 0) {
+      this.pageIndex = 0;
+    }
+    // Pagination
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    this.pagedContracts = this.filteredContracts.slice(start, end);
+  }
+    
+  onSearch() {
+    this.pageIndex = 0;
+    this.applyFilterAndPagination();
+  }
+    
+  onPageChange(event: PageEvent) {
+    if (event.pageSize !== this.pageSize) {
+      const firstItemIndex = this.pageIndex * this.pageSize;
+      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
+      this.pageSize = event.pageSize;
+    } else {
+      this.pageIndex = event.pageIndex;
+      this.pageSize = event.pageSize;
+    }
+    this.applyFilterAndPagination();
   }
 
   loadContractsWithAssets(contracts: ContractAgreement[]): Observable<ContractAgreementWithOfferData[]> {

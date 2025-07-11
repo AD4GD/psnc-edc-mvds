@@ -1,6 +1,26 @@
-<div *ngIf="contracts$ | async as contracts" id="wrapper">
+<div *ngIf="allContracts as contracts" id="wrapper">
+  <div class="container">
+    <mat-form-field class="search-form-field" color="accent">
+      <mat-label>Search contracts</mat-label>
+      <input (input)="onSearch()" [(ngModel)]="searchText" matInput>
+      <mat-icon matPrefix>search</mat-icon>
+      <button (click)="searchText=''; onSearch()" *ngIf="searchText" mat-icon-button matSuffix>
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-paginator
+      [length]="filteredContracts.length"
+      [hidePageSize]="false"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChange($event)"
+    />
+  </div>
+
   <div fxLayout="row wrap" fxLayoutAlign="start start">
-    <mat-card *ngFor="let contract of contracts" class="contract-card">
+    <mat-card *ngFor="let contract of pagedContracts" class="contract-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>attachment</mat-icon>
         <mat-card-title>{{contract.id}}</mat-card-title>
