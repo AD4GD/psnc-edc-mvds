@@ -1,4 +1,4 @@
-<div id="wrapper" *ngIf="filteredPolicies$ | async as policyDefinitions">
+<div id="wrapper" *ngIf="allPolicies as policyDefinitions">
 <!--    entry fields for new policy-->
   <div class="container">
     <mat-form-field appearance="outline" class="search-form-field" color="accent">
@@ -10,7 +10,14 @@
       </button>
     </mat-form-field>
 
-    <mat-paginator [length]="policyDefinitions?.length" hidePageSize="true" pageSize="10"></mat-paginator>
+    <mat-paginator
+      [length]="filteredPolicies.length"
+      [hidePageSize]="false"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChange($event)"
+    />
 
     <button (click)="onCreate()" color="accent" mat-stroked-button>
       <mat-icon>add_circle_outline</mat-icon>
@@ -20,7 +27,7 @@
   </div>
 
   <div fxLayout="column" fxLayoutAlign="space-around stretch">
-    <mat-card *ngFor="let policyDef of policyDefinitions" class="policy-card">
+    <mat-card *ngFor="let policyDef of pagedPolicies" class="policy-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>attachment</mat-icon>
         <mat-card-title
