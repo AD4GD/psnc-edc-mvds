@@ -43,7 +43,7 @@ export class CatalogBrowserComponent implements OnInit {
     public metadataViewDialog: MatDialog,
     private router: Router,
     private notificationService: NotificationService,
-    // @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
+    @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
     private readonly sorterService: SorterService
