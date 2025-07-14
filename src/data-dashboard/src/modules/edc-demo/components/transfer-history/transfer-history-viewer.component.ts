@@ -1,11 +1,10 @@
-import {Component, OnInit} from '@angular/core';
-import {map, Observable, of} from 'rxjs';
-import {QUERY_LIMIT, TransferProcessService} from "../../../mgmt-api-client";
-import {TransferProcess} from "../../../mgmt-api-client/model";
-import {AppConfigService} from "../../../app/app-config.service";
-import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
-import {MatDialog} from "@angular/material/dialog";
-import { SorterService } from '../../services/common/sorter.service';
+import { Component, OnInit } from '@angular/core';
+import { QUERY_LIMIT, TransferProcessService } from "../../../mgmt-api-client";
+import { TransferProcess } from "../../../mgmt-api-client/model";
+import { AppConfigService } from "../../../app/app-config.service";
+import { ConfirmationDialogComponent, ConfirmDialogModel } from "../confirmation-dialog/confirmation-dialog.component";
+import { MatDialog } from "@angular/material/dialog";
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'edc-demo-transfer-history',
@@ -13,16 +12,17 @@ import { SorterService } from '../../services/common/sorter.service';
   styleUrls: ['./transfer-history-viewer.component.scss']
 })
 export class TransferHistoryViewerComponent implements OnInit {
-
   columns: string[] = ['id', 'state', 'lastUpdated', 'connectorId', 'assetId', 'contractId', 'action'];
-  transferProcesses$: Observable<TransferProcess[]> = of([]);
+  transferProcesses: TransferProcess[] = [];
+  pagedTransferProcesses: TransferProcess[] = [];
   storageExplorerLinkTemplate: string | undefined;
+  pageIndex = 0;
+  pageSize = 20;
 
   constructor(
     private transferProcessService: TransferProcessService,
     private dialog : MatDialog,
     private appConfigService: AppConfigService,
-    private readonly sorterService: SorterService
   ) { }
 
   ngOnInit(): void {
@@ -31,7 +31,6 @@ export class TransferHistoryViewerComponent implements OnInit {
   }
 
   onDeprovision(transferProcess: TransferProcess): void {
-
     const dialogData = new ConfirmDialogModel("Confirm deprovision", `Deprovisioning resources for transfer [${transferProcess["@id"]}] will take some time and once started, it cannot be stopped.`)
     dialogData.confirmColor = "warn";
     dialogData.confirmText = "Confirm";
@@ -54,22 +53,39 @@ export class TransferHistoryViewerComponent implements OnInit {
   }
 
   loadTransferProcesses() {
-    this.transferProcesses$ = this.transferProcessService.queryAllTransferProcesses({
+    this.transferProcessService.queryAllTransferProcesses({
       limit : QUERY_LIMIT,
-      offset : 0
-    }).pipe(
-      map(transferProcesses => { 
-        return transferProcesses.sort((a, b) => {
-          // Sort by contractSigningDate (descending)
-          const dateA = a.createdAt || 0;
-          const dateB = b.createdAt || 0;
-          if (dateA !== dateB) {
-            return dateB - dateA; // Newest first
-          }
-          return this.sorterService.naturalSort(a.id, b.id); // Fallback to natural sort on createdAt)
-        })
-      })
-    );
+      offset : 0,
+      sortField: 'createdAt',
+      sortOrder: 'DESC'
+    })
+    .subscribe(transferProcesses => { 
+      this.transferProcesses = transferProcesses;
+      this.applyPagination();
+    })
+  }
+
+  onPageChange(event: PageEvent) {
+    if (event.pageSize !== this.pageSize) {
+      const firstItemIndex = this.pageIndex * this.pageSize;
+      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
+      this.pageSize = event.pageSize;
+    } else {
+      this.pageIndex = event.pageIndex;
+      this.pageSize = event.pageSize;
+    }
+    this.applyPagination();
+  }
+  
+  applyPagination() {
+    // Reset pageIndex if out of bands
+    if (this.pageIndex * this.pageSize >= this.transferProcesses.length && this.transferProcesses.length > 0) {
+      this.pageIndex = 0;
+    }
+    // Pagination
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    this.pagedTransferProcesses = this.transferProcesses.slice(start, end);
   }
 
   asDate(epochMillis?: number) {
