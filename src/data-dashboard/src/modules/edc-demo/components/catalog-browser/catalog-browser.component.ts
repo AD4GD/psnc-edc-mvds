@@ -52,7 +52,7 @@ export class CatalogBrowserComponent implements OnInit {
   loadContractOffers() {
     this.apiService.getContractOffers().subscribe(contractOffers => {
       this.allContractOffers = contractOffers.sort((a, b) =>
-        this.sorterService.naturalSort( a.id, b.id )
+        this.sorterService.naturalSort( a.assetId, b.assetId )
       );
       this.applyFilterAndPagination();
     });
