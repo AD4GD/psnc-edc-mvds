@@ -99,8 +99,37 @@ services:
     volumes:
       - 'provider-postgresql:/bitnami/postgresql'
 
-  provider-identity-hub:
-    
+  provider-ih:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
+    ports:
+      - "7090:7090"
+      - "7091:7091"
+      - "7092:7092"
+      - "7093:7093"
+      - "7095:7095"
+      - "7096:7096"
+    volumes:
+      - ../docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    depends_on:
+      - provider-connector
+  
+  consumer-ih:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
+    ports:
+      - "7080:7080"
+      - "7081:7081"
+      - "7082:7082"
+      - "7083:7083"
+      - "7085:7085"
+      - "7086:7086"
+    volumes:
+      - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    depends_on:
+      - consumer-connector
 
   consumer-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
