@@ -1,4 +1,4 @@
-<div *ngIf="filteredContractDefinitions$ | async as contractDefinitions" id="wrapper">
+<div *ngIf="allContractDefinitions as contractDefinitions" id="wrapper">
     <div class="container">
         <mat-form-field appearance="outline" class="search-form-field" color="accent">
             <mat-label>Search definitions</mat-label>
@@ -9,8 +9,14 @@
             </button>
         </mat-form-field>
 
-        <mat-paginator [length]="contractDefinitions.length" hidePageSize="true" pageSize="contractDefinitions.length">
-        </mat-paginator>
+        <mat-paginator
+            [length]="filteredContractDefinitions.length"
+            [hidePageSize]="false"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[10, 20, 50]"
+            (page)="onPageChange($event)"
+        />
 
         <button (click)="onCreate()" color="accent" mat-stroked-button>
           <mat-icon>add_circle_outline</mat-icon>
@@ -21,7 +27,7 @@
 
     <div fxLayout="row wrap" fxLayoutAlign="start start">
 
-        <mat-card *ngFor="let contractDefinition of contractDefinitions" class="contract-definition-card">
+        <mat-card *ngFor="let contractDefinition of pagedContractDefinitions" class="contract-definition-card">
             <mat-card-header>
                 <mat-icon mat-card-avatar>attachment</mat-icon>
                 <mat-card-title
