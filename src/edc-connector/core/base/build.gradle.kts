@@ -42,7 +42,6 @@ dependencies {
     implementation(libs.edc.api.observability)
 
     implementation(libs.psnc.auth.composite)
-    implementation(libs.psnc.vault.keys.seeder)
 
     // enable callbacks
     implementation(libs.edc.callback.event.dispatcher)

@@ -2,7 +2,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 # available types: dcp, daps, no-daps
-ARG LAUNCHER_TYPE="dcp"
+ARG LAUNCHER_TYPE="identity-hub"
 ARG JVM_ARGS=""
 
 ENV PROJECT_PATH="src/edc-connector"
@@ -28,17 +28,21 @@ RUN ./gradlew wrapper
 WORKDIR /libs
 COPY $SHARED_EXTENSIONS_PATH/ /libs/
 RUN chmod +x /libs/gradlew
-RUN ./gradlew publishToMavenLocal --no-daemon
+RUN ./gradlew publishToMavenLocal
 
 WORKDIR /app
 
 # Copy the remaining source code
 COPY $PROJECT_PATH/ /app/
 
+# Fix permissions
 RUN chmod +x /app/gradlew
 
+# Copy dependencies
+RUN ./gradlew dependencies
+
 # Build the project
-RUN ./gradlew launchers:$LAUNCHER_TYPE:build --no-daemon
+RUN ./gradlew launchers:$LAUNCHER_TYPE:build
 
 # Define the path to the built JAR
 ENV APP_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/connector.jar
