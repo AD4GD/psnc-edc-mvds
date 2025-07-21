@@ -55,6 +55,8 @@ export class ContractDefinitionEditorDialog implements OnInit {
     this.assetService.requestAssets({
       limit: QUERY_LIMIT,
       offset: 0,
+      sortField: 'createdAt',
+      sortOrder: 'DESC'
     }).subscribe(assets => {
       this.availableAssets = assets;
       // preselection
