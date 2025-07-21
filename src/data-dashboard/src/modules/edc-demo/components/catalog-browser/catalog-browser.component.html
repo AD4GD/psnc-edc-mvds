@@ -1,4 +1,4 @@
-<div *ngIf="filteredContractOffers$ | async as filteredContractOffers" id="wrapper">
+<div *ngIf="allContractOffers as filteredContractOffers" id="wrapper">
   <div class="container">
     <mat-form-field class="search-form-field" color="accent">
       <mat-label>Search catalog</mat-label>
@@ -9,14 +9,19 @@
       </button>
     </mat-form-field>
 
-    <mat-paginator [length]="(filteredContractOffers)?.length" hidePageSize="true"
-                   pageSize="(filteredContractOffers)?.length">
-    </mat-paginator>
-    </div>
+    <mat-paginator
+      [length]="filteredContractOffers.length"
+      [hidePageSize]="false"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPageChange($event)"
+    />
+  </div>
 
     <div fxLayout="row wrap" fxLayoutAlign="start start">
 
-        <mat-card *ngFor="let contractOffer of filteredContractOffers" class="asset-card">
+        <mat-card *ngFor="let contractOffer of pagedContractOffers" class="asset-card">
             <mat-card-header>
                 <mat-icon mat-card-avatar>attachment</mat-icon>
                 <mat-card-title
