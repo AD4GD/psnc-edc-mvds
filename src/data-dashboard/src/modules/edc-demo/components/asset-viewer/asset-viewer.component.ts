@@ -1,6 +1,4 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-// import { BehaviorSubject, Observable, of } from 'rxjs';
-// import { first, map, switchMap, tap } from 'rxjs/operators';
 import { first } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetInput, Asset } from "../../../mgmt-api-client/model";
@@ -19,9 +17,6 @@ import { METADATA_CONTEXT } from 'src/modules/app/variables';
   styleUrls: ['./asset-viewer.component.scss']
 })
 export class AssetViewerComponent implements OnInit {
-
-  // filteredAssets$: Observable<Asset[]> = of([]);
-  // private fetch$ = new BehaviorSubject(null);
   allAssets: Asset[] = [];
   pagedAssets: Asset[] = [];
   filteredAssets: Asset[] = [];
@@ -57,35 +52,10 @@ export class AssetViewerComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAssets();
-    // this.filteredAssets$ = this.fetch$
-    //   .pipe(
-    //     switchMap(() => {
-    //       const assets$ = this.assetService.requestAssets({
-    //         limit: QUERY_LIMIT,
-    //         offset: 0,
-    //       }).pipe(
-    //         map(assets => { 
-    //           console.log(assets); 
-    //           return assets.sort((a, b) => 
-    //             this.sorterService.naturalSort(a.properties.optionalValue<string>('edc', 'name') || '', b.properties.optionalValue<string>('edc', 'name') || ''))
-    //           })
-    //       );
-    //       return !!this.searchText
-    //         ? assets$.pipe(map(assets => assets.filter(asset => 
-    //           asset.properties.optionalValue<string>('edc', 'name')?.includes(this.searchText)
-    //           || asset.id.toLowerCase().includes(this.searchText.toLowerCase())
-    //         )))
-    //         : assets$;
-    //     })
-    //   )
-    // this.filteredAssets$.subscribe(assets => {
-    //   this.pageIndex = 0; // reset przy zmianie filtrów
-    //   this.updatePagedAssets(assets);
-    // });
   }
 
   applyFilterAndPagination() {
-    // Filtrowanie
+    // Filtering
     if (this.searchText) {
       this.filteredAssets = this.allAssets.filter(asset =>
         (asset.properties.optionalValue<string>('edc', 'name') || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
@@ -100,7 +70,7 @@ export class AssetViewerComponent implements OnInit {
     if (this.pageIndex * this.pageSize >= this.filteredAssets.length && this.filteredAssets.length > 0) {
       this.pageIndex = 0;
     }
-    // Paginacja
+    // Pagination
     const start = this.pageIndex * this.pageSize;
     const end = start + this.pageSize;
     this.pagedAssets = this.filteredAssets.slice(start, end);
@@ -112,7 +82,6 @@ export class AssetViewerComponent implements OnInit {
 
   onSearch() {
     this.pageIndex = 0;
-    // this.fetch$.next(null);
     this.applyFilterAndPagination();
   }
 
@@ -153,7 +122,6 @@ export class AssetViewerComponent implements OnInit {
       if (newAsset) {
         this.assetService.createAsset(newAsset).subscribe({
           next: ()=> this.loadAssets(),
-          // next: () => this.fetch$.next(null),
           error: err => this.showError(err, "This asset cannot be created"),
           complete: () => this.notificationService.showInfo("Successfully created"),
         })

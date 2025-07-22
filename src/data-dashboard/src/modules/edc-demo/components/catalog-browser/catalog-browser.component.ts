@@ -1,13 +1,11 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
 import { CatalogBrowserService, NotificationService, SorterService, UtilService } from "../../services";
 import { Router } from "@angular/router";
 import { TransferProcessStates } from "../../models/transfer-process-states";
 import { ContractOffer } from "../../models/contract-offer";
 import { NegotiationResult } from "../../models/negotiation-result";
-import { ContractNegotiation, ContractNegotiationRequest, Policy } from "../../../mgmt-api-client/model";
+import { ContractNegotiation } from "../../../mgmt-api-client/model";
 import { PageEvent } from '@angular/material/paginator';
 import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
 import { DATASET_CONTEXT, METADATA_CONTEXT } from 'src/modules/app/variables';
@@ -24,8 +22,6 @@ interface RunningTransferProcess {
   styleUrls: ['./catalog-browser.component.scss']
 })
 export class CatalogBrowserComponent implements OnInit {
-  // filteredContractOffers$: Observable<ContractOffer[]> = of([]);
-  // private fetch$ = new BehaviorSubject(null);
   searchText = '';
   pageIndex = 0;
   pageSize = 20;

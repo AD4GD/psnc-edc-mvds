@@ -68,7 +68,6 @@ export class ContractDefinitionViewerComponent implements OnInit {
 
   onSearch() {
     this.pageIndex = 0;
-    // this.fetch$.next(null);
     this.applyFilterAndPagination();
   }
   

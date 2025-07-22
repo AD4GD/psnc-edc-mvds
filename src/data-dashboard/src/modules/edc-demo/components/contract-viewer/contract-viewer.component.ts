@@ -42,8 +42,6 @@ interface ContractAgreementWithOfferData extends ContractAgreement {
 })
 
 export class ContractViewerComponent implements OnInit {
-
-  // contracts$: Observable<ContractAgreementWithOfferData[]> = of([]);
   allContracts: ContractAgreementWithOfferData[] = [];
   filteredContracts: ContractAgreementWithOfferData[] = [];
   pagedContracts: ContractAgreementWithOfferData[] = [];
