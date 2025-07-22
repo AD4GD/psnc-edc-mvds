@@ -1,5 +1,5 @@
 <div *ngIf="allContracts as contracts" id="wrapper">
-  <div class="container">
+  <div class="search-pagination-container">
     <mat-form-field class="search-form-field" color="accent">
       <mat-label>Search contracts</mat-label>
       <input (input)="onSearch()" [(ngModel)]="searchText" matInput>

@@ -1,3 +1,6 @@
+#wrapper {
+  margin: 20px;
+}
 .contract-card {
   width: 500px;
   margin-left: 15px;
@@ -23,16 +26,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 400px;
-}
-.container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.search-form-field {
-  min-width: 200px;
-  width: 30%;
-  margin-top: 18px;
 }
 mat-paginator {
   display: inline-block;
