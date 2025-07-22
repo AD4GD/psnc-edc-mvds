@@ -15,12 +15,14 @@ import { PageEvent } from '@angular/material/paginator';
   styleUrls: ['./policy-view.component.scss']
 })
 export class PolicyViewComponent implements OnInit {
+  paginationState = {
+    filteredList: [] as PolicyDefinition[],
+    pagedList: [] as PolicyDefinition[],
+    pageIndex: 0
+  };
   searchText: string = '';
-  pageIndex = 0;
   pageSize = 20;
   allPolicies: PolicyDefinition[] = [];
-  pagedPolicies: PolicyDefinition[] = [];
-  filteredPolicies: PolicyDefinition[] = [];
   private readonly errorOrUpdateSubscriber: Observer<IdResponse>;
 
   constructor(
@@ -31,7 +33,6 @@ export class PolicyViewComponent implements OnInit {
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
   ) {
-
     this.errorOrUpdateSubscriber = {
       next: x => this.loadPolicies,
       error: err => this.showError(err, "An error occurred."),
@@ -52,7 +53,13 @@ export class PolicyViewComponent implements OnInit {
           b['@id'] 
         )
       );
-      this.applyFilterAndPagination();
+      this.utilService.applyFilterAndPagination(
+        this.allPolicies,
+        this.pageSize,
+        this.filterPolicies,
+        this.searchText,
+        this.paginationState
+      );
     });
   }
 
@@ -60,42 +67,34 @@ export class PolicyViewComponent implements OnInit {
     this.loadPolicies();
   }
 
-  applyFilterAndPagination() {
-    // Filtering
-    if (this.searchText) {
-      this.filteredPolicies = this.allPolicies.filter(policy =>
-        (policy.id).toLowerCase().includes(this.searchText.toLowerCase()) ||
-        policy.policy.assigner?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        policy.policy.assignee?.toLowerCase().includes(this.searchText.toLowerCase())
-      );
-    } else {
-      this.filteredPolicies = [...this.allPolicies];
-    }
-    // Reset pageIndex if out of bands
-    if (this.pageIndex * this.pageSize >= this.filteredPolicies.length && this.filteredPolicies.length > 0) {
-      this.pageIndex = 0;
-    }
-    // Pagination
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.pagedPolicies = this.filteredPolicies.slice(start, end);
+  filterPolicies(mainList: PolicyDefinition[], searchText: string): PolicyDefinition[] {
+    return mainList.filter(policy =>
+      (policy.id).toLowerCase().includes(searchText.toLowerCase()) ||
+      policy.policy.assigner?.toLowerCase().includes(searchText.toLowerCase()) ||
+      policy.policy.assignee?.toLowerCase().includes(searchText.toLowerCase())
+    );
   }
 
   onSearch() {
-    this.pageIndex = 0;
-    this.applyFilterAndPagination();
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      this.allPolicies,
+      this.pageSize,
+      this.filterPolicies,
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onPageChange(event: PageEvent) {
-    if (event.pageSize !== this.pageSize) {
-      const firstItemIndex = this.pageIndex * this.pageSize;
-      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
-      this.pageSize = event.pageSize;
-    } else {
-      this.pageIndex = event.pageIndex;
-      this.pageSize = event.pageSize;
-    }
-    this.applyFilterAndPagination();
+    this.utilService.onPageChange(
+      event, 
+      this.allPolicies,
+      this.pageSize, 
+      this.filterPolicies, 
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onCreate() {

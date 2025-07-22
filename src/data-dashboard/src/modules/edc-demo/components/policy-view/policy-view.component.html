@@ -11,9 +11,9 @@
     </mat-form-field>
 
     <mat-paginator
-      [length]="filteredPolicies.length"
+      [length]="paginationState.filteredList.length"
       [hidePageSize]="false"
-      [pageIndex]="pageIndex"
+      [pageIndex]="paginationState.pageIndex"
       [pageSize]="pageSize"
       [pageSizeOptions]="[10, 20, 50]"
       (page)="onPageChange($event)"
@@ -27,7 +27,7 @@
   </div>
 
   <div fxLayout="column" fxLayoutAlign="space-around stretch">
-    <mat-card *ngFor="let policyDef of pagedPolicies" class="policy-card">
+    <mat-card *ngFor="let policyDef of paginationState.pagedList" class="policy-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>attachment</mat-icon>
         <mat-card-title
