@@ -108,6 +108,7 @@ services:
       - "7093:7093"
       - "7095:7095"
       - "7096:7096"
+      - "7097:7097"
     volumes:
       - ../docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
     environment:
@@ -124,6 +125,7 @@ services:
       - "7083:7083"
       - "7085:7085"
       - "7086:7086"
+      - "7087:7087"
     volumes:
       - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
     environment:
