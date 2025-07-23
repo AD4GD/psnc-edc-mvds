@@ -18,10 +18,10 @@ export class PolicyViewComponent implements OnInit {
   paginationState = {
     filteredList: [] as PolicyDefinition[],
     pagedList: [] as PolicyDefinition[],
-    pageIndex: 0
+    pageIndex: 0,
+    pageSize: 20
   };
   searchText: string = '';
-  pageSize = 20;
   allPolicies: PolicyDefinition[] = [];
   private readonly errorOrUpdateSubscriber: Observer<IdResponse>;
 
@@ -45,17 +45,13 @@ export class PolicyViewComponent implements OnInit {
   loadPolicies() {
     this.policyService.queryAllPolicies({ 
       limit: QUERY_LIMIT,
-      offset: 0 
+      offset: 0,
+      sortField: 'id',
+      sortOrder: 'ASC'
     }).subscribe(policies => {
-      this.allPolicies = policies.sort((a, b) =>
-        this.sorterService.naturalSort(
-          a['@id'],
-          b['@id'] 
-        )
-      );
+      this.allPolicies = policies
       this.utilService.applyFilterAndPagination(
-        this.allPolicies,
-        this.pageSize,
+        [...this.allPolicies],
         this.filterPolicies,
         this.searchText,
         this.paginationState
@@ -67,20 +63,19 @@ export class PolicyViewComponent implements OnInit {
     this.loadPolicies();
   }
 
-  filterPolicies(mainList: PolicyDefinition[], searchText: string): PolicyDefinition[] {
+  filterPolicies(mainList: PolicyDefinition[]): PolicyDefinition[] {
     return mainList.filter(policy =>
-      (policy.id).toLowerCase().includes(searchText.toLowerCase()) ||
-      policy.policy.assigner?.toLowerCase().includes(searchText.toLowerCase()) ||
-      policy.policy.assignee?.toLowerCase().includes(searchText.toLowerCase())
+      (policy.id).toLowerCase().includes(this.searchText.toLowerCase()) ||
+      policy.policy.assigner?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      policy.policy.assignee?.toLowerCase().includes(this.searchText.toLowerCase())
     );
   }
 
   onSearch() {
     this.paginationState.pageIndex = 0;
     this.utilService.applyFilterAndPagination(
-      this.allPolicies,
-      this.pageSize,
-      this.filterPolicies,
+      [...this.allPolicies],
+      this.filterPolicies.bind(this),
       this.searchText,
       this.paginationState
     );
@@ -89,8 +84,7 @@ export class PolicyViewComponent implements OnInit {
   onPageChange(event: PageEvent) {
     this.utilService.onPageChange(
       event, 
-      this.allPolicies,
-      this.pageSize, 
+      [...this.allPolicies],
       this.filterPolicies, 
       this.searchText,
       this.paginationState

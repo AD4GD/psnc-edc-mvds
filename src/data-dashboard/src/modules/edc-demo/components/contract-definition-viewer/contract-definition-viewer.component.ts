@@ -15,12 +15,15 @@ import { PageEvent } from '@angular/material/paginator';
   styleUrls: ['./contract-definition-viewer.component.scss']
 })
 export class ContractDefinitionViewerComponent implements OnInit {
+  paginationState = {
+    filteredList: [] as ContractDefinition[],
+    pagedList: [] as ContractDefinition[],
+    pageIndex: 0,
+    pageSize: 20
+  };
   searchText = '';
-  pageIndex = 0;
-  pageSize = 20;
   allContractDefinitions: ContractDefinition[] = [];
   pagedContractDefinitions: ContractDefinition[] = [];
-  filteredContractDefinitions: ContractDefinition[] = [];
 
   constructor(
     private contractDefinitionService: ContractDefinitionService,
@@ -39,48 +42,43 @@ export class ContractDefinitionViewerComponent implements OnInit {
       this.allContractDefinitions = contractDefinitions.sort((a, b) =>
         this.sorterService.naturalSort( a.id, b.id )
       );
-      this.applyFilterAndPagination();
+      this.utilService.applyFilterAndPagination(
+        [...this.allContractDefinitions],
+        this.filterContractDefinitions.bind(this),
+        this.searchText,
+        this.paginationState
+      );
     });
+  }
+
+  filterContractDefinitions(mainList: ContractDefinition[]): ContractDefinition[] {
+    return mainList.filter(contractDefinition =>
+      contractDefinition.id.toLowerCase().includes(this.searchText.toLowerCase())
+    );
   }
 
   ngOnInit(): void {
     this.loadContractDefinitions();
   }
 
-  applyFilterAndPagination() {
-      // Filtering
-      if (this.searchText) {
-        this.filteredContractDefinitions = this.allContractDefinitions.filter(contractDefinition =>
-          contractDefinition.id.toLowerCase().includes(this.searchText.toLowerCase())
-        );
-      } else {
-        this.filteredContractDefinitions = [...this.allContractDefinitions];
-      }
-      // Reset pageIndex if out of bands
-      if (this.pageIndex * this.pageSize >= this.filteredContractDefinitions.length && this.filteredContractDefinitions.length > 0) {
-        this.pageIndex = 0;
-      }
-      // Pagination
-      const start = this.pageIndex * this.pageSize;
-      const end = start + this.pageSize;
-      this.pagedContractDefinitions = this.filteredContractDefinitions.slice(start, end);
-    }
-
   onSearch() {
-    this.pageIndex = 0;
-    this.applyFilterAndPagination();
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      [...this.allContractDefinitions],
+      this.filterContractDefinitions.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
   
   onPageChange(event: PageEvent) {
-    if (event.pageSize !== this.pageSize) {
-      const firstItemIndex = this.pageIndex * this.pageSize;
-      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
-      this.pageSize = event.pageSize;
-    } else {
-      this.pageIndex = event.pageIndex;
-      this.pageSize = event.pageSize;
-    }
-    this.applyFilterAndPagination();
+    this.utilService.onPageChange(
+      event, 
+      [...this.allContractDefinitions],
+      this.filterContractDefinitions.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onDelete(contractDefinition: ContractDefinition) {

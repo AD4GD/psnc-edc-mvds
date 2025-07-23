@@ -22,15 +22,17 @@ interface RunningTransferProcess {
   styleUrls: ['./catalog-browser.component.scss']
 })
 export class CatalogBrowserComponent implements OnInit {
+  paginationState = {
+    filteredList: [] as ContractOffer[],
+    pagedList: [] as ContractOffer[],
+    pageIndex: 0,
+    pageSize: 20
+  };
   searchText = '';
-  pageIndex = 0;
-  pageSize = 20;
   allContractOffers: ContractOffer[] = [];
-  pagedContractOffers: ContractOffer[] = [];
-  filteredContractOffers: ContractOffer[] = [];
   runningTransferProcesses: RunningTransferProcess[] = [];
-  runningNegotiations: Map<string, NegotiationResult> = new Map<string, NegotiationResult>(); // contractOfferId, NegotiationResult
-  finishedNegotiations: Map<string, ContractNegotiation> = new Map<string, ContractNegotiation>(); // contractOfferId, contractAgreementId
+  runningNegotiations: Map<string, NegotiationResult> = new Map<string, NegotiationResult>();
+  finishedNegotiations: Map<string, ContractNegotiation> = new Map<string, ContractNegotiation>();
   private pollingHandleNegotiation?: any;
 
   constructor(
@@ -50,53 +52,48 @@ export class CatalogBrowserComponent implements OnInit {
       this.allContractOffers = contractOffers.sort((a, b) =>
         this.sorterService.naturalSort( a.assetId, b.assetId )
       );
-      this.applyFilterAndPagination();
+      this.utilService.applyFilterAndPagination(
+        [...this.allContractOffers],
+        this.filterContractOffers.bind(this),
+        this.searchText,
+        this.paginationState
+      );
     });
+  }
+
+  filterContractOffers(mainList: ContractOffer[]): ContractOffer[] {
+    return mainList.filter(contractOffer =>
+      contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.originator.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.properties.name?.toLowerCase().includes(this.searchText.toLowerCase()) || 
+      contractOffer.properties.baseUrl?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      this.utilService.searchThroughMetadata(this.findMetadataForAsset(contractOffer), this.searchText)
+    );
   }
 
   ngOnInit(): void {
     this.loadContractOffers();
   }
-
-  applyFilterAndPagination() {
-    // Filtering
-    if (this.searchText) {
-      this.filteredContractOffers = this.allContractOffers.filter(contractOffer =>
-        contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        contractOffer.originator.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        contractOffer.properties.name?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        contractOffer.properties.baseUrl?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        this.utilService.searchThroughMetadata(this.findMetadataForAsset(contractOffer), this.searchText)
-      );
-    } else {
-      this.filteredContractOffers = [...this.allContractOffers];
-    }
-    // Reset pageIndex if out of bands
-    if (this.pageIndex * this.pageSize >= this.filteredContractOffers.length && this.filteredContractOffers.length > 0) {
-      this.pageIndex = 0;
-    }
-    // Pagination
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.pagedContractOffers = this.filteredContractOffers.slice(start, end);
-  }
   
   onSearch() {
-    this.pageIndex = 0;
-    this.applyFilterAndPagination();
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      [...this.allContractOffers],
+      this.filterContractOffers.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
   
   onPageChange(event: PageEvent) {
-    if (event.pageSize !== this.pageSize) {
-      const firstItemIndex = this.pageIndex * this.pageSize;
-      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
-      this.pageSize = event.pageSize;
-    } else {
-      this.pageIndex = event.pageIndex;
-      this.pageSize = event.pageSize;
-    }
-    this.applyFilterAndPagination();
+    this.utilService.onPageChange(
+      event, 
+      [...this.allContractOffers],
+      this.filterContractOffers.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onSelect(offer: ContractOffer) {

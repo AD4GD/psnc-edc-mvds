@@ -17,13 +17,15 @@ import { METADATA_CONTEXT } from 'src/modules/app/variables';
   styleUrls: ['./asset-viewer.component.scss']
 })
 export class AssetViewerComponent implements OnInit {
+  paginationState = {
+    filteredList: [] as Asset[],
+    pagedList: [] as Asset[],
+    pageIndex: 0,
+    pageSize: 20
+  };
   allAssets: Asset[] = [];
-  pagedAssets: Asset[] = [];
-  filteredAssets: Asset[] = [];
   searchText = '';
   isTransferring = false;
-  pageIndex = 0;
-  pageSize = 20;
 
   constructor(
     private assetService: AssetService,
@@ -46,34 +48,26 @@ export class AssetViewerComponent implements OnInit {
           b.properties.optionalValue<string>('edc', 'name') || b['@id'] 
         )
       );
-      this.applyFilterAndPagination();
+      this.utilService.applyFilterAndPagination(
+        [...this.allAssets],
+        this.filterAssets.bind(this),
+        this.searchText,
+        this.paginationState
+      );
     });
+  }
+
+  filterAssets(mainList: Asset[]): Asset[] {
+    return mainList.filter(asset =>
+      (asset.properties.optionalValue<string>('edc', 'name') || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
+      (asset.properties.optionalValue<string>('edc', 'baseUrl') || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
+      this.utilService.searchThroughMetadata(this.findMetadataForAsset(asset), this.searchText) ||
+      asset.id.toLowerCase().includes(this.searchText.toLowerCase())
+    );
   }
 
   ngOnInit(): void {
     this.loadAssets();
-  }
-
-  applyFilterAndPagination() {
-    // Filtering
-    if (this.searchText) {
-      this.filteredAssets = this.allAssets.filter(asset =>
-        (asset.properties.optionalValue<string>('edc', 'name') || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
-        (asset.properties.optionalValue<string>('edc', 'baseUrl') || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
-        this.utilService.searchThroughMetadata(this.findMetadataForAsset(asset), this.searchText) ||
-        asset.id.toLowerCase().includes(this.searchText.toLowerCase())
-      );
-    } else {
-      this.filteredAssets = [...this.allAssets];
-    }
-    // Reset pageIndex jeśli poza zakresem
-    if (this.pageIndex * this.pageSize >= this.filteredAssets.length && this.filteredAssets.length > 0) {
-      this.pageIndex = 0;
-    }
-    // Pagination
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.pagedAssets = this.filteredAssets.slice(start, end);
   }
 
   isBusy() {
@@ -81,20 +75,23 @@ export class AssetViewerComponent implements OnInit {
   }
 
   onSearch() {
-    this.pageIndex = 0;
-    this.applyFilterAndPagination();
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      [...this.allAssets],
+      this.filterAssets.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onPageChange(event: PageEvent) {
-    if (event.pageSize !== this.pageSize) {
-      const firstItemIndex = this.pageIndex * this.pageSize;
-      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
-      this.pageSize = event.pageSize;
-    } else {
-      this.pageIndex = event.pageIndex;
-      this.pageSize = event.pageSize;
-    }
-    this.applyFilterAndPagination();
+    this.utilService.onPageChange(
+      event, 
+      [...this.allAssets],
+      this.filterAssets.bind(this), 
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onDelete(asset: Asset) {

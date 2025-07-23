@@ -10,18 +10,17 @@
     </mat-form-field>
 
     <mat-paginator
-      [length]="filteredContractOffers.length"
+      [length]="paginationState.filteredList.length"
       [hidePageSize]="false"
-      [pageIndex]="pageIndex"
-      [pageSize]="pageSize"
+      [pageIndex]="paginationState.pageIndex"
+      [pageSize]="paginationState.pageSize"
       [pageSizeOptions]="[10, 20, 50]"
       (page)="onPageChange($event)"
     />
   </div>
 
     <div fxLayout="row wrap" fxLayoutAlign="start start">
-
-        <mat-card *ngFor="let contractOffer of pagedContractOffers" class="asset-card">
+        <mat-card *ngFor="let contractOffer of paginationState.pagedList" class="asset-card">
             <mat-card-header>
                 <mat-icon mat-card-avatar>attachment</mat-icon>
                 <mat-card-title

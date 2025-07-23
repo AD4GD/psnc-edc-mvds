@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
-import { filter } from "cypress/types/bluebird";
 
 @Injectable({
     providedIn: 'root'
@@ -28,7 +27,7 @@ export class UtilService {
                 return obj.some(item => search(item));
             }
             if (typeof obj === 'object') {
-                // Przeszukaj klucze
+                // search keys and values
                 for (const key of Object.keys(obj)) {
                     if (key.toLowerCase().includes(lowerSearch)) return true;
                     if (search(obj[key])) return true;
@@ -43,22 +42,20 @@ export class UtilService {
     onPageChange(
         event: PageEvent, 
         mainList: any[],
-        pageSize: number, 
         filterFunction: Function, 
         searchText: string = '', 
-        out: { filteredList: any[], pagedList: any[], pageIndex: number }
+        out: { filteredList: any[], pagedList: any[], pageIndex: number, pageSize: number }
     ) {
-        if (event.pageSize !== pageSize) {
-            const firstItemIndex = out.pageIndex * pageSize;
+        if (event.pageSize !== out.pageSize) {
+            const firstItemIndex = out.pageIndex * out.pageSize;
             out.pageIndex = Math.floor(firstItemIndex / event.pageSize);
-            pageSize = event.pageSize;
+            out.pageSize = event.pageSize;
         } else {
             out.pageIndex = event.pageIndex;
-            pageSize = event.pageSize;
+            out.pageSize = event.pageSize;
         }
         this.applyFilterAndPagination(
             mainList,
-            pageSize,
             filterFunction,
             searchText,
             out
@@ -67,25 +64,24 @@ export class UtilService {
 
     applyFilterAndPagination(
         mainList: any[], 
-        pageSize: number, 
         filterFunction: Function, 
         searchText: string = '', 
-        out: { filteredList: any[], pagedList: any[], pageIndex: number }
+        out: { filteredList: any[], pagedList: any[], pageIndex: number, pageSize: number }
     ) {
         // Filtering
         let filteredList = [];
         if (searchText !== '') {
-            filteredList = filterFunction([...mainList], searchText);
+            filteredList = filterFunction([...mainList]);
         } else {
             filteredList = [...mainList];
         }
         // Reset pageIndex if out of bands
-        if (out.pageIndex * pageSize >= filteredList.length && filteredList.length > 0) {
+        if (out.pageIndex * out.pageSize >= filteredList.length && filteredList.length > 0) {
             out.pageIndex = 0;
         }
         // Pagination
-        const start = out.pageIndex * pageSize;
-        const end = start + pageSize;
+        const start = out.pageIndex * out.pageSize;
+        const end = start + out.pageSize;
         const pagedList = filteredList.slice(start, end);
         // Update values through reference
         out.filteredList = [...filteredList];

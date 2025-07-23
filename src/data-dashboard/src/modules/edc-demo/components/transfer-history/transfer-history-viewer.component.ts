@@ -5,6 +5,7 @@ import { AppConfigService } from "../../../app/app-config.service";
 import { ConfirmationDialogComponent, ConfirmDialogModel } from "../confirmation-dialog/confirmation-dialog.component";
 import { MatDialog } from "@angular/material/dialog";
 import { PageEvent } from '@angular/material/paginator';
+import { UtilService } from '../../services';
 
 @Component({
   selector: 'edc-demo-transfer-history',
@@ -12,17 +13,21 @@ import { PageEvent } from '@angular/material/paginator';
   styleUrls: ['./transfer-history-viewer.component.scss']
 })
 export class TransferHistoryViewerComponent implements OnInit {
+  paginationState = {
+    filteredList: [] as TransferProcess[],
+    pagedList: [] as TransferProcess[],
+    pageIndex: 0,
+    pageSize: 20
+  };
   columns: string[] = ['id', 'state', 'lastUpdated', 'connectorId', 'assetId', 'contractId', 'action'];
   transferProcesses: TransferProcess[] = [];
-  pagedTransferProcesses: TransferProcess[] = [];
   storageExplorerLinkTemplate: string | undefined;
-  pageIndex = 0;
-  pageSize = 20;
 
   constructor(
     private transferProcessService: TransferProcessService,
     private dialog : MatDialog,
     private appConfigService: AppConfigService,
+    private utilService: UtilService,
   ) { }
 
   ngOnInit(): void {
@@ -61,31 +66,23 @@ export class TransferHistoryViewerComponent implements OnInit {
     })
     .subscribe(transferProcesses => { 
       this.transferProcesses = transferProcesses;
-      this.applyPagination();
+      this.utilService.applyFilterAndPagination(
+        [...this.transferProcesses],
+        () => {},
+        '',
+        this.paginationState
+      );
     })
   }
 
   onPageChange(event: PageEvent) {
-    if (event.pageSize !== this.pageSize) {
-      const firstItemIndex = this.pageIndex * this.pageSize;
-      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
-      this.pageSize = event.pageSize;
-    } else {
-      this.pageIndex = event.pageIndex;
-      this.pageSize = event.pageSize;
-    }
-    this.applyPagination();
-  }
-  
-  applyPagination() {
-    // Reset pageIndex if out of bands
-    if (this.pageIndex * this.pageSize >= this.transferProcesses.length && this.transferProcesses.length > 0) {
-      this.pageIndex = 0;
-    }
-    // Pagination
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.pagedTransferProcesses = this.transferProcesses.slice(start, end);
+    this.utilService.onPageChange(
+      event, 
+      [...this.transferProcesses],
+      () => {},
+      '', 
+      this.paginationState
+    );
   }
 
   asDate(epochMillis?: number) {

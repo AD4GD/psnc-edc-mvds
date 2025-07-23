@@ -18,14 +18,14 @@
       <mat-paginator
         [length]="transferProcesses.length" 
         [hidePageSize]="false"
-        [pageIndex]="pageIndex"
-        [pageSize]="pageSize"
+        [pageIndex]="paginationState.pageIndex"
+        [pageSize]="paginationState.pageSize"
         [pageSizeOptions]="[10, 20, 50]"
         (page)="onPageChange($event)" 
       />
     </div>
     
-    <table mat-table [dataSource]="pagedTransferProcesses" class="transfer-history-table">
+    <table mat-table [dataSource]="paginationState.pagedList" class="transfer-history-table">
       
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef scope="col">Id</th>

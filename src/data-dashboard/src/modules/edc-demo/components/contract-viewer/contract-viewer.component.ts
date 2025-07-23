@@ -42,12 +42,14 @@ interface ContractAgreementWithOfferData extends ContractAgreement {
 })
 
 export class ContractViewerComponent implements OnInit {
+  paginationState = {
+    filteredList: [] as ContractAgreementWithOfferData[],
+    pagedList: [] as ContractAgreementWithOfferData[],
+    pageIndex: 0,
+    pageSize: 20
+  };
   allContracts: ContractAgreementWithOfferData[] = [];
-  filteredContracts: ContractAgreementWithOfferData[] = [];
-  pagedContracts: ContractAgreementWithOfferData[] = [];
   searchText = '';
-  pageIndex = 0;
-  pageSize = 20;
   private runningTransfers: RunningTransferProcess[] = [];
   private pollingHandleTransfer?: any;
 
@@ -94,7 +96,12 @@ export class ContractViewerComponent implements OnInit {
         }
         return this.sorterService.naturalSort(a.assetId || '', b.assetId || '');
       });
-      this.applyFilterAndPagination();
+      this.utilService.applyFilterAndPagination(
+        [...this.allContracts],
+        this.filterContracts.bind(this),
+        this.searchText,
+        this.paginationState
+      );
     });
   }
 
@@ -102,44 +109,34 @@ export class ContractViewerComponent implements OnInit {
     this.loadContractAgreements();
   }
 
-  applyFilterAndPagination() {
-    // Filtering
-    if (this.searchText) {
-      this.filteredContracts = this.allContracts.filter(contractOffer =>
-        contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        contractOffer.providerId.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        contractOffer.contractOffer!.properties.baseUrl?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        this.utilService.searchThroughMetadata(this.findMetadataForAsset(contractOffer.contractOffer!), this.searchText)
-      );
-    } else {
-      this.filteredContracts = [...this.allContracts];
-    }
-    // Reset pageIndex if out of bands
-    if (this.pageIndex * this.pageSize >= this.filteredContracts.length && this.filteredContracts.length > 0) {
-      this.pageIndex = 0;
-    }
-    // Pagination
-    const start = this.pageIndex * this.pageSize;
-    const end = start + this.pageSize;
-    this.pagedContracts = this.filteredContracts.slice(start, end);
+  filterContracts(mainList: ContractAgreementWithOfferData[]): ContractAgreementWithOfferData[] {
+    return mainList.filter(contractOffer =>
+      contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.providerId.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.contractOffer?.properties.baseUrl?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      this.utilService.searchThroughMetadata(this.findMetadataForAsset(contractOffer.contractOffer!), this.searchText)
+    );
   }
-    
+
   onSearch() {
-    this.pageIndex = 0;
-    this.applyFilterAndPagination();
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      [...this.allContracts],
+      this.filterContracts.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
-    
+
   onPageChange(event: PageEvent) {
-    if (event.pageSize !== this.pageSize) {
-      const firstItemIndex = this.pageIndex * this.pageSize;
-      this.pageIndex = Math.floor(firstItemIndex / event.pageSize);
-      this.pageSize = event.pageSize;
-    } else {
-      this.pageIndex = event.pageIndex;
-      this.pageSize = event.pageSize;
-    }
-    this.applyFilterAndPagination();
+    this.utilService.onPageChange(
+      event, 
+      [...this.allContracts],
+      this.filterContracts.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
 
   loadContractsWithAssets(contracts: ContractAgreement[]): Observable<ContractAgreementWithOfferData[]> {
