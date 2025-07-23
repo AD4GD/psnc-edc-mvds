@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { first, map, switchMap } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetInput, Asset } from "../../../mgmt-api-client/model";
 import { AssetService, QUERY_LIMIT } from "../../../mgmt-api-client";
 import { AssetEditorDialog } from "../asset-editor-dialog/asset-editor-dialog.component";
 import { ConfirmationDialogComponent, ConfirmDialogModel } from "../confirmation-dialog/confirmation-dialog.component";
 import { NotificationService, SorterService, UtilService } from "../../services";
+import { PageEvent } from '@angular/material/paginator';
 import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
 import { METADATA_CONTEXT } from 'src/modules/app/variables';
 
@@ -17,11 +17,15 @@ import { METADATA_CONTEXT } from 'src/modules/app/variables';
   styleUrls: ['./asset-viewer.component.scss']
 })
 export class AssetViewerComponent implements OnInit {
-
-  filteredAssets$: Observable<Asset[]> = of([]);
+  paginationState = {
+    filteredList: [] as Asset[],
+    pagedList: [] as Asset[],
+    pageIndex: 0,
+    pageSize: 20
+  };
+  allAssets: Asset[] = [];
   searchText = '';
   isTransferring = false;
-  private fetch$ = new BehaviorSubject(null);
 
   constructor(
     private assetService: AssetService,
@@ -33,32 +37,37 @@ export class AssetViewerComponent implements OnInit {
     public readonly utilService: UtilService,
   ) { }
 
-  private showError(error: string, errorMessage: string) {
-    this.notificationService.showError(errorMessage);
-    console.error(error);
+  loadAssets() {
+    this.assetService.requestAssets({ 
+      limit: QUERY_LIMIT,
+      offset: 0 
+    }).subscribe(assets => {
+      this.allAssets = assets.sort((a, b) =>
+        this.sorterService.naturalSort(
+          a.properties.optionalValue<string>('edc', 'name') || a['@id'],
+          b.properties.optionalValue<string>('edc', 'name') || b['@id'] 
+        )
+      );
+      this.utilService.applyFilterAndPagination(
+        [...this.allAssets],
+        this.filterAssets.bind(this),
+        this.searchText,
+        this.paginationState
+      );
+    });
+  }
+
+  filterAssets(mainList: Asset[]): Asset[] {
+    return mainList.filter(asset =>
+      (asset.properties.optionalValue<string>('edc', 'name') || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
+      (asset.properties.optionalValue<string>('edc', 'baseUrl') || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
+      this.utilService.searchThroughMetadata(this.findMetadataForAsset(asset), this.searchText) ||
+      asset.id.toLowerCase().includes(this.searchText.toLowerCase())
+    );
   }
 
   ngOnInit(): void {
-    this.filteredAssets$ = this.fetch$
-      .pipe(
-        switchMap(() => {
-          const assets$ = this.assetService.requestAssets({
-            limit: QUERY_LIMIT,
-            offset: 0,
-          }).pipe(
-            map(assets => { 
-              console.log(assets); 
-              return assets.sort((a, b) => 
-                this.sorterService.naturalSort(a.properties.optionalValue<string>('edc', 'name') || '', b.properties.optionalValue<string>('edc', 'name') || ''))
-              })
-          );
-          return !!this.searchText
-            ? assets$.pipe(map(assets => assets.filter(asset => 
-              asset.properties.optionalValue<string>('edc', 'name')?.includes(this.searchText) 
-              || asset.id.toLowerCase().includes(this.searchText.toLowerCase())
-            )))
-            : assets$;
-        }));
+    this.loadAssets();
   }
 
   isBusy() {
@@ -66,11 +75,23 @@ export class AssetViewerComponent implements OnInit {
   }
 
   onSearch() {
-    this.fetch$.next(null);
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      [...this.allAssets],
+      this.filterAssets.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
 
-  isArray(val: any): val is any[] {
-    return Array.isArray(val);
+  onPageChange(event: PageEvent) {
+    this.utilService.onPageChange(
+      event, 
+      [...this.allAssets],
+      this.filterAssets.bind(this), 
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onDelete(asset: Asset) {
@@ -81,7 +102,8 @@ export class AssetViewerComponent implements OnInit {
       next: res => {
         if (res) {
           this.assetService.removeAsset(asset.id).subscribe({
-            next: () => this.fetch$.next(null),
+            next: () => this.loadAssets(),
+            // next: () => this.fetch$.next(null),
             error: err => this.showError(err, "This asset cannot be deleted"),
             complete: () => this.notificationService.showInfo("Successfully deleted")
           });
@@ -96,12 +118,16 @@ export class AssetViewerComponent implements OnInit {
       const newAsset = result?.assetInput;
       if (newAsset) {
         this.assetService.createAsset(newAsset).subscribe({
-          next: ()=> this.fetch$.next(null),
+          next: ()=> this.loadAssets(),
           error: err => this.showError(err, "This asset cannot be created"),
           complete: () => this.notificationService.showInfo("Successfully created"),
         })
       }
     })
+  }
+  private showError(error: string, errorMessage: string) {
+    this.notificationService.showError(errorMessage);
+    console.error(error);
   }
 
   onSelect(asset: Asset) {

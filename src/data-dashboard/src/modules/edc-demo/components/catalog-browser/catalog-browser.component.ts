@@ -1,15 +1,14 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { CatalogBrowserService, NotificationService, UtilService } from "../../services";
-import { Router} from "@angular/router";
+import { CatalogBrowserService, NotificationService, SorterService, UtilService } from "../../services";
+import { Router } from "@angular/router";
 import { TransferProcessStates } from "../../models/transfer-process-states";
 import { ContractOffer } from "../../models/contract-offer";
 import { NegotiationResult } from "../../models/negotiation-result";
 import { ContractNegotiation } from "../../../mgmt-api-client/model";
+import { PageEvent } from '@angular/material/paginator';
 import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
-import { METADATA_CONTEXT, DATASET_CONTEXT } from 'src/modules/app/variables';
+import { DATASET_CONTEXT, METADATA_CONTEXT } from 'src/modules/app/variables';
 
 interface RunningTransferProcess {
   processId: string;
@@ -23,43 +22,78 @@ interface RunningTransferProcess {
   styleUrls: ['./catalog-browser.component.scss']
 })
 export class CatalogBrowserComponent implements OnInit {
-
-  filteredContractOffers$: Observable<ContractOffer[]> = of([]);
+  paginationState = {
+    filteredList: [] as ContractOffer[],
+    pagedList: [] as ContractOffer[],
+    pageIndex: 0,
+    pageSize: 20
+  };
   searchText = '';
+  allContractOffers: ContractOffer[] = [];
   runningTransferProcesses: RunningTransferProcess[] = [];
-  runningNegotiations: Map<string, NegotiationResult> = new Map<string, NegotiationResult>(); // contractOfferId, NegotiationResult
-  finishedNegotiations: Map<string, ContractNegotiation> = new Map<string, ContractNegotiation>(); // contractOfferId, contractAgreementId
-  private fetch$ = new BehaviorSubject(null);
+  runningNegotiations: Map<string, NegotiationResult> = new Map<string, NegotiationResult>();
+  finishedNegotiations: Map<string, ContractNegotiation> = new Map<string, ContractNegotiation>();
   private pollingHandleNegotiation?: any;
-  
+
   constructor(
     private apiService: CatalogBrowserService,
-    private readonly metadataViewDialog: MatDialog,
+    public dialog: MatDialog,
+    public metadataViewDialog: MatDialog,
     private router: Router,
     private notificationService: NotificationService,
     @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
+    private readonly sorterService: SorterService
   ) { }
 
-  ngOnInit(): void {
-    this.filteredContractOffers$ = this.fetch$
-      .pipe(
-        switchMap(() => {
-          const contractOffers$ = this.apiService.getContractOffers();
-          return !!this.searchText ?
-            contractOffers$.pipe(map(contractOffers => contractOffers.filter(contractOffer => 
-              contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase())
-              || contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase())
-              || contractOffer.properties.name?.toLowerCase().includes(this.searchText.toLowerCase())
-            )))
-            :
-            contractOffers$;
-        }));
+  loadContractOffers() {
+    this.apiService.getContractOffers().subscribe(contractOffers => {
+      this.allContractOffers = contractOffers.sort((a, b) =>
+        this.sorterService.naturalSort( a.assetId, b.assetId )
+      );
+      this.utilService.applyFilterAndPagination(
+        [...this.allContractOffers],
+        this.filterContractOffers.bind(this),
+        this.searchText,
+        this.paginationState
+      );
+    });
   }
 
+  filterContractOffers(mainList: ContractOffer[]): ContractOffer[] {
+    return mainList.filter(contractOffer =>
+      contractOffer.id.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.assetId.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.originator.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      contractOffer.properties.name?.toLowerCase().includes(this.searchText.toLowerCase()) || 
+      contractOffer.properties.baseUrl?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      this.utilService.searchThroughMetadata(this.findMetadataForAsset(contractOffer), this.searchText)
+    );
+  }
+
+  ngOnInit(): void {
+    this.loadContractOffers();
+  }
+  
   onSearch() {
-    this.fetch$.next(null);
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      [...this.allContractOffers],
+      this.filterContractOffers.bind(this),
+      this.searchText,
+      this.paginationState
+    );
+  }
+  
+  onPageChange(event: PageEvent) {
+    this.utilService.onPageChange(
+      event, 
+      [...this.allContractOffers],
+      this.filterContractOffers.bind(this),
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onSelect(offer: ContractOffer) {

@@ -1,12 +1,13 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {PolicyService, QUERY_LIMIT} from "../../../mgmt-api-client";
-import {BehaviorSubject, Observable, Observer, of} from "rxjs";
-import {first, map, switchMap} from "rxjs/operators";
-import {MatDialog} from "@angular/material/dialog";
-import {NewPolicyDialogComponent} from "../new-policy-dialog/new-policy-dialog.component";
-import {ConfirmationDialogComponent, ConfirmDialogModel} from "../confirmation-dialog/confirmation-dialog.component";
-import {PolicyDefinition, PolicyDefinitionInput, IdResponse} from "../../../mgmt-api-client/model";
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { PolicyService, QUERY_LIMIT } from "../../../mgmt-api-client";
+import { Observer } from "rxjs";
+import { first } from "rxjs/operators";
+import { MatDialog } from "@angular/material/dialog";
+import { NewPolicyDialogComponent } from "../new-policy-dialog/new-policy-dialog.component";
+import { ConfirmationDialogComponent, ConfirmDialogModel } from "../confirmation-dialog/confirmation-dialog.component";
+import { PolicyDefinition, PolicyDefinitionInput, IdResponse } from "../../../mgmt-api-client/model";
 import { NotificationService, SorterService, UtilService } from '../../services';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-policy-view',
@@ -14,10 +15,14 @@ import { NotificationService, SorterService, UtilService } from '../../services'
   styleUrls: ['./policy-view.component.scss']
 })
 export class PolicyViewComponent implements OnInit {
-
-  filteredPolicies$: Observable<PolicyDefinition[]> = of([]);
+  paginationState = {
+    filteredList: [] as PolicyDefinition[],
+    pagedList: [] as PolicyDefinition[],
+    pageIndex: 0,
+    pageSize: 20
+  };
   searchText: string = '';
-  private fetch$ = new BehaviorSubject(null);
+  allPolicies: PolicyDefinition[] = [];
   private readonly errorOrUpdateSubscriber: Observer<IdResponse>;
 
   constructor(
@@ -28,9 +33,8 @@ export class PolicyViewComponent implements OnInit {
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
   ) {
-
     this.errorOrUpdateSubscriber = {
-      next: x => this.fetch$.next(null),
+      next: x => this.loadPolicies,
       error: err => this.showError(err, "An error occurred."),
       complete: () => {
         this.notificationService.showInfo("Successfully completed")
@@ -38,28 +42,53 @@ export class PolicyViewComponent implements OnInit {
     }
   }
 
+  loadPolicies() {
+    this.policyService.queryAllPolicies({ 
+      limit: QUERY_LIMIT,
+      offset: 0,
+      sortField: 'id',
+      sortOrder: 'ASC'
+    }).subscribe(policies => {
+      this.allPolicies = policies
+      this.utilService.applyFilterAndPagination(
+        [...this.allPolicies],
+        this.filterPolicies,
+        this.searchText,
+        this.paginationState
+      );
+    });
+  }
+
   ngOnInit(): void {
-    this.filteredPolicies$ = this.fetch$.pipe(
-      switchMap(() => {
-        const policyDefinitions = this.policyService.queryAllPolicies({
-          limit : QUERY_LIMIT,
-          offset : 0,
-        }).pipe(
-          map(policies => { 
-            console.log(policies); 
-            return policies.sort((a, b) => 
-              this.sorterService.naturalSort(a.id || '', b.id || ''))
-            })
-        );;
-        return !!this.searchText ?
-          policyDefinitions.pipe(map(policies => policies.filter(policy => this.isFiltered(policy, this.searchText))))
-          :
-          policyDefinitions;
-      }));
+    this.loadPolicies();
+  }
+
+  filterPolicies(mainList: PolicyDefinition[]): PolicyDefinition[] {
+    return mainList.filter(policy =>
+      (policy.id).toLowerCase().includes(this.searchText.toLowerCase()) ||
+      policy.policy.assigner?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      policy.policy.assignee?.toLowerCase().includes(this.searchText.toLowerCase())
+    );
   }
 
   onSearch() {
-    this.fetch$.next(null);
+    this.paginationState.pageIndex = 0;
+    this.utilService.applyFilterAndPagination(
+      [...this.allPolicies],
+      this.filterPolicies.bind(this),
+      this.searchText,
+      this.paginationState
+    );
+  }
+
+  onPageChange(event: PageEvent) {
+    this.utilService.onPageChange(
+      event, 
+      [...this.allPolicies],
+      this.filterPolicies, 
+      this.searchText,
+      this.paginationState
+    );
   }
 
   onCreate() {
@@ -77,19 +106,9 @@ export class PolicyViewComponent implements OnInit {
     });
   }
 
-  /**
-   * simple full-text search - serialize to JSON and see if "searchText"
-   * is contained
-   */
-  private isFiltered(policy: PolicyDefinition, searchText: string) {
-    return JSON.stringify(policy).includes(searchText);
-  }
-
   delete(policy: PolicyDefinition) {
-
     let policyId = policy['@id']!;
     const dialogData = ConfirmDialogModel.forDelete("policy", policyId);
-
     const ref = this.dialog.open(ConfirmationDialogComponent, {data: dialogData});
 
     ref.afterClosed().subscribe({

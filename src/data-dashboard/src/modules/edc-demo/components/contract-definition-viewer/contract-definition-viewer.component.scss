@@ -16,12 +16,6 @@
     padding-left: 0 !important;
 }
 
-.search-form-field {
-    min-width: 200px;
-    width: 30%;
-    margin-top: 18px;
-}
-
 .card-actions {
     margin-left: 0;
 }
@@ -33,12 +27,6 @@
 mat-paginator {
     display: inline-block;
     background-color: transparent;
-}
-
-.container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
 }
 
 .overflow-ellipsis {

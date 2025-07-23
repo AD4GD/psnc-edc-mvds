@@ -30,3 +30,18 @@ mat-card-header, mat-card-title {
 .mat-divider.mat-divider-inset {
   margin-left: 0px !important;
 }
+
+.mat-mdc-form-field {
+  flex-direction: row !important;
+}
+
+.search-form-field {
+  min-width: 200px;
+}
+
+.search-pagination-container {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 1em;
+}

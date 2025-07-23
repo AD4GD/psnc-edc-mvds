@@ -12,12 +12,6 @@
   font-size: 12px;
 }
 
-.search-form-field {
-  min-width: 200px;
-  width: 30%;
-  margin-top: 18px;
-}
-
 .card-actions {
   justify-content: space-around;
   display: flex;
@@ -30,12 +24,6 @@
 mat-paginator {
   display: inline-block;
   background-color: transparent;
-}
-
-.container {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Adjust the gap between elements */
 }
 
 .no-truncate {
