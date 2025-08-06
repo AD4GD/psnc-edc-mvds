@@ -2,7 +2,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 # available types: daps, no-daps
-ARG LAUNCHER_TYPE="daps"
+ARG LAUNCHER_TYPE="dcp"
 ARG JVM_ARGS=""
 
 # available values: "database", "in-memory"
