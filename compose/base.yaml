@@ -72,7 +72,7 @@ services:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
     restart: unless-stopped
     volumes:
-      - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
+      - ../docker/federated-catalog/config/configuration-dcp.properties:/app/configuration.properties:ro
       - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
       - ../docker/federated-catalog/certs/federated-catalog-daps.jks:/app/certs/federated-catalog-daps.jks
     environment:
@@ -80,6 +80,9 @@ services:
     ports:
       - "9080:8080"
       - "9181:8181"
+      - "9091:8091"
+      - "9092:8092"
+      - "9093:8093"
       - "9182:8182"
     depends_on:
       - consumer-connector
@@ -141,6 +144,7 @@ services:
       - "7095:7095"
       - "7096:7096"
       - "7097:7097"
+      - "12001:12001"
     volumes:
       - ../docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
     environment:
@@ -160,6 +164,7 @@ services:
       - "7087:7087"
     volumes:
       - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ../docker/identity-hub/credentials/consumer:/app/credentials/consumer
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
