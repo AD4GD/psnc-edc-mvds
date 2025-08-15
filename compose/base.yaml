@@ -113,7 +113,7 @@ services:
       - "19291:19291"
       - "19192:19192"
     volumes:
-      - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
+      - ../docker/connector/config/configuration-provider-dcp.properties:/app/configuration.properties:ro
       - ../docker/connector/certs/provider-daps.jks:/app/certs/provider-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
@@ -147,6 +147,7 @@ services:
       - "12001:12001"
     volumes:
       - ../docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
+      - ../docker/identity-hub/credentials/provider:/app/credentials/provider:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
@@ -162,9 +163,10 @@ services:
       - "7085:7085"
       - "7086:7086"
       - "7087:7087"
+      - "12002:12001"
     volumes:
       - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
-      - ../docker/identity-hub/credentials/consumer:/app/credentials/consumer
+      - ../docker/identity-hub/credentials/consumer:/app/credentials/consumer:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
@@ -190,7 +192,7 @@ services:
       - "29291:29291"
       - "29192:29192"
     volumes:
-      - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ../docker/connector/config/configuration-consumer-dcp.properties:/app/configuration.properties:ro
       - ../docker/connector/certs/consumer-daps.jks:/app/certs/consumer-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties

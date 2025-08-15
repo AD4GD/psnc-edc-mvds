@@ -8,7 +8,6 @@ plugins {
 dependencies {
     implementation(project(":core:base"))
     implementation(project(":extensions:connector-persistence"))
-
     implementation(project(":extensions:did-example-resolver"))
     
     // used for protected assets dataplane token

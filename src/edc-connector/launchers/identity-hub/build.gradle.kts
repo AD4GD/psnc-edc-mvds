@@ -6,6 +6,8 @@ plugins {
 }
 
 dependencies {
+    runtimeOnly(project(":extensions:superuser-seed"))
+    
     runtimeOnly(libs.bundles.identityhub)
     runtimeOnly(libs.edc.api.observability)
 
