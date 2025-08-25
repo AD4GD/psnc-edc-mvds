@@ -43,17 +43,16 @@ services:
     volumes:
       - ../docker/federated-catalog/config/configuration-dcp.properties:/app/configuration.properties:ro
       - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
-      - ../docker/federated-catalog/certs/federated-catalog-daps.jks:/app/certs/federated-catalog-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     ports:
       - "9080:8080"
-      - "9181:8181"
-      - "9091:8091"
-      - "9092:8092"
-      - "9093:8093"
+      - "9190:8190"
+      - "9191:8191"
+      - "9192:8192"
+      - "9193:8193"
+      - "9195:8195"
     depends_on:
-      - consumer-connector
       - provider-connector
 
   data-source:
@@ -101,6 +100,25 @@ services:
       - '5432:5432'
     volumes:
       - 'provider-postgresql:/bitnami/postgresql'
+
+  fc-ih:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
+    ports:
+      - "7180:7180"
+      - "7181:7181"
+      - "7182:7182"
+      - "7183:7183"
+      - "7185:7185"
+      - "7186:7186"
+      - "7187:7187"
+      - "12003:12003"
+    volumes:
+      - ../docker/identity-hub/config/configuration-fc.properties:/app/configuration.properties:ro
+      - ../docker/identity-hub/credentials/federated-catalog:/app/credentials/federated-catalog:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    depends_on:
+      - federated-catalog
 
   provider-ih:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
