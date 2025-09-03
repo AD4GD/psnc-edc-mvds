@@ -35,6 +35,9 @@ dependencies {
 
     //
     implementation(libs.edc.config.filesystem)
+
+    runtimeOnly(libs.edc.vault.hashicorp)
+    runtimeOnly(libs.edc.dcp.sts.client)
 }
 
 application {
