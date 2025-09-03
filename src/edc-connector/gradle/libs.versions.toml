@@ -162,6 +162,10 @@ jetty-jakarta-servlet-api = { module = "org.eclipse.jetty.toolchain:jetty-jakart
 
 tractus-postgresql-data-plane-migration = { module = "org.eclipse.tractusx.edc:data-plane-migration", version.ref = "tractus" }
 tractus-postgresql-control-plane-migration = { module = "org.eclipse.tractusx.edc:control-plane-migration", version.ref = "tractus" }
+edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
+edc-auth-tokenbased = { module = "org.eclipse.edc:auth-tokenbased", version.ref = "edc" }
+edc-api-core = { module = "org.eclipse.edc:api-core", version.ref = "edc" }
+edc-api-version = { module = "org.eclipse.edc:version-api", version.ref = "edc" }
 
 # EDC-Libs
 edc-lib-util = { module = "org.eclipse.edc:util-lib", version.ref = "edc" }
@@ -170,8 +174,9 @@ edc-lib-util = { module = "org.eclipse.edc:util-lib", version.ref = "edc" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 
 [bundles]
-identityhub = ["edc-ih-core", "edc-ih-api-presentation", "edc-ih-participants", "edc-ih-keypairs", "edc-sts-accountprovisioner"]
+identityhub = ["edc-ih-core", "edc-ih-api-presentation", "edc-ih-participants", "edc-ih-keypairs", "edc-sts-accountprovisioner", "edc-sts-core", "edc-sts-api"]
 identity-api = ["edc-ih-mgmt-config", "edc-ih-mgmt-did", "edc-ih-mgmt-participantcontext", "edc-ih-mgmt-verifiablecredential",
     "edc-ih-mgmt-keypairs", "edc-ih-mgmt-authentication", "edc-ih-mgmt-authorization"]
 did = ["edc-did-web", "edc-did-core", "edc-ih-did", "edc-ih-did-localpub"]
 connector = ["edc-boot", "edc-connector-core", "edc-ext-http", "edc-api-observability", "edc-ext-jsonld", "edc-core-token"]
+sts = ["edc-sts-core", "edc-sts-api", "edc-sts-spi", "edc-sts"]

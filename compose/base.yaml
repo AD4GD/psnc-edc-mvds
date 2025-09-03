@@ -101,6 +101,60 @@ services:
     volumes:
       - 'provider-postgresql:/bitnami/postgresql'
 
+  fc-vault:
+    image: hashicorp/vault:1.17
+    container_name: fc-vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    ports:
+      - "8200:8200"
+    command: >
+      server -dev
+      -dev-root-token-id=root
+      -dev-listen-address=0.0.0.0:8200
+    # optional: keep a file volume for any exports you do
+    volumes:
+      - ./vault-data:/vault/file
+  
+  consumer-vault:
+    image: hashicorp/vault:1.17
+    container_name: consumer-vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:9200"
+    ports:
+      - "9200:9200"
+    command: >
+      server -dev
+      -dev-root-token-id=root
+      -dev-listen-address=0.0.0.0:9200
+    # optional: keep a file volume for any exports you do
+    volumes:
+      - ./vault-data:/vault/file
+
+  provider-vault:
+    image: hashicorp/vault:1.17
+    container_name: provider-vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:10200"
+    ports:
+      - "10200:10200"
+    command: >
+      server -dev
+      -dev-root-token-id=root
+      -dev-listen-address=0.0.0.0:10200
+    # optional: keep a file volume for any exports you do
+    volumes:
+      - ./vault-data:/vault/file
+
   fc-ih:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
     ports:
@@ -111,6 +165,7 @@ services:
       - "7185:7185"
       - "7186:7186"
       - "7187:7187"
+      - "7188:7188"
       - "12003:12003"
     volumes:
       - ../docker/identity-hub/config/configuration-fc.properties:/app/configuration.properties:ro
@@ -130,6 +185,7 @@ services:
       - "7095:7095"
       - "7096:7096"
       - "7097:7097"
+      - "7098:7098"
       - "12001:12001"
     volumes:
       - ../docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
@@ -149,6 +205,7 @@ services:
       - "7085:7085"
       - "7086:7086"
       - "7087:7087"
+      - "7088:7088"
       - "12002:12001"
     volumes:
       - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
