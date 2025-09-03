@@ -31,26 +31,10 @@ DATA_CONSUMER=$(jq -n --arg pem "$PEM_CONSUMER" '{
            }
        }')
 
-
-# the consumer runtime will need to have the client_secret in its vault as well, so we store it in a variable
-# and use the Secrets API (part of Management API) to insert it.
-clientSecret=$(curl -s --location 'http://localhost:7082/api/identity/v1alpha/participants/' \
+curl -s --location 'http://localhost:7082/api/identity/v1alpha/participants/' \
 --header 'Content-Type: application/json' \
 --header "x-api-key: $API_KEY" \
---data "$DATA_CONSUMER" | jq -r '.clientSecret')
-
-# add client secret to the consumer runtime
-SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
-'{
-  "@context" : {
-    "edc" : "https://w3id.org/edc/v0.0.1/ns/"
-  },
-  "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:localhost%3A7083-sts-client-secret",
-  "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
-}')
-
-curl -sL -X POST http://localhost:29193/management/v3/secrets -H "x-api-key: password" -H "Content-Type: application/json" -d "$SECRETS_DATA"
+--data "$DATA_CONSUMER"
 
 # add participant "provider"
 echo
@@ -62,7 +46,7 @@ DATA_PROVIDER=$(jq -n --arg pem "$PEM_PROVIDER" '{
             "serviceEndpoints":[
               {
                  "type": "CredentialService",
-                 "serviceEndpoint": "http://provider-ih:7091/api/presentation/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDkz",
+                 "serviceEndpoint": "http://provider-ih:7091/api/presentation/v1/participants/ZGlkOndlYjpwcm92aWRlci1paCUzQTcwOTM=",
                  "id": "provider-credentialservice-1"
               },
               {
@@ -81,37 +65,23 @@ DATA_PROVIDER=$(jq -n --arg pem "$PEM_PROVIDER" '{
             }
       }')
 
-# the provider runtime will need to have the client_secret in its vault as well, so we store it in a variable
-# and use the Secrets API (part of Management API) to insert it.
-clientSecret=$(curl -s --location 'http://localhost:7092/api/identity/v1alpha/participants/' \
+curl -s --location 'http://localhost:7092/api/identity/v1alpha/participants/' \
 --header 'Content-Type: application/json' \
 --header "x-api-key: $API_KEY" \
---data "$DATA_PROVIDER" | jq -r '.clientSecret')
-
-# add client secret to the provider runtimes
-SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
-'{
-  "@context" : {
-    "edc" : "https://w3id.org/edc/v0.0.1/ns/"
-  },
-  "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:localhost%3A7093-sts-client-secret",
-  "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
-}')
-
-curl -sL -X POST http://localhost:19193/management/v3/secrets -H "x-api-key: password" -H "Content-Type: application/json" -d "$SECRETS_DATA"
+--data "$DATA_PROVIDER"
 
 # add participant "FC"
 echo
 echo
 echo "Create FC participant"
-PEM_FC=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' certs/consumer_public.pem)
+PEM_FC=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' certs/fc_public.pem)
 DATA_FC=$(jq -n --arg pem "$PEM_FC" '{
            "roles":[],
            "serviceEndpoints":[
              {
                 "type": "CredentialService",
-                "serviceEndpoint": "http://fc-ih:7181/api/presentation/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDgz",
+                # Base64
+                "serviceEndpoint": "http://fc-ih:7181/api/presentation/v1/participants/ZGlkOndlYjpmYy1paCUzQTcxODM=",
                 "id": "fc-credentialservice-1"
              },
              {
@@ -130,22 +100,7 @@ DATA_FC=$(jq -n --arg pem "$PEM_FC" '{
            }
        }')
 
-# the provider runtime will need to have the client_secret in its vault as well, so we store it in a variable
-# and use the Secrets API (part of Management API) to insert it.
-clientSecret=$(curl -s --location 'http://localhost:7182/api/identity/v1alpha/participants/' \
+curl -s --location 'http://localhost:7182/api/identity/v1alpha/participants/' \
 --header 'Content-Type: application/json' \
 --header "x-api-key: $API_KEY" \
---data "$DATA_PROVIDER" | jq -r '.clientSecret')
-
-# add client secret to the provider runtimes
-SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
-'{
-  "@context" : {
-    "edc" : "https://w3id.org/edc/v0.0.1/ns/"
-  },
-  "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:localhost%3A7093-sts-client-secret",
-  "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
-}')
-
-curl -sL -X POST http://localhost:9191/api/management/v3/secrets -H "x-api-key: password" -H "Content-Type: application/json" -d "$SECRETS_DATA"
+--data "$DATA_FC"

@@ -175,6 +175,7 @@ edc-identity-vc-ldp = { module = "org.eclipse.edc:ldp-verifiable-credentials", v
 edc-identity-vc-jwt = { module = "org.eclipse.edc:jwt-verifiable-credentials", version.ref = "edc" }
 edc-api-control-configuration = { module = "org.eclipse.edc:control-api-configuration", version.ref = "edc" }
 edc-edr-storereceiver = { module = "org.eclipse.edc:edr-store-receiver", version.ref = "edc" }
+edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
 
 [bundles]
 edc-connector = ["edc-boot", "edc-core-connector", "edc-core-jersey", "edc-api-observability", "edc-config-filesystem",

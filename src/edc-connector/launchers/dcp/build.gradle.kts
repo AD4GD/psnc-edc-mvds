@@ -13,6 +13,8 @@ dependencies {
     // used for protected assets dataplane token
     implementation(libs.edc.oauth2.client)
 
+    runtimeOnly(libs.edc.vault.hashicorp)
+
     // DCP
     implementation(libs.edc.dcp.core)
     implementation(libs.edc.spi.identity.trust)
