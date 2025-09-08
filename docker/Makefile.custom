@@ -49,3 +49,7 @@ build-minio: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJ
 build-identity-hub: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/openjdk:17-slim-bullseye
 build-identity-hub: CONTEXT_PATH=../
 build-identity-hub: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-issuer-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/openjdk:17-slim-bullseye
+build-issuer-service: CONTEXT_PATH=../
+build-issuer-service: BASE_IMAGE=$(BUILDER_IMAGE)

@@ -46,12 +46,13 @@ services:
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     ports:
-      - "9080:8080"
-      - "9190:8190"
-      - "9191:8191"
-      - "9192:8192"
-      - "9193:8193"
-      - "9195:8195"
+      - "8290:8290"
+      - "8291:8291"
+      - "8292:8292"
+      - "8293:8293"
+      - "8294:8294"
+      - "8295:8295"
+      - "13001:13001"
     depends_on:
       - provider-connector
 
@@ -74,14 +75,15 @@ services:
   provider-connector:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
     ports:
-      - "19191:19191"
-      - "19193:19193"
-      - "19194:19194"
-      - "19291:19291"
-      - "19192:19192"
+      - "8190:8190"
+      - "8191:8191"
+      - "8192:8192"
+      - "8193:8193"
+      - "8194:8194"
+      - "8195:8195"
+      - "12001:12001"
     volumes:
       - ../docker/connector/config/configuration-provider-dcp.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/provider-daps.jks:/app/certs/provider-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -155,18 +157,29 @@ services:
     volumes:
       - ./vault-data:/vault/file
 
+  issuer-service:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/issuer-service:${IMAGE_TAG}
+    ports: 
+      - "10010:10010"
+      - "10011:10011"
+      - "10012:10012"
+      - "10013:10013"
+      - "10014:10014"
+      - "10015:10015"
+    volumes:
+      - ../docker/issuer-service/config/configuration.properties:/app/configuration.properties:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+
   fc-ih:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
     ports:
-      - "7180:7180"
-      - "7181:7181"
-      - "7182:7182"
-      - "7183:7183"
-      - "7185:7185"
-      - "7186:7186"
-      - "7187:7187"
-      - "7188:7188"
-      - "12003:12003"
+      - "7100:7100"
+      - "7101:7101"
+      - "7102:7102"
+      - "7103:7103"
+      - "7105:7105"
+      - "7106:7106"
     volumes:
       - ../docker/identity-hub/config/configuration-fc.properties:/app/configuration.properties:ro
       - ../docker/identity-hub/credentials/federated-catalog:/app/credentials/federated-catalog:ro
@@ -184,9 +197,6 @@ services:
       - "7093:7093"
       - "7095:7095"
       - "7096:7096"
-      - "7097:7097"
-      - "7098:7098"
-      - "12001:12001"
     volumes:
       - ../docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
       - ../docker/identity-hub/credentials/provider:/app/credentials/provider:ro
@@ -204,9 +214,6 @@ services:
       - "7083:7083"
       - "7085:7085"
       - "7086:7086"
-      - "7087:7087"
-      - "7088:7088"
-      - "12002:12001"
     volumes:
       - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
       - ../docker/identity-hub/credentials/consumer:/app/credentials/consumer:ro
@@ -229,14 +236,15 @@ services:
   consumer-connector:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
     ports:
-      - "29191:29191"
-      - "29193:29193"
-      - "29194:29194"
-      - "29291:29291"
-      - "29192:29192"
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+      - "8083:8083"
+      - "8084:8084"
+      - "8085:8085"
+      - "11001:11001"
     volumes:
       - ../docker/connector/config/configuration-consumer-dcp.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/consumer-daps.jks:/app/certs/consumer-daps.jks
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -290,8 +298,8 @@ services:
       KC_DB_SCHEMA: public
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: edc
-      KC_HOSTNAME_URL: http://localhost:8081
-      KC_HOSTNAME_ADMIN_URL: http://localhost:8081
+      KC_HOSTNAME_URL: http://localhost:48081
+      KC_HOSTNAME_ADMIN_URL: http://localhost:48081
       KC_HTTP_ENABLED: 'true'
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: edc
@@ -299,7 +307,7 @@ services:
     depends_on:
       - identity-provider-postgres
     ports:
-      - "8081:8080"
+      - "48081:8080"
 
   identity-provider-postgres:
     image: docker.io/bitnami/postgresql:11

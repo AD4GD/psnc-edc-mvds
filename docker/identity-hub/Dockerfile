@@ -2,10 +2,10 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 # available types: dcp, daps, no-daps
-ARG LAUNCHER_TYPE="identity-hub"
+ARG LAUNCHER_TYPE="dcp"
 ARG JVM_ARGS=""
 
-ENV PROJECT_PATH="src/edc-connector"
+ENV PROJECT_PATH="src/identity-hub"
 ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
 
 # Install required tools
@@ -45,14 +45,13 @@ RUN ./gradlew dependencies
 RUN ./gradlew launchers:$LAUNCHER_TYPE:build
 
 # Define the path to the built JAR
-ENV APP_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/connector.jar
+ENV APP_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/identity-hub.jar
 
 # Copy the built JAR
 RUN cp $APP_BUILD_PATH /app/app.jar
 
 # Create directories and copy configurations
-RUN touch /app/empty-vault.properties \
-    && mkdir /app/config /app/certs
+RUN mkdir /app/certs
 COPY ./docker/identity-hub/config/* /app/config/
 COPY ./docker/identity-hub/certs/* /app/certs/
 COPY ./docker/identity-hub/credentials/* /app/credentials/
