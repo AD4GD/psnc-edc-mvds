@@ -1,3 +1,16 @@
+/*
+*  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
+*
+*  This program and the accompanying materials are made available under the
+*  terms of the Apache License, Version 2.0 which is available at
+*  https://www.apache.org/licenses/LICENSE-2.0
+*
+*  SPDX-License-Identifier: Apache-2.0
+*
+*  Contributors:
+*       Bayerische Motoren Werke Aktiengesellschaft (BMW AG) - Initial API and Implementation
+*
+*/
 
 plugins {
     `java-library`
@@ -6,34 +19,36 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core:base"))
-    implementation(project(":extensions:connector-persistence"))
-    implementation(project(":extensions:did-example-resolver"))
-    
-    // used for protected assets dataplane token
-    implementation(libs.edc.oauth2.client)
+    // control plane part
+    runtimeOnly(project(":extensions:did-example-resolver"))
+    runtimeOnly(project(":extensions:dcp-impl")) // some patches/impls for DCP
+    runtimeOnly(libs.edc.bom.controlplane)
+    runtimeOnly(libs.edc.api.secrets)
 
-    runtimeOnly(libs.edc.vault.hashicorp)
+    // data plane part
+    runtimeOnly(libs.edc.bom.dataplane)
+    runtimeOnly(libs.edc.dataplane.v2)
 
-    // DCP
-    implementation(libs.edc.dcp.core)
-    implementation(libs.edc.spi.identity.trust)
-    implementation(libs.edc.spi.transform)
-    implementation(libs.edc.spi.catalog)
-    implementation(libs.edc.spi.identity.did)
-    implementation(libs.edc.lib.jws2020)
-    implementation(libs.edc.lib.transform)
+    if (project.properties.getOrDefault("persistence", "false") == "true") {
+        runtimeOnly(libs.edc.vault.hashicorp)
+        runtimeOnly(libs.edc.bom.controlplane.sql)
+        runtimeOnly(libs.edc.bom.dataplane.sql)
+        println("This runtime compiles with a remote STS client, Hashicorp Vault and PostgreSQL. You will need properly configured Postgres and HCV instances.")
+    }
+
+    implementation(libs.edc.configuration.filesystem)
+}
+
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    exclude("**/pom.properties", "**/pom.xml")
+    mergeServiceFiles()
+    archiveFileName.set("connector.jar")
 }
 
 application {
-    mainClass.set("$group.boot.system.runtime.BaseRuntime")
+    mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
 }
 
-var distTar = tasks.getByName("distTar")
-var distZip = tasks.getByName("distZip")
-
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    mergeServiceFiles()
-    archiveFileName.set("connector.jar")
-    dependsOn(distTar, distZip)
+edcBuild {
+    publish.set(false)
 }

@@ -1,3 +1,17 @@
+/*
+*  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
+*
+*  This program and the accompanying materials are made available under the
+*  terms of the Apache License, Version 2.0 which is available at
+*  https://www.apache.org/licenses/LICENSE-2.0
+*
+*  SPDX-License-Identifier: Apache-2.0
+*
+*  Contributors:
+*       Bayerische Motoren Werke Aktiengesellschaft (BMW AG) - Initial API and Implementation
+*
+*/
+
 plugins {
     `java-library`
     id("application")
@@ -5,50 +19,41 @@ plugins {
 }
 
 dependencies {
-    //implementation(libs.psnc.vault.keys.seeder)
-
-    // Federated catalog
-    implementation(project(":extensions:catalog-node-resolver"))
     implementation(project(":extensions:did-example-resolver"))
-
-    // some patches/impls for DCP
     implementation(project(":extensions:dcp-impl"))
+    runtimeOnly(project(":extensions:catalog-node-resolver")) // to trigger the federated catalog
+    runtimeOnly(libs.edc.api.secrets)
 
-    implementation(libs.edc.spi.core) // we need some constants
+    runtimeOnly(libs.bundles.connector) // base runtime
+    runtimeOnly(libs.edc.api.management)
+    runtimeOnly(libs.edc.api.management.config)
+    runtimeOnly(libs.edc.controlplane.core) //default store impls, etc.
+    runtimeOnly(libs.edc.controlplane.services) // aggregate services
+    runtimeOnly(libs.edc.core.edrstore)
+    runtimeOnly(libs.edc.dsp) // protocol webhook
+    runtimeOnly(libs.bundles.dcp) // DCP protocol impl
+    runtimeOnly(libs.edc.api.dsp.config) // json-ld expansion
 
-    implementation(libs.bundles.controlplane)
-    implementation(libs.bundles.dcp)
-    implementation(libs.edc.core.connector)
-    implementation(libs.edc.core.token)
-
-    /*
     if (project.properties.getOrDefault("persistence", "false") == "true") {
         runtimeOnly(libs.edc.vault.hashicorp)
         runtimeOnly(libs.bundles.sql.edc)
-        runtimeOnly(libs.bundles.sql.fc)
         runtimeOnly(libs.edc.sts.remote.client)
         println("This runtime compiles with a remote STS client, Hashicorp Vault and PostgreSQL. You will need properly configured Postgres and HCV instances.")
     }
-    */
-    runtimeOnly(libs.bundles.dpf)
-    runtimeOnly(libs.edc.api.version)
 
-    //
-    implementation(libs.edc.config.filesystem)
-
-    runtimeOnly(libs.edc.vault.hashicorp)
-    runtimeOnly(libs.edc.dcp.sts.client)
+    implementation(libs.edc.configuration.filesystem)
 }
 
 application {
-    mainClass.set("$group.boot.system.runtime.BaseRuntime")
+    mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
 }
 
-var distTar = tasks.getByName("distTar")
-var distZip = tasks.getByName("distZip")
-
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    exclude("**/pom.properties", "**/pom.xml")
     mergeServiceFiles()
-    archiveFileName.set("fc.jar")
-    dependsOn(distTar, distZip)
+    archiveFileName.set("federated-catalog.jar")
+}
+
+edcBuild {
+    publish.set(false)
 }

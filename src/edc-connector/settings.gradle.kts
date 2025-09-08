@@ -1,5 +1,5 @@
 
-rootProject.name = "AD4GD-Demo"
+rootProject.name = "edc-connector"
 
 pluginManagement {
     repositories {
@@ -15,10 +15,13 @@ dependencyResolutionManagement {
     }
 }
 
+include("launchers:dcp")
+include("extensions:did-example-resolver")
+include("extensions:dcp-impl")
+
 include("core:base")
 include("launchers:daps")
 include("launchers:no-daps")
-include("launchers:dcp")
 include("launchers:identity-hub")
 include("extensions:connector-persistence")
 include("extensions:policy-engine")
