@@ -22,6 +22,7 @@ import org.eclipse.edc.iam.verifiablecredentials.spi.validation.TrustedIssuerReg
 import org.eclipse.edc.policy.context.request.spi.RequestCatalogPolicyContext;
 import org.eclipse.edc.policy.context.request.spi.RequestContractNegotiationPolicyContext;
 import org.eclipse.edc.policy.context.request.spi.RequestTransferProcessPolicyContext;
+import org.eclipse.edc.policy.context.request.spi.RequestVersionPolicyContext;
 import org.eclipse.edc.policy.engine.spi.PolicyEngine;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.security.signature.jws2020.Jws2020SignatureSuite;
@@ -63,7 +64,9 @@ public class DcpPatchExtension implements ServiceExtension {
         signatureSuiteRegistry.register(VcConstants.JWS_2020_SIGNATURE_SUITE, suite);
 
         // register dataspace issuer
-        trustedIssuerRegistry.register(new Issuer("did:example:dataspace-issuer", Map.of()), WILDCARD);
+        trustedIssuerRegistry.register(new Issuer("did:web:dataspace-issuer", Map.of()), WILDCARD);
+        trustedIssuerRegistry.register(new Issuer("did:web:localhost%3A9876", Map.of()), WILDCARD); // for the standard credentials
+        trustedIssuerRegistry.register(new Issuer("did:web:localhost%3A10100", Map.of()), WILDCARD); // for the credential used to demo the issuance flow
 
         // register a default scope provider
         var contextMappingFunction = new DefaultScopeMappingFunction(Set.of("org.eclipse.edc.vc.type:MembershipCredential:read"));
@@ -71,12 +74,13 @@ public class DcpPatchExtension implements ServiceExtension {
         policyEngine.registerPostValidator(RequestCatalogPolicyContext.class, contextMappingFunction::apply);
         policyEngine.registerPostValidator(RequestContractNegotiationPolicyContext.class, contextMappingFunction::apply);
         policyEngine.registerPostValidator(RequestTransferProcessPolicyContext.class, contextMappingFunction::apply);
+        policyEngine.registerPostValidator(RequestVersionPolicyContext.class, contextMappingFunction::apply);
 
 
         //register scope extractor
         scopeExtractorRegistry.registerScopeExtractor(new DataAccessCredentialScopeExtractor());
 
 
-        typeTransformerRegistry.register(new JsonValueToGenericTypeTransformer(typeManager.getMapper(JSON_LD)));
+        typeTransformerRegistry.register(new JsonValueToGenericTypeTransformer(typeManager, JSON_LD));
     }
 }
