@@ -27,11 +27,11 @@
 #done
 
 ## Seed linked assets to Catalog Server
-newman run \
-  --folder "Seed Catalog Server" \
-  --env-var "HOST=http://127.0.0.1:8091" \
-  --env-var "PROVIDER_QNA_DSP_URL=http://localhost:8192" \
-  ./deployment/postman/MVD.postman_collection.json > /dev/null
+#newman run \
+#  --folder "Seed Catalog Server" \
+#  --env-var "HOST=http://127.0.0.1:8091" \
+#  --env-var "PROVIDER_QNA_DSP_URL=http://localhost:8192" \
+#  ./deployment/postman/MVD.postman_collection.json > /dev/null
 
 ## Seed identity data to identityhubs
 API_KEY="c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo="
@@ -46,20 +46,20 @@ DATA_CONSUMER=$(jq -n --arg pem "$PEM_CONSUMER" '{
            "serviceEndpoints":[
              {
                 "type": "CredentialService",
-                "serviceEndpoint": "http://localhost:7081/api/credentials/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDgz",
+                "serviceEndpoint": "http://consumer-ih:7081/api/credentials/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDgz",
                 "id": "consumer-credentialservice-1"
              },
              {
                 "type": "ProtocolEndpoint",
-                "serviceEndpoint": "http://localhost:8082/api/dsp",
+                "serviceEndpoint": "http://consumer-connector:8082/api/dsp",
                 "id": "consumer-dsp"
              }
            ],
            "active": true,
-           "participantId": "did:web:localhost%3A7083",
-           "did": "did:web:localhost%3A7083",
+           "participantId": "did:web:consumer-ih%3A7083",
+           "did": "did:web:consumer-ih%3A7083",
            "key":{
-               "keyId": "did:web:localhost%3A7083#key-1",
+               "keyId": "did:web:consumer-ih%3A7083#key-1",
                "privateKeyAlias": "key-1",
                "publicKeyPem":"\($pem)"
            }
@@ -71,6 +71,7 @@ clientSecret=$(curl -s --location 'http://localhost:7082/api/identity/v1alpha/pa
 --header 'Content-Type: application/json' \
 --header "x-api-key: $API_KEY" \
 --data "$DATA_CONSUMER" | jq -r '.clientSecret')
+echo $clientSecret
 
 # add client secret to the consumer runtime
 SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
@@ -79,7 +80,7 @@ SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
     "edc" : "https://w3id.org/edc/v0.0.1/ns/"
   },
   "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:localhost%3A7083-sts-client-secret",
+  "@id" : "did:web:consumer-ih%3A7083-sts-client-secret",
   "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
 }')
 
@@ -95,20 +96,20 @@ DATA_FC=$(jq -n --arg pem "$PEM_FC" '{
            "serviceEndpoints":[
              {
                 "type": "CredentialService",
-                "serviceEndpoint": "http://localhost:7101/api/credentials/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDgz",
+                "serviceEndpoint": "http://fc-ih:7101/api/credentials/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDgz",
                 "id": "fc-credentialservice-1"
              },
              {
                 "type": "ProtocolEndpoint",
-                "serviceEndpoint": "http://localhost:8292/api/dsp",
+                "serviceEndpoint": "http://federated-catalog:8292/api/dsp",
                 "id": "fc-dsp"
              }
            ],
            "active": true,
-           "participantId": "did:web:localhost%3A7103",
-           "did": "did:web:localhost%3A7103",
+           "participantId": "did:web:fc-ih%3A7103",
+           "did": "did:web:fc-ih%3A7103",
            "key":{
-               "keyId": "did:web:localhost%3A7103#key-1",
+               "keyId": "did:web:fc-ih%3A7103#key-1",
                "privateKeyAlias": "key-1",
                "publicKeyPem":"\($pem)"
            }
@@ -120,6 +121,7 @@ clientSecret=$(curl -s --location 'http://localhost:7102/api/identity/v1alpha/pa
 --header 'Content-Type: application/json' \
 --header "x-api-key: $API_KEY" \
 --data "$DATA_FC" | jq -r '.clientSecret')
+echo $clientSecret
 
 # add client secret to the fc runtime
 SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
@@ -128,7 +130,7 @@ SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
     "edc" : "https://w3id.org/edc/v0.0.1/ns/"
   },
   "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:localhost%3A7103-sts-client-secret",
+  "@id" : "did:web:fc-ih%3A7103-sts-client-secret",
   "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
 }')
 
@@ -169,6 +171,7 @@ clientSecret=$(curl -s --location 'http://localhost:7092/api/identity/v1alpha/pa
 --header 'Content-Type: application/json' \
 --header "x-api-key: $API_KEY" \
 --data "$DATA_PROVIDER" | jq -r '.clientSecret')
+echo $clientSecret
 
 # add client secret to the provider runtimes
 SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
@@ -219,11 +222,11 @@ curl -s --location 'http://localhost:10015/api/identity/v1alpha/participants/' \
 --data "$DATA_ISSUER"
 
 ## Seed participant data to the issuer service
-newman run \
-  --folder "Seed Issuer" \
-  --env-var "ISSUER_ADMIN_URL=http://localhost:10013" \
-  --env-var "CONSUMER_ID=did:web:localhost%3A7083" \
-  --env-var "CONSUMER_NAME=MVD Consumer Participant" \
-  --env-var "PROVIDER_ID=did:web:localhost%3A7093" \
-  --env-var "PROVIDER_NAME=MVD Provider Participant" \
-  ./deployment/postman/MVD.postman_collection.json
+#newman run \
+#  --folder "Seed Issuer" \
+#  --env-var "ISSUER_ADMIN_URL=http://localhost:10013" \
+#  --env-var "CONSUMER_ID=did:web:localhost%3A7083" \
+#  --env-var "CONSUMER_NAME=MVD Consumer Participant" \
+#  --env-var "PROVIDER_ID=did:web:localhost%3A7093" \
+#  --env-var "PROVIDER_NAME=MVD Provider Participant" \
+#  ./deployment/postman/MVD.postman_collection.json

@@ -186,9 +186,17 @@ services:
       -dev-listen-address=0.0.0.0:10200
     # optional: keep a file volume for any exports you do
     volumes:
-      - ./vault-data:/vault/file
+      - ./vault-data:/vault/file    
 
-  issuer-service:
+  dataspace-issuer:
+    image: nginx:latest
+    ports:
+      - "9876:80"
+    volumes:
+      - ../docker/issuer-service/assets/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../docker/issuer-service/assets/did.k8s.json:/var/www/.well-known/did.json:ro
+
+  issuer-service-admin:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/issuer-service:${IMAGE_TAG}
     ports: 
       - "10010:10010"
