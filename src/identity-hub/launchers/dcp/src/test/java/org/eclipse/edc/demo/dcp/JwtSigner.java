@@ -54,9 +54,9 @@ import static org.mockito.Mockito.mock;
 @SuppressWarnings("NewClassNamingConvention")
 public class JwtSigner {
 
-    public static final String ISSUER_PRIVATE_KEY_FILE_PATH = System.getProperty("user.dir") + "/../../docker/identity-hub/certs/issuer_private.pem";
-    public static final String ISSUER_PUBLIC_KEY_FILE_PATH = System.getProperty("user.dir") + "/../../docker/identity-hub/certs/issuer_public.pem";
-    public static final File ISSUER_DID_DOCUMENT_K8S = new File(System.getProperty("user.dir") + "/../../docker/issuer-service/issuer/did.k8s.json");
+    public static final String ISSUER_PRIVATE_KEY_FILE_PATH = System.getProperty("user.dir") + "/../../../../docker/identity-hub/certs/issuer_private.pem";
+    public static final String ISSUER_PUBLIC_KEY_FILE_PATH = System.getProperty("user.dir") + "/../../../../docker/identity-hub/certs/issuer_public.pem";
+    public static final File ISSUER_DID_DOCUMENT_K8S = new File(System.getProperty("user.dir") + "/../../../../docker/issuer-service/assets/did.k8s.json");
     
     public static final String DATASPACE_ISSUER_DID_K8S = "did:web:dataspace-issuer";
     
@@ -121,16 +121,11 @@ public class JwtSigner {
     private static class InputOutputProvider implements ArgumentsProvider {
         @Override
         public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) {
-            var basePath = "/../../docker/identity-hub/credentials/";
+            var basePath = "/../../../../docker/identity-hub/credentials/";
             var membershipVc = "membership_vc.json";
             var membershipCredential = "membership-credential.json";
             var dataprocessorVc = "dataprocessor_vc.json";
             var dataprocessorCredential = "dataprocessor-credential.json";
-
-            Map<String, String> participants = new HashMap<>();
-            participants.put("provider", PROVIDER_IH_DID);
-            participants.put("consumer", CONSUMER_IH_DID);
-            participants.put("federated-catalog", FC_IH_DID);
 
             return Stream.of(
 
@@ -165,7 +160,7 @@ public class JwtSigner {
         }
 
         private String GetAssetPath(String basePrefix, String folder, String fileName) {
-                return String.format("%s%s%s%s", System.getProperty("user.dir"), basePrefix, folder, fileName);
+                return String.format("%s%s%s/%s", System.getProperty("user.dir"), basePrefix, folder, fileName);
         }
     }
 }
