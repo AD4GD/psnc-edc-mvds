@@ -65,6 +65,10 @@ public class DcpPatchExtension implements ServiceExtension {
 
         // register dataspace issuer
         trustedIssuerRegistry.register(new Issuer("did:web:dataspace-issuer", Map.of()), WILDCARD);
+        
+        trustedIssuerRegistry.register(new Issuer("did:web:issuer-service", Map.of()), WILDCARD); // for the standard credentials
+        trustedIssuerRegistry.register(new Issuer("did:web:issuer-service%3A9876", Map.of()), WILDCARD); // for the standard credentials
+
         trustedIssuerRegistry.register(new Issuer("did:web:localhost%3A9876", Map.of()), WILDCARD); // for the standard credentials
         trustedIssuerRegistry.register(new Issuer("did:web:localhost%3A10100", Map.of()), WILDCARD); // for the credential used to demo the issuance flow
 

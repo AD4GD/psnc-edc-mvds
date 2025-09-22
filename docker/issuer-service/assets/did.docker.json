@@ -2,9 +2,9 @@
   "service": [],
   "verificationMethod": [
     {
-      "id": "did:web:localhost%3A9876#key-1",
+      "id": "did:web:issuer-service%3A9876#key-1",
       "type": "JsonWebKey2020",
-      "controller": "did:web:localhost%3A9876",
+      "controller": "did:web:issuer-service%3A9876",
       "publicKeyMultibase": null,
       "publicKeyJwk": {
         "kty": "OKP",
@@ -16,11 +16,11 @@
   "authentication": [
     "key-1"
   ],
-  "id": "did:web:localhost%3A9876",
+  "id": "did:web:issuer-service%3A9876",
   "@context": [
     "https://www.w3.org/ns/did/v1",
     {
-      "@base": "did:web:localhost%3A9876"
+      "@base": "did:web:issuer-service%3A9876"
     }
   ]
 }
