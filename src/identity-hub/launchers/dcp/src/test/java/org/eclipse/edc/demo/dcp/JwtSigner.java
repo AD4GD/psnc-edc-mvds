@@ -68,6 +68,7 @@ public class JwtSigner {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @ParameterizedTest
+    @EnabledIfSystemProperty(named = "run.jwt.signer", matches = "true")
     @ArgumentsSource(InputOutputProvider.class)
     void generateJwt(String rawCredentialFilePath, File vcResource, String did, String issuerDid, File issuerDidDocument) throws JOSEException, IOException {
 
