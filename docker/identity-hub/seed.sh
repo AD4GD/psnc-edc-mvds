@@ -46,7 +46,7 @@ DATA_CONSUMER=$(jq -n --arg pem "$PEM_CONSUMER" '{
            "serviceEndpoints":[
              {
                 "type": "CredentialService",
-                "serviceEndpoint": "http://consumer-ih:7081/api/credentials/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDgz",
+                "serviceEndpoint": "http://consumer-ih:7081/api/credentials/v1/participants/ZGlkOndlYjpjb25zdW1lci1paCUzQTcwODM=",
                 "id": "consumer-credentialservice-1"
              },
              {
@@ -96,7 +96,7 @@ DATA_FC=$(jq -n --arg pem "$PEM_FC" '{
            "serviceEndpoints":[
              {
                 "type": "CredentialService",
-                "serviceEndpoint": "http://fc-ih:7101/api/credentials/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDgz",
+                "serviceEndpoint": "http://fc-ih:7101/api/credentials/v1/participants/ZGlkOndlYjpmYy1paCUzQTcxMDM6cGlvdHI=",
                 "id": "fc-credentialservice-1"
              },
              {
@@ -106,10 +106,10 @@ DATA_FC=$(jq -n --arg pem "$PEM_FC" '{
              }
            ],
            "active": true,
-           "participantId": "did:web:fc-ih%3A7103",
-           "did": "did:web:fc-ih%3A7103",
+           "participantId": "did:web:fc-ih%3A7103:piotr",
+           "did": "did:web:fc-ih%3A7103:piotr",
            "key":{
-               "keyId": "did:web:fc-ih%3A7103#key-1",
+               "keyId": "did:web:fc-ih%3A7103:piotr#key-1",
                "privateKeyAlias": "key-1",
                "publicKeyPem":"\($pem)"
            }
@@ -130,7 +130,7 @@ SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
     "edc" : "https://w3id.org/edc/v0.0.1/ns/"
   },
   "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:fc-ih%3A7103-sts-client-secret",
+  "@id" : "did:web:fc-ih%3A7103:piotr-sts-client-secret",
   "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
 }')
 
