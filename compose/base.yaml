@@ -45,6 +45,7 @@ services:
       - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
+
     ports:
       - "8290:8290"
       - "8291:8291"
