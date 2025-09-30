@@ -14,25 +14,6 @@
 #
 #
 
-## This script must be executed when running the dataspace from IntelliJ. Neglecting to do that will render the connectors
-## inoperable!
-
-## Seed asset/policy/contract-def data to both "provider"
-#for url in 'http://127.0.0.1:8191'
-#do
-#  newman run \
-#    --folder "Seed" \
-#    --env-var "HOST=$url" \
-#    ./deployment/postman/MVD.postman_collection.json > /dev/null
-#done
-
-## Seed linked assets to Catalog Server
-#newman run \
-#  --folder "Seed Catalog Server" \
-#  --env-var "HOST=http://127.0.0.1:8091" \
-#  --env-var "PROVIDER_QNA_DSP_URL=http://localhost:8192" \
-#  ./deployment/postman/MVD.postman_collection.json > /dev/null
-
 ## Seed identity data to identityhubs
 API_KEY="c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo="
 
@@ -46,7 +27,7 @@ DATA_CONSUMER=$(jq -n --arg pem "$PEM_CONSUMER" '{
            "serviceEndpoints":[
              {
                 "type": "CredentialService",
-                "serviceEndpoint": "http://consumer-ih:7081/api/credentials/v1/participants/ZGlkOndlYjpjb25zdW1lci1paCUzQTcwODM=",
+                "serviceEndpoint": "http://consumer-ih:7081/api/credentials/v1/participants/ZGlkOndlYjpjb25zdW1lci1paCUzQTcwODM6YWxpY2U=",
                 "id": "consumer-credentialservice-1"
              },
              {
@@ -56,10 +37,10 @@ DATA_CONSUMER=$(jq -n --arg pem "$PEM_CONSUMER" '{
              }
            ],
            "active": true,
-           "participantId": "did:web:consumer-ih%3A7083",
-           "did": "did:web:consumer-ih%3A7083",
+           "participantId": "did:web:consumer-ih%3A7083:alice",
+           "did": "did:web:consumer-ih%3A7083:alice",
            "key":{
-               "keyId": "did:web:consumer-ih%3A7083#key-1",
+               "keyId": "did:web:consumer-ih%3A7083:alice#key-1",
                "privateKeyAlias": "key-1",
                "publicKeyPem":"\($pem)"
            }
@@ -80,7 +61,7 @@ SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
     "edc" : "https://w3id.org/edc/v0.0.1/ns/"
   },
   "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:consumer-ih%3A7083-sts-client-secret",
+  "@id" : "did:web:consumer-ih%3A7083:alice-sts-client-secret",
   "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
 }')
 
@@ -146,20 +127,20 @@ DATA_PROVIDER=$(jq -n --arg pem "$PEM_PROVIDER" '{
             "serviceEndpoints":[
               {
                  "type": "CredentialService",
-                 "serviceEndpoint": "http://localhost:7091/api/credentials/v1/participants/ZGlkOndlYjpsb2NhbGhvc3QlM0E3MDkz",
+                 "serviceEndpoint": "http://provider-ih:7091/api/credentials/v1/participants/ZGlkOndlYjpwcm92aWRlci1paCUzQTcwOTM6Ym9i",
                  "id": "provider-credentialservice-1"
               },
               {
                 "type": "ProtocolEndpoint",
-                "serviceEndpoint": "http://localhost:8092/api/dsp",
+                "serviceEndpoint": "http://provider-connector:8192/api/dsp",
                 "id": "provider-catalogserver-dsp"
               }
             ],
             "active": true,
-            "participantId": "did:web:localhost%3A7093",
-            "did": "did:web:localhost%3A7093",
+            "participantId": "did:web:provider-ih%3A7093:bob",
+            "did": "did:web:provider-ih%3A7093:bob",
             "key":{
-                "keyId": "did:web:localhost%3A7093#key-1",
+                "keyId": "did:web:provider-ih%3A7093:bob#key-1",
                 "privateKeyAlias": "key-1",
                 "publicKeyPem":"\($pem)"
             }
@@ -180,7 +161,7 @@ SECRETS_DATA=$(jq -n --arg secret "$clientSecret" \
     "edc" : "https://w3id.org/edc/v0.0.1/ns/"
   },
   "@type" : "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id" : "did:web:localhost%3A7093-sts-client-secret",
+  "@id" : "did:web:provider-ih%3A7093:bob-sts-client-secret",
   "https://w3id.org/edc/v0.0.1/ns/value": "\($secret)"
 }')
 
