@@ -1,9 +1,8 @@
 {
-  "managementApiUrl": "http://localhost:18080/management",
-  "catalogUrl": "http://localhost:9181/catalog",
+  "managementApiUrl": "http://localhost:8081/api/management",
+  "catalogUrl": "http://localhost:8294/api/catalog",
   "theme": "theme-2",
   "deploymentMode": "production",
   "backendUrl": "",
-  "oauthIssuer": "http://localhost:8081/realms/Organizations",
-  "oauthClientId": "data-space"
+  "edcApiKey": "password"
 }
