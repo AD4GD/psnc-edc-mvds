@@ -1,5 +1,5 @@
 {
-  "managementApiUrl": "http://localhost:8081/api/management",
+  "managementApiUrl": "http://localhost:8191/api/management",
   "catalogUrl": "http://localhost:8294/api/catalog",
   "theme": "theme-2",
   "deploymentMode": "production",

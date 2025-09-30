@@ -1,4 +1,4 @@
 {
-    "consumer": "did:web:consumer-ih%3A7083",
-    "provider": "did:web:provider-ih%3A7093"
+    "consumer": "did:web:consumer-ih%3A7083:alice",
+    "provider": "did:web:provider-ih%3A7093:bob"
 }
