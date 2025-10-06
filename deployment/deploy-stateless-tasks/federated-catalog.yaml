@@ -1,0 +1,132 @@
+- name: Set participants_json for federated-catalog
+  set_fact:
+    participants_json_obj:
+      consumer: "{{ consumer_connector_address }}/protocol"
+      provider: "{{ provider_connector_address }}/protocol"
+
+- name: "deploy configmap/{{ application }}-federatedcatalog"
+  tags:
+    - federatedcatalog
+    - configmap
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application }}-federatedcatalog"
+        labels:
+          application: "{{ application }}"
+      data:
+        participants.json: "{{ participants_json_obj | to_nice_json }}"
+- name: "deploy secret/{{ application }}-federatedcatalog"
+  tags:
+    - federatedcatalog
+    - secret
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ application }}-federatedcatalog-jks"
+        labels:
+          application: "{{ application }}"
+          component: federatedcatalog
+      data:
+        federated-catalog-daps.jks: "{{ lookup('file', 'certs/federated-catalog-daps.jks') | b64encode }}"
+
+- name: "deploy deployment/{{ application }}-federatedcatalog"
+  tags:
+    - federatedcatalog
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-federatedcatalog"
+        labels:
+          component: federatedcatalog
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: federatedcatalog
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: federatedcatalog
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (federatedcatalog_configmap_digest + federatedcatalog_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "api"
+                containerPort: 8080
+                protocol: "TCP"
+              - name: "catalog"
+                containerPort: 8181
+                protocol: "TCP"
+            containers:
+              - name: "federatedcatalog"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/federated-catalog:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ federatedcatalog_resources }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-federatedcatalog"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-federatedcatalog"
+                      optional: true
+                volumeMounts:
+                  - name: "federatedcatalog-tmp"
+                    mountPath: "/tmp"
+                  - name: "federatedcatalog-participants-config"
+                    mountPath: "/app/config/participants.json"
+                    subPath: "participants.json"
+            volumes:
+              - name: "federatedcatalog-tmp"
+                emptyDir:
+                  medium: "Memory"
+              - name: "federatedcatalog-participants-config"
+                configMap:
+                  name: "{{ application }}-federatedcatalog"
+              - name: "jks-volume"
+                secret:
+                  secretName: "{{ application }}-federatedcatalog-jks"
+                  items:
+                    - key: "federated-catalog-daps.jks"
+                      path: "federated-catalog-daps.jks"
+
+- name: "deploy service/{{ application }}-federatedcatalog"
+  tags:
+    - federatedcatalog
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-federatedcatalog"
+        labels:
+          application: "{{ application }}"
+          component: federatedcatalog
+      spec:
+        ports:
+          - name: "api"
+            port: 8080
+          - name: "catalog"
+            port: 8181
+        selector:
+          application: "{{ application }}"
+          component: federatedcatalog

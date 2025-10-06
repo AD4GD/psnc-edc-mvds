@@ -1,6 +1,6 @@
 ---
 - name: deploy stateful services
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
   module_defaults:
     k8s:
       wait: true
@@ -114,7 +114,6 @@
                       claimName: "{{ application }}-minio"
 
     - name: "deploy service/{{ application }}-minio"
-      when: "deploy_minio"
       tags:
         - minio
         - service

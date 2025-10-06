@@ -1,0 +1,344 @@
+# There is automated script for deployment - "deploy-routes.yaml" - which is called everytime deployment is made.
+# This file is ONLY for manual edits of routes if needed.
+
+# Consumer Connector Routes
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-connector-api
+spec:
+  host: https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /api
+  to:
+    kind: Service
+    name: edc-connector-connectorconsumer
+  port:
+    targetPort: api
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-connector-control
+spec:
+  host: consumer-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /control
+  to:
+    kind: Service
+    name: edc-connector-connectorconsumer
+  port:
+    targetPort: control
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-connector-management
+spec:
+  host: consumer-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /management
+  to:
+    kind: Service
+    name: edc-connector-connectorconsumer
+  port:
+    targetPort: management
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-connector-protocol
+spec:
+  host: consumer-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /protocol
+  to:
+    kind: Service
+    name: edc-connector-connectorconsumer
+  port:
+    targetPort: protocol
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-connector-public
+spec:
+  host: consumer-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /public
+  to:
+    kind: Service
+    name: edc-connector-connectorconsumer
+  port:
+    targetPort: public
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# Consumer Dashboard Route
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-dashboard
+spec:
+  host: consumer-dashboard-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-consumerdashboard
+  port:
+    targetPort: www
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# Provider Connector Routes
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: provider-connector-api
+spec:
+  host: provider-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /api
+  to:
+    kind: Service
+    name: edc-connector-connectorprovider
+  port:
+    targetPort: api
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: provider-connector-control
+spec:
+  host: provider-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /control
+  to:
+    kind: Service
+    name: edc-connector-connectorprovider
+  port:
+    targetPort: control
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: provider-connector-management
+spec:
+  host: provider-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /management
+  to:
+    kind: Service
+    name: edc-connector-connectorprovider
+  port:
+    targetPort: management
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: provider-connector-protocol
+spec:
+  host: provider-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /protocol
+  to:
+    kind: Service
+    name: edc-connector-connectorprovider
+  port:
+    targetPort: protocol
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: provider-connector-public
+spec:
+  host: provider-connector-edc-connector.apps.bst2.paas.psnc.pl
+  path: /public
+  to:
+    kind: Service
+    name: edc-connector-connectorprovider
+  port:
+    targetPort: public
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# Provider Dashboard Route
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: provider-dashboard
+spec:
+  host: provider-dashboard-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-providerdashboard
+  port:
+    targetPort: www
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# Consback Service
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-backend
+spec:
+  host: consumer-backend-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-consback
+  port:
+    targetPort: receiver
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# Federated Catalog
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: federated-catalog-api
+spec:
+  host: federated-catalog-edc-connector.apps.bst2.paas.psnc.pl
+  path: /api
+  to:
+    kind: Service
+    name: edc-connector-federatedcatalog
+  port:
+    targetPort: api
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: federated-catalog-catalog
+spec:
+  host: federated-catalog-edc-connector.apps.bst2.paas.psnc.pl
+  path: /catalog
+  to:
+    kind: Service
+    name: edc-connector-federatedcatalog
+  port:
+    targetPort: catalog
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# Registration Service
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: registration-service-frontend
+spec:
+  host: registration-service-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-registrationservicefrontend
+  port:
+    targetPort: www
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: registration-service-backend-api
+spec:
+  host: registration-service-api-edc-connector.apps.bst2.paas.psnc.pl
+  path: /api
+  to:
+    kind: Service
+    name: edc-connector-registrationservicebackend
+  port:
+    targetPort: api
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: registration-service-backend-authority
+spec:
+  host: registration-service-api-edc-connector.apps.bst2.paas.psnc.pl
+  path: /authority
+  to:
+    kind: Service
+    name: edc-connector-registrationservicebackend
+  port:
+    targetPort: authority
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# Identity Provider
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: identity-provider
+spec:
+  host: identity-provider-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-identityprovider
+  port:
+    targetPort: keycloak-http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+# MINIO
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: minio
+spec:
+  host: minio-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-minio
+  port:
+    targetPort: minio-http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow

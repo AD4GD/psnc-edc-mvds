@@ -1,7 +1,7 @@
 - import_playbook: "deploy-parameters.yaml"
 
 - name: create application database and application user (non-admin)
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
 
   tasks:
     - debug:

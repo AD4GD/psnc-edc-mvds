@@ -1,4 +1,3 @@
-# -buster is required to have apt available
 FROM openjdk:17-slim-bullseye
 
 # Optional JVM arguments, such as memory settings

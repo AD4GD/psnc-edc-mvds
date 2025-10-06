@@ -1,0 +1,41 @@
+- name: Create route for federated-catalog-api
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: federated-catalog-api
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+        path: /api
+        to:
+          kind: Service
+          name: "{{ application }}-federatedcatalog"
+        port:
+          targetPort: api
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
+
+- name: Create route for federated-catalog-catalog
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: federated-catalog-catalog
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+        path: /catalog
+        to:
+          kind: Service
+          name: "{{ application }}-federatedcatalog"
+        port:
+          targetPort: catalog
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow

@@ -1,0 +1,19 @@
+- name: Create route for consumer-backend
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: consumer-backend
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ consumer_backend_address | regex_replace('^https?://', '') }}"
+        to:
+          kind: Service
+          name: "{{ application }}-consback"
+        port:
+          targetPort: receiver
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow

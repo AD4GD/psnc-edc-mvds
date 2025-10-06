@@ -1,5 +1,5 @@
 - name: protect against unwitting purge
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
 
   tasks:
     - name: check if operator is really sure to purge {{ application }} {{ purge_subject }}
