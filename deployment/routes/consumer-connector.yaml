@@ -1,0 +1,104 @@
+- name: Create route for consumer-connector-api
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: consumer-connector-api
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
+        path: /api
+        to:
+          kind: Service
+          name: "{{ application }}-connectorconsumer"
+        port:
+          targetPort: api
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
+
+- name: Create route for consumer-connector-control
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: consumer-connector-control
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
+        path: /control
+        to:
+          kind: Service
+          name: "{{ application }}-connectorconsumer"
+        port:
+          targetPort: control
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
+
+- name: Create route for consumer-connector-management
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: consumer-connector-management
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
+        path: /management
+        to:
+          kind: Service
+          name: "{{ application }}-connectorconsumer"
+        port:
+          targetPort: management
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
+
+- name: Create route for consumer-connector-protocol
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: consumer-connector-protocol
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
+        path: /protocol
+        to:
+          kind: Service
+          name: "{{ application }}-connectorconsumer"
+        port:
+          targetPort: protocol
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
+
+- name: Create route for consumer-connector-public
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: consumer-connector-public
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
+        path: /public
+        to:
+          kind: Service
+          name: "{{ application }}-connectorconsumer"
+        port:
+          targetPort: public
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow

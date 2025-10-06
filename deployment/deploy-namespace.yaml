@@ -1,7 +1,7 @@
 ---
 # this playbook should be compatible with scenarios, where multiple components are placed inside the same namespace
 - name: deploy parameters
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
   tasks:
 
     # TODO DV-279: not working properly

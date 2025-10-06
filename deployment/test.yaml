@@ -1,6 +1,6 @@
 ---
 - name: test application
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
 
   tasks:
     - name: check {{ application }} endpoints

@@ -3,7 +3,7 @@
     purge_subject: "parameters"
 
 - name: update storage services parameters
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
   module_defaults:
     k8s:
       state: absent

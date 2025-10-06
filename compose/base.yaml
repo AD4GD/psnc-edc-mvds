@@ -27,7 +27,7 @@ services:
       - identity-provider
 
   registration-service-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -88,7 +88,7 @@ services:
       - identity-provider
 
   provider-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -129,7 +129,7 @@ services:
       - identity-provider
 
   consumer-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -186,7 +186,7 @@ services:
       - "8081:8080"
 
   identity-provider-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
     restart: always
     environment:
       POSTGRESQL_USERNAME: keycloak

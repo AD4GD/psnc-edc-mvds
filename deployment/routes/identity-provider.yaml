@@ -1,0 +1,19 @@
+- name: Create route for identity-provider
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: identity-provider
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ identity_provider_address | regex_replace('^https?://', '') }}"
+        to:
+          kind: Service
+          name: "{{ application }}-identityprovider"
+        port:
+          targetPort: keycloak-http
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow

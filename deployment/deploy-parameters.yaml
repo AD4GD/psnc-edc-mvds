@@ -1,6 +1,6 @@
 ---
 - name: deploy parameters
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
   vars:
     parameters_update: true
     parameters_show: false
@@ -16,6 +16,11 @@
     parameters_show_agregator: {}
 
   tasks:
+    - name: "Load all vars"
+      include_vars:
+        dir: vars
+        extensions:
+          - yaml
 
     - name: "fetch current {{ application }} secrets data"
       k8s_info:
@@ -40,7 +45,7 @@
       loop_control:
         loop_var: parameters_iterator
       set_fact:
-        "{{ parameters_data_var }}": "{{ (lookup('vars', 'parameters_current_' + parameters_kind + 's_state').resources|selectattr('metadata.name', 'equalto', (parameters_k8s_resource_name))|first|default({'data': {}})).data }}"
+        "{{ parameters_data_var }}": "{{ ((lookup('vars', 'parameters_current_' + parameters_kind + 's_state').resources|selectattr('metadata.name', 'equalto', (parameters_k8s_resource_name))|first|default({'data': {}})).data | default({})) }}"
 
     - name: "compile {{ application }} secrets and configmaps patches"
       with_nested:
@@ -77,7 +82,7 @@
         loop_var: parameters_iterator
       when: "parameters_update and parameters_patches[parameters_key] is not none"
       set_fact:
-        "{{ parameters_data_var }}": "{{ lookup('k8s', api_version='v1', namespace=k8s_namespace, resource_name=parameters_k8s_resource_name, kind=parameters_k8s_kind).data }}"
+        "{{ parameters_data_var }}": "{{ (lookup('k8s', api_version='v1', namespace=k8s_namespace, resource_name=parameters_k8s_resource_name, kind=parameters_k8s_kind).data | default({})) }}"
 
     - name: "decode secrets into variables for later use"
       with_items: "{{ deployed_parameters_packs }}"

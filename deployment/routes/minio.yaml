@@ -1,0 +1,19 @@
+- name: Create route for minio
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: minio
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ minio_address | regex_replace('^https?://', '') }}"
+        to:
+          kind: Service
+          name: "{{ application }}-minio"
+        port:
+          targetPort: minio-http
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow

@@ -1,0 +1,32 @@
+- name : deploy routes
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
+
+  module_defaults:
+    k8s:
+      wait: true
+      wait_timeout: "{{ k8s_wait_timeout }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  # deployed_parameters_packs is defining wheter a given service is deployed or not, it is located in group_vars/edc-connector-instances-<cluster>.yaml
+  tasks:
+    - include_tasks: routes/consumer-connector.yaml
+      when: "'connectorconsumer' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/provider-connector.yaml"
+      when: "'connectorprovider' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/consumer-backend.yaml"
+      when: "'consback' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/federated-catalog.yaml"
+      when: "'federatedcatalog' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/consumer-dashboard.yaml"
+      when: "'consumerdashboard' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/provider-dashboard.yaml"
+      when: "'providerdashboard' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/identity-provider.yaml"
+      when: "'identityprovider' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/registration-service-frontend.yaml"
+      when: "'registrationservicefrontend' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/registration-service-backend.yaml"
+      when: "'registrationservicebackend' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: "routes/minio.yaml"
+      when: deploy_minio | bool

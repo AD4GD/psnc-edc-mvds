@@ -1,0 +1,154 @@
+- name: Set app.config.json with auth
+  set_fact:
+    app_config_json: |
+      {
+        "apiKey": "fifi-info-zaneta",
+        "managementApiUrl": "{{ consumer_connector_address }}/management",
+        "catalogUrl": "{{ federated_catalog_address }}/catalog",
+        "theme": "theme-3",
+        "backendUrl": "{{ consumer_backend_address }}/edr-endpoint",
+        "oauthIssuer": "{{ identity_provider_address }}/realms/Organizations",
+        "oauthClientId": "data-space"
+      }
+  when: is_auth
+
+- name: Set app.config.json without auth
+  set_fact:
+    app_config_json: |
+      {
+        "apiKey": "fifi-info-zaneta",
+        "managementApiUrl": "{{ consumer_connector_address }}/management",
+        "catalogUrl": "{{ federated_catalog_address }}/catalog",
+        "theme": "theme-3",
+        "backendUrl": "{{ consumer_backend_address }}/edr-endpoint"
+      }
+  when: not is_auth
+
+- name: "deploy configmap/{{ application }}-consumerdashboard"
+  tags:
+    - consumerdashboard
+    - configmap
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application }}-consumerdashboard-config"
+        labels:
+          application: "{{ application }}"
+      data:
+        app.config.json: "{{ app_config_json | to_nice_json }}"
+        nginx.conf: |
+          events {}
+          pid /tmp/nginx.pid;
+          http {
+            include /etc/nginx/mime.types;
+            server {
+              listen 8080;
+              server_name {{ consumer_dashboard_address_shorten }};
+              root /usr/share/nginx/html;
+              index index.html;
+              access_log off;
+              location / {
+                try_files $uri $uri/ /index.html;
+              }
+              location /management {
+                proxy_pass {{ consumer_connector_address }}/management;
+              }
+              location /catalog {
+                proxy_pass {{ federated_catalog_address }}/catalog;
+              }
+            }
+          }
+
+- name: "deploy deployment/{{ application }}-consumerdashboard"
+  tags:
+    - consumerdashboard
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-consumerdashboard"
+        labels:
+          component: consumerdashboard
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: consumerdashboard
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: consumerdashboard
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (consumerdashboard_configmap_digest + consumerdashboard_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "www"
+                containerPort: 8080
+                protocol: "TCP"
+            containers:
+              - name: "consumerdashboard"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                # runAsUser: 1000
+                resources: "{{ consumerdashboard_resources }}"
+                envFrom:
+                  - secretRef:
+                      name: "{{ application }}-consumerdashboard"
+                      optional: true
+                  - configMapRef:
+                      name: "{{ application }}-consumerdashboard-config"
+                      optional: true
+                volumeMounts:
+                  - name: "consumerdashboard-tmp"
+                    mountPath: "/tmp"
+                  - name: "consumerdashboard-nginx-config"
+                    mountPath: "/etc/nginx/nginx.conf"
+                    subPath: "nginx.conf"
+                  - name: "consumerdashboard-app-config"
+                    mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                    subPath: "app.config.json"
+            volumes:
+              - name: "consumerdashboard-tmp"
+                emptyDir:
+                  medium: "Memory"
+              - name: "consumerdashboard-nginx-config"
+                configMap:
+                  name: "{{ application }}-consumerdashboard-config"
+              - name: "consumerdashboard-app-config"
+                configMap:
+                  name: "{{ application }}-consumerdashboard-config"
+
+- name: "deploy service/{{ application }}-consumerdashboard"
+  tags:
+    - consumerdashboard
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-consumerdashboard"
+        labels:
+          application: "{{ application }}"
+          component: consumerdashboard
+      spec:
+        ports:
+          - name: "www"
+            port: 8080
+        selector:
+          application: "{{ application }}"
+          component: consumerdashboard

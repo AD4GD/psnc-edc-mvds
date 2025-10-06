@@ -1,2 +1,2 @@
 - name: check application deployment state
-  hosts: edc-connector-instances
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"

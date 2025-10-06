@@ -1,0 +1,19 @@
+- name: Create route for provider-dashboard
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: provider-dashboard
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ provider_dashboard_address | regex_replace('^https?://', '') }}"
+        to:
+          kind: Service
+          name: "{{ application }}-providerdashboard"
+        port:
+          targetPort: www
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow

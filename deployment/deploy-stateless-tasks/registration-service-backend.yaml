@@ -1,0 +1,84 @@
+- name: "deploy deployment/{{ application }}-registrationservicebackend"
+  tags:
+    - registrationservicebackend
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-registrationservicebackend"
+        labels:
+          component: registrationservicebackend
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: registrationservicebackend
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: registrationservicebackend
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (registrationservicebackend_configmap_digest + registrationservicebackend_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "api"
+                containerPort: 38181
+                protocol: "TCP"
+              - name: "authority"
+                containerPort: 38182
+                protocol: "TCP"
+            containers:
+              - name: "registrationservicebackend"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/registration-service-backend:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ registrationservicebackend_resources }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-registrationservicebackend"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-registrationservicebackend"
+                      optional: true
+                volumeMounts:
+                  - name: "registrationservicebackend-tmp"
+                    mountPath: "/tmp"
+            volumes:
+              - name: "registrationservicebackend-tmp"
+                emptyDir:
+                  medium: "Memory"
+
+- name: "deploy service/{{ application }}-registrationservicebackend"
+  tags:
+    - registrationservicebackend
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-registrationservicebackend"
+        labels:
+          application: "{{ application }}"
+          component: registrationservicebackend
+      spec:
+        ports:
+          - name: "api"
+            port: 38181
+          - name: "authority"
+            port: 38182
+        selector:
+          application: "{{ application }}"
+          component: registrationservicebackend

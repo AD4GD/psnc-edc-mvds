@@ -1,0 +1,132 @@
+- name: "Set fact for app.config.json"
+  set_fact:
+    app_config_json_obj: |
+      {
+        "registrationServiceApiUrl": "{{ registration_service_backend_address }}",
+        "federatedCatalogApiUrl": "{{ federated_catalog_address }}/catalog",
+        "environment": "production",
+        "oauthIssuer": "{{ identity_provider_address }}/realms/Organizations",
+        "oauthClientId": "data-space"
+      }
+
+- name: "deploy configmap/{{ application }}-registrationservicefrontend"
+  tags:
+    - registrationservicefrontend
+    - configmap
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application }}-registrationservicefrontend-config"
+        labels:
+          application: "{{ application }}"
+      data:
+        app.config.json: "{{ app_config_json_obj | to_nice_json }}"
+        nginx.conf: |
+          events {}
+          pid /tmp/nginx.pid;
+          http {
+            include /etc/nginx/mime.types;
+            server {
+              listen 8080;
+              server_name {{ registration_service_frontend_address_shorten }};
+              root /usr/share/nginx/html;
+              index index.html;
+              access_log off;
+              location / {
+                try_files $uri $uri/ /index.html;
+              }
+            }
+          }
+
+- name: "deploy deployment/{{ application }}-registrationservicefrontend"
+  tags:
+    - registrationservicefrontend
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-registrationservicefrontend"
+        labels:
+          component: registrationservicefrontend
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: registrationservicefrontend
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: registrationservicefrontend
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (registrationservicefrontend_configmap_digest + registrationservicefrontend_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "www"
+                containerPort: 8080
+                protocol: "TCP"
+            containers:
+              - name: "registrationservicefrontend"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/registration-service-frontend:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                resources: "{{ registrationservicefrontend_resources }}"
+                envFrom:
+                  - secretRef:
+                      name: "{{ application }}-registrationservicefrontend"
+                      optional: true
+                  - configMapRef:
+                      name: "{{ application }}-registrationservicefrontend-config"
+                      optional: true
+                volumeMounts:
+                  - name: "registrationservicefrontend-tmp"
+                    mountPath: "/tmp"
+                  - name: "registrationservicefrontend-nginx-config"
+                    mountPath: "/etc/nginx/nginx.conf"
+                    subPath: "nginx.conf"
+                  - name: "registrationservicefrontend-app-config"
+                    mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                    subPath: "app.config.json"
+            volumes:
+              - name: "registrationservicefrontend-tmp"
+                emptyDir:
+                  medium: "Memory"
+              - name: "registrationservicefrontend-nginx-config"
+                configMap:
+                  name: "{{ application }}-registrationservicefrontend-config"
+              - name: "registrationservicefrontend-app-config"
+                configMap:
+                  name: "{{ application }}-registrationservicefrontend-config"
+
+- name: "deploy service/{{ application }}-registrationservicefrontend"
+  tags:
+    - registrationservicefrontend
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-registrationservicefrontend"
+        labels:
+          application: "{{ application }}"
+          component: registrationservicefrontend
+      spec:
+        ports:
+          - name: "www"
+            port: 8080
+        selector:
+          application: "{{ application }}"
+          component: registrationservicefrontend

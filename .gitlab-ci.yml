@@ -31,6 +31,16 @@ Upload images:
   script:
     - devlab_push_images
 
+Upload images to public DockerHub:
+  stage: upload
+  script:
+    - apt update
+    - apt install -y curl jq
+    - cd ${CI_PROJECT_DIR}/docker
+    - ./push-images-public.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
 Update inventory for main project:
   stage: update_inventory
   variables:
