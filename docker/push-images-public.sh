@@ -10,8 +10,9 @@ echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
 # Images to push
 IMAGES=(
   "connector"
-  "federated-catalog"
+  "consumer-backend"
   "data-dashboard"
+  "federated-catalog"
   "identity-provider"
 )
 
