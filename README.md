@@ -30,10 +30,10 @@ Run the images locally
 First `./devstack up` run will require to enter `REPO_DIR` (path to the project) and  `REGISTRY_DOMAIN` (docker container registry domain).
 
 ## Tests
-Currently there are no unit or integration tests. Connector and other components of the dataspace can be manually tested via running jupyter notebooks.
+Currently there are implemented integration tests but no unit tests. Integration tests are run everytime during pipeline phase. They check operability of services and the connection between them. Connector, federated catalog, registration service can be also manually tested via running jupyter notebooks.
 
 ## Deploy
 We have two operational deployments located on different Kubernetes clusters.
 
-- The first deployment is located on the `paas-dev` PSNC cluster and is intended for demonstrational purposes.
+- The first deployment is located on the `bst2` PSNC cluster and is intended for demonstrational purposes.
 - The second deployment is located on the `dcw1` PSNC cluster. It's used for conducting tests and pilots in terms of D4.X deliverables.
