@@ -2,10 +2,10 @@
   set_fact:
     app_config_json: |
       {
-        "apiKey": "fifi-info-zaneta",
         "managementApiUrl": "{{ consumer_connector_address }}/management",
         "catalogUrl": "{{ federated_catalog_address }}/catalog",
         "theme": "theme-3",
+        "deploymentMode": "production",
         "backendUrl": "{{ consumer_backend_address }}/edr-endpoint",
         "oauthIssuer": "{{ identity_provider_address }}/realms/Organizations",
         "oauthClientId": "data-space"
@@ -16,10 +16,10 @@
   set_fact:
     app_config_json: |
       {
-        "apiKey": "fifi-info-zaneta",
         "managementApiUrl": "{{ consumer_connector_address }}/management",
         "catalogUrl": "{{ federated_catalog_address }}/catalog",
         "theme": "theme-3",
+        "deploymentMode": "production",
         "backendUrl": "{{ consumer_backend_address }}/edr-endpoint"
       }
   when: not is_auth
