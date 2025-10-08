@@ -1,6 +1,6 @@
 {
-  "managementApiUrl": "http://localhost:19193/management",
-  "catalogUrl": "http://localhost:18080/catalog-proxy/catalog/request",
+  "managementApiUrl": "http://localhost:8191/api/management",
+  "catalogUrl": "http://localhost:8294/api/catalog",
   "theme": "theme-2",
   "deploymentMode": "local",
   "backendUrl": "http://consumer-backend:4000/edr-endpoint",
