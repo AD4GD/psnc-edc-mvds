@@ -33,10 +33,6 @@ dependencies {
     }
 
     implementation(libs.edc.configuration.filesystem)
-
-    testImplementation(libs.edc.spi.identity.did)
-    testImplementation(libs.edc.lib.crypto)
-    testImplementation(libs.edc.lib.keys)
 }
 
 application {

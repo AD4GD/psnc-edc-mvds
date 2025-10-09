@@ -29,14 +29,12 @@ dependencies {
     runtimeOnly(libs.edc.bom.dataplane)
     runtimeOnly(libs.edc.dataplane.v2)
 
-    if (project.properties.getOrDefault("persistence", "false") == "true") {
-        runtimeOnly(libs.edc.vault.hashicorp)
-        runtimeOnly(libs.edc.bom.controlplane.sql)
-        runtimeOnly(libs.edc.bom.dataplane.sql)
-        println("This runtime compiles with a remote STS client, Hashicorp Vault and PostgreSQL. You will need properly configured Postgres and HCV instances.")
-    }
-
     implementation(libs.edc.configuration.filesystem)
+
+    if (project.properties.getOrDefault("persistence", "false") == "true") {
+        runtimeOnly(libs.bundles.edc.sql.control.plane)
+        runtimeOnly(libs.bundles.edc.sql.data.plane)
+    }
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
