@@ -73,3 +73,21 @@ edc-bom-controlplane-sql = { module = "org.eclipse.edc:controlplane-feature-sql-
 [plugins]
 shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
 edc-build = { id = "org.eclipse.edc.edc-build", version.ref = "edc-build" }
+
+[bundles]
+edc-sql-control-plane = [
+    "edc-sql-assetindex",
+    "edc-sql-contractdef",
+    "edc-sql-contractneg",
+    "edc-sql-policydef",
+    "edc-sql-edrcache",
+    "edc-sql-transferprocess",
+    "edc-sql-core",
+    "edc-sql-lease",
+    "edc-sql-pool",
+    "edc-sql-transactionlocal",
+    "postgres",
+]
+edc-sql-data-plane = [
+    "edc-sql-dataplane-instancestore"
+]
