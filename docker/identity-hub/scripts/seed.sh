@@ -21,7 +21,7 @@ API_KEY="c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo="
 echo
 echo
 echo "Create consumer participant context in IdentityHub"
-PEM_CONSUMER=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' certs/consumer_public.pem)
+PEM_CONSUMER=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ../certs/consumer_public.pem)
 DATA_CONSUMER=$(jq -n --arg pem "$PEM_CONSUMER" '{
            "roles":[],
            "serviceEndpoints":[
@@ -71,7 +71,7 @@ curl -sL -X POST http://localhost:8081/api/management/v3/secrets -H "x-api-key: 
 echo
 echo
 echo "Create federated catalog participant context in IdentityHub"
-PEM_FC=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' certs/fc_public.pem)
+PEM_FC=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ../certs/fc_public.pem)
 DATA_FC=$(jq -n --arg pem "$PEM_FC" '{
            "roles":[],
            "serviceEndpoints":[
@@ -121,7 +121,7 @@ curl -sL -X POST http://localhost:8291/api/management/v3/secrets -H "x-api-key: 
 echo
 echo
 echo "Create provider participant context in IdentityHub"
-PEM_PROVIDER=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' certs/provider_public.pem)
+PEM_PROVIDER=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ../certs/provider_public.pem)
 DATA_PROVIDER=$(jq -n --arg pem "$PEM_PROVIDER" '{
             "roles":[],
             "serviceEndpoints":[
@@ -176,7 +176,7 @@ curl -sL -X POST http://localhost:8291/api/management/v3/secrets -H "x-api-key: 
 echo
 echo
 echo "Create dataspace issuer"
-PEM_ISSUER=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' certs/issuer_public.pem)
+PEM_ISSUER=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ../certs/issuer_public.pem)
 DATA_ISSUER=$(jq -n --arg pem "$PEM_ISSUER" '{
             "roles":["admin"],
             "serviceEndpoints":[
