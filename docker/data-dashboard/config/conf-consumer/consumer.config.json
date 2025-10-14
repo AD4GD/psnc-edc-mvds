@@ -2,6 +2,7 @@
   "managementApiUrl": "http://localhost:29193/management",
   "catalogUrl": "http://localhost:9181/catalog",
   "theme": "theme-3",
+  "deploymentMode": "local",
   "backendUrl": "http://consumer-backend:4000/edr-endpoint",
   "oauthIssuer": "http://localhost:8081/realms/Organizations",
   "oauthClientId": "data-space"

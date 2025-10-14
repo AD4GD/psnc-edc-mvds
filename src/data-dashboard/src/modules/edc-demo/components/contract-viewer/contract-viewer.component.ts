@@ -384,15 +384,13 @@ export class ContractViewerComponent implements OnInit {
     document.body.removeChild(a);
   };
   
-  // A fast fix for the problem related to a request to <service-name>:<port> on dev. env. (need localhost)
-  // Temporary http scheme will be considered as a sign of a dev. environment
+  // Function uses the deploymentMode from app config to adjust the URL if needed
   private adjustServiceUrl = (url: string): string => {
     try {
       const parsedUrl = new URL(url);
 
-      // Check if the scheme is 'http' and the hostname is 'provider-connector'
-      if (parsedUrl.protocol === 'http:') {
-        // Replace 'provider-connector' with 'localhost'
+      // Check if the scheme is 'http' and deployment mode is 'local'
+      if (parsedUrl.protocol === 'http:' && this.appConfigService.getConfig()?.deploymentMode === 'local') {
         parsedUrl.hostname = 'localhost';
       }
 

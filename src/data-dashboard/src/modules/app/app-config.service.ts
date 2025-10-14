@@ -13,6 +13,7 @@ export interface AppConfig {
   // present if oauth2.0 is used
   oauthIssuer?: string;
   oauthClientId?: string;
+  deploymentMode?: 'local' | 'production';
   // present if api key is required by backend, and 
   // the website is protected by reverse-proxy with OAuth handling
   edcApiKey?: string;
