@@ -1,5 +1,4 @@
 import json
-
 import requests
 
 
@@ -7,17 +6,42 @@ def create_asset(
     asset_id: str,
     management_url: str,
     default_headers: dict,
+    asset_name: str = '',
+    contentType: str = "application/json",
+    version: str = "1.0",
     baseUrl: str = "https://jsonplaceholder.typicode.com/users",
 ):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
             {
-                "@context": {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
+                "@context": { "edc": "https://w3id.org/edc/v0.0.1/ns/" },
                 "@id": asset_id,
-                "properties": {"name": asset_id, "contenttype": "application/json"},
-                "private_properties": {"name": asset_id, "contenttype": "application/json"},
-                "dataAddress": {"name": "Test data", "baseUrl": baseUrl, "type": "HttpData"},
+                "properties": {
+                    "name": asset_name if asset_name else asset_id,
+                    "contenttype": contentType,
+                    "proxyPath": "true",
+                    "proxyQueryParams": "true",
+                    "version": version,
+                    "baseUrl": baseUrl,
+                    "metadata": { }
+                },
+                "private_properties": {
+                    "name": asset_name if asset_name else asset_id,
+                    "contenttype": contentType,
+                    "proxyPath": "true",
+                    "proxyQueryParams": "true",
+                    "version": version,
+                    "baseUrl": baseUrl,
+                },
+                "dataAddress": {
+                    "name": 'Test data', 
+                    "baseUrl": baseUrl, 
+                    "type": "HttpData",
+                    "contentType": contentType,
+                    "proxyPath": "true",
+                    "proxyQueryParams": "true",
+                },
             }
         ),
         url=f"{management_url}/v3/assets",
