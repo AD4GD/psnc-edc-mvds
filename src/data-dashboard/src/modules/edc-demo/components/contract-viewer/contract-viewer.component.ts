@@ -442,6 +442,7 @@ export class ContractViewerComponent implements OnInit {
   }
 
   shouldDisplayMetadata(offer : ContractOffer) : boolean {
+    if (!offer) return false;
     const metadata = this.findMetadataForAsset(offer)
     for (var prop in metadata) {
       if(metadata.hasOwnProperty(prop) && metadata[prop] !== null )

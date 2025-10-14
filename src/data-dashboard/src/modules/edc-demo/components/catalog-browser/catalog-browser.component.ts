@@ -107,6 +107,7 @@ export class CatalogBrowserComponent implements OnInit {
   }
 
   shouldDisplayMetadata(offer : ContractOffer) : boolean {
+    if (!offer) return false;
     const metadata = this.findMetadataForAsset(offer)
     for (var prop in metadata) {
       if(metadata.hasOwnProperty(prop) && metadata[prop] !== null )
@@ -120,6 +121,10 @@ export class CatalogBrowserComponent implements OnInit {
       return _asset['@id'] === offer.assetId || _asset.id === offer.assetId;
     })?.[0]?.[METADATA_CONTEXT]?.[0] || {};
   }
+
+  // ,
+  // "oauthIssuer": "http://localhost:8081/realms/Organizations",
+  // "oauthClientId": "data-space"
 
   onNegotiateClicked(contractOffer: ContractOffer) {
     console.log("Negotiation cliked");

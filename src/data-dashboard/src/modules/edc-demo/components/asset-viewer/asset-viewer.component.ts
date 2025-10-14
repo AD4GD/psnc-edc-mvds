@@ -141,6 +141,7 @@ export class AssetViewerComponent implements OnInit {
   }
   
   shouldDisplayMetadata(asset : Asset) : boolean {
+    if (!asset) return false;
     const metadata = this.findMetadataForAsset(asset)
     for (var prop in metadata) {
       if(metadata.hasOwnProperty(prop) && metadata[prop] !== null )
