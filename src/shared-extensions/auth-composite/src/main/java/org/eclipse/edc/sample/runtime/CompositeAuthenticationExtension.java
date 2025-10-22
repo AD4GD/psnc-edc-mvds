@@ -14,7 +14,6 @@ import org.eclipse.edc.spi.result.Result;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.system.configuration.Config;
-import static org.eclipse.edc.web.spi.configuration.WebServiceConfigurer.WEB_HTTP_PREFIX;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,6 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
   */
  @Extension(value = CompositeAuthenticationExtension.NAME)
  public class CompositeAuthenticationExtension implements ServiceExtension {
+
+    private static final String WEB_HTTP_PREFIX = "web.http";
 
      public static final String NAME = "Composite API Authentication";
      public static final String AUTH_KEY = "auth";
