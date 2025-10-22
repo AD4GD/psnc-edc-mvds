@@ -31,14 +31,19 @@ public class CompositeAuthenticationService implements AuthenticationService {
 
     @Override
     public boolean isAuthenticated(Map<String, List<String>> headers) {
+        monitor.debug("Received authentication request");
+
         var providers = Arrays.stream(compositeTypes).map(x -> {
-            monitor.debug("resolved: " + x);
             return providerRegistry.resolve(x).provide(config).getContent();
         }).toList();
 
-        for (var provider : providers) {
+        for (int i = 0; i < providers.size(); i++) {
+            var provider = providers.get(i);
             try {
+                monitor.debug(String.format("Trying %s", compositeTypes[i]));
+                
                 if (provider.isAuthenticated(headers)) {
+                    monitor.debug(String.format("%s has passed", compositeTypes[i]));
                     return true;
                 }
             } catch (Exception e) {

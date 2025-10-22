@@ -3,5 +3,6 @@
   "catalogUrl": "http://localhost:8294/api/catalog",
   "theme": "theme-2",
   "backendUrl": "http://consumer-backend:4000/edr-endpoint",
-  "edcApiKey": "password"
+  "oauthIssuer": "http://localhost:48081/realms/Organizations",
+  "oauthClientId": "data-space"
 }
