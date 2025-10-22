@@ -42,6 +42,8 @@ dependencies {
     }
 
     implementation(libs.edc.configuration.filesystem)
+
+    implementation(libs.psnc.auth.composite)
 }
 
 application {

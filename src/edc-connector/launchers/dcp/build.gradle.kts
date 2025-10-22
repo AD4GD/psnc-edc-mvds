@@ -31,6 +31,8 @@ dependencies {
 
     implementation(libs.edc.configuration.filesystem)
 
+    implementation(libs.psnc.auth.composite)
+
     if (project.properties.getOrDefault("persistence", "false") == "true") {
         runtimeOnly(libs.bundles.edc.sql.control.plane)
         runtimeOnly(libs.bundles.edc.sql.data.plane)

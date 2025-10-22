@@ -4,5 +4,6 @@
   "theme": "theme-2",
   "deploymentMode": "local",
   "backendUrl": "http://consumer-backend:4000/edr-endpoint",
-  "edcApiKey": "password"
+  "oauthIssuer": "http://localhost:48081/realms/Organizations",
+  "oauthClientId": "data-space"
 }
