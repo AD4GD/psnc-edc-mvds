@@ -1,14 +1,14 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
-# available types: daps, no-daps
+# available types: dcp
 ARG LAUNCHER_TYPE="dcp"
 ARG JVM_ARGS=""
 
-# available values: "database", "in-memory"
-ENV PERSISTENCE_MODE="database"
 ENV PROJECT_PATH="src/federated-catalog"
 ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
+
+ENV ORG_GRADLE_PROJECT_persistence=true
 
 # Install required tools
 RUN apt update \
