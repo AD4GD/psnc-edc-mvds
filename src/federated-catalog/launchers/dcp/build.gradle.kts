@@ -21,7 +21,6 @@ plugins {
 dependencies {
     implementation(project(":extensions:did-example-resolver"))
     implementation(project(":extensions:dcp-impl"))
-    runtimeOnly(project(":extensions:catalog-node-resolver")) // to trigger the federated catalog
     runtimeOnly(libs.edc.api.secrets)
 
     runtimeOnly(libs.bundles.connector) // base runtime
@@ -34,14 +33,17 @@ dependencies {
     runtimeOnly(libs.bundles.dcp) // DCP protocol impl
     runtimeOnly(libs.edc.api.dsp.config) // json-ld expansion
 
-    if (project.properties.getOrDefault("persistence", "false") == "true") {
-        runtimeOnly(libs.edc.vault.hashicorp)
-        runtimeOnly(libs.bundles.sql.edc)
-        runtimeOnly(libs.edc.sts.remote.client)
-        println("This runtime compiles with a remote STS client, Hashicorp Vault and PostgreSQL. You will need properly configured Postgres and HCV instances.")
-    }
-
     implementation(libs.edc.configuration.filesystem)
+    
+    runtimeOnly(libs.edc.fc.core)
+    runtimeOnly(libs.edc.fc.core08)
+    runtimeOnly(libs.edc.fc.api)
+
+    if (project.properties.getOrDefault("persistence", "false") == "true") {
+        runtimeOnly(libs.bundles.edc.sql.federatedcatalog)
+    } else {
+        runtimeOnly(project(":extensions:catalog-node-resolver"))
+    }
 
     implementation(libs.psnc.auth.composite)
 }

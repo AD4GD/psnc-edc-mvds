@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
-# available types: dcp, daps, no-daps
+# available types: dcp
 ARG LAUNCHER_TYPE="dcp"
 ARG JVM_ARGS=""
 
