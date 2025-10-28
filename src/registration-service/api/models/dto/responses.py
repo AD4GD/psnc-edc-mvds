@@ -1,5 +1,7 @@
 from pydantic import BaseModel, AnyHttpUrl, Field
-from typing import Literal, Optional
+from typing import Literal, Optional, Dict, Any
+
+from .requests import UserRegistrationForm
 
 
 class SimpleMessageResponse(BaseModel):
@@ -26,11 +28,10 @@ class ParticipantResponse(BaseModel):
 
 class UserRegistrationResponse(BaseModel):
     """ Response model for user registration. """
-    credential_id: str
-    credential_hash: str
-    issued_at: str
-    issued_to: str
-    storage_ref: Optional[str]
+    registration_form: UserRegistrationForm
+    connector_token: str
+    user_claims: Dict[str, Any]
+    vc : Dict[str, Any] = Field(..., description="Verifiable Credential issued to the user")
 
 
 class HealthResponse(BaseModel):

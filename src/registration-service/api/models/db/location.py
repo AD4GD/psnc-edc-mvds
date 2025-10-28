@@ -12,5 +12,6 @@ class Location(Base):
     postal_code = Column(String(20), nullable=True)
     street = Column(String(200), nullable=True)
     building_number = Column(String(20), nullable=True)
+    
     created_at = Column(TIMESTAMP(timezone=True), default=text('now()'))
     updated_at = Column(TIMESTAMP(timezone=True), default=text('now()'), onupdate=text('now()'))
