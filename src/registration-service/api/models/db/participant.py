@@ -9,13 +9,13 @@ class Participant(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
     did = Column(String(255), nullable=False, unique=True)
-    name = Column(String(255), nullable=False) # nickname or organization name
+    name = Column(String(255), nullable=False) # nickname or shorten organization name
+    full_name = Column(String(500), nullable=False) # full name of the organization
+    VAT_number = Column(String(50), nullable=False) # VAT number if applicable
     protocol_url = Column(Text, nullable=False)
-    error_detail = Column(Text, nullable=True)
+    email = Column(String(255), nullable=False)
     location_id = Column(UUID(as_uuid=True), ForeignKey('location.id'), nullable=True)
     location = relationship('Location')
-    contact_id = Column(UUID(as_uuid=True), ForeignKey('contact.id'), nullable=True)
-    contact = relationship('Contact')
 
     created_at = Column(TIMESTAMP(timezone=True), default=text('now()'))
     updated_at = Column(TIMESTAMP(timezone=True), default=text('now()'), onupdate=text('now()'))
