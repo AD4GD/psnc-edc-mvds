@@ -44,6 +44,7 @@ edc-sql-lease = { module = "org.eclipse.edc:sql-lease", version.ref = "edc" }
 edc-sql-pool = { module = "org.eclipse.edc:sql-pool-apache-commons", version.ref = "edc" }
 edc-sql-transactionlocal = { module = "org.eclipse.edc:transaction-local", version.ref = "edc" }
 edc-sql-dataplane-instancestore = { module = "org.eclipse.edc:data-plane-instance-store-sql", version.ref = "edc" }
+edc-sql-bootstrapper = { module = "org.eclipse.edc:sql-bootstrapper", version.ref = "edc" }
 
 # persistence
 edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
@@ -70,6 +71,22 @@ edc-bom-dataplane-sql = { module = "org.eclipse.edc:dataplane-feature-sql-bom", 
 edc-bom-controlplane = { module = "org.eclipse.edc:controlplane-dcp-bom", version.ref = "edc" }
 edc-bom-controlplane-sql = { module = "org.eclipse.edc:controlplane-feature-sql-bom", version.ref = "edc" }
 
+# spi for custom extensions
+edc-token-spi = { module = "org.eclipse.edc:token-spi", version.ref = "edc" }
+edc-jwt-spi = { module = "org.eclipse.edc:jwt-spi", version.ref = "edc" }
+edc-oauth2-spi = { module = "org.eclipse.edc:oauth2-spi", version.ref = "edc" }
+edc-data-plane-spi = { module = "org.eclipse.edc:data-plane-spi", version.ref = "edc" }
+edc-contract-spi = { module = "org.eclipse.edc:contract-spi", version.ref = "edc" }
+edc-policy-engine-spi = { module = "org.eclipse.edc:policy-engine-spi", version.ref = "edc" }
+edc-participant-spi = { module = "org.eclipse.edc:participant-spi", version.ref = "edc" }
+edc-json-ld = { module = "org.eclipse.edc:json-ld", version.ref = "edc" }
+
+# data plane
+edc-data-plane-http = { module = "org.eclipse.edc:data-plane-http", version.ref = "edc" }
+
+# control plane
+edc-connector-core = { module = "org.eclipse.edc:connector-core", version.ref = "edc" }
+
 [plugins]
 shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
 edc-build = { id = "org.eclipse.edc.edc-build", version.ref = "edc-build" }
@@ -86,6 +103,7 @@ edc-sql-control-plane = [
     "edc-sql-lease",
     "edc-sql-pool",
     "edc-sql-transactionlocal",
+    "edc-sql-bootstrapper",
     "postgres",
 ]
 edc-sql-data-plane = [
