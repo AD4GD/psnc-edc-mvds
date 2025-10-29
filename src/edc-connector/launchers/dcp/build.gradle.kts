@@ -24,6 +24,8 @@ dependencies {
     runtimeOnly(project(":extensions:dcp-impl")) // some patches/impls for DCP
     runtimeOnly(libs.edc.bom.controlplane)
     runtimeOnly(libs.edc.api.secrets)
+    runtimeOnly(project(":extensions:data-plane-oauth2-access-token"))
+    runtimeOnly(project(":extensions:policy-engine"))
 
     // data plane part
     runtimeOnly(libs.edc.bom.dataplane)
