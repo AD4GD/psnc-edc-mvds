@@ -25,9 +25,9 @@ build-federated-catalog: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/bellsoft/liberica
 build-federated-catalog: CONTEXT_PATH=../
 build-federated-catalog: BASE_IMAGE=$(BUILDER_IMAGE)
 
-build-registration-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
-build-registration-service: CONTEXT_PATH=../
-build-registration-service: BASE_IMAGE=$(BUILDER_IMAGE)
+build-data-space-hub: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
+build-data-space-hub: CONTEXT_PATH=../
+build-data-space-hub: BASE_IMAGE=$(BUILDER_IMAGE)
 
 build-registration-service-frontend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
 build-registration-service-frontend: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged

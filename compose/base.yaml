@@ -377,5 +377,5 @@ services:
 volumes:
   data-space-keycloak-postgresql:
     driver: local
-  registration-service-postgresql:
+  data-space-hub-postgresql:
     driver: local
