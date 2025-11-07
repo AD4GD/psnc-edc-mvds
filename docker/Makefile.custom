@@ -53,3 +53,7 @@ build-identity-hub: BASE_IMAGE=$(BUILDER_IMAGE)
 build-issuer-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/openjdk:17-slim-bullseye
 build-issuer-service: CONTEXT_PATH=../
 build-issuer-service: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-maile-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
+build-maile-service: CONTEXT_PATH=../
+build-maile-service: BASE_IMAGE=$(BUILDER_IMAGE)
