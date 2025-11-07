@@ -1,4 +1,11 @@
 services:
+  mail-service:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/mail-service:${IMAGE_TAG}
+    ports:
+      - "5555:5555"
+    volumes:
+        - ../docker/mail-service/config/configuration.properties:/app/.env:ro
+    entrypoint: "make prod"
 
   # registration-service-frontend:
   #   image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/registration-service-frontend:${IMAGE_TAG}
