@@ -1,7 +1,7 @@
 from api.routers.health import health_router
 from api.routers.participant import router as participant_router
-from api.routers.user import router as user_router
 from api.routers.registration import router as registration_router
+from api.routers.user import router as user_router
 from fastapi import APIRouter
 
 main_router = APIRouter(prefix="/api/v3")

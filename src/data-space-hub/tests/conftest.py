@@ -3,14 +3,16 @@
 Pytest configuration and fixtures for Vault tests.
 """
 
-import pytest
+import base64
 import os
 import sys
-import base64
+import uuid
 from pathlib import Path
+from typing import Any, Dict
 from unittest.mock import MagicMock, patch
-from typing import Dict, Any
-from hvac.exceptions import InvalidRequest, InvalidPath
+
+import pytest
+from api.services.clients import VaultInitializer, VaultService
 
 # Add project root to path
 TEST_DIR = Path(__file__).parent
@@ -21,6 +23,7 @@ if str(PROJECT_ROOT) not in sys.path:
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+
 # Environment setup
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_env():
@@ -30,28 +33,28 @@ def setup_test_env():
     os.environ["VAULT_TRANSIT_MOUNT"] = "transit"
     yield
 
+
 @pytest.fixture(scope="session")
 def vault_url() -> str:
     return os.getenv("VAULT_URL", "http://localhost:7200")
+
 
 @pytest.fixture(scope="session")
 def vault_token() -> str:
     return os.getenv("VAULT_TOKEN", "test-token")
 
+
 # Common key name fixture (class scope - shared per class)
 @pytest.fixture(scope="class")
 def test_key_name():
-    import uuid
     return f"test-key-{uuid.uuid4().hex[:8]}"
+
 
 # Common encryption keys (class scope)
 @pytest.fixture(scope="class")
 def encryption_keys():
-    import uuid
-    return {
-        "aes": f"test-aes-{uuid.uuid4().hex[:8]}",
-        "chacha": f"test-chacha-{uuid.uuid4().hex[:8]}"
-    }
+    return {"aes": f"test-aes-{uuid.uuid4().hex[:8]}", "chacha": f"test-chacha-{uuid.uuid4().hex[:8]}"}
+
 
 # Sample VC fixture
 @pytest.fixture
@@ -61,8 +64,9 @@ def sample_credential() -> Dict[str, Any]:
         "type": ["VerifiableCredential"],
         "issuer": "did:example:issuer",
         "issuanceDate": "2024-01-01T00:00:00Z",
-        "credentialSubject": {"id": "did:example:subject", "name": "Test User"}
+        "credentialSubject": {"id": "did:example:subject", "name": "Test User"},
     }
+
 
 # Mock Vault client (uproszczony, kompleksowy)
 @pytest.fixture
@@ -101,9 +105,7 @@ def mock_vault_client():
     kv.configure.return_value = {"data": {"options": {"max_versions": 10}}}
     # Ustaw default dla delete_version_after="0s", cas_required=False
     kv.configure.side_effect = lambda **kwargs: {"data": {"options": kwargs}}
-    kv.configure.return_value = {"data": {
-        "options": {"version": "2", "max_versions": 10}
-    }}
+    kv.configure.return_value = {"data": {"options": {"version": "2", "max_versions": 10}}}
     client.secrets.kv.v2 = kv
 
     # Sys
@@ -123,16 +125,16 @@ def mock_vault_client():
 
     return client
 
+
 # Mocked services
 @pytest.fixture
 def mocked_vault_service(mock_vault_client):
-    with patch('hvac.Client', return_value=mock_vault_client):
-        from api.services.clients import VaultService
+    with patch("hvac.Client", return_value=mock_vault_client):
         return VaultService()
+
 
 @pytest.fixture
 def mocked_vault_initializer(mock_vault_client):
     """Create VaultInitializer with mocked client."""
-    with patch('hvac.Client', return_value=mock_vault_client):
-        from api.services.clients import VaultInitializer
+    with patch("hvac.Client", return_value=mock_vault_client):
         return VaultInitializer()

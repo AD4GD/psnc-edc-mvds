@@ -1,24 +1,23 @@
-import logging
-
 from typing import List
-from fastapi import APIRouter, Depends, status
-from api.services.app import participant_service
+
+from api.core.logging_config import setup_logging
 from api.models.dto.requests import ParticipantCreateRequest
 from api.models.dto.responses import ParticipantResponse
+from api.services.app import participant_service
 from api.services.helper import get_bearer_token, require_admin_token
+from fastapi import APIRouter, Depends, status
 
-
-logger = logging.getLogger(__name__)
+logger = setup_logging()
 router = APIRouter(prefix="/participants", tags=["participant", "manage participant"])
 
 
 @router.get(
     "/list",
     response_model=List[ParticipantResponse],
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_200_OK,
     summary="Get list of all participants (admin)",
 )
-async def get_all_participants():#token: str = Depends(require_admin_token)):
+async def get_all_participants():  # token: str = Depends(require_admin_token)):
     """
     Create a new participant record.
     Requires an admin Keycloak token.

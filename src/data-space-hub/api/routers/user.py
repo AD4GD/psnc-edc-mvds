@@ -1,11 +1,13 @@
 import logging
-from fastapi import APIRouter, status
 
 from api.models.dto.requests import UserRegistrationRequest
-from api.models.dto.responses import UserRegistrationResponse, SimpleMessageResponse
-from api.services.app import user_service
 
-logger = logging.getLogger(__name__)
+# from api.models.dto.responses import SimpleMessageResponse, UserRegistrationResponse
+from api.core.logging_config import setup_logging
+from api.services.app import user_service
+from fastapi import APIRouter, status
+
+logger = setup_logging()
 router = APIRouter(prefix="/users", tags=["user"])
 
 

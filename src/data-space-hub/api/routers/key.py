@@ -1,14 +1,11 @@
 from __future__ import annotations
-from typing import Any
-import json
-import logging
 
+from api.core.logging_config import setup_logging
+from api.core.settings import ProjectSettings
+from api.models.dto.responses import SimpleMessageResponse
 from fastapi import APIRouter, status
 
-from api.models.dto.responses import SimpleMessageResponse
-from api.core.settings import ProjectSettings
-
-logger = logging.getLogger(__name__)
+logger = setup_logging()
 router = APIRouter(prefix="/signed", tags=["key", "publickey"])
 
 

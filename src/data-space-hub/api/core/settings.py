@@ -1,4 +1,3 @@
-from enum import Enum
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -36,6 +35,7 @@ class PostgreSQLSettings(BaseSettings):
         "extra": "ignore",
     }
 
+
 class KeycloakSettings(BaseSettings):
     keycloak_server_url: str = Field(..., alias="KEYCLOAK_SERVER_URL")
     keycloak_realm: str = Field(..., alias="KEYCLOAK_REALM")
@@ -49,6 +49,7 @@ class KeycloakSettings(BaseSettings):
         "extra": "ignore",
     }
 
+
 class KeyVaultSettings(BaseSettings):
     vault_url: str = Field("http://localhost:8200", alias="VAULT_URL")
     vault_role_id: str = Field(..., alias="VAULT_ROLE_ID")
@@ -58,7 +59,7 @@ class KeyVaultSettings(BaseSettings):
     # Optional: Namespace for Vault Enterprise
     vault_namespace: str = Field("vault_namespace", alias="VAULT_NAMESPACE")
     # Default key settings
-    vault_default_key_type: str = Field("ed25519", alias="VAULT_DEFAULT_KEY_TYPE") # For VC signing
+    vault_default_key_type: str = Field("ed25519", alias="VAULT_DEFAULT_KEY_TYPE")  # For VC signing
     vault_key_auto_rotate_days: int = Field(90, alias="VAULT_KEY_AUTO_ROTATE_DAYS")
 
     model_config = {
@@ -80,20 +81,8 @@ class NodeConnectionSettings(BaseSettings):
     }
 
 
-class EmailSettings(BaseSettings):
-    sender_name: str = Field("Data Space HUB", alias="SERVICE_NAME")
-
-    model_config = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "case_sensitive": False,
-        "extra": "ignore",
-    }
-
-
 ProjectSettings = ProjectSettings()
 PostgreSQLSettings = PostgreSQLSettings()
 KeycloakSettings = KeycloakSettings()
 KeyVaultSettings = KeyVaultSettings()
 NodeConnectionSettings = NodeConnectionSettings()
-EmailSettings = EmailSettings()

@@ -1,12 +1,12 @@
+import asyncio
 import base64
 import hashlib
 import json
-import asyncio
+from typing import Any, Dict, Optional
 from uuid import uuid4
-from typing import Optional, Dict, Any
-from pathlib import Path
-from fastapi import Depends, HTTPException, Header, status
-from api.services.clients import vault_service, keycloak_service
+
+from api.services.clients import keycloak_service, vault_service
+from fastapi import Depends, Header, HTTPException, status
 
 
 # ----- dependencies / helpers -----
@@ -53,8 +53,8 @@ async def sign_jwt_with_vault(payload: Dict[str, Any], key_name: str, alg: str =
 
     # call vault sign in thread
     try:
-        sig_raw = await asyncio.to_thread(vault_service.sign_bytes, key_name, signing_input)
-    except Exception as e:
+        sig_raw = await asyncio.to_thread(vault_service.sign_data, key_name, data=signing_input)
+    except Exception:
         raise
 
     try:
@@ -68,5 +68,5 @@ async def sign_jwt_with_vault(payload: Dict[str, Any], key_name: str, alg: str =
     return jwt
 
 
-def create_did(name : str) -> str:
+def create_did(name: str) -> str:
     return "_".join(name.split()) + "_" + str(uuid4())

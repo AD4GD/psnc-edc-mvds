@@ -52,8 +52,8 @@ class ServiceUnavailableException(ProjectNameException):
         super().__init__(message=message, status_code=503)
 
 
-class ValidationException(ProjectNameException): # TODO correct
-    """ Exception raised for validation errors. """
+class ValidationException(ProjectNameException):  # TODO correct
+    """Exception raised for validation errors."""
 
     def __init__(
         self,

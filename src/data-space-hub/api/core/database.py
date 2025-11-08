@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import AsyncGenerator
-from sqlalchemy import DateTime, MetaData
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncAttrs, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
+
 from api.core.settings import PostgreSQLSettings
+from sqlalchemy import DateTime, MetaData
+from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
 engine = create_async_engine(PostgreSQLSettings.postgres_uri, future=True, echo=False)
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

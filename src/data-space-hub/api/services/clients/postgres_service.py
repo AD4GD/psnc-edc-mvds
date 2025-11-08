@@ -1,15 +1,15 @@
-import logging
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
-
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql import select
-from sqlalchemy import update, delete
+from typing import Any, Dict, List, Optional
 
 from api.core.database import AsyncSessionLocal
-from api.models.db import Location, Participant, RegistrationRequest, IssuedCredentials
+from api.core.logging_config import setup_logging
+from api.models.db import IssuedCredentials, Location, Participant, RegistrationRequest
+from sqlalchemy import delete, update
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql import select
 
-logger = logging.getLogger(__name__)
+logger = setup_logging()
+
 
 class AsyncPostgresService:
     """Asynchronous service for interacting with PostgreSQL database."""
@@ -18,7 +18,7 @@ class AsyncPostgresService:
         self.session_factory = AsyncSessionLocal
 
     async def health(self) -> bool:
-        """ Check database connectivity. """
+        """Check database connectivity."""
         try:
             async with self.session_factory() as session:
                 await session.execute(select(1))
@@ -37,7 +37,7 @@ class AsyncPostgresService:
                 await session.commit()
                 await session.refresh(participant)
                 return participant
-            except Exception as e:
+            except Exception:
                 await session.rollback()
                 logger.exception("Failed to create participant")
                 raise
@@ -54,7 +54,7 @@ class AsyncPostgresService:
             return result.scalars().first()
 
     async def list_participants(self, skip: int = 0, limit: int = 10) -> List[Participant]:
-        """ Fetch paginated list of participants. """
+        """Fetch paginated list of participants."""
         async with self.session_factory() as session:
             result = await session.execute(select(Participant).offset(skip).limit(limit))
             return result.scalars().all()
@@ -70,13 +70,13 @@ class AsyncPostgresService:
                 )
                 await session.commit()
                 return await session.get(Participant, participant_id)
-            except Exception as e:
+            except Exception:
                 await session.rollback()
                 logger.exception("Failed to update participant")
                 raise
 
-    async def delete_participant(self, id : str = None, did : str = None) -> bool:
-        """ Delete participant by id or did. Returns True if deleted. """
+    async def delete_participant(self, id: str = None, did: str = None) -> bool:
+        """Delete participant by id or did. Returns True if deleted."""
         async with self.session_factory() as session:
             try:
                 if id:
@@ -89,7 +89,7 @@ class AsyncPostgresService:
                 await session.commit()
                 logger.info(f"Participant {id if id else did if did else None} was successfully deleted")
                 return True
-            except Exception as e:
+            except Exception:
                 await session.rollback()
                 logger.exception("Failed to delete participant")
                 return False
@@ -104,7 +104,7 @@ class AsyncPostgresService:
                 await session.commit()
                 await session.refresh(loc)
                 return loc
-            except Exception as e:
+            except Exception:
                 await session.rollback()
                 logger.exception("Failed to create location")
                 raise
@@ -118,14 +118,10 @@ class AsyncPostgresService:
         """Partial update of location fields."""
         async with self.session_factory() as session:
             try:
-                await session.execute(
-                    update(Location)
-                    .where(Location.id == location_id)
-                    .values(**{**fields})
-                )
+                await session.execute(update(Location).where(Location.id == location_id).values(**{**fields}))
                 await session.commit()
                 return await session.get(Location, location_id)
-            except Exception as e:
+            except Exception:
                 await session.rollback()
                 logger.exception("Failed to update location")
                 raise
@@ -137,11 +133,11 @@ class AsyncPostgresService:
                 await session.execute(delete(Location).where(Location.id == location_id))
                 await session.commit()
                 return True
-            except Exception as e:
+            except Exception:
                 await session.rollback()
                 logger.exception("Failed to delete location")
                 return False
-    
+
     # --- RegistrationRequest / IssuedCredential helpers ---
     async def create_registration_request(self, data: Dict[str, Any]) -> RegistrationRequest:
         """Create a registration request audit row."""
@@ -157,12 +153,12 @@ class AsyncPostgresService:
                 await session.rollback()
                 logger.exception("Failed to create registration_request")
                 raise
-    
+
     async def get_registration_request(self, req_id) -> Optional[RegistrationRequest]:
         """Get registration request by id."""
         async with self.session_factory() as session:
             return await session.get(RegistrationRequest, req_id)
-    
+
     async def list_registration_requests(self, skip: int = 0, limit: int = 50) -> List[RegistrationRequest]:
         """List registration requests, optional filter by participant."""
         async with self.session_factory() as session:
@@ -202,11 +198,7 @@ class AsyncPostgresService:
     async def create_issued_credential(self, data: Dict[str, Any]) -> IssuedCredentials:
         """Create issued_credential row (status pending/active)."""
         async with self.session_factory() as session:
-            ic = IssuedCredentials(
-                **data, 
-                created_at=datetime.now(timezone.utc), 
-                updated_at=datetime.now(timezone.utc)
-            )
+            ic = IssuedCredentials(**data, created_at=datetime.now(timezone.utc), updated_at=datetime.now(timezone.utc))
             session.add(ic)
             try:
                 await session.commit()
@@ -222,7 +214,9 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             return await session.get(IssuedCredentials, issued_id)
 
-    async def list_issued_credentials(self, participant_id: Optional[str] = None, skip: int = 0, limit: int = 50) -> List[IssuedCredentials]:
+    async def list_issued_credentials(
+        self, participant_id: Optional[str] = None, skip: int = 0, limit: int = 50
+    ) -> List[IssuedCredentials]:
         """List issued credentials with optional filters."""
         async with self.session_factory() as session:
             stmt = select(IssuedCredentials)
@@ -259,5 +253,6 @@ class AsyncPostgresService:
                 await session.rollback()
                 logger.exception("Failed to delete issued_credential")
                 return False
+
 
 async_postgres_service = AsyncPostgresService()
