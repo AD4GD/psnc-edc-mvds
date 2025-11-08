@@ -1,5 +1,4 @@
 from api.core.logging_config import setup_logging
-
 from api.models.db.registration_request import RegistrationStatus
 from api.models.dto.requests import ParticipantCreateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse

@@ -1,9 +1,6 @@
-import logging
-
-from api.models.dto.requests import UserRegistrationRequest
-
 # from api.models.dto.responses import SimpleMessageResponse, UserRegistrationResponse
 from api.core.logging_config import setup_logging
+from api.models.dto.requests import UserRegistrationRequest
 from api.services.app import user_service
 from fastapi import APIRouter, status
 

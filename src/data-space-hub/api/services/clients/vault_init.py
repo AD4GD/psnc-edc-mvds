@@ -6,8 +6,8 @@ This module provides utilities to initialize Vault with required secrets engines
 policies, and keys for Verifiable Credentials and DCP operations.
 """
 
-from typing import Any, Dict, List, Optional
 import sys
+from typing import Any, Dict, List, Optional
 
 from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings

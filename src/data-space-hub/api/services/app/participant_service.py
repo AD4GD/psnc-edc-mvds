@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from api.core.logging_config import setup_logging

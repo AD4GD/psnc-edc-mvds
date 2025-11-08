@@ -1,25 +1,21 @@
-import logging
-import httpx
-import json
-from os import path
-
-from uuid import uuid4
-from fastapi import HTTPException, status
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional
+from uuid import uuid4
 
-from api.models.dto.responses import UserRegistrationResponse, UserRegistrationForm, SimpleMessageResponse
-from api.models.dto.requests import UserRegistrationRequest
-from api.models.db import Participant, IssuedCredentials
+import httpx
+from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings, ProjectSettings
+from api.models.db import IssuedCredentials, Participant
+from api.models.dto.requests import UserRegistrationRequest
+from api.models.dto.responses import SimpleMessageResponse, UserRegistrationForm, UserRegistrationResponse
 from api.services.clients import async_postgres_service, vault_service
 from api.services.helper import sha256_hex, sign_jwt_with_vault
-from api.templates.dict_templates import JsonLdDict, VCDict
-from api.templates.template_filler import render_json_template_string
 from api.templates.credentials.jsonld_vc import template as jsonld_vc_template
 from api.templates.credentials.vc_to_sign import template as vc_to_sign_template
+from api.templates.dict_templates import JsonLdDict, VCDict
+from api.templates.template_filler import render_json_template_string
+from fastapi import HTTPException, status
 
-logger = logging.getLogger(__name__)
+logger = setup_logging()
 
 
 class UserService:
@@ -58,28 +54,34 @@ class UserService:
         print(credential_uuid)
 
         # 2) Build VC payload (JWT style)
-         
+
         # Optional JSON-LD VC template (unsigned) - will be saved as metadata and serves as base for vc
         try:
-            jsonld_vc = render_json_template_string(jsonld_vc_template, JsonLdDict(
-                credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
-                issuer=ProjectSettings.issuer_did,
-                user_did="",
-                issuance_date_iso=now_ts,
-                expiration_date_iso=now_ts + 3600,
-                processing_level="processing",
-                contract_version="1.0.0",
-                claims=[{"k" : "v"}],
-                alumniOf=None,
-            ))
-            vc_payload = render_json_template_string(vc_to_sign_template, VCDict(
-                issuer=ProjectSettings.issuer_did,
-                user_did="",
-                issued_at=now_ts,
-                expires_at=now_ts + 3600,
-                metadata_vc="",
-                vc=sign_jwt_with_vault(jsonld_vc),
-            ))
+            jsonld_vc = render_json_template_string(
+                jsonld_vc_template,
+                JsonLdDict(
+                    credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
+                    issuer=ProjectSettings.issuer_did,
+                    user_did="",
+                    issuance_date_iso=now_ts,
+                    expiration_date_iso=now_ts + 3600,
+                    processing_level="processing",
+                    contract_version="1.0.0",
+                    claims=[{"k": "v"}],
+                    alumniOf=None,
+                ),
+            )
+            vc_payload = render_json_template_string(
+                vc_to_sign_template,
+                VCDict(
+                    issuer=ProjectSettings.issuer_did,
+                    user_did="",
+                    issued_at=now_ts,
+                    expires_at=now_ts + 3600,
+                    metadata_vc="",
+                    vc=sign_jwt_with_vault(jsonld_vc),
+                ),
+            )
             print(jsonld_vc)
             print(vc_payload)
         except Exception as e:
@@ -89,7 +91,7 @@ class UserService:
 
         sub = req.user_claims.get("sub") or req.user_claims.get("email") or f"user:{uuid4()}"
         vc_payload = {
-            "iss": ProjectSettings.issuer_did,     # issuer id / DID
+            "iss": ProjectSettings.issuer_did,  # issuer id / DID
             "aud": f"did:web:{participant.did}",
             "sub": sub,
             "iat": now_ts,
@@ -104,8 +106,6 @@ class UserService:
                 "issued_by": ProjectSettings.issuer_did,
             },
         }
-
-        
 
         # 3) Sign JWT-VC using Vault (async helper sign_jwt_with_vault)
         try:
@@ -126,18 +126,20 @@ class UserService:
             # create audit and issued_credential using service methods if available
             issued = None
             try:
-                issued = await self.postgres.create_issued_credential({
-                "participant_id": str(participant.id),
-                "subject_id": sub,
-                "credential_id": credential_uuid,
-                "credential_hash": vc_hash,
-                "credential_storage_ref": f"connector://{participant.did}/vc/{vc_hash}",
-                "issued_by": KeyVaultSettings.rs_issuer,
-                "issued_at": datetime.now(timezone.utc),
-                "expires_at": None,
-                "status": "pending",
-                "metadata": {"jsonld": jsonld, "ttl_seconds": req.ttl_seconds},
-            })
+                issued = await self.postgres.create_issued_credential(
+                    {
+                        "participant_id": str(participant.id),
+                        "subject_id": sub,
+                        "credential_id": credential_uuid,
+                        "credential_hash": vc_hash,
+                        "credential_storage_ref": f"connector://{participant.did}/vc/{vc_hash}",
+                        "issued_by": KeyVaultSettings.rs_issuer,
+                        "issued_at": datetime.now(timezone.utc),
+                        "expires_at": None,
+                        "status": "pending",
+                        "metadata": {"jsonld": jsonld, "ttl_seconds": req.ttl_seconds},
+                    }
+                )
             except Exception:
                 logger.exception("Failed to persist issued credential")
                 raise RuntimeError("DB persist failed")
@@ -146,16 +148,20 @@ class UserService:
         token_hash = sha256_hex(req.connector_token.encode("utf-8"))
         try:
             # create_registration_request should be implemented on async_postgres_service
-            reg_req = await async_postgres_service.create_registration_request({
-                "participant_id": str(participant.id),
-                "connector_token_hash": token_hash,
-                "token_expires_at": None,
-                "status": "pending",
-                "payload": req.user_claims,
-            })
+            reg_req = await async_postgres_service.create_registration_request(
+                {
+                    "participant_id": str(participant.id),
+                    "connector_token_hash": token_hash,
+                    "token_expires_at": None,
+                    "status": "pending",
+                    "payload": req.user_claims,
+                }
+            )
         except AttributeError:
             # service method missing: log and continue but warn
-            logger.warning("async_postgres_service.create_registration_request not implemented; skipping DB audit entry")
+            logger.warning(
+                "async_postgres_service.create_registration_request not implemented; skipping DB audit entry"
+            )
             reg_req = None
         except Exception:
             logger.exception("Failed to store registration request")
@@ -165,7 +171,7 @@ class UserService:
         issued_at = int(__import__("time").time())
         exp = issued_at + (req.ttl_seconds or 3600)
         vc_payload = {
-            "iss": KeyVaultSettings.rs_issuer,               # e.g. RS DID or issuer URL from settings
+            "iss": KeyVaultSettings.rs_issuer,  # e.g. RS DID or issuer URL from settings
             "sub": req.user_claims.get("sub") or req.user_claims.get("email"),
             "iat": issued_at,
             "nbf": issued_at,
@@ -180,25 +186,29 @@ class UserService:
         # 4) Sign VC as a JWT using Vault transit key (key name from settings)
         try:
             signing_key_name = getattr(KeyVaultSettings, "rs_transit_key_name", "rs-signing-key")
-            jwt_vc = await sign_jwt_with_vault(vc_payload, signing_key_name, alg=getattr(KeyVaultSettings, "rs_jwt_alg", "RS256"))
-        except Exception as e:
+            jwt_vc = await sign_jwt_with_vault(
+                vc_payload, signing_key_name, alg=getattr(KeyVaultSettings, "rs_jwt_alg", "RS256")
+            )
+        except Exception:
             logger.exception("Failed to sign VC")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Signing failed")
 
         # 5) store issued credential metadata (hash + pointer)
         vc_hash = sha256_hex(jwt_vc.encode("utf-8"))
         try:
-            issued = await async_postgres_service.create_issued_credential({
-                "participant_id": str(participant.id),
-                "subject_id": vc_payload.get("sub"),
-                "credential_id": None,
-                "credential_hash": vc_hash,
-                "credential_storage_ref": f"connector://{participant.did}/vc/{vc_hash}",
-                "issued_by": KeyVaultSettings.rs_issuer,
-                "expires_at": None,
-                "status": "active",
-                "metadata": {"ttl_seconds": req.ttl_seconds},
-            })
+            issued = await async_postgres_service.create_issued_credential(
+                {
+                    "participant_id": str(participant.id),
+                    "subject_id": vc_payload.get("sub"),
+                    "credential_id": None,
+                    "credential_hash": vc_hash,
+                    "credential_storage_ref": f"connector://{participant.did}/vc/{vc_hash}",
+                    "issued_by": KeyVaultSettings.rs_issuer,
+                    "expires_at": None,
+                    "status": "active",
+                    "metadata": {"ttl_seconds": req.ttl_seconds},
+                }
+            )
         except AttributeError:
             logger.warning("async_postgres_service.create_issued_credential not implemented; skipping DB insert")
             issued = None
@@ -229,7 +239,9 @@ class UserService:
             credential_hash=vc_hash,
             issued_at=str(issued_at),
             issued_to=str(vc_payload.get("sub")),
-            storage_ref=(issued.credential_storage_ref if issued is not None else f"connector://{participant.did}/vc/{vc_hash}"),
+            storage_ref=(
+                issued.credential_storage_ref if issued is not None else f"connector://{participant.did}/vc/{vc_hash}"
+            ),
         )
 
 
