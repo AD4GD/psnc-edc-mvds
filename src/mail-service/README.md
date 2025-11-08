@@ -10,7 +10,7 @@ POST endpoint is available at "/email". If client has proper api-key and provide
 
 ### Data protection
 All requests will use `HTTPS protocol` so will be encrypted during transportation. \
-No data of clients are stored in this shared service. It is for the usage of multiple clients so the service protects from stealing credentials. It is trusted service for all users and participants of Data Space. 
+No data of clients are stored in this shared service. It is for the usage of multiple clients so the service protects from stealing credentials. It is trusted service for all users and participants of Data Space.
 
 ### Request body
 ```
