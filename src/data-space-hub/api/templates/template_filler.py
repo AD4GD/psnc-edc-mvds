@@ -1,8 +1,9 @@
-import re
 import json
-from typing import Dict, Any
+import re
+from typing import Any, Dict
 
 _PLACEHOLDER_RE = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
 
 def render_json_template_string(template: str, context: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -12,6 +13,7 @@ def render_json_template_string(template: str, context: Dict[str, Any]) -> Dict[
     - Finally parses the rendered text with json.loads and returns the dict/list.
     Raises json.JSONDecodeError if rendered text is not valid JSON.
     """
+
     def _repl(m: re.Match) -> str:
         key = m.group(1)
         if key not in context:

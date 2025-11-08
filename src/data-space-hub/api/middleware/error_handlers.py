@@ -4,7 +4,7 @@ Exception handlers for the FastAPI embeddings service.
 
 import uuid
 
-from api.core.logging import logger
+from api.core.logging_config import setup_logging
 from api.exceptions.registration_service_exceptions import ProjectNameException
 from api.models.dto.error_responses import ErrorResponse, ValidationErrorResponse
 from fastapi import FastAPI, Request, status
@@ -12,14 +12,14 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
+logger = setup_logging()
+
 
 def register_exception_handlers(app: FastAPI) -> None:
     """Register all exception handlers for the app."""
 
     @app.exception_handler(ProjectNameException)
-    async def registration_service_exception_handler(
-        request: Request, exc: ProjectNameException
-    ) -> JSONResponse:
+    async def registration_service_exception_handler(request: Request, exc: ProjectNameException) -> JSONResponse:
         """Handle custom ProjectName service exceptions."""
 
         request_id = str(uuid.uuid4())
@@ -33,18 +33,12 @@ def register_exception_handlers(app: FastAPI) -> None:
             },
         )
 
-        error_response = ErrorResponse(
-            error=exc.error_code, message=exc.message, request_id=request_id
-        )
+        error_response = ErrorResponse(error=exc.error_code, message=exc.message, request_id=request_id)
 
-        return JSONResponse(
-            status_code=exc.status_code, content=error_response.model_dump()
-        )
+        return JSONResponse(status_code=exc.status_code, content=error_response.model_dump())
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(
-        request: Request, exc: RequestValidationError
-    ) -> JSONResponse:
+    async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         """Handle Pydantic validation errors."""
 
         request_id = str(uuid.uuid4())
@@ -53,9 +47,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         for error in exc.errors():
             print(error)
             field_path = " -> ".join(str(loc) for loc in error["loc"])
-            field_errors.append(
-                {"field": field_path, "message": error["msg"], "type": error["type"]}
-            )
+            field_errors.append({"field": field_path, "message": error["msg"], "type": error["type"]})
 
         logger.error(
             f"Validation error occurred: {exc}",
@@ -76,14 +68,10 @@ def register_exception_handlers(app: FastAPI) -> None:
             request_id=request_id,
         )
 
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump()
-        )
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump())
 
     @app.exception_handler(ValidationError)
-    async def pydantic_validation_exception_handler(
-        request: Request, exc: ValidationError
-    ) -> JSONResponse:
+    async def pydantic_validation_exception_handler(request: Request, exc: ValidationError) -> JSONResponse:
         """Handle Pydantic ValidationError (different from RequestValidationError)."""
 
         request_id = str(uuid.uuid4())
@@ -108,14 +96,10 @@ def register_exception_handlers(app: FastAPI) -> None:
             request_id=request_id,
         )
 
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump()
-        )
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump())
 
     @app.exception_handler(Exception)
-    async def general_exception_handler(
-        request: Request, exc: Exception
-    ) -> JSONResponse:
+    async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         """Handle unexpected exceptions."""
 
         request_id = str(uuid.uuid4())

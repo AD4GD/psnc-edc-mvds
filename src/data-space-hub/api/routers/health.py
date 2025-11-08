@@ -1,14 +1,16 @@
-from api.core.logging import logger
+from api.core.logging_config import setup_logging
 from api.core.settings import ProjectSettings
 from api.exceptions.registration_service_exceptions import ServiceUnavailableException
 from api.models.dto.error_responses import ErrorResponse
 from api.models.dto.responses import HealthResponse
-from api.services.clients.postgres_service import async_postgres_service
 from api.services.clients.keycloak_service import keycloak_service
+from api.services.clients.postgres_service import async_postgres_service
 from api.services.clients.vault_service import vault_service
 from fastapi import APIRouter, status
 
 health_router = APIRouter()
+
+logger = setup_logging()
 
 
 @health_router.get(
@@ -26,11 +28,11 @@ async def health_check():
         sync_keycloak_health = keycloak_service.health()
         sync_vault_health = vault_service.health()
         if all([async_postgres_health, sync_keycloak_health, sync_vault_health]):
-            status = "UP"
+            status_ = "UP"
         else:
-            status = "DOWN"
+            status_ = "DOWN"
         return HealthResponse(
-            status=status,
+            status=status_,
             service=ProjectSettings.service_name,
             version=ProjectSettings.service_version,
         )

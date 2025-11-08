@@ -4,11 +4,9 @@ Run with: pytest tests/test_vault_service.py -v
 """
 
 import pytest
-from unittest.mock import patch
-from typing import Dict, Any
-from hvac.exceptions import InvalidRequest, InvalidPath
-from api.services.clients import VaultService, VaultInitializer
-import base64
+from api.services.clients import VaultInitializer, VaultService
+from hvac.exceptions import InvalidPath, InvalidRequest
+
 
 # Health tests
 class TestHealthCheck:
@@ -22,6 +20,7 @@ class TestHealthCheck:
     def test_vault_health_exception(self, mocked_vault_service: VaultService, mock_vault_client):
         mock_vault_client.sys.read_health_status.side_effect = Exception("Error")
         assert mocked_vault_service.health() is True
+
 
 # Key management (uproszczone: używa wspólnego fixture)
 class TestKeyManagement:
@@ -40,16 +39,20 @@ class TestKeyManagement:
         response = mocked_vault_service.create_signing_key(test_key_name, "ed25519")  # Drugie (już istnieje)
         assert response.get("warning") == "key_already_exists" or "data" in response
 
+
 # Signing (uproszczone: mniej fixture'ów, parametrize dla wariantów)
 class TestSigningOperations:
     @pytest.fixture(autouse=True)
     def setup_key(self, mocked_vault_service: VaultService, test_key_name):
         mocked_vault_service.create_signing_key(test_key_name, "ed25519")
 
-    @pytest.mark.parametrize("data, hash_alg, expected", [
-        (b"data", None, "vault:v"),
-        (b"data", "sha2-256", "vault:v"),
-    ])
+    @pytest.mark.parametrize(
+        "data, hash_alg, expected",
+        [
+            (b"data", None, "vault:v"),
+            (b"data", "sha2-256", "vault:v"),
+        ],
+    )
     def test_sign_data(self, mocked_vault_service: VaultService, test_key_name, data, hash_alg, expected):
         kwargs = {"hash_algorithm": hash_alg} if hash_alg else {}
         signature = mocked_vault_service.sign_data(test_key_name, data, **kwargs)
@@ -72,6 +75,7 @@ class TestSigningOperations:
         mock_vault_client.secrets.transit.verify_signed_data.side_effect = Exception("Error")
         assert mocked_vault_service.verify_signature(test_key_name, b"data", "sig") is False
 
+
 # Verifiable Credentials (skrócone: mniej testów, skupione na core)
 class TestVerifiableCredentials:
     def test_sign_verify_vc(self, mocked_vault_service: VaultService, test_key_name, sample_credential):
@@ -86,9 +90,12 @@ class TestVerifiableCredentials:
         assert signed["credentialSubject"] == sample_credential["credentialSubject"]
         assert mocked_vault_service.verify_verifiable_credential(test_key_name, signed) is True
 
-    def test_verify_vc_invalid(self, mocked_vault_service: VaultService, test_key_name, sample_credential, mock_vault_client):
+    def test_verify_vc_invalid(
+        self, mocked_vault_service: VaultService, test_key_name, sample_credential, mock_vault_client
+    ):
         mock_vault_client.secrets.transit.verify_signed_data.return_value = {"data": {"valid": False}}
         assert mocked_vault_service.verify_verifiable_credential(test_key_name, sample_credential) is False
+
 
 # Public key storage (simplified)
 class TestPublicKeyStorage:
@@ -103,30 +110,38 @@ class TestPublicKeyStorage:
         mock_vault_client.secrets.kv.v2.read_secret_version.side_effect = InvalidPath("Not found")
         assert mocked_vault_service.read_public_key_metadata("nonexistent") is None
 
+
 # Encryption (simplified: parametrize, shared keys)
 class TestEncryption:
-    @pytest.mark.parametrize("key_name, context, expected_success", [
-        ("aes", None, True),      # AES without context
-        ("chacha", "user-123", True),  # ChaCha with context
-    ])
-    def test_encrypt_decrypt_roundtrip(self, mocked_vault_service: VaultService, encryption_keys, key_name, context, expected_success):
+    @pytest.mark.parametrize(
+        "key_name, context, expected_success",
+        [
+            ("aes", None, True),  # AES without context
+            ("chacha", "user-123", True),  # ChaCha with context
+        ],
+    )
+    def test_encrypt_decrypt_roundtrip(
+        self, mocked_vault_service: VaultService, encryption_keys, key_name, context, expected_success
+    ):
         # Setup key
         if key_name == "chacha":
             mocked_vault_service.create_signing_key(encryption_keys["chacha"], "chacha20-poly1305", derived=True)
         else:
             mocked_vault_service.create_signing_key(encryption_keys[key_name], "aes256-gcm96")
-        
+
         data = b"test-data"
         kwargs = {"context": context} if context else {}
-        
+
         ciphertext = mocked_vault_service.encrypt_data(encryption_keys[key_name], data, **kwargs)
         assert ciphertext.startswith("vault:v")
-        
+
         if expected_success:
             decrypted = mocked_vault_service.decrypt_data(encryption_keys[key_name], ciphertext, **kwargs)
             assert decrypted == data
         else:
-            pytest.raises(Exception, mocked_vault_service.decrypt_data, encryption_keys[key_name], ciphertext, context="wrong")
+            pytest.raises(
+                Exception, mocked_vault_service.decrypt_data, encryption_keys[key_name], ciphertext, context="wrong"
+            )
 
     def test_encrypt_wrong_context_fails(self, mocked_vault_service: VaultService, encryption_keys):
         mocked_vault_service.create_signing_key(encryption_keys["chacha"], "chacha20-poly1305", derived=True)
@@ -161,7 +176,7 @@ class TestVaultInitializer:
     def test_enable_secrets_engine(self, mocked_vault_initializer: VaultInitializer, mock_vault_client):
         mock_vault_client.sys.list_secrets_engines.return_value = {"data": {"secret_mounts": {}}}
         mock_vault_client.sys.enable_secrets_engine.return_value = True
-        
+
         result = mock_vault_client.sys.enable_secrets_engine(engine_type="kv", path="secret")
         assert result is True
         mock_vault_client.sys.enable_secrets_engine.assert_called_once()
@@ -193,7 +208,8 @@ class TestVaultInitializer:
 
     def test_setup_for_vc_operations(self, mocked_vault_initializer):
         summary = mocked_vault_initializer.setup_for_vc_operations(create_default_keys=True)
-        assert "engines_enabled" in summary and len(summary["errors"]) == 0
+        assert "engines_enabled" in summary and not len(summary["errors"])
+
 
 # Integration (uproszczone: end-to-end bez nadmiaru)
 class TestIntegration:

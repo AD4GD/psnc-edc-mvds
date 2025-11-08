@@ -1,12 +1,13 @@
-import json
 import base64
-import logging
-from typing import Any, Dict, Optional
+import json
+from typing import Any, Dict
 
-from keycloak import KeycloakOpenID
+from api.core.logging_config import setup_logging
 from api.core.settings import KeycloakSettings
+from keycloak import KeycloakOpenID
 
-logger = logging.getLogger(__name__)
+logger = setup_logging()
+
 
 class KeycloakService:
     """Synchronous service for interacting with Keycloak."""
@@ -16,7 +17,7 @@ class KeycloakService:
             server_url=KeycloakSettings.keycloak_server_url,
             realm_name=KeycloakSettings.keycloak_realm,
             client_id=KeycloakSettings.keycloak_client_id,
-            verify=True
+            verify=True,
         )
         # optional client secret for client-credentials grant
         self.client_secret = getattr(KeycloakSettings, "keycloak_client_secret", None)
@@ -92,7 +93,7 @@ class KeycloakService:
                 return {}
             payload_b64 = parts[1]
             # add padding
-            padding = '=' * (-len(payload_b64) % 4)
+            padding = "=" * (-len(payload_b64) % 4)
             payload_bytes = base64.urlsafe_b64decode(payload_b64 + padding)
             return json.loads(payload_bytes)
         except Exception as e:
