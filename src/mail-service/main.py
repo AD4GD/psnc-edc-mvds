@@ -9,6 +9,7 @@ from logging_config import setup_logging
 from models import SendEmailRequest, SendEmailResponse
 from pydantic import ValidationError
 from security import verify_api_key
+from settings import Settings_
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -18,6 +19,21 @@ TIMEOUT_SECONDS = 5
 
 logger = setup_logging()
 limiter = Limiter(key_func=get_remote_address)
+fm = FastMail(
+    ConnectionConfig(
+        MAIL_USERNAME=Settings_.MAIL_USERNAME,
+        MAIL_PASSWORD=Settings_.MAIL_PASSWORD,
+        MAIL_FROM=Settings_.MAIL_FROM,
+        MAIL_PORT=Settings_.MAIL_PORT,
+        MAIL_SERVER=Settings_.MAIL_SERVER,
+        MAIL_FROM_NAME=Settings_.MAIL_FROM_NAME,
+        MAIL_STARTTLS=Settings_.MAIL_STARTTLS,
+        MAIL_SSL_TLS=Settings_.MAIL_SSL_TLS,
+        USE_CREDENTIALS=Settings_.USE_CREDENTIALS,
+        VALIDATE_CERTS=Settings_.VALIDATE_CERTS,
+        TEMPLATE_FOLDER=Settings_.TEMPLATE_FOLDER,
+    )
+)
 
 app = FastAPI(title="Mail Service", version="1.0.0")
 app.state.limiter = limiter
@@ -35,22 +51,6 @@ app.add_middleware(
 async def send_email(body: SendEmailRequest, request: Request, api_key: str = Depends(verify_api_key)) -> JSONResponse:
     message = MessageSchema(subject=body.subject, recipients=body.recipients, body=body.body, subtype=body.body_type)
     try:
-        fm = FastMail(
-            ConnectionConfig(
-                MAIL_USERNAME=body.config.MAIL_USERNAME,
-                MAIL_PASSWORD=body.config.MAIL_PASSWORD,
-                MAIL_FROM=body.config.MAIL_FROM,
-                MAIL_PORT=body.config.MAIL_PORT,
-                MAIL_SERVER=body.config.MAIL_SERVER,
-                MAIL_FROM_NAME=body.config.MAIL_FROM_NAME,
-                MAIL_STARTTLS=body.config.MAIL_STARTTLS,
-                MAIL_SSL_TLS=body.config.MAIL_SSL_TLS,
-                USE_CREDENTIALS=body.config.USE_CREDENTIALS,
-                VALIDATE_CERTS=body.config.VALIDATE_CERTS,
-                TEMPLATE_FOLDER=body.config.TEMPLATE_FOLDER,
-            )
-        )
-
         start_time = time.time()
         await asyncio.wait_for(fm.send_message(message), timeout=TIMEOUT_SECONDS)
         send_time = time.time() - start_time
