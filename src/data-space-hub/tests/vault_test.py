@@ -208,7 +208,7 @@ class TestVaultInitializer:
 
     def test_setup_for_vc_operations(self, mocked_vault_initializer):
         summary = mocked_vault_initializer.setup_for_vc_operations(create_default_keys=True)
-        assert "engines_enabled" in summary and not len(summary["errors"])
+        assert not summary["errors"] and "engines_enabled" in summary
 
 
 # Integration (uproszczone: end-to-end bez nadmiaru)
