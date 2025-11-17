@@ -82,9 +82,7 @@ def mock_vault_client():
     # Transit
     transit = MagicMock()
     transit.create_key.return_value = {"data": {}}  # Obsługa derived=True
-    transit.read_key.return_value = {
-        "data": {"type": "ed25519", "latest_version": 1, "keys": {"1": {"public_key": "test-pem"}}}
-    }
+    transit.read_key.return_value = {"data": {"type": "ed25519", "latest_version": 1, "keys": {"1": {"public_key": "test-pem"}}}}
     transit.list_keys.return_value = {"data": {"keys": ["test-key"]}}
     transit.sign_data.return_value = {"data": {"signature": "vault:v1:test-sig"}}
     transit.verify_signed_data.return_value = {"data": {"valid": True}}
@@ -97,9 +95,7 @@ def mock_vault_client():
     # KV v2
     kv = MagicMock()
     kv.create_or_update_secret.return_value = {"data": {}}
-    kv.read_secret_version.return_value = {
-        "data": {"data": {"username": "test", "password": "pass", "public_key": "pem"}}
-    }
+    kv.read_secret_version.return_value = {"data": {"data": {"username": "test", "password": "pass", "public_key": "pem"}}}
     kv.delete_latest_version_of_secret.return_value = {"data": {}}
     kv.delete_secret_versions.return_value = {"data": {}}
     kv.configure.return_value = {"data": {"options": {"max_versions": 10}}}
@@ -119,9 +115,7 @@ def mock_vault_client():
     client.sys = sys_mock
 
     # Auth token
-    client.auth.token.create.return_value = {
-        "auth": {"client_token": "hvs.test", "policies": ["vc-verifier"], "lease_duration": 3600}
-    }
+    client.auth.token.create.return_value = {"auth": {"client_token": "hvs.test", "policies": ["vc-verifier"], "lease_duration": 3600}}
 
     return client
 

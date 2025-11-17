@@ -118,9 +118,7 @@ async def get_asset_from_provider(request, proxy_path, proxy_query_params):
     authCode = properties.authorization
 
     if not endpoint or not authKey or not authCode:
-        return JSONResponse(
-            content={"error": "Missing or invalid endpoint, authKey or authCode parameters."}, status_code=400
-        )
+        return JSONResponse(content={"error": "Missing or invalid endpoint, authKey or authCode parameters."}, status_code=400)
 
     if proxy_path is not None and proxy_path:
         endpoint = f"{endpoint}/{proxy_path}"
@@ -153,9 +151,7 @@ def upload_asset_to_storage(minio_client, response, asset_id):
     bucket = "test"
     create_bucket_if_not_exists(minio_client, bucket)
 
-    minio_client.put_object(
-        bucket_name=bucket, object_name=final_filename, data=writable_content, length=len(response.content)
-    )
+    minio_client.put_object(bucket_name=bucket, object_name=final_filename, data=writable_content, length=len(response.content))
 
 
 def create_bucket_if_not_exists(client, bucket_name):

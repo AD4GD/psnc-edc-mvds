@@ -36,7 +36,7 @@ class AsyncPostgresService:
                 await session.commit()
                 await session.refresh(participant)
                 return participant
-            except Exception:
+            except Exception:  # pylint: disable=W0718
                 await session.rollback()
                 logger.error("Failed to create participant")
                 return None
@@ -72,11 +72,11 @@ class AsyncPostgresService:
                 await session.execute(
                     update(Participant)
                     .where(Participant.id == participant_id)
-                    .values(**{**fields, "updated_at": datetime.utcnow()})
+                    .values(**{**fields, "updated_at": datetime.now(datetime.timezone.utc)})
                 )
                 await session.commit()
                 return await session.get(Participant, participant_id)
-            except Exception:
+            except Exception:  # pylint: disable=W0718
                 await session.rollback()
                 logger.error("Failed to update participant")
                 return None
@@ -95,7 +95,7 @@ class AsyncPostgresService:
                 await session.commit()
                 logger.info(f"Participant {p_id if p_id else did if did else None} was successfully deleted")
                 return True
-            except Exception:
+            except Exception:  # pylint: disable=W0718
                 await session.rollback()
                 logger.error("Failed to delete participant")
                 return False
@@ -139,7 +139,7 @@ class AsyncPostgresService:
                 await session.execute(delete(Location).where(Location.id == location_id))
                 await session.commit()
                 return True
-            except Exception:
+            except Exception:  # pylint: disable=W0718
                 await session.rollback()
                 logger.error("Failed to delete location")
                 return False
@@ -185,9 +185,7 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             try:
                 await session.execute(
-                    update(RegistrationRequest)
-                    .where(RegistrationRequest.id == req_id)
-                    .values(**{**fields, "updated_at": datetime.now(timezone.utc)})
+                    update(RegistrationRequest).where(RegistrationRequest.id == req_id).values(**{**fields, "updated_at": datetime.now(timezone.utc)})
                 )
                 await session.commit()
                 return await session.get(RegistrationRequest, req_id)
@@ -205,7 +203,7 @@ class AsyncPostgresService:
                 count = outcome.rowcount
                 logger.info(f"Deleted {count} registration_request with id {req_id}")
                 return count
-            except Exception as ex:
+            except Exception as ex:  # pylint: disable=W0718
                 await session.rollback()
                 logger.error(f"Failed to delete registration_request: {ex}")
                 return 0
@@ -229,9 +227,7 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             return await session.get(IssuedCredentials, issued_id)
 
-    async def list_issued_credentials(
-        self, participant_id: Optional[str] = None, skip: int = 0, limit: int = 50
-    ) -> List[IssuedCredentials]:
+    async def list_issued_credentials(self, participant_id: Optional[str] = None, skip: int = 0, limit: int = 50) -> List[IssuedCredentials]:
         """List issued credentials with optional filters."""
         async with self.session_factory() as session:
             stmt = select(IssuedCredentials)
@@ -246,9 +242,7 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             try:
                 await session.execute(
-                    update(IssuedCredentials)
-                    .where(IssuedCredentials.id == issued_id)
-                    .values(**{**fields, "updated_at": datetime.now(timezone.utc)})
+                    update(IssuedCredentials).where(IssuedCredentials.id == issued_id).values(**{**fields, "updated_at": datetime.now(timezone.utc)})
                 )
                 await session.commit()
                 return await session.get(IssuedCredentials, issued_id)
@@ -264,7 +258,7 @@ class AsyncPostgresService:
                 await session.execute(delete(IssuedCredentials).where(IssuedCredentials.id == issued_id))
                 await session.commit()
                 return True
-            except (Exception,):
+            except Exception:  # pylint: disable=W0718
                 await session.rollback()
                 logger.error("Failed to delete issued_credential")
                 return False

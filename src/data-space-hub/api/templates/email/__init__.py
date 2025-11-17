@@ -1,4 +1,4 @@
 from .admin_waiting_for_appoval import TEMPLATE as admin_waiting_for_appoval_template
 from .participant_accepted import TEMPLATE as participant_accepted_template
-from .participant_rejected import TEMPLATE as participant_rejected_template
 from .participant_confirm_email import TEMPLATE as participant_confirm_email_template
+from .participant_rejected import TEMPLATE as participant_rejected_template

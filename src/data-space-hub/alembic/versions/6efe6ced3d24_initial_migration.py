@@ -69,9 +69,7 @@ def upgrade() -> None:
         sa.Column("expires_at", sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column("status", sa.Enum("ACTIVE", "REVOKED", "EXPIRED", name="credentialstatus"), nullable=False),
         sa.Column("credential_metadata", sa.JSON(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["participant_id"], ["participant.id"], name=op.f("fk_issued_credentials_participant_id_participant")
-        ),
+        sa.ForeignKeyConstraint(["participant_id"], ["participant.id"], name=op.f("fk_issued_credentials_participant_id_participant")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_issued_credentials")),
     )
     # ### end Alembic commands ###

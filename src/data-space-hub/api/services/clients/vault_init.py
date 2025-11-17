@@ -53,9 +53,7 @@ class VaultInitializer:
             logger.error(f"Failed to check Vault status: {e}")
             raise
 
-    def enable_secrets_engine(
-        self, engine_type: str, path: str, description: Optional[str] = None, config: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    def enable_secrets_engine(self, engine_type: str, path: str, description: Optional[str] = None, config: Optional[Dict[str, Any]] = None) -> bool:
         """
         Enable a secrets engine at specified path.
 
@@ -69,9 +67,7 @@ class VaultInitializer:
             True if enabled, False if already exists
         """
         try:
-            self.vault.client.sys.enable_secrets_engine(
-                backend_type=engine_type, path=path, description=description, config=config
-            )
+            self.vault.client.sys.enable_secrets_engine(backend_type=engine_type, path=path, description=description, config=config)
             logger.info(f"✓ Enabled {engine_type} secrets engine at '{path}'")
             return True
 
@@ -287,9 +283,7 @@ path "secret/data/vc-metadata/*" {
             logger.error(f"Failed to create token: {e}")
             raise
 
-    def setup_for_vc_operations(
-        self, kv_mount: str = "secret", transit_mount: str = "transit", create_default_keys: bool = True
-    ) -> Dict[str, Any]:
+    def setup_for_vc_operations(self, kv_mount: str = "secret", transit_mount: str = "transit", create_default_keys: bool = True) -> Dict[str, Any]:
         """
         Complete setup for Verifiable Credential operations.
 
@@ -339,15 +333,11 @@ path "secret/data/vc-metadata/*" {
                     _summary["keys_created"].append("issuer-main-key (ed25519)")
 
                 # Secondary ECDSA key for compatibility
-                if self.create_transit_key(
-                    key_name="issuer-ecdsa-key", key_type="ecdsa-p256", mount_point=transit_mount, exportable=False
-                ):
+                if self.create_transit_key(key_name="issuer-ecdsa-key", key_type="ecdsa-p256", mount_point=transit_mount, exportable=False):
                     _summary["keys_created"].append("issuer-ecdsa-key (ecdsa-p256)")
 
                 # Data encryption key
-                if self.create_transit_key(
-                    key_name="data-encryption-key", key_type="aes256-gcm96", mount_point=transit_mount, exportable=False
-                ):
+                if self.create_transit_key(key_name="data-encryption-key", key_type="aes256-gcm96", mount_point=transit_mount, exportable=False):
                     _summary["keys_created"].append("data-encryption-key (aes256-gcm96)")
 
             logger.info("=" * 60)
@@ -395,9 +385,7 @@ path "secret/data/vc-metadata/*" {
         logger.info("✅ Cleanup completed")
 
 
-def initialize_vault(
-    url: Optional[str] = None, token: Optional[str] = None, create_default_keys: bool = True
-) -> Dict[str, Any]:
+def initialize_vault(url: Optional[str] = None, token: Optional[str] = None, create_default_keys: bool = True) -> Dict[str, Any]:
     """
     Convenience function to initialize Vault with default settings.
 
@@ -438,6 +426,6 @@ if __name__ == "__main__":
         logger.info("=" * 60)
         sys.exit(0)
 
-    except Exception as e:
+    except Exception as e:  # pylint: disable=W0718
         logger.error(f"\n❌ Initialization failed: {e}", file=sys.stderr)
         sys.exit(1)

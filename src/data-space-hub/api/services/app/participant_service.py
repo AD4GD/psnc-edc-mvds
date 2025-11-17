@@ -23,7 +23,8 @@ class ParticipantService:
     def __init__(self):
         pass
 
-    async def start_participant_registration(self, request: ParticipantCreateRequest) -> SimpleMessageResponse:
+    @classmethod
+    async def start_participant_registration(cls, request: ParticipantCreateRequest) -> SimpleMessageResponse:
         """
         Start participant registration process.
         Participant sends a request with a form, it is then saved to db into registration_request and email is sent.
@@ -52,7 +53,8 @@ class ParticipantService:
         # TODO after participant admin email confirmation - send email to DS admin
         return SimpleMessageResponse(message="Everything OK")  # Make correct response
 
-    async def register_participant(self, reg_id) -> ParticipantResponse:
+    @classmethod
+    async def register_participant(cls, reg_id) -> ParticipantResponse:
         """Register a new participant with the provided information."""
         # TODO check content of request
         reg_req: RegistrationRequest = await async_postgres_service.get_registration_request(reg_id)
@@ -79,9 +81,8 @@ class ParticipantService:
         )
         return participant
 
-    async def get_participant(
-        self, token: str, response: Response, participant_id: str = None, participant_did: str = None
-    ):
+    @classmethod
+    async def get_participant(cls, token: str, response: Response, participant_id: str = None, participant_did: str = None):
         # try:
         #     keycloak_service.decode_jwt_payload(token)
         #     if not (
@@ -116,17 +117,18 @@ class ParticipantService:
             updated_at=participant.updated_at.isoformat() if participant.updated_at else None,
         )
 
-    async def update_participant(
-        self, token: str, participant_id: str, participant: ParticipantUpdateRequest
-    ) -> SimpleMessageResponse:
+    @classmethod
+    async def update_participant(cls, token: str, participant_id: str, participant: ParticipantUpdateRequest) -> SimpleMessageResponse:
         # TODO all the logic for this function
         return SimpleMessageResponse(message="Participant has been updated")
 
-    async def get_participants_count(self, token):
+    @classmethod
+    async def get_participants_count(cls, token):
         # TODO auth
         return await async_postgres_service.get_participant_count()
 
-    async def get_all_participants(self, token: str, response: Response) -> List[ParticipantResponse]:
+    @classmethod
+    async def get_all_participants(cls, token: str, response: Response) -> List[ParticipantResponse]:
         # try:
         #     payload = keycloak_service.decode_jwt_payload(token)
         #     if not (keycloak_service.token_has_realm_role(token, "admin")):
@@ -148,18 +150,16 @@ class ParticipantService:
             return []
         return participants
 
-    async def delete_participant(self, token: str, participant_id: str = None, participant_did: str = None) -> None:
+    @classmethod
+    async def delete_participant(cls, token: str, participant_id: str = None, participant_did: str = None) -> None:
         # TODO check if auth is ok
         try:
             keycloak_service.decode_jwt_payload(token)
-            if not (
-                keycloak_service.token_has_realm_role(token, "admin")
-                or keycloak_service.authorized_for_participant(token, participant_id)
-            ):
+            if not (keycloak_service.token_has_realm_role(token, "admin") or keycloak_service.authorized_for_participant(token, participant_id)):
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
         except HTTPException:
             raise
-        except Exception:
+        except Exception:  # pylint: disable=W0718
             # fallback to introspection
             keycloak_service.introspect_token(token)
 

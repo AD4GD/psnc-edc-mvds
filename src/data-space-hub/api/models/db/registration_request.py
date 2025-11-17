@@ -33,9 +33,7 @@ class RegistrationRequest(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
     error_detail = Column(Text, nullable=True)
     status = Column(SAEnum(RegistrationStatus), nullable=False)
-    request_form = Column(
-        JSON, nullable=True
-    )  # JSON string with request form, type-cheked with ParticipantCreateRequest
+    request_form = Column(JSON, nullable=True)  # JSON string with request form, type-cheked with ParticipantCreateRequest
     email_confirmed = Column(Boolean, nullable=False, default=False)
 
     created_at = Column(TIMESTAMP(timezone=True), default=text("now()"))
