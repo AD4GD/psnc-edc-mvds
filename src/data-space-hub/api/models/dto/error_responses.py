@@ -2,7 +2,7 @@
 Error response models for the Registration Service API.
 """
 
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -12,7 +12,7 @@ class ErrorResponse(BaseModel):
 
     error: str
     message: str
-    request_id: Optional[str] = None
+    content: Any
 
 
 class ValidationErrorResponse(BaseModel):
@@ -21,4 +21,3 @@ class ValidationErrorResponse(BaseModel):
     error: str
     message: str
     field: Optional[str] = None
-    request_id: Optional[str] = None

@@ -1,9 +1,20 @@
+from typing import TypedDict
 from uuid import uuid4
 
 from api.core.database import Base
-from api.models.dto.typed_dicts import LocationDict
 from sqlalchemy import TIMESTAMP, Column, String, text
 from sqlalchemy.dialects.postgresql import UUID
+
+
+class LocationDict(TypedDict):
+    id: str
+    country: str
+    city: str
+    postal_code: str
+    street: str
+    building_number: str
+    created_at: int
+    updated_at: int
 
 
 class Location(Base):
@@ -28,4 +39,5 @@ class Location(Base):
             "street": f"{self.street}",
             "building_number": f"{self.building_number}",
             "created_at": f"{self.created_at}",
+            "updated_at": f"{self.updated_at}",
         }
