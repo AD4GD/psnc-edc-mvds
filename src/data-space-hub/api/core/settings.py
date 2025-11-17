@@ -81,8 +81,21 @@ class NodeConnectionSettings(BaseSettings):
     }
 
 
+class EmailServiceSettings(BaseSettings):
+    email_svc_endpoint: str = Field(..., alias="EMAIL_SERVICE_SEND_EMAIL_ENDPOINT")
+    email_api_key: str = Field(..., alias="EMAIL_SERVICE_API_KEY")
+
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": False,
+        "extra": "ignore",
+    }
+
+
 ProjectSettings = ProjectSettings()
 PostgreSQLSettings = PostgreSQLSettings()
 KeycloakSettings = KeycloakSettings()
 KeyVaultSettings = KeyVaultSettings()
 NodeConnectionSettings = NodeConnectionSettings()
+EmailServiceSettings = EmailServiceSettings()
