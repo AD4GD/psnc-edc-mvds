@@ -80,9 +80,7 @@ async def get_csv():
     output.seek(0)
 
     # Stream the CSV content
-    return StreamingResponse(
-        output, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=data.csv"}
-    )
+    return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=data.csv"})
 
 
 if __name__ == "__main__":

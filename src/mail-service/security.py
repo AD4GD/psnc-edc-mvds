@@ -1,5 +1,5 @@
 from fastapi import Header, HTTPException
-from settings import MailSettings
+from settings import MailSettings  # pylint: disable=no-name-in-module
 
 
 async def verify_api_key(X_API_KEY: str = Header(None, alias="x-api-key")):

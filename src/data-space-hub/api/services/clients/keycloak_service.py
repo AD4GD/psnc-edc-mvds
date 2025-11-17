@@ -45,7 +45,7 @@ class KeycloakService:
             raise RuntimeError("Client secret not configured for Keycloak client-credentials")
         try:
             return self.keycloak_openid.token_grant(client_secret=self.client_secret)
-        except Exception:
+        except Exception:  # pylint: disable=W0718
             # fallback: call token with empty username/password but grant_type=client_credentials
             try:
                 return self.keycloak_openid.token(grant_type="client_credentials", client_secret=self.client_secret)

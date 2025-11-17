@@ -164,9 +164,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             },
         )
 
-        error_response = ErrorResponse(
-            error="General Exception", message="An unexpected error occurred. Please try again later.", content=None
-        )
+        error_response = ErrorResponse(error="General Exception", message="An unexpected error occurred. Please try again later.", content=None)
 
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -34,7 +34,7 @@ dependencies {
     runtimeOnly(libs.edc.api.dsp.config) // json-ld expansion
 
     implementation(libs.edc.configuration.filesystem)
-    
+
     runtimeOnly(libs.edc.fc.core)
     runtimeOnly(libs.edc.fc.core08)
     runtimeOnly(libs.edc.fc.api)

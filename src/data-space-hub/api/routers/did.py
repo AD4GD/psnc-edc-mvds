@@ -9,7 +9,7 @@ router = APIRouter(tags=["Public key"])
 
 
 @router.get(
-    f".well-known/did.json",
+    "/.well-known/did.json",
     response_model=SimpleMessageResponse,
     status_code=status.HTTP_200_OK,
     summary="Download issuer public key",

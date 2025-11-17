@@ -41,7 +41,7 @@ public class CompositeAuthenticationService implements AuthenticationService {
             var provider = providers.get(i);
             try {
                 monitor.debug(String.format("Trying %s", compositeTypes[i]));
-                
+
                 if (provider.isAuthenticated(headers)) {
                     monitor.debug(String.format("%s has passed", compositeTypes[i]));
                     return true;

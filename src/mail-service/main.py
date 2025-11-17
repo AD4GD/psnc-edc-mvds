@@ -9,7 +9,7 @@ from logging_config import setup_logging
 from models import SendEmailRequest, SendEmailResponse
 from pydantic import ValidationError
 from security import verify_api_key
-from settings import MailSettings
+from settings import MailSettings  # pylint: disable=no-name-in-module
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -66,6 +66,6 @@ async def send_email(body: SendEmailRequest, request: Request, api_key: str = De
     except asyncio.TimeoutError as e:
         logger.error(str(e))
         return JSONResponse(status_code=408, content={"message": "Request timeout - bad configuration"})
-    except Exception as e:
+    except Exception as e:  # pylint: disable=W0718
         logger.critical(str(e))
         return JSONResponse(status_code=500, content={"message": "Error during sending an email"})

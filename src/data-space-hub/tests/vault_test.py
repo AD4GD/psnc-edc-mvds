@@ -90,9 +90,7 @@ class TestVerifiableCredentials:
         assert signed["credentialSubject"] == sample_credential["credentialSubject"]
         assert mocked_vault_service.verify_verifiable_credential(test_key_name, signed) is True
 
-    def test_verify_vc_invalid(
-        self, mocked_vault_service: VaultService, test_key_name, sample_credential, mock_vault_client
-    ):
+    def test_verify_vc_invalid(self, mocked_vault_service: VaultService, test_key_name, sample_credential, mock_vault_client):
         mock_vault_client.secrets.transit.verify_signed_data.return_value = {"data": {"valid": False}}
         assert mocked_vault_service.verify_verifiable_credential(test_key_name, sample_credential) is False
 
@@ -120,9 +118,7 @@ class TestEncryption:
             ("chacha", "user-123", True),  # ChaCha with context
         ],
     )
-    def test_encrypt_decrypt_roundtrip(
-        self, mocked_vault_service: VaultService, encryption_keys, key_name, context, expected_success
-    ):
+    def test_encrypt_decrypt_roundtrip(self, mocked_vault_service: VaultService, encryption_keys, key_name, context, expected_success):
         # Setup key
         if key_name == "chacha":
             mocked_vault_service.create_signing_key(encryption_keys["chacha"], "chacha20-poly1305", derived=True)
@@ -139,9 +135,7 @@ class TestEncryption:
             decrypted = mocked_vault_service.decrypt_data(encryption_keys[key_name], ciphertext, **kwargs)
             assert decrypted == data
         else:
-            pytest.raises(
-                Exception, mocked_vault_service.decrypt_data, encryption_keys[key_name], ciphertext, context="wrong"
-            )
+            pytest.raises(Exception, mocked_vault_service.decrypt_data, encryption_keys[key_name], ciphertext, context="wrong")
 
     def test_encrypt_wrong_context_fails(self, mocked_vault_service: VaultService, encryption_keys):
         mocked_vault_service.create_signing_key(encryption_keys["chacha"], "chacha20-poly1305", derived=True)

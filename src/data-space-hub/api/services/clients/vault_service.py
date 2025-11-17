@@ -185,9 +185,7 @@ class VaultService:
         """
         try:
             # First, update key config to allow deletion
-            self.client.secrets.transit.update_key_configuration(
-                name=key_name, deletion_allowed=True, mount_point=self.transit_mount
-            )
+            self.client.secrets.transit.update_key_configuration(name=key_name, deletion_allowed=True, mount_point=self.transit_mount)
             # Then delete
             response = self.client.secrets.transit.delete_key(name=key_name, mount_point=self.transit_mount)
             logger.info(f"Deleted key '{key_name}'")
@@ -251,9 +249,7 @@ class VaultService:
             logger.error(f"Failed to sign data with '{key_name}': {e}")
             raise
 
-    def verify_signature(
-        self, key_name: str, data: bytes, signature: str, hash_algorithm: Optional[str] = None, prehashed: bool = False
-    ) -> bool:
+    def verify_signature(self, key_name: str, data: bytes, signature: str, hash_algorithm: Optional[str] = None, prehashed: bool = False) -> bool:
         """
         Verify signature created by Transit key.
 
@@ -290,9 +286,7 @@ class VaultService:
 
     # ==================== VERIFIABLE CREDENTIALS SUPPORT ====================
 
-    def sign_verifiable_credential(
-        self, key_name: str, credential: Dict[str, Any], proof_purpose: str = "assertionMethod"
-    ) -> Dict[str, Any]:
+    def sign_verifiable_credential(self, key_name: str, credential: Dict[str, Any], proof_purpose: str = "assertionMethod") -> Dict[str, Any]:
         """
         Sign a Verifiable Credential with proper proof format.
 
@@ -434,9 +428,7 @@ class VaultService:
         path = f"public-keys/{key_id}"
 
         try:
-            response = self.client.secrets.kv.v2.read_secret_version(
-                path=path, mount_point=self.kv_mount, raise_on_deleted_version=True
-            )
+            response = self.client.secrets.kv.v2.read_secret_version(path=path, mount_point=self.kv_mount, raise_on_deleted_version=True)
             return response["data"]["data"]
         except exceptions.InvalidPath:
             logger.warning(f"Public key not found: '{key_id}'")
@@ -444,9 +436,7 @@ class VaultService:
 
     # ==================== ENCRYPTION/DECRYPTION ====================
 
-    def encrypt_data(
-        self, key_name: str, plaintext: bytes, context: Optional[str] = None, key_version: Optional[int] = None
-    ) -> str:
+    def encrypt_data(self, key_name: str, plaintext: bytes, context: Optional[str] = None, key_version: Optional[int] = None) -> str:
         """
         Encrypt data using Transit key.
 
@@ -544,9 +534,7 @@ class VaultService:
             versions: Specific versions to delete (None = mark latest as deleted)
         """
         if versions:
-            response = self.client.secrets.kv.v2.delete_secret_versions(
-                path=path, versions=versions, mount_point=self.kv_mount
-            )
+            response = self.client.secrets.kv.v2.delete_secret_versions(path=path, versions=versions, mount_point=self.kv_mount)
         else:
             response = self.client.secrets.kv.v2.delete_latest_version_of_secret(path=path, mount_point=self.kv_mount)
         logger.info(f"Deleted secret at '{path}'")
