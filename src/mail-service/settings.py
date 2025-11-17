@@ -20,4 +20,4 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
-Settings_ = Settings()
+MailSettings = Settings()
