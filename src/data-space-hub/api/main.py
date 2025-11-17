@@ -7,6 +7,7 @@ from api.routers.routers import main_router
 from api.services.clients import vault_service
 from api.services.clients.vault_init import initialize_vault
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 logger = setup_logging()
 
@@ -44,6 +45,11 @@ app = FastAPI(
     description="Registration Service for Data Space",
     version=ProjectSettings.service_version,
     lifespan=lifespan,
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_methods=["GET", "POST", "DELETE", "PUT"],
+    allow_headers=["x-api-key", "*"],
 )
 
 register_exception_handlers(app)

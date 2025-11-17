@@ -2,6 +2,8 @@ import json
 import re
 from typing import Any, Dict
 
+from jinja2 import Template
+
 _PLACEHOLDER_RE = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
 
 
@@ -26,3 +28,8 @@ def render_json_template_string(template: str, context: Dict[str, Any]) -> Dict[
     print(rendered)
     # parse to validate and return structured object
     return json.loads(rendered)
+
+
+def render_jinja_template(template_str: str, context: Dict[str, Any]) -> str:
+    template = Template(template_str)
+    return template.render(**context)

@@ -23,8 +23,7 @@ template = """
         "id": {user_did},
         "contractVersion": {contract_version},
         "level": {processing_level},
-        "claims": {claims},
-        "alumniOf": {alumniOf}
+        "claims": {claims}
     }
 }
 """
