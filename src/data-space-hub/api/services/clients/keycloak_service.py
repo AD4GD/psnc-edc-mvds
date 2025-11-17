@@ -24,12 +24,8 @@ class KeycloakService:
 
     def health(self) -> bool:
         """Check Keycloak server health."""
-        try:
-            conf = self.keycloak_openid.well_known()
-            return "issuer" in conf
-        except Exception as e:
-            logger.error(f"Keycloak health check failed: {e}")
-            return False
+        conf = self.keycloak_openid.well_known()
+        return "issuer" in conf
 
     # --- token acquisition helpers ---
 
@@ -38,11 +34,7 @@ class KeycloakService:
         Obtain token using Resource Owner Password Credentials (username/password).
         Returns token dict containing access_token / refresh_token / expires_in etc.
         """
-        try:
-            return self.keycloak_openid.token(username, password, scope=scope)
-        except Exception as e:
-            logger.error(f"Keycloak login_user failed for {username}: {e}")
-            raise
+        return self.keycloak_openid.token(username, password, scope=scope)
 
     def login_client(self) -> Dict[str, Any]:
         """
@@ -57,9 +49,9 @@ class KeycloakService:
             # fallback: call token with empty username/password but grant_type=client_credentials
             try:
                 return self.keycloak_openid.token(grant_type="client_credentials", client_secret=self.client_secret)
-            except Exception as e:
-                logger.error(f"Keycloak client login failed: {e}")
-                raise
+            except Exception:
+                logger.error("Keycloak client login failed")
+                raise RuntimeError("Keycloak client login failed")
 
     # --- introspection / userinfo ---
 
@@ -85,30 +77,26 @@ class KeycloakService:
     # --- JWT payload helpers (lightweight, no crypto verification) ---
 
     @staticmethod
-    def _decode_jwt_payload(token: str) -> Dict[str, Any]:
+    def decode_jwt_payload(token: str) -> Dict[str, Any]:
         """Decode JWT payload without verification to inspect claims."""
-        try:
-            parts = token.split(".")
-            if len(parts) < 2:
-                return {}
-            payload_b64 = parts[1]
-            # add padding
-            padding = "=" * (-len(payload_b64) % 4)
-            payload_bytes = base64.urlsafe_b64decode(payload_b64 + padding)
-            return json.loads(payload_bytes)
-        except Exception as e:
-            logger.debug(f"Failed to decode JWT payload: {e}")
+        parts = token.split(".")
+        if len(parts) < 2:
             return {}
+        payload_b64 = parts[1]
+        # add padding
+        padding = "=" * (-len(payload_b64) % 4)
+        payload_bytes = base64.urlsafe_b64decode(payload_b64 + padding)
+        return json.loads(payload_bytes)
 
     def token_has_realm_role(self, token: str, role: str) -> bool:
         """Check whether token contains given realm role."""
-        payload = self._decode_jwt_payload(token)
+        payload = self.decode_jwt_payload(token)
         roles = payload.get("realm_access", {}).get("roles", [])
         return role in roles
 
     def token_has_client_role(self, token: str, client: str, role: str) -> bool:
         """Check whether token contains given role for a client (resource_access)."""
-        payload = self._decode_jwt_payload(token)
+        payload = self.decode_jwt_payload(token)
         client_roles = payload.get("resource_access", {}).get(client, {}).get("roles", [])
         return role in client_roles
 
@@ -144,16 +132,13 @@ class KeycloakService:
         Optional finer-grained check: whether token grants permission to manage given participant.
         Default returns True for admins, otherwise can be extended to check scopes/claims.
         """
-        try:
-            if self.token_has_realm_role(token, "admin") or self.token_has_realm_role(token, "rs-admin"):
-                return True
-            # example: check a claim 'managed_participants' in token payload
-            payload = self._decode_jwt_payload(token)
-            managed = payload.get("managed_participants", [])
-            if participant_did in managed:
-                return True
-        except Exception:
-            pass
+        if self.token_has_realm_role(token, "admin") or self.token_has_realm_role(token, "rs-admin"):
+            return True
+        # example: check a claim 'managed_participants' in token payload
+        payload = self.decode_jwt_payload(token)
+        managed = payload.get("managed_participants", [])
+        if participant_did in managed:
+            return True
         return False
 
 

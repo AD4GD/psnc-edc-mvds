@@ -1,4 +1,3 @@
-# api/services/vault_service.py
 import base64
 import json
 from datetime import datetime, timezone
@@ -51,12 +50,8 @@ class VaultService:
 
     def health(self) -> bool:
         """Check Vault server health and initialization status."""
-        try:
-            health: dict = self.client.sys.read_health_status(method="GET")
-            return health.get("initialized", False) and not health.get("sealed", True)
-        except Exception as e:
-            logger.error(f"Vault health check failed: {e}")
-            return False
+        health: dict = self.client.sys.read_health_status(method="GET")
+        return health.get("initialized", False) and not health.get("sealed", True)
 
     # ==================== KEY MANAGEMENT ====================
 
@@ -114,8 +109,6 @@ class VaultService:
                 logger.warning(f"Key '{key_name}' already exists")
                 return {"warning": "key_already_exists"}
             raise
-        except Exception as e:
-            logger.error(f"Unexpected error creating key '{key_name}': {e}")
 
     def get_public_key(self, key_name: str, version: Optional[int] = None) -> Dict[str, Any]:
         """
@@ -159,12 +152,8 @@ class VaultService:
 
     def list_keys(self) -> list[str]:
         """List all Transit keys."""
-        try:
-            response: Dict = self.client.secrets.transit.list_keys(mount_point=self.transit_mount)
-            return response.get("data", {}).get("keys", [])
-        except Exception as e:
-            logger.error(f"Failed to list keys: {e}")
-            return []
+        response: Dict = self.client.secrets.transit.list_keys(mount_point=self.transit_mount)
+        return response.get("data", {}).get("keys", [])
 
     def rotate_key(self, key_name: str) -> Dict[str, Any]:
         """
@@ -278,31 +267,26 @@ class VaultService:
         Returns:
             True if signature is valid, False otherwise
         """
-        try:
-            input_b64 = base64.b64encode(data).decode("utf-8")
+        input_b64 = base64.b64encode(data).decode("utf-8")
 
-            params = {
-                "name": key_name,
-                "hash_input": input_b64,
-                "signature": signature,
-                "mount_point": self.transit_mount,
-            }
+        params = {
+            "name": key_name,
+            "hash_input": input_b64,
+            "signature": signature,
+            "mount_point": self.transit_mount,
+        }
 
-            if hash_algorithm:
-                params["hash_algorithm"] = hash_algorithm
+        if hash_algorithm:
+            params["hash_algorithm"] = hash_algorithm
 
-            if prehashed:
-                params["prehashed"] = True
+        if prehashed:
+            params["prehashed"] = True
 
-            response = self.client.secrets.transit.verify_signed_data(**params)
-            is_valid = response.get("data", {}).get("valid", False)
+        response = self.client.secrets.transit.verify_signed_data(**params)
+        is_valid = response.get("data", {}).get("valid", False)
 
-            logger.debug(f"Signature verification for '{key_name}': {is_valid}")
-            return is_valid
-
-        except Exception as e:
-            logger.error(f"Failed to verify signature with '{key_name}': {e}")
-            return False
+        logger.debug(f"Signature verification for '{key_name}': {is_valid}")
+        return is_valid
 
     # ==================== VERIFIABLE CREDENTIALS SUPPORT ====================
 
@@ -380,35 +364,30 @@ class VaultService:
         Returns:
             True if signature is valid
         """
-        try:
-            # Extract proof
-            proof = signed_credential.get("proof")
-            if not proof:
-                logger.error("No proof found in credential")
-                return False
-
-            # Get vault signature
-            vault_signature = proof.get("_vaultSignature")
-            if not vault_signature:
-                logger.error("No Vault signature in proof")
-                return False
-
-            # Remove proof to get original credential
-            credential = {k: v for k, v in signed_credential.items() if k != "proof"}
-
-            # Create canonical representation
-            canonical = json.dumps(credential, sort_keys=True, separators=(",", ":"))
-            credential_bytes = canonical.encode("utf-8")
-
-            # Verify signature
-            is_valid = self.verify_signature(key_name, credential_bytes, vault_signature)
-
-            logger.info(f"VC verification result: {is_valid}")
-            return is_valid
-
-        except Exception as e:
-            logger.error(f"Failed to verify VC: {e}")
+        # Extract proof
+        proof = signed_credential.get("proof")
+        if not proof:
+            logger.error("No proof found in credential")
             return False
+
+        # Get vault signature
+        vault_signature = proof.get("_vaultSignature")
+        if not vault_signature:
+            logger.error("No Vault signature in proof")
+            return False
+
+        # Remove proof to get original credential
+        credential = {k: v for k, v in signed_credential.items() if k != "proof"}
+
+        # Create canonical representation
+        canonical = json.dumps(credential, sort_keys=True, separators=(",", ":"))
+        credential_bytes = canonical.encode("utf-8")
+
+        # Verify signature
+        is_valid = self.verify_signature(key_name, credential_bytes, vault_signature)
+
+        logger.info(f"VC verification result: {is_valid}")
+        return is_valid
 
     # ==================== PUBLIC KEY STORAGE (KV) ====================
 
@@ -461,9 +440,6 @@ class VaultService:
             return response["data"]["data"]
         except exceptions.InvalidPath:
             logger.warning(f"Public key not found: '{key_id}'")
-            return None
-        except Exception as e:
-            logger.error(f"Failed to read public key: {e}")
             return None
 
     # ==================== ENCRYPTION/DECRYPTION ====================
@@ -558,9 +534,6 @@ class VaultService:
         except exceptions.InvalidPath:
             logger.warning(f"Secret not found: '{path}'")
             return None
-        except Exception as e:
-            logger.error(f"Failed to read secret: {e}")
-            return None
 
     def delete_secret(self, path: str, versions: Optional[list[int]] = None) -> Dict[str, Any]:
         """
@@ -570,20 +543,14 @@ class VaultService:
             path: Secret path
             versions: Specific versions to delete (None = mark latest as deleted)
         """
-        try:
-            if versions:
-                response = self.client.secrets.kv.v2.delete_secret_versions(
-                    path=path, versions=versions, mount_point=self.kv_mount
-                )
-            else:
-                response = self.client.secrets.kv.v2.delete_latest_version_of_secret(
-                    path=path, mount_point=self.kv_mount
-                )
-            logger.info(f"Deleted secret at '{path}'")
-            return response
-        except Exception as e:
-            logger.error(f"Failed to delete secret: {e}")
-            raise
+        if versions:
+            response = self.client.secrets.kv.v2.delete_secret_versions(
+                path=path, versions=versions, mount_point=self.kv_mount
+            )
+        else:
+            response = self.client.secrets.kv.v2.delete_latest_version_of_secret(path=path, mount_point=self.kv_mount)
+        logger.info(f"Deleted secret at '{path}'")
+        return response
 
 
 # Singleton instance
