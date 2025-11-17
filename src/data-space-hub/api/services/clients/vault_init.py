@@ -80,11 +80,6 @@ class VaultInitializer:
                 logger.info(f"⚠ Secrets engine already enabled at '{path}'")
                 return True
             raise
-        except Exception as e:
-            logger.error(f"Failed to enable engine at '{path}': {e}")
-            return False
-        finally:
-            return False
 
     def configure_kv_engine(
         self,
@@ -306,7 +301,7 @@ path "secret/data/vc-metadata/*" {
         Returns:
             Dict with setup summary
         """
-        summary = {"engines_enabled": [], "policies_created": [], "keys_created": [], "errors": []}
+        _summary = {"engines_enabled": [], "policies_created": [], "keys_created": [], "errors": []}
 
         try:
             logger.info("=" * 60)
@@ -315,21 +310,21 @@ path "secret/data/vc-metadata/*" {
 
             # 1. Enable KV v2 engine
             if self.enable_secrets_engine("kv", kv_mount, "KV v2 for secrets", {"version": "2"}):
-                summary["engines_enabled"].append(f"kv-v2:{kv_mount}")
+                _summary["engines_enabled"].append(f"kv-v2:{kv_mount}")
 
             # 2. Configure KV engine
             self.configure_kv_engine(mount_point=kv_mount, max_versions=10, cas_required=False)
 
             # 3. Enable Transit engine
             if self.enable_secrets_engine("transit", transit_mount, "Transit for crypto operations"):
-                summary["engines_enabled"].append(f"transit:{transit_mount}")
+                _summary["engines_enabled"].append(f"transit:{transit_mount}")
 
             # 4. Create policies
             self.create_vc_signer_policy()
-            summary["policies_created"].append("vc-signer")
+            _summary["policies_created"].append("vc-signer")
 
             self.create_vc_verifier_policy()
-            summary["policies_created"].append("vc-verifier")
+            _summary["policies_created"].append("vc-verifier")
 
             # 5. Create default keys if requested
             if create_default_keys:
@@ -341,32 +336,32 @@ path "secret/data/vc-metadata/*" {
                     exportable=False,
                     auto_rotate_period="2160h",  # 90 days
                 ):
-                    summary["keys_created"].append("issuer-main-key (ed25519)")
+                    _summary["keys_created"].append("issuer-main-key (ed25519)")
 
                 # Secondary ECDSA key for compatibility
                 if self.create_transit_key(
                     key_name="issuer-ecdsa-key", key_type="ecdsa-p256", mount_point=transit_mount, exportable=False
                 ):
-                    summary["keys_created"].append("issuer-ecdsa-key (ecdsa-p256)")
+                    _summary["keys_created"].append("issuer-ecdsa-key (ecdsa-p256)")
 
                 # Data encryption key
                 if self.create_transit_key(
                     key_name="data-encryption-key", key_type="aes256-gcm96", mount_point=transit_mount, exportable=False
                 ):
-                    summary["keys_created"].append("data-encryption-key (aes256-gcm96)")
+                    _summary["keys_created"].append("data-encryption-key (aes256-gcm96)")
 
             logger.info("=" * 60)
             logger.info("✅ Vault setup completed successfully!")
             logger.info("=" * 60)
-            logger.info(f"Engines enabled: {summary['engines_enabled']}")
-            logger.info(f"Policies created: {summary['policies_created']}")
-            logger.info(f"Keys created: {summary['keys_created']}")
+            logger.info(f"Engines enabled: {_summary['engines_enabled']}")
+            logger.info(f"Policies created: {_summary['policies_created']}")
+            logger.info(f"Keys created: {_summary['keys_created']}")
 
-            return summary
+            return _summary
 
         except Exception as e:
             logger.error(f"❌ Setup failed: {e}")
-            summary["errors"].append(str(e))
+            _summary["errors"].append(str(e))
             raise
 
     def cleanup(
@@ -387,28 +382,17 @@ path "secret/data/vc-metadata/*" {
         """
         logger.warning("⚠️  Starting Vault cleanup (DESTRUCTIVE OPERATION)")
 
-        try:
-            if delete_policies:
-                for policy in ["vc-signer", "vc-verifier"]:
-                    try:
-                        self.vault.client.sys.delete_policy(policy)
-                        logger.info(f"✓ Deleted policy '{policy}'")
-                    except Exception as e:
-                        logger.warning(f"Could not delete policy '{policy}': {e}")
+        if delete_policies:
+            for _policy in ["vc-signer", "vc-verifier"]:
+                self.vault.client.sys.delete_policy(_policy)
+                logger.info(f"✓ Deleted policy '{_policy}'")
 
-            if disable_engines:
-                for mount in [kv_mount, transit_mount]:
-                    try:
-                        self.vault.client.sys.disable_secrets_engine(mount)
-                        logger.info(f"✓ Disabled secrets engine '{mount}'")
-                    except Exception as e:
-                        logger.warning(f"Could not disable engine '{mount}': {e}")
+        if disable_engines:
+            for mount in [kv_mount, transit_mount]:
+                self.vault.client.sys.disable_secrets_engine(mount)
+                logger.info(f"✓ Disabled secrets engine '{mount}'")
 
-            logger.info("✅ Cleanup completed")
-
-        except Exception as e:
-            logger.error(f"Cleanup failed: {e}")
-            raise
+        logger.info("✅ Cleanup completed")
 
 
 def initialize_vault(
@@ -438,18 +422,18 @@ if __name__ == "__main__":
     # Allow running as script
 
     try:
-        summary = initialize_vault(create_default_keys=True)
+        _summary = initialize_vault(create_default_keys=True)
         logger.info("\n" + "=" * 60)
         logger.info("VAULT INITIALIZATION SUMMARY")
         logger.info("=" * 60)
-        logger.info(f"Engines enabled: {len(summary['engines_enabled'])}")
-        for engine in summary["engines_enabled"]:
+        logger.info(f"Engines enabled: {len(_summary['engines_enabled'])}")
+        for engine in _summary["engines_enabled"]:
             logger.info(f"  • {engine}")
-        logger.info(f"\nPolicies created: {len(summary['policies_created'])}")
-        for policy in summary["policies_created"]:
-            logger.info(f"  • {policy}")
-        logger.info(f"\nKeys created: {len(summary['keys_created'])}")
-        for key in summary["keys_created"]:
+        logger.info(f"\nPolicies created: {len(_summary['policies_created'])}")
+        for _policy in _summary["policies_created"]:
+            logger.info(f"  • {_policy}")
+        logger.info(f"\nKeys created: {len(_summary['keys_created'])}")
+        for key in _summary["keys_created"]:
             logger.info(f"  • {key}")
         logger.info("=" * 60)
         sys.exit(0)

@@ -52,14 +52,11 @@ async def sign_jwt_with_vault(payload: Dict[str, Any], key_name: str, alg: str =
     signing_input = f"{header_b64}.{payload_b64}".encode("utf-8")
 
     # call vault sign in thread
-    try:
-        sig_raw = await asyncio.to_thread(vault_service.sign_data, key_name, data=signing_input)
-    except Exception:
-        raise
+    sig_raw = await asyncio.to_thread(vault_service.sign_data, key_name, data=signing_input)
 
     try:
         sig_base64 = sig_raw.split(":")[-1]
-    except Exception:
+    except AttributeError:
         sig_base64 = sig_raw
 
     sig_bytes = base64.b64decode(sig_base64)
