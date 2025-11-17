@@ -1,4 +1,12 @@
 from .participant_service import ParticipantService, participant_service
-from .user_service import UserService, user_service
+from .registration_service import RegistrationService, registration_service
+from .vc_service import VCService, vc_service
 
-__all__ = ["UserService", "ParticipantService", "user_service", "participant_service"]
+__all__ = [
+    "VCService",
+    "ParticipantService",
+    "RegistrationService",
+    "registration_service",
+    "vc_service",
+    "participant_service",
+]

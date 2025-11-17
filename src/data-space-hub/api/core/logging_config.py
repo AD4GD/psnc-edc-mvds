@@ -51,7 +51,7 @@ class ColoredFormatter(logging.Formatter):
 
 
 def setup_logging(level=logging.INFO, log_file=None):
-    """Konfiguruje globalne logowanie z kolorami."""
+    """Configures global logging with colors."""
     # Delete existing handlers if exist
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)

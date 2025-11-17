@@ -5,8 +5,8 @@ import httpx
 from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings, ProjectSettings
 from api.models.db import IssuedCredentials, Participant
-from api.models.dto.requests import UserRegistrationRequest
-from api.models.dto.responses import SimpleMessageResponse, UserRegistrationForm, UserRegistrationResponse
+from api.models.dto.responses import SimpleMessageResponse, UserRegistrationResponse
+from api.models.dto.requests import UserInfoVCRequest
 from api.services.clients import async_postgres_service, vault_service
 from api.services.helper import sha256_hex, sign_jwt_with_vault
 from api.templates.credentials.jsonld_vc import template as jsonld_vc_template
@@ -18,7 +18,7 @@ from fastapi import HTTPException, status
 logger = setup_logging()
 
 
-class UserService:
+class VCService:
     """
     Full user registration flow:
       - validate request
@@ -33,11 +33,12 @@ class UserService:
 
     def __init__(self):
         self.postgres = async_postgres_service
+        self.vault = vault_service
         # transit key name and jwt alg from settings
         self.key_name = getattr(KeyVaultSettings, "rs_transit_key_name", "rs-signing-key")
         self.jwt_alg = getattr(KeyVaultSettings, "rs_jwt_alg", "RS256")
 
-    async def create_user(self, req: UserRegistrationRequest) -> dict:
+    async def create_vc(self, req: UserInfoVCRequest) -> dict:
         # TODO check if ok & correct
 
         # 1) Validation of incoming data
@@ -245,4 +246,4 @@ class UserService:
         )
 
 
-user_service = UserService()
+vc_service = VCService()
