@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from api.core.logging_config import setup_logging
-from api.core.settings import ProjectSettings
 from api.models.dto.responses import SimpleMessageResponse
 from fastapi import APIRouter, status
 
 logger = setup_logging()
-router = APIRouter(prefix="/signed", tags=["key", "publickey"])
+router = APIRouter(tags=["Public key"])
 
 
 @router.get(
-    f"/publickey/{ProjectSettings.issuer_did}",
+    f".well-known/did.json",
     response_model=SimpleMessageResponse,
     status_code=status.HTTP_200_OK,
     summary="Download issuer public key",
