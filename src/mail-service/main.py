@@ -9,7 +9,7 @@ from logging_config import setup_logging
 from models import SendEmailRequest, SendEmailResponse
 from pydantic import ValidationError
 from security import verify_api_key
-from settings import Settings_
+from settings import MailSettings
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -21,17 +21,17 @@ logger = setup_logging()
 limiter = Limiter(key_func=get_remote_address)
 fm = FastMail(
     ConnectionConfig(
-        MAIL_USERNAME=Settings_.MAIL_USERNAME,
-        MAIL_PASSWORD=Settings_.MAIL_PASSWORD,
-        MAIL_FROM=Settings_.MAIL_FROM,
-        MAIL_PORT=Settings_.MAIL_PORT,
-        MAIL_SERVER=Settings_.MAIL_SERVER,
-        MAIL_FROM_NAME=Settings_.MAIL_FROM_NAME,
-        MAIL_STARTTLS=Settings_.MAIL_STARTTLS,
-        MAIL_SSL_TLS=Settings_.MAIL_SSL_TLS,
-        USE_CREDENTIALS=Settings_.USE_CREDENTIALS,
-        VALIDATE_CERTS=Settings_.VALIDATE_CERTS,
-        TEMPLATE_FOLDER=Settings_.TEMPLATE_FOLDER,
+        MAIL_USERNAME=MailSettings.MAIL_USERNAME,
+        MAIL_PASSWORD=MailSettings.MAIL_PASSWORD,
+        MAIL_FROM=MailSettings.MAIL_FROM,
+        MAIL_PORT=MailSettings.MAIL_PORT,
+        MAIL_SERVER=MailSettings.MAIL_SERVER,
+        MAIL_FROM_NAME=MailSettings.MAIL_FROM_NAME,
+        MAIL_STARTTLS=MailSettings.MAIL_STARTTLS,
+        MAIL_SSL_TLS=MailSettings.MAIL_SSL_TLS,
+        USE_CREDENTIALS=MailSettings.USE_CREDENTIALS,
+        VALIDATE_CERTS=MailSettings.VALIDATE_CERTS,
+        TEMPLATE_FOLDER=MailSettings.TEMPLATE_FOLDER,
     )
 )
 
