@@ -5,7 +5,7 @@ import httpx
 from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings, ProjectSettings
 from api.models.db import IssuedCredentials, Participant
-from api.models.dto.responses import SimpleMessageResponse, UserRegistrationResponse
+from api.models.dto.responses import SimpleMessageResponse
 from api.models.dto.requests import UserInfoVCRequest
 from api.services.clients import async_postgres_service, vault_service
 from api.services.helper import sha256_hex, sign_jwt_with_vault
@@ -235,15 +235,6 @@ class VCService:
             raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
 
         # 7) respond to caller with metadata
-        return UserRegistrationResponse(
-            credential_id=(issued.id if issued is not None else vc_hash),
-            credential_hash=vc_hash,
-            issued_at=str(issued_at),
-            issued_to=str(vc_payload.get("sub")),
-            storage_ref=(
-                issued.credential_storage_ref if issued is not None else f"connector://{participant.did}/vc/{vc_hash}"
-            ),
-        )
 
 
 vc_service = VCService()

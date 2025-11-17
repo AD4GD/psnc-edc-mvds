@@ -1,8 +1,9 @@
+from datetime import datetime
 from typing import Any, Dict, Literal, Optional
+from uuid import UUID
 
+from api.models.db.registration_request import RegistrationStatus
 from pydantic import AnyHttpUrl, BaseModel, Field
-
-from .requests import UserRegistrationForm
 
 
 class SimpleMessageResponse(BaseModel):
@@ -38,18 +39,10 @@ class ParticipantResponse(BaseModel):
     full_name: str
     email: str
     protocol_url: AnyHttpUrl
-    created_at: Optional[str]
+    created_at: Optional[datetime] = Field(...)
+    updated_at: Optional[datetime] = Field(...)
     VAT_number: str
     location: LocationResponse
-
-
-class UserRegistrationResponse(BaseModel):
-    """Response model for user registration."""
-
-    registration_form: UserRegistrationForm
-    connector_token: str
-    user_claims: Dict[str, Any]
-    vc: Dict[str, Any] = Field(..., description="Verifiable Credential issued to the user")
 
 
 class HealthResponse(BaseModel):
@@ -58,3 +51,20 @@ class HealthResponse(BaseModel):
     status: str = Literal["UP", "DOWN"]
     service: str = Field(..., description="Service name")
     version: str = Field(..., description="Service version")
+
+
+class VCResponse(BaseModel):
+    """Response model for VC generating"""
+
+    username: str
+    vc: Dict[str, Any] = Field(..., description="Verifiable Credential issued to the user")
+    connector_token: str = Field(..., description="Token that is used by participant to check integration")
+
+
+class RegistrationRequestResponse(BaseModel):
+    id: UUID = Field(..., description="id")
+    error_detail: str = Field("")
+    status: RegistrationStatus = Field(RegistrationStatus.REQUESTED, description="current status of registration")
+    email_confirmed: bool = Field(False, description="is email confirmed")
+    created_at: Optional[datetime] = Field(..., description="")
+    updated_at: Optional[datetime] = Field(..., description="")

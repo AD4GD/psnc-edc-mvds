@@ -1,12 +1,24 @@
+from typing import Any, Dict, TypedDict
 from uuid import uuid4
 
 from api.core.database import Base
-from api.models.dto.typed_dicts import ParticipantDict
 from sqlalchemy import ARRAY, TIMESTAMP, Column, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-# from . import Location
+
+class ParticipantDict(TypedDict):
+    id: str
+    did: str
+    name: str
+    full_name: str
+    VAT_number: str
+    protocol_url: str
+    email: str
+    location_id: str
+    location: Dict[str, Any]
+    created_at: int
+    updated_at: int
 
 
 class Participant(Base):
@@ -38,4 +50,5 @@ class Participant(Base):
             "location_id": f"{self.location_id}",
             "location": {self.location.__info_to_json__()},
             "created_at": f"{self.created_at}",
+            "updated_at": f"{self.updated_at}",
         }
