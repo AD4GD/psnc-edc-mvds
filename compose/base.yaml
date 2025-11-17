@@ -85,7 +85,7 @@ services:
     # optional: keep a file volume for any exports you do
     volumes:
       - 'data-space-hub-vault:/vault/file'
-  
+
   fc-vault:
     image: hashicorp/vault:1.17
     container_name: fc-vault
