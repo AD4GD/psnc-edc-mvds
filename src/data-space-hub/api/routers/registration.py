@@ -55,9 +55,9 @@ async def get_participants_count():  # token: str = Depends(get_bearer_token))
     responses={status.HTTP_204_NO_CONTENT: {"message": "No data to display"}},
 )
 # Middleware for checking token and a role
-async def get_all_registrations(response: Response):  # , token: str = Depends(require_admin_token)):
+async def get_all_registrations(response: Response, offset : int = 0, limit : int | None = None):  # , token: str = Depends(require_admin_token)):
     """Accept participant registration"""
-    return await registration_service.get_all_regitrations_requests("token", response)
+    return await registration_service.get_all_regitrations_requests("token", response, offset, limit)
 
 
 @router.get(

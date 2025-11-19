@@ -19,12 +19,12 @@ router = APIRouter(prefix="/participants", tags=["Participant"])
     summary="Get list of all participants (admin)",
     responses={status.HTTP_204_NO_CONTENT: {"message": "No participant found"}},
 )
-async def get_all_participants(response: Response):  # token: str,  = Depends(require_admin_token)):
+async def get_all_participants(response: Response, offset : int = 0, limit : int | None = None):  # token: str,  = Depends(require_admin_token)):
     """
     Create a new participant record.
     Requires an admin Keycloak token.
     """
-    return await participant_service.get_all_participants("", response)
+    return await participant_service.get_all_participants("", response, offset, limit)
 
 
 @router.get("/count", response_model=int, status_code=status.HTTP_200_OK, summary="Get participants count")
