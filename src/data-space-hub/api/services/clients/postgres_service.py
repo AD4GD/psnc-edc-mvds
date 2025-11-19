@@ -59,10 +59,10 @@ class AsyncPostgresService:
             count = result.scalar_one()
             return count or 0
 
-    async def list_participants(self, skip: int = 0, limit: int = 10) -> List[Participant]:
+    async def list_participants(self, offset: int = 0, limit: int | None = None) -> List[Participant]:
         """Fetch paginated list of participants."""
         async with self.session_factory() as session:
-            result = await session.execute(select(Participant).offset(skip).limit(limit))
+            result = await session.execute(select(Participant).offset(offset).limit(limit))
             return result.scalars().all()
 
     async def update_participant(self, participant_id, fields: Dict[str, Any]) -> Optional[Participant]:
@@ -165,11 +165,11 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             return await session.get(RegistrationRequest, reg_id)
 
-    async def list_registration_requests(self, skip: int = 0, limit: int = 50) -> List[RegistrationRequest]:
+    async def list_registration_requests(self, offset: int = 0, limit: int | None = None) -> List[RegistrationRequest]:
         """List registration requests, optional filter by participant."""
         async with self.session_factory() as session:
             stmt = select(RegistrationRequest)
-            stmt = stmt.offset(skip).limit(limit)
+            stmt = stmt.offset(offset).limit(limit)
             result = await session.execute(stmt)
             return result.scalars().all()
 
@@ -227,13 +227,13 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             return await session.get(IssuedCredentials, issued_id)
 
-    async def list_issued_credentials(self, participant_id: Optional[str] = None, skip: int = 0, limit: int = 50) -> List[IssuedCredentials]:
+    async def list_issued_credentials(self, participant_id: Optional[str] = None, offset: int = 0, limit: int | None = None) -> List[IssuedCredentials]:
         """List issued credentials with optional filters."""
         async with self.session_factory() as session:
             stmt = select(IssuedCredentials)
             if participant_id:
                 stmt = stmt.where(IssuedCredentials.participant_id == participant_id)
-            stmt = stmt.offset(skip).limit(limit)
+            stmt = stmt.offset(offset).limit(limit)
             result = await session.execute(stmt)
             return result.scalars().all()
 

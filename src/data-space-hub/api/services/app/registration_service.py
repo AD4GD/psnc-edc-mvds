@@ -20,9 +20,9 @@ class RegistrationService:
         pass
 
     @classmethod
-    async def get_all_regitrations_requests(cls, token: str, response: Response):
+    async def get_all_regitrations_requests(cls, token: str, response: Response, offset: int = 0, limit: int | None = None):
         """Retrieve all registration requests"""
-        registrations = await async_postgres_service.list_registration_requests(0, None)
+        registrations = await async_postgres_service.list_registration_requests(offset, limit)
 
         if not registrations:
             return Response(status_code=status.HTTP_204_NO_CONTENT)

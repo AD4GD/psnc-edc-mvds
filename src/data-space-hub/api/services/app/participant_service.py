@@ -128,7 +128,7 @@ class ParticipantService:
         return await async_postgres_service.get_participant_count()
 
     @classmethod
-    async def get_all_participants(cls, token: str, response: Response) -> List[ParticipantResponse]:
+    async def get_all_participants(cls, token: str, response: Response, offset : int = 0, limit : int | None = None) -> List[ParticipantResponse]:
         # try:
         #     payload = keycloak_service.decode_jwt_payload(token)
         #     if not (keycloak_service.token_has_realm_role(token, "admin")):
@@ -142,7 +142,7 @@ class ParticipantService:
         #     except Exception:
         #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
-        participants = await async_postgres_service.list_participants(0, None)
+        participants = await async_postgres_service.list_participants(offset, limit)
         for i, participant in enumerate(participants):
             participants[i] = participant.__info_to_json__()
         if not participants:
