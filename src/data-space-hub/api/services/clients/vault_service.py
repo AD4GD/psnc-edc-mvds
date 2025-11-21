@@ -1,12 +1,19 @@
 import base64
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, Literal, Optional
 
 from api.core.logging_config import setup_logging
-from api.core.settings import KeyVaultSettings
+from api.core.settings import KeyVaultSettings, ProjectSettings
+from api.exceptions.registration_service_exceptions import RecordAlreadyExistsException, RecordNotFoundWarning
+from api.models.dto.local import KeyTypeEnum, KeyInfo, PublicKeyType, KeyDataType
+from api.templates.dict_templates import DIDK8sDict, VerificationMethodDict
+from api.templates.template_filler import render_json_template_string
+from api.templates.keys import did_k8s_template, verification_method_template
 from hvac import Client, exceptions
 from hvac.api.secrets_engines.transit import Transit
+from fastapi import status
+from fastapi.responses import Response
 
 logger = setup_logging()
 
@@ -22,16 +29,6 @@ class VaultService:
     - Key rotation and versioning
     """
 
-    # Supported key types for different use cases
-    KEY_TYPES = {
-        "ed25519": "ed25519",  # Fast signing, small signatures (VC preferred)
-        "ecdsa-p256": "ecdsa-p256",  # NIST P-256, widely supported
-        "ecdsa-p384": "ecdsa-p384",  # Higher security NIST curve
-        "rsa-2048": "rsa-2048",  # Legacy compatibility
-        "rsa-3072": "rsa-3072",  # Balanced RSA
-        "rsa-4096": "rsa-4096",  # High security RSA
-    }
-
     def __init__(self):
         """Initialize Vault client with authentication check."""
         self.client = Client(url=KeyVaultSettings.vault_url, token=KeyVaultSettings.vault_token)
@@ -43,6 +40,8 @@ class VaultService:
         # Mount points
         self.kv_mount = getattr(KeyVaultSettings, "vault_kv_mount", "secret")
         self.transit_mount = getattr(KeyVaultSettings, "vault_transit_mount", "transit")
+        self.key_name = getattr(KeyVaultSettings, "key_name", "key_name")
+        self.issuer_did = getattr(ProjectSettings, "issuer_did", "did:web:issuer")
 
         logger.info(f"VaultService initialized: KV={self.kv_mount}, Transit={self.transit_mount}")
 
@@ -58,20 +57,9 @@ class VaultService:
     def create_signing_key(
         self,
         key_name: str,
-        key_type: Literal[
-            "ed25519",
-            "ecdsa-p256",
-            "ecdsa-p384",
-            "rsa-2048",
-            "rsa-3072",
-            "rsa-4096",
-            "aes256-gcm96",
-            "chacha20-poly1305",
-        ] = "ed25519",
-        derived: bool = False,
-        exportable: bool = False,
-        allow_plaintext_backup: bool = False,
-        auto_rotate_period: Optional[str] = None,
+        key_type: KeyTypeEnum = KeyTypeEnum.ED25519,
+        mount_point: Optional[str] = None,
+        auto_rotate_days: Optional[int] = 30,
     ) -> Dict[str, Any]:
         """
         Create a signing key in Transit engine.
@@ -79,63 +67,51 @@ class VaultService:
         Args:
             key_name: Unique identifier for the key (e.g., "issuer-key-2024")
             key_type: Type of asymmetric key (ed25519 recommended for VC)
-            derived: Boolean - used with "chacha20-poly1305" key - allows for encryption with context
-            exportable: Allow key export (WARNING: security risk)
-            allow_plaintext_backup: Allow plaintext backup (WARNING: security risk)
-            auto_rotate_period: Auto-rotation period (e.g., "720h" for 30 days)
+            auto_rotate_days: Auto-rotation days that are transformed into hours
 
         Returns:
             API response dict
-
-        Raises:
-            Exception if key creation fails
         """
         try:
-            response = self.client.secrets.transit.create_key(
-                name=key_name,
-                convergent_encryption=False,
-                derived=derived,
-                # exportable=exportable,
-                # allow_plaintext_backup=allow_plaintext_backup,
-                key_type=key_type,
-                mount_point=self.transit_mount,
-                auto_rotate_period=auto_rotate_period,
-            )
+            params = {
+                "name": key_name,
+                "key_type": key_type,
+                "mount_point": mount_point if mount_point else self.transit_mount,
+                "auto_rotate_period": f"{auto_rotate_days}d"
+            }
+
+            response = self.transit.create_key(**params)
             logger.info(f"Created signing key '{key_name}' (type={key_type})")
             return response
         except exceptions.InvalidRequest as e:
-            # Key might already exist
             if "already exists" in str(e).lower() or "existing key" in str(e).lower():
                 logger.warning(f"Key '{key_name}' already exists")
                 return {"warning": "key_already_exists"}
-            raise
+            raise RecordAlreadyExistsException(message=f"Key '{key_name}' already exists")
 
-    def get_public_key(self, key_name: str, version: Optional[int] = None) -> Dict[str, Any]:
+    def get_public_key(self, key_name: str, version: Optional[int] = None) -> PublicKeyType:
         """
         Retrieve public key from Transit key.
-
         Args:
             key_name: Name of the Transit key
             version: Specific version (None = latest)
-
         Returns:
-            Dict with 'public_key' (PEM), 'key_type', 'versions', etc.
+            Dict of type KeyInfo
         """
         try:
-            response = self.client.secrets.transit.read_key(name=key_name, mount_point=self.transit_mount)
-
-            key_data = response["data"]
+            response = self.transit.read_key(name=key_name, mount_point=self.transit_mount)
+            key_data : KeyDataType = response["data"]
             keys = key_data.get("keys", {})
 
             if version:
                 version_str = str(version)
                 if version_str not in keys:
-                    raise ValueError(f"Version {version} not found for key '{key_name}'")
-                key_info = keys[version_str]
+                    raise RecordNotFoundWarning(message=f"Key version not found in Vault", record_id=key_name, record_type="key version")
+                key_info : KeyInfo = keys[version_str]
             else:
                 # Get latest version
                 latest_version = str(key_data.get("latest_version", 1))
-                key_info = keys[latest_version]
+                key_info : KeyInfo = keys[latest_version]
 
             return {
                 "public_key": key_info.get("public_key"),
@@ -143,17 +119,49 @@ class VaultService:
                 "name": key_data.get("name"),
                 "version": version or key_data.get("latest_version"),
                 "creation_time": key_info.get("creation_time"),
-                "exportable": key_data.get("exportable"),
+                "expiration_time": (datetime.fromisoformat(key_info.get("creation_time")) + timedelta(seconds=key_data.get("auto_rotate_period"))).isoformat(),
                 "supports_signing": key_data.get("supports_signing"),
             }
+        except exceptions.InvalidPath as e:
+            logger.error(f"Failed to get public key for '{key_name}': {e}")
+            raise RecordNotFoundWarning(message=f"Key not found in Vault", record_id=key_name, record_type="key")
         except Exception as e:
             logger.error(f"Failed to get public key for '{key_name}': {e}")
-            raise
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     def list_keys(self) -> list[str]:
         """List all Transit keys."""
-        response: Dict = self.client.secrets.transit.list_keys(mount_point=self.transit_mount)
+        response: Dict = self.transit.list_keys(mount_point=self.transit_mount)
         return response.get("data", {}).get("keys", [])
+    
+    def prepare_did_document(self):
+        """
+        Prepare a DID Document using the public key from Vault.
+        Returns:
+            DID Document dict
+        """
+        key_info = self.get_public_key(self.key_name)
+        public_key_pem = key_info["public_key"]
+        key_type = key_info["key_type"]
+        version = key_info["version"]
+
+        verification_method = render_json_template_string(
+            verification_method_template,
+            VerificationMethodDict(
+                issuer=ProjectSettings.issuer_did,
+                issuer_key_id=f"{ProjectSettings.issuer_did}#key-{version}",
+                key_hash=public_key_pem
+            )
+        )
+        did_k8s = render_json_template_string(
+            did_k8s_template,
+            DIDK8sDict(
+                issuer=ProjectSettings.issuer_did,
+                list_of_verification_methods=[verification_method],
+                list_of_key_ids=[f"key-{version}"],
+            ),
+        )
+        return did_k8s
 
     def rotate_key(self, key_name: str) -> Dict[str, Any]:
         """
@@ -166,7 +174,7 @@ class VaultService:
             API response
         """
         try:
-            response = self.client.secrets.transit.rotate_key(name=key_name, mount_point=self.transit_mount)
+            response = self.transit.rotate_key(name=key_name, mount_point=self.transit_mount)
             logger.info(f"Rotated key '{key_name}'")
             return response
         except Exception as e:
@@ -185,9 +193,9 @@ class VaultService:
         """
         try:
             # First, update key config to allow deletion
-            self.client.secrets.transit.update_key_configuration(name=key_name, deletion_allowed=True, mount_point=self.transit_mount)
+            self.transit.update_key_configuration(name=key_name, deletion_allowed=True, mount_point=self.transit_mount)
             # Then delete
-            response = self.client.secrets.transit.delete_key(name=key_name, mount_point=self.transit_mount)
+            response = self.transit.delete_key(name=key_name, mount_point=self.transit_mount)
             logger.info(f"Deleted key '{key_name}'")
             return response
         except Exception as e:
@@ -239,7 +247,7 @@ class VaultService:
             if key_version:
                 params["key_version"] = key_version
 
-            response = self.client.secrets.transit.sign_data(**params)
+            response = self.transit.sign_data(**params)
             signature = response["data"]["signature"]
 
             logger.debug(f"Signed data with key '{key_name}'")
@@ -278,7 +286,7 @@ class VaultService:
         if prehashed:
             params["prehashed"] = True
 
-        response = self.client.secrets.transit.verify_signed_data(**params)
+        response = self.transit.verify_signed_data(**params)
         is_valid = response.get("data", {}).get("valid", False)
 
         logger.debug(f"Signature verification for '{key_name}': {is_valid}")
@@ -464,7 +472,7 @@ class VaultService:
             if key_version:
                 params["key_version"] = key_version
 
-            response = self.client.secrets.transit.encrypt_data(**params)
+            response = self.transit.encrypt_data(**params)
             return response["data"]["ciphertext"]
 
         except Exception as e:
@@ -494,7 +502,7 @@ class VaultService:
                 context_b64 = base64.b64encode(context.encode("utf-8")).decode("utf-8")
                 params["context"] = context_b64
 
-            response = self.client.secrets.transit.decrypt_data(**params)
+            response = self.transit.decrypt_data(**params)
             plaintext_b64 = response["data"]["plaintext"]
             return base64.b64decode(plaintext_b64)
 
@@ -543,3 +551,122 @@ class VaultService:
 
 # Singleton instance
 vault_service = VaultService()
+#     def get_public_key(self, key_name: str) -> Dict[str, Any]:
+#         response = self.transit.read_key(name=key_name, mount_point=self.transit_mount)
+#         key_data = response["data"]
+#         keys = key_data.get("keys", {})
+#         latest_version = str(key_data.get("latest_version", 1))
+#         key_info = keys[latest_version]
+#         return {
+#             "public_key": key_info.get("public_key"),
+#             "key_type": key_data.get("type"),
+#             "name": key_data.get("name"),
+#             "version": key_data.get("latest_version"),
+#             "creation_time": key_info.get("creation_time")
+#         }
+
+#     def list_keys(self) -> list[str]:
+#         response: Dict = self.transit.list_keys(mount_point=self.transit_mount)
+#         return response.get("data", {}).get("keys", [])
+
+#     def rotate_key(self, key_name: str) -> Dict[str, Any]:
+#         return self.transit.rotate_key(name=key_name, mount_point=self.transit_mount)
+
+#     def delete_key(self, key_name: str) -> Dict[str, Any]:
+#         self.transit.update_key_configuration(
+#             name=key_name, deletion_allowed=True, mount_point=self.transit_mount)
+#         return self.transit.delete_key(name=key_name, mount_point=self.transit_mount)
+
+#     # Signing & Verification
+#     def sign_data(self, key_name: str, data: bytes) -> str:
+#         input_b64 = base64.b64encode(data).decode("utf-8")
+#         response = self.transit.sign_data(
+#             name=key_name,
+#             hash_input=input_b64,
+#             mount_point=self.transit_mount
+#         )
+#         return response["data"]["signature"]
+
+#     def verify_signature(self, key_name: str, data: bytes, signature: str) -> bool:
+#         input_b64 = base64.b64encode(data).decode("utf-8")
+#         response = self.transit.verify_signed_data(
+#             name=key_name,
+#             hash_input=input_b64,
+#             signature=signature,
+#             mount_point=self.transit_mount
+#         )
+#         return response.get("data", {}).get("valid", False)
+
+#     # Signing VC as JWT
+#     def sign_vc_as_jwt(
+#         self,
+#         key_name: str,
+#         credential: Dict[str, Any],
+#         issuer_did: str,
+#         subject_did: Optional[str] = None,
+#         ttl_seconds: int = 3600
+#     ) -> str:
+#         import time
+#         now = int(time.time())
+#         claims = {
+#             "iss": issuer_did,
+#             "iat": now,
+#             "exp": now + ttl_seconds,
+#             "vc": credential,
+#         }
+#         if subject_did:
+#             claims["sub"] = subject_did
+
+#         headers = {
+#             "typ": "JWT",
+#             "alg": "EdDSA",
+#             "kid": f"{issuer_did}#{key_name}",
+#         }
+#         header_json = json.dumps(headers, separators=(",", ":"))
+#         payload_json = json.dumps(claims, separators=(",", ":"))
+#         header_b64 = base64.urlsafe_b64encode(header_json.encode()).rstrip(b"=").decode()
+#         payload_b64 = base64.urlsafe_b64encode(payload_json.encode()).rstrip(b"=").decode()
+#         signing_input = f"{header_b64}.{payload_b64}".encode()
+#         vault_signature = self.sign_data(key_name, signing_input)
+#         raw_sig = vault_signature.split(":")[-1]
+#         sig_bytes = base64.b64decode(raw_sig)
+#         sig_b64 = base64.urlsafe_b64encode(sig_bytes).rstrip(b"=").decode()
+#         return f"{header_b64}.{payload_b64}.{sig_b64}"
+
+#     def verify_vc_jwt(self, key_name: str, jwt_token: str) -> Tuple[bool, Dict[str, Any]]:
+#         parts = jwt_token.split(".")
+#         if len(parts) != 3:
+#             return False, {}
+#         header_b64, payload_b64, sig_b64 = parts
+#         signing_input = f"{header_b64}.{payload_b64}".encode()
+#         sig_bytes = base64.urlsafe_b64decode(sig_b64 + "=" * (-len(sig_b64) % 4))
+#         sig_b64_std = base64.b64encode(sig_bytes).decode()
+#         vault_sig = f"vault:v1:{sig_b64_std}"
+#         is_valid = self.verify_signature(key_name, signing_input, vault_sig)
+#         payload_json = base64.urlsafe_b64decode(payload_b64 + "=" * (-len(payload_b64) % 4)).decode()
+#         claims = json.loads(payload_json) if is_valid else {}
+#         return is_valid, claims
+
+#     # Public key KV storage
+#     def store_public_key_metadata(self, key_id: str, public_key_pem: str, meta: Optional[Dict[str, Any]] = None) -> str:
+#         path = f"public-keys/{key_id}"
+#         secret_data = {
+#             "public_key": public_key_pem,
+#             "created_at": datetime.now(timezone.utc).isoformat(),
+#         }
+#         if meta:
+#             secret_data.update({"meta": meta})
+#         self.client.secrets.kv.v2.create_or_update_secret(
+#             path=path, secret=secret_data, mount_point=self.kv_mount
+#         )
+#         return f"{self.kv_mount}/data/{path}"
+
+#     def read_public_key_metadata(self, key_id: str) -> Optional[Dict[str, Any]]:
+#         path = f"public-keys/{key_id}"
+#         try:
+#             response = self.client.secrets.kv.v2.read_secret_version(path=path, mount_point=self.kv_mount)
+#             return response["data"]["data"]
+#         except exceptions.InvalidPath:
+#             return None
+
+# # Użycie: vault = VaultService(url, token)
