@@ -147,7 +147,6 @@ class AsyncPostgresService:
     # --- RegistrationRequest / IssuedCredential helpers ---
     async def create_registration_request(self, data: Dict[str, Any]) -> RegistrationRequest:
         """Create a registration request audit row."""
-        print(data)
         async with self.session_factory() as session:
             req = RegistrationRequest(**data)
             session.add(req)

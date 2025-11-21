@@ -32,8 +32,8 @@ def test_endpoint():
     status_code=status.HTTP_200_OK,
     summary="Allow participant to generate new VCs for its users when keys rotate",
 )
-def retrieve_vc(body: Annotated[UserInfoVCRequest, Body()]):
+async def retrieve_vc(body: Annotated[UserInfoVCRequest, Body()]):
     """
     Main endpoint that is responsible for handling requests from User Management System and generating Verifiable Credentials for users of connector
     """
-    return vc_service.create_vc(body)
+    return await vc_service.create_vc(body)

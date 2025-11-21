@@ -1,4 +1,4 @@
-from typing import Any, Dict, TypedDict
+from typing import Any, Dict, TypedDict, List
 from uuid import uuid4
 
 from api.core.database import Base
@@ -13,7 +13,7 @@ class ParticipantDict(TypedDict):
     name: str
     full_name: str
     VAT_number: str
-    protocol_url: str
+    protocol_url: List[str]
     email: str
     location_id: str
     location: Dict[str, Any]
@@ -38,17 +38,18 @@ class Participant(Base):
     created_at = Column(TIMESTAMP(timezone=True), default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), default=text("now()"), onupdate=text("now()"))
 
-    def __info_to_json__(self) -> ParticipantDict:
+    def to_dict(self) -> ParticipantDict:
         return {
-            "id": f"{self.id}",
+            "id": f"{str(self.id)}",
             "did": f"{self.did}",
             "name": f"{self.name}",
             "full_name": f"{self.full_name}",
             "VAT_number": f"{self.VAT_number}",
-            "protocol_url": f"{self.protocol_url}",
+            "protocol_url": self.protocol_url,
+            "ums_url": f"{self.ums_url}",
             "email": f"{self.email}",
             "location_id": f"{self.location_id}",
-            "location": {self.location.__info_to_json__()},
+            "location": self.location.to_dict(),
             "created_at": f"{self.created_at}",
             "updated_at": f"{self.updated_at}",
         }

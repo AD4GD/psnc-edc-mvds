@@ -5,6 +5,7 @@ import json
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
+from api.exceptions.registration_service_exceptions import UnauthorizedException
 from api.services.clients import keycloak_service, vault_service
 from fastapi import Depends, Header, HTTPException, status
 
@@ -13,10 +14,10 @@ from fastapi import Depends, Header, HTTPException, status
 def get_bearer_token(authorization: Optional[str] = Header(None)) -> str:
     """Extract Bearer token from Authorization header or raise 401."""
     if not authorization:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization header")
+        raise UnauthorizedException(message="Missing Authorization header", action="access protected resource")
     parts = authorization.split()
     if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Authorization header")
+        raise UnauthorizedException(message="Missing Authorization header", action="access protected resource")
     return parts[1]
 
 
@@ -25,7 +26,7 @@ async def require_admin_token(token: str = Depends(get_bearer_token)):
     try:
         keycloak_service.require_admin(token)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+        raise UnauthorizedException(message=str(exc), action="require admin role")
     return token
 
 
