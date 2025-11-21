@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from api.exceptions.registration_service_exceptions import UnauthorizedException
 from api.services.clients import keycloak_service, vault_service
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header
 
 
 # ----- dependencies / helpers -----

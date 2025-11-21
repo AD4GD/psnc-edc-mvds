@@ -226,7 +226,9 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             return await session.get(IssuedCredentials, issued_id)
 
-    async def list_issued_credentials(self, participant_id: Optional[str] = None, offset: int = 0, limit: int | None = None) -> List[IssuedCredentials]:
+    async def list_issued_credentials(
+        self, participant_id: Optional[str] = None, offset: int = 0, limit: int | None = None
+    ) -> List[IssuedCredentials]:
         """List issued credentials with optional filters."""
         async with self.session_factory() as session:
             stmt = select(IssuedCredentials)

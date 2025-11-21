@@ -20,7 +20,7 @@ class ProjectNameException(Exception):
         self.error_code = error_code or self.__class__.__name__
         self.details = details or {}
         super().__init__(self.message)
-    
+
     @property
     def name(self) -> str:
         """Get the name of the exception."""
@@ -83,11 +83,7 @@ class ValidationException(ProjectNameException):  # TODO correct
 class RecordAlreadyExistsException(ProjectNameException):
     """Exception raised when a duplicate is tried to be created."""
 
-    def __init__(
-            self,
-            message: str = "Record already exists",
-            record: Optional[str] = None
-        ):
+    def __init__(self, message: str = "Record already exists", record: Optional[str] = None):
         details = {}
         if record:
             details["record"] = record

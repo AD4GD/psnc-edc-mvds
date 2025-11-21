@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Literal, Optional, List
+from typing import Any, Dict, List, Literal, Optional
 from uuid import UUID
 
 from api.models.db.registration_request import RegistrationStatus

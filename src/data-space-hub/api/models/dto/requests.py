@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from pydantic import AnyHttpUrl, BaseModel, Field, field_validator, EmailStr
+from pydantic import AnyHttpUrl, BaseModel, EmailStr, Field
 
 
 class LocationRequest(BaseModel):

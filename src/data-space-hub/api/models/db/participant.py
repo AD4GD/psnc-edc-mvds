@@ -1,4 +1,4 @@
-from typing import Any, Dict, TypedDict, List
+from typing import Any, Dict, List, TypedDict
 from uuid import uuid4
 
 from api.core.database import Base

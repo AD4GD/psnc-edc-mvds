@@ -277,10 +277,7 @@ path "secret/data/vc-metadata/*" {
             if create_default_keys:
                 # Main issuer signing key (Ed25519 for VC)
                 if self.vault.create_signing_key(
-                    key_name=KeyVaultSettings.key_name,
-                    key_type=KeyVaultSettings.default_key_type,
-                    mount_point=transit_mount,
-                    auto_rotate_days=90
+                    key_name=KeyVaultSettings.key_name, key_type=KeyVaultSettings.default_key_type, mount_point=transit_mount, auto_rotate_days=90
                 ):
                     _summary["keys_created"].append(f"{KeyVaultSettings.key_name} ({KeyVaultSettings.default_key_type})")
 
@@ -290,9 +287,7 @@ path "secret/data/vc-metadata/*" {
 
                 # Data encryption key
                 if self.vault.create_signing_key(
-                    key_name=KeyVaultSettings.encryption_key_name,
-                    key_type=KeyVaultSettings.default_encryption_key_type,
-                    mount_point=transit_mount
+                    key_name=KeyVaultSettings.encryption_key_name, key_type=KeyVaultSettings.default_encryption_key_type, mount_point=transit_mount
                 ):
                     _summary["keys_created"].append(f"{KeyVaultSettings.encryption_key_name} ({KeyVaultSettings.default_encryption_key_type})")
 
