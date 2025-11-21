@@ -2,7 +2,12 @@
 Exception handlers for the FastAPI embeddings service.
 """
 from api.core.logging_config import setup_logging
-from api.exceptions.registration_service_exceptions import ProjectNameException, RecordAlreadyExistsException, RecordNotFoundWarning, UnauthorizedException
+from api.exceptions.registration_service_exceptions import (
+    ProjectNameException,
+    RecordAlreadyExistsException,
+    RecordNotFoundWarning,
+    UnauthorizedException,
+)
 from api.models.dto.error_responses import ErrorResponse, ValidationErrorResponse
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
@@ -171,7 +176,7 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(KeycloakPostError)
     async def keycloak_post_exception_handler(request: Request, exc: KeycloakPostError):
-        raise UnauthorizedException(message=str(exc), action="Keycloak not available for this user")        
+        raise UnauthorizedException(message=str(exc), action="Keycloak not available for this user")
 
     @app.exception_handler(UnauthorizedException)
     async def unauthorized_exception_handler(request: Request, warn: UnauthorizedException) -> JSONResponse:

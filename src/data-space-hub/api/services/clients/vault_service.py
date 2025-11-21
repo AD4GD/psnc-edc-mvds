@@ -1,19 +1,19 @@
 import base64
 import json
-from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, Literal, Optional
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, Optional
 
 from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings, ProjectSettings
 from api.exceptions.registration_service_exceptions import RecordAlreadyExistsException, RecordNotFoundWarning
-from api.models.dto.local import KeyTypeEnum, KeyInfo, PublicKeyType, KeyDataType
+from api.models.dto.local import KeyDataType, KeyInfo, KeyTypeEnum, PublicKeyType
 from api.templates.dict_templates import DIDK8sDict, VerificationMethodDict
-from api.templates.template_filler import render_json_template_string
 from api.templates.keys import did_k8s_template, verification_method_template
-from hvac import Client, exceptions
-from hvac.api.secrets_engines.transit import Transit
+from api.templates.template_filler import render_json_template_string
 from fastapi import status
 from fastapi.responses import Response
+from hvac import Client, exceptions
+from hvac.api.secrets_engines.transit import Transit
 
 logger = setup_logging()
 
@@ -77,7 +77,7 @@ class VaultService:
                 "name": key_name,
                 "key_type": key_type,
                 "mount_point": mount_point if mount_point else self.transit_mount,
-                "auto_rotate_period": f"{auto_rotate_days}d"
+                "auto_rotate_period": f"{auto_rotate_days}d",
             }
 
             response = self.transit.create_key(**params)
@@ -100,18 +100,18 @@ class VaultService:
         """
         try:
             response = self.transit.read_key(name=key_name, mount_point=self.transit_mount)
-            key_data : KeyDataType = response["data"]
+            key_data: KeyDataType = response["data"]
             keys = key_data.get("keys", {})
 
             if version:
                 version_str = str(version)
                 if version_str not in keys:
-                    raise RecordNotFoundWarning(message=f"Key version not found in Vault", record_id=key_name, record_type="key version")
-                key_info : KeyInfo = keys[version_str]
+                    raise RecordNotFoundWarning(message="Key version not found in Vault", record_id=key_name, record_type="key version")
+                key_info: KeyInfo = keys[version_str]
             else:
                 # Get latest version
                 latest_version = str(key_data.get("latest_version", 1))
-                key_info : KeyInfo = keys[latest_version]
+                key_info: KeyInfo = keys[latest_version]
 
             return {
                 "public_key": key_info.get("public_key"),
@@ -119,13 +119,15 @@ class VaultService:
                 "name": key_data.get("name"),
                 "version": version or key_data.get("latest_version"),
                 "creation_time": key_info.get("creation_time"),
-                "expiration_time": (datetime.fromisoformat(key_info.get("creation_time")) + timedelta(seconds=key_data.get("auto_rotate_period"))).isoformat(),
+                "expiration_time": (
+                    datetime.fromisoformat(key_info.get("creation_time")) + timedelta(seconds=key_data.get("auto_rotate_period"))
+                ).isoformat(),
                 "supports_signing": key_data.get("supports_signing"),
             }
         except exceptions.InvalidPath as e:
             logger.error(f"Failed to get public key for '{key_name}': {e}")
-            raise RecordNotFoundWarning(message=f"Key not found in Vault", record_id=key_name, record_type="key")
-        except Exception as e:
+            raise RecordNotFoundWarning(message="Key not found in Vault", record_id=key_name, record_type="key")
+        except Exception as e:  # pylint: disable=W0718
             logger.error(f"Failed to get public key for '{key_name}': {e}")
             return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -133,7 +135,7 @@ class VaultService:
         """List all Transit keys."""
         response: Dict = self.transit.list_keys(mount_point=self.transit_mount)
         return response.get("data", {}).get("keys", [])
-    
+
     def prepare_did_document(self):
         """
         Prepare a DID Document using the public key from Vault.
@@ -142,16 +144,14 @@ class VaultService:
         """
         key_info = self.get_public_key(self.key_name)
         public_key_pem = key_info["public_key"]
-        key_type = key_info["key_type"]
+        # key_type = key_info["key_type"]
         version = key_info["version"]
 
         verification_method = render_json_template_string(
             verification_method_template,
             VerificationMethodDict(
-                issuer=ProjectSettings.issuer_did,
-                issuer_key_id=f"{ProjectSettings.issuer_did}#key-{version}",
-                key_hash=public_key_pem
-            )
+                issuer=ProjectSettings.issuer_did, issuer_key_id=f"{ProjectSettings.issuer_did}#key-{version}", key_hash=public_key_pem
+            ),
         )
         did_k8s = render_json_template_string(
             did_k8s_template,

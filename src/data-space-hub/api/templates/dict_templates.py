@@ -1,4 +1,4 @@
-from typing import Dict, List, TypedDict, Optional
+from typing import Dict, List, Optional, TypedDict
 
 
 class JsonLdDict(TypedDict):
@@ -24,11 +24,11 @@ class VCDict(TypedDict):
 
 class VerificationMethodDict(TypedDict):
     issuer: str
-    issuer_key_id: str # <issuer>#<key-id>
+    issuer_key_id: str  # <issuer>#<key-id>
     key_hash: str
 
 
 class DIDK8sDict(TypedDict):
     issuer: str
-    list_of_verification_methods : List[str]
-    list_of_key_ids : List[str]
+    list_of_verification_methods: List[str]
+    list_of_key_ids: List[str]

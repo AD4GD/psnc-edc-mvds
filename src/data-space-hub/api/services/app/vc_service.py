@@ -44,7 +44,7 @@ class VCService:
     async def create_vc(self, req: UserInfoVCRequest) -> dict:
         # TODO check if ok & correct
         logger.info(self.key_name)
-        public_key : PublicKeyType = vault_service.get_public_key(self.key_name)
+        public_key: PublicKeyType = vault_service.get_public_key(self.key_name)
         logger.info(public_key)
         return VCResponse(username="user", vc={"key": "value"}, connector_token="token")
 

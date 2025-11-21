@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime
+from enum import StrEnum
 from typing import Any, Dict, List, Optional, TypedDict
 from uuid import UUID
-from enum import StrEnum
-from pydantic import AnyHttpUrl, BaseModel, Field
 
+from pydantic import AnyHttpUrl, BaseModel, Field
 
 
 class KeyTypeEnum(StrEnum):
@@ -27,7 +27,7 @@ class KeyInfo(TypedDict):
 
 class KeyDataType(TypedDict):
     allow_plaintext_backup: bool
-    auto_rotate_period: int # seconds
+    auto_rotate_period: int  # seconds
     deletion_allowed: bool
     derived: bool
     exportable: bool
@@ -44,6 +44,7 @@ class KeyDataType(TypedDict):
     supports_signing: bool
     type: KeyTypeEnum
 
+
 class PublicKeyType(BaseModel):
     public_key: str
     key_type: KeyTypeEnum
@@ -53,13 +54,13 @@ class PublicKeyType(BaseModel):
     expiration_time: datetime
     supports_signing: bool
 
+
 # ---------------------------
 # Shared / Base schema
 # ---------------------------
 class TimestampedModel(BaseModel):
     created_at: Optional[datetime] = Field(None, description="Creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
-
 
 
 # ---------------------------

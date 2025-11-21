@@ -5,7 +5,7 @@ from api.core.logging_config import setup_logging
 from api.models.dto.requests import ParticipantUpdateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse
 from api.services.app import participant_service
-from api.services.helper import get_bearer_token, require_admin_token
+from api.services.helper import get_bearer_token  # , require_admin_token
 from fastapi import APIRouter, Body, Depends, Response, status
 
 logger = setup_logging()
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/participants", tags=["Participant"])
     summary="Get list of all participants (admin)",
     responses={status.HTTP_204_NO_CONTENT: {"message": "No participant found"}},
 )
-async def get_all_participants(response: Response, offset : int = 0, limit : int | None = None):  # token: str,  = Depends(require_admin_token)):
+async def get_all_participants(response: Response, offset: int = 0, limit: int | None = None):  # token: str,  = Depends(require_admin_token)):
     """
     Create a new participant record.
     Requires an admin Keycloak token.
@@ -81,5 +81,5 @@ async def update_participant(
     status_code=status.HTTP_200_OK,
     summary="Delete participant (admin or authorized)",
 )
-async def delete_participant(participant_id: str):#, token: str = Depends(require_admin_token)):
+async def delete_participant(participant_id: str):  # , token: str = Depends(require_admin_token)):
     return await participant_service.delete_participant(participant_id, "token")

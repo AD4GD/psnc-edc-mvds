@@ -1,6 +1,6 @@
+from api.models.dto.local import KeyTypeEnum
 from pydantic import Field
 from pydantic_settings import BaseSettings
-from api.models.dto.local import KeyTypeEnum
 
 
 class ProjectSettings(BaseSettings):
@@ -63,7 +63,7 @@ class KeyVaultSettings(BaseSettings):
     key_name: str = Field("key_name", alias="KEY_NAME")
     default_key_type: str = Field(KeyTypeEnum.ED25519, alias="DEFAULT_KEY_TYPE")  # For VC signing
     encryption_key_name: str = Field("encryption_key", alias="ENCRYPTION_KEY_NAME")
-    default_encryption_key_type: str = Field(KeyTypeEnum.AES256_GCM96, alias="DEFAULT_ENCRYPTION_KEY_TYPE") # For encryption
+    default_encryption_key_type: str = Field(KeyTypeEnum.AES256_GCM96, alias="DEFAULT_ENCRYPTION_KEY_TYPE")  # For encryption
     vault_key_auto_rotate_days: int = Field(90, alias="VAULT_KEY_AUTO_ROTATE_DAYS")
 
     model_config = {

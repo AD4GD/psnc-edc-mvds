@@ -87,7 +87,7 @@ class ParticipantService:
         return await async_postgres_service.get_participant_count()
 
     @classmethod
-    async def get_all_participants(cls, token: str, offset : int = 0, limit : int | None = None) -> List[ParticipantResponse]:
+    async def get_all_participants(cls, token: str, offset: int = 0, limit: int | None = None) -> List[ParticipantResponse]:
         # try:
         #     payload = keycloak_service.decode_jwt_payload(token)
         #     if not (keycloak_service.token_has_realm_role(token, "admin")):
