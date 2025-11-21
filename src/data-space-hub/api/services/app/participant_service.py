@@ -2,6 +2,7 @@ from typing import List
 from uuid import uuid4
 
 from api.core.logging_config import setup_logging
+from api.exceptions.registration_service_exceptions import RecordNotFoundWarning, UnauthorizedException
 from api.models.db.registration_request import RegistrationRequest, RegistrationStatus
 from api.models.dto.requests import ParticipantCreateRequest, ParticipantUpdateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse
@@ -11,8 +12,6 @@ from api.templates.email import participant_accepted_template, participant_confi
 from api.templates.template_filler import render_jinja_template
 from fastapi import HTTPException, Response, status
 from fastapi.encoders import jsonable_encoder
-
-# from .registration_service import registration_service
 
 logger = setup_logging()
 
@@ -63,6 +62,7 @@ class ParticipantService:
         location = await async_postgres_service.create_location(form["location"])
         participant = await async_postgres_service.create_participant(
             {
+                "id": uuid4(),
                 "did": create_did(form["name"]),  # or full_name
                 "name": form["name"],
                 "full_name": form["full_name"],
@@ -80,6 +80,33 @@ class ParticipantService:
             "html",
         )
         return participant
+
+    @classmethod
+    async def get_participants_count(cls, token):
+        # TODO auth
+        return await async_postgres_service.get_participant_count()
+
+    @classmethod
+    async def get_all_participants(cls, token: str, offset : int = 0, limit : int | None = None) -> List[ParticipantResponse]:
+        # try:
+        #     payload = keycloak_service.decode_jwt_payload(token)
+        #     if not (keycloak_service.token_has_realm_role(token, "admin")):
+        #         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        # except HTTPException:
+        #     raise
+        # except Exception:
+        #     # fallback to introspection
+        #     try:
+        #         keycloak_service.introspect_token(token)
+        #     except Exception:
+        #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+        participants = await async_postgres_service.list_participants(offset, limit)
+        for i, participant in enumerate(participants):
+            participants[i] = participant.to_dict()
+        if not participants:
+            raise RecordNotFoundWarning(message="No participants found", record_type="participant list")
+        return participants
 
     @classmethod
     async def get_participant(cls, token: str, response: Response, participant_id: str = None, participant_did: str = None):
@@ -105,17 +132,8 @@ class ParticipantService:
         elif participant_did:
             participant = await async_postgres_service.get_participant_by_did(participant_did)
         if not participant:
-            # raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Participant not found")
-            response.status_code = status.HTTP_204_NO_CONTENT
-            return response
-        return ParticipantResponse(
-            id=str(participant.id),
-            did=participant.did,
-            protocol_url=participant.protocol_url,
-            location_id=str(participant.location_id) if participant.location_id else None,
-            created_at=participant.created_at.isoformat() if participant.created_at else None,
-            updated_at=participant.updated_at.isoformat() if participant.updated_at else None,
-        )
+            raise RecordNotFoundWarning(message="Participant not found", record_type="participant", record_id=str(participant_id) or participant_did)
+        return participant.to_dict()
 
     @classmethod
     async def update_participant(cls, token: str, participant_id: str, participant: ParticipantUpdateRequest) -> SimpleMessageResponse:
@@ -123,40 +141,12 @@ class ParticipantService:
         return SimpleMessageResponse(message="Participant has been updated")
 
     @classmethod
-    async def get_participants_count(cls, token):
-        # TODO auth
-        return await async_postgres_service.get_participant_count()
-
-    @classmethod
-    async def get_all_participants(cls, token: str, response: Response, offset : int = 0, limit : int | None = None) -> List[ParticipantResponse]:
-        # try:
-        #     payload = keycloak_service.decode_jwt_payload(token)
-        #     if not (keycloak_service.token_has_realm_role(token, "admin")):
-        #         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
-        # except HTTPException:
-        #     raise
-        # except Exception:
-        #     # fallback to introspection
-        #     try:
-        #         keycloak_service.introspect_token(token)
-        #     except Exception:
-        #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-
-        participants = await async_postgres_service.list_participants(offset, limit)
-        for i, participant in enumerate(participants):
-            participants[i] = participant.__info_to_json__()
-        if not participants:
-            response.status_code = status.HTTP_204_NO_CONTENT
-            return []
-        return participants
-
-    @classmethod
     async def delete_participant(cls, token: str, participant_id: str = None, participant_did: str = None) -> None:
         # TODO check if auth is ok
         try:
             keycloak_service.decode_jwt_payload(token)
             if not (keycloak_service.token_has_realm_role(token, "admin") or keycloak_service.authorized_for_participant(token, participant_id)):
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+                raise UnauthorizedException(message="Insufficient permissions", action="delete participant")
         except HTTPException:
             raise
         except Exception:  # pylint: disable=W0718

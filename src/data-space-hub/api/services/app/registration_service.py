@@ -1,4 +1,5 @@
 from api.core.logging_config import setup_logging
+from api.exceptions.registration_service_exceptions import RecordNotFoundWarning
 from api.models.db.registration_request import RegistrationStatus
 from api.models.dto.responses import SimpleMessageResponse
 from api.services.clients import async_postgres_service
@@ -25,7 +26,7 @@ class RegistrationService:
         registrations = await async_postgres_service.list_registration_requests(offset, limit)
 
         if not registrations:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
+            raise RecordNotFoundWarning(message="No registration requests found", record_type="registration request list")
         return registrations
 
     @classmethod
@@ -33,8 +34,7 @@ class RegistrationService:
         """Retrieve specific registration request"""
         registration_request = await async_postgres_service.get_registration_request(reg_id)
         if not registration_request:
-            response.status_code = status.HTTP_204_NO_CONTENT
-            return response
+            raise RecordNotFoundWarning(message="Registration request not found", record_id=reg_id, record_type="registration request")
         return registration_request
 
     @classmethod
@@ -53,7 +53,7 @@ class RegistrationService:
         # TODO auth
         logger.info(reg_id)
         rr = await async_postgres_service.get_registration_request(reg_id)
-        logger.info(rr.__info_to_json__())
+        logger.info(rr.to_dict())
         if rr is None:
             return Response(status_code=status.HTTP_204_NO_CONTENT)
         if (

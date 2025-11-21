@@ -30,9 +30,9 @@ class Location(Base):
     created_at = Column(TIMESTAMP(timezone=True), default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), default=text("now()"), onupdate=text("now()"))
 
-    def __info_to_json__(self) -> LocationDict:
+    def to_dict(self) -> LocationDict:
         return {
-            "id": f"{self.id}",
+            "id": f"{str(self.id)}",
             "country": f"{self.country}",
             "city": f"{self.city}",
             "postal_code": f"{self.postal_code}",

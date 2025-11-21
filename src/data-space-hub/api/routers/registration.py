@@ -38,7 +38,6 @@ async def start_registration(req: Annotated[ParticipantCreateRequest, Body()]):
     1. Participant creates infrastructure and run all required services.
     2. Participant's admin send request and waits for Data Space Hub's admin for accept
     """
-    # print(req)
     return await participant_service.start_participant_registration(req)
 
 

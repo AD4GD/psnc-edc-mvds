@@ -6,6 +6,7 @@ from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings
 
 # from api.models.db import IssuedCredentials, Participant
+from api.models.dto.local import PublicKeyType
 from api.models.dto.requests import UserInfoVCRequest
 from api.models.dto.responses import VCResponse
 from api.services.clients import async_postgres_service, vault_service
@@ -37,12 +38,14 @@ class VCService:
         self.postgres = async_postgres_service
         self.vault = vault_service
         # transit key name and jwt alg from settings
-        self.key_name = getattr(KeyVaultSettings, "rs_transit_key_name", "rs-signing-key")
+        self.key_name = getattr(KeyVaultSettings, "key_name", "key_name")
         self.jwt_alg = getattr(KeyVaultSettings, "rs_jwt_alg", "RS256")
 
     async def create_vc(self, req: UserInfoVCRequest) -> dict:
         # TODO check if ok & correct
         logger.info(self.key_name)
+        public_key : PublicKeyType = vault_service.get_public_key(self.key_name)
+        logger.info(public_key)
         return VCResponse(username="user", vc={"key": "value"}, connector_token="token")
 
         # # 1) Validation of incoming data

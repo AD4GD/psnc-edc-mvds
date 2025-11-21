@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, field_validator, EmailStr
 
 
 class LocationRequest(BaseModel):
@@ -16,19 +16,12 @@ class LocationRequest(BaseModel):
 class ParticipantCreateRequest(BaseModel):
     """Request model for creating a new participant."""
 
-    @field_validator("protocol_url", mode="after")
-    @classmethod
-    def validate_urls(cls, v: str):
-        if not v or not all(isinstance(url, AnyHttpUrl) for url in v):
-            raise ValueError("protocol_url must be a non-empty list of valid URLs")
-        return v
-
     protocol_url: List[AnyHttpUrl] = Field(..., description="Participant connector protocol URL")
     ums_url: AnyHttpUrl = Field(..., description="Participant User Management Service URL")
     name: str = Field(..., description="Participant name")
     full_name: str = Field(..., description="Participant full name")
     VAT_number: str = Field(..., description="Participant VAT number")
-    email: str = Field(..., description="Participant contact email")
+    email: EmailStr = Field(..., description="Participant contact email")
     location: LocationRequest = Field(None, description="Location info")
 
 
@@ -39,7 +32,7 @@ class ParticipantUpdateRequest(BaseModel):
     name: str = Field(..., description="Participant name")
     full_name: str = Field(None, description="Participant full name")
     VAT_number: str = Field(None, description="Participant VAT number")
-    email: str = Field(..., description="Participant contact email")
+    email: EmailStr = Field(..., description="Participant contact email")
     location: LocationRequest = Field(None, description="Location info")
 
 

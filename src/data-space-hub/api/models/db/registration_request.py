@@ -39,7 +39,7 @@ class RegistrationRequest(Base):
     created_at = Column(TIMESTAMP(timezone=True), default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), default=text("now()"), onupdate=text("now()"))
 
-    def __info_to_json__(self) -> RegistrationDict:
+    def to_dict(self) -> RegistrationDict:
         return {
             "id": f"{self.id}",
             "error_detail": f"{self.error_detail}",

@@ -1,4 +1,4 @@
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, Optional
 
 
 class JsonLdDict(TypedDict):
@@ -10,7 +10,7 @@ class JsonLdDict(TypedDict):
     contract_version: str
     processing_level: str
     claims: List
-    alumniOf: Dict | None
+    alumniOf: Optional[Dict | None] = None
 
 
 class VCDict(TypedDict):

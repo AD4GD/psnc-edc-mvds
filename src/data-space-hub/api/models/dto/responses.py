@@ -38,7 +38,8 @@ class ParticipantResponse(BaseModel):
     name: str
     full_name: str
     email: str
-    protocol_url: AnyHttpUrl
+    protocol_url: List[AnyHttpUrl]
+    ums_url: AnyHttpUrl
     created_at: Optional[datetime] = Field(...)
     updated_at: Optional[datetime] = Field(...)
     VAT_number: str
