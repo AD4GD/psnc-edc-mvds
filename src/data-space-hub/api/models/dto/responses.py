@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, List
 from uuid import UUID
 
 from api.models.db.registration_request import RegistrationStatus
@@ -59,6 +59,16 @@ class VCResponse(BaseModel):
     username: str
     vc: Dict[str, Any] = Field(..., description="Verifiable Credential issued to the user")
     connector_token: str = Field(..., description="Token that is used by participant to check integration")
+
+
+class DIDResponse(BaseModel):
+    """Response model for DID document."""
+
+    service: List[Any]
+    verificationMethod: List[Dict[str, Any]]
+    authentication: List[str]
+    id: str
+    context: List[Any] = Field(alias="@context")
 
 
 class RegistrationRequestResponse(BaseModel):

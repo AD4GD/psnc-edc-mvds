@@ -6,7 +6,7 @@ from typing import Optional
 
 
 class ProjectNameException(Exception):
-    """Base exception for all PDF Converter service related errors."""
+    """Base exception for all service related errors."""
 
     def __init__(
         self,
@@ -20,11 +20,17 @@ class ProjectNameException(Exception):
         self.error_code = error_code or self.__class__.__name__
         self.details = details or {}
         super().__init__(self.message)
+    
+    @property
+    def name(self) -> str:
+        """Get the name of the exception."""
+        return self.__class__.__name__
 
     def to_dict(self) -> dict:
         """Convert exception to dictionary for API responses."""
         return {
-            "error": self.error_code,
+            "type": self.error_code,
+            "status_code": self.status_code,
             "message": self.message,
             "details": self.details,
         }
@@ -72,3 +78,45 @@ class ValidationException(ProjectNameException):  # TODO correct
             details["field"] = field
 
         super().__init__(message=message, status_code=422, details=details)
+
+
+class RecordAlreadyExistsException(ProjectNameException):
+    """Exception raised when a duplicate is tried to be created."""
+
+    def __init__(
+            self,
+            message: str = "Record already exists",
+            record: Optional[str] = None
+        ):
+        details = {}
+        if record:
+            details["record"] = record
+        super().__init__(message=message, status_code=409, details=details)
+
+
+class RecordNotFoundWarning(ProjectNameException):
+    """Exception raised when a record is not found."""
+
+    def __init__(
+        self,
+        message: str = "Record not found",
+        record_type: Optional[str] = None,
+        record_id: Optional[str] = None,
+    ):
+        details = {}
+        if record_id:
+            details["record_id"] = record_id
+        if record_type:
+            details["record_type"] = record_type
+
+        super().__init__(message=message, status_code=404, details=details)
+
+
+class UnauthorizedException(ProjectNameException):
+    """Exception raised for unauthorized access."""
+
+    def __init__(self, message: str = "Unauthorized access", action: Optional[str] = None):
+        details = {}
+        if action:
+            details["action"] = action
+        super().__init__(message=message, status_code=401, details=details)

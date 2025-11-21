@@ -30,10 +30,6 @@ class VaultInitializer:
             token: Vault token with admin privileges (defaults to settings)
         """
         self.vault = VaultService()
-        # self.vault_url = url or KeyVaultSettings.vault_url
-        # self.vault_token = token or KeyVaultSettings.vault_token
-
-        # self.client = hvac.Client(url=self.vault_url, token=self.vault_token)
 
         if not self.vault.client.is_authenticated():
             raise RuntimeError(f"Vault authentication failed for {KeyVaultSettings.vault_url}")
@@ -108,49 +104,6 @@ class VaultInitializer:
 
         except Exception as e:
             logger.error(f"Failed to configure KV engine: {e}")
-            raise
-
-    def create_transit_key(
-        self,
-        key_name: str,
-        key_type: str = "ed25519",
-        mount_point: str = "transit",
-        exportable: bool = False,
-        allow_plaintext_backup: bool = False,
-        auto_rotate_period: Optional[str] = None,
-    ) -> bool:
-        """
-        Create a transit encryption/signing key.
-
-        Args:
-            key_name: Name for the key
-            key_type: Type (ed25519, ecdsa-p256, rsa-2048, aes256-gcm96, etc.)
-            mount_point: Transit mount path
-            exportable: Allow key export
-            allow_plaintext_backup: Allow plaintext backup
-            auto_rotate_period: Auto-rotation period (e.g., "720h" for 30 days)
-
-        Returns:
-            True if created, False if already exists
-        """
-        try:
-            self.vault.transit.create_key(
-                name=key_name,
-                convergent_encryption=False,
-                derived=False,
-                exportable=exportable,
-                allow_plaintext_backup=allow_plaintext_backup,
-                key_type=key_type,
-                mount_point=mount_point,
-                auto_rotate_period=auto_rotate_period,
-            )
-            logger.info(f"✓ Created transit key '{key_name}' (type={key_type})")
-            return True
-
-        except InvalidRequest as e:
-            if "already exists" in str(e):
-                logger.warning(f"⚠ Transit key '{key_name}' already exists")
-                return False
             raise
 
     def create_policy(self, policy_name: str, policy_rules: str) -> None:
@@ -323,22 +276,25 @@ path "secret/data/vc-metadata/*" {
             # 5. Create default keys if requested
             if create_default_keys:
                 # Main issuer signing key (Ed25519 for VC)
-                if self.create_transit_key(
-                    key_name="issuer-main-key",
-                    key_type="ed25519",
+                if self.vault.create_signing_key(
+                    key_name=KeyVaultSettings.key_name,
+                    key_type=KeyVaultSettings.default_key_type,
                     mount_point=transit_mount,
-                    exportable=False,
-                    auto_rotate_period="2160h",  # 90 days
+                    auto_rotate_days=90
                 ):
-                    _summary["keys_created"].append("issuer-main-key (ed25519)")
+                    _summary["keys_created"].append(f"{KeyVaultSettings.key_name} ({KeyVaultSettings.default_key_type})")
 
                 # Secondary ECDSA key for compatibility
-                if self.create_transit_key(key_name="issuer-ecdsa-key", key_type="ecdsa-p256", mount_point=transit_mount, exportable=False):
-                    _summary["keys_created"].append("issuer-ecdsa-key (ecdsa-p256)")
+                # if self.vault.create_signing_key(key_name="issuer-ecdsa-key", key_type="ecdsa-p256", mount_point=transit_mount):
+                #     _summary["keys_created"].append("issuer-ecdsa-key (ecdsa-p256)")
 
                 # Data encryption key
-                if self.create_transit_key(key_name="data-encryption-key", key_type="aes256-gcm96", mount_point=transit_mount, exportable=False):
-                    _summary["keys_created"].append("data-encryption-key (aes256-gcm96)")
+                if self.vault.create_signing_key(
+                    key_name=KeyVaultSettings.encryption_key_name,
+                    key_type=KeyVaultSettings.default_encryption_key_type,
+                    mount_point=transit_mount
+                ):
+                    _summary["keys_created"].append(f"{KeyVaultSettings.encryption_key_name} ({KeyVaultSettings.default_encryption_key_type})")
 
             logger.info("=" * 60)
             logger.info("✅ Vault setup completed successfully!")
@@ -397,18 +353,12 @@ def initialize_vault(url: Optional[str] = None, token: Optional[str] = None, cre
     Returns:
         Setup summary dict
 
-    Example:
-        >>> from api.services.vault_init import initialize_vault
-        >>> summary = initialize_vault()
-        >>> print(f"Created keys: {summary['keys_created']}")
     """
     initializer = VaultInitializer(url=url, token=token)
     return initializer.setup_for_vc_operations(create_default_keys=create_default_keys)
 
 
 if __name__ == "__main__":
-    # Allow running as script
-
     try:
         _summary = initialize_vault(create_default_keys=True)
         logger.info("\n" + "=" * 60)

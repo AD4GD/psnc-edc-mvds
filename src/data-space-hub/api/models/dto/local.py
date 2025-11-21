@@ -1,11 +1,57 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypedDict
 from uuid import UUID
-
+from enum import StrEnum
 from pydantic import AnyHttpUrl, BaseModel, Field
 
+
+
+class KeyTypeEnum(StrEnum):
+    ED25519 = "ed25519"  # Fast signing, small signatures (VC preferred)
+    ECDA_P256 = "ecdsa-p256"  # NIST P-256, widely supported
+    ECDA_P384 = "ecdsa-p384"  # Higher security NIST curve
+    RSA_2048 = "rsa-2048"  # Legacy compatibility
+    RSA_3072 = "rsa-3072"  # Balanced RSA
+    RSA_4096 = "rsa-4096"  # High security RSA
+    AES256_GCM96 = "aes256-gcm96"  # Encryption key type
+
+
+class KeyInfo(TypedDict):
+    certificate_chain: str
+    creation_time: datetime
+    name: str
+    public_key: str
+
+
+class KeyDataType(TypedDict):
+    allow_plaintext_backup: bool
+    auto_rotate_period: int # seconds
+    deletion_allowed: bool
+    derived: bool
+    exportable: bool
+    imported_key: bool
+    keys: Dict[str, KeyInfo]
+    latest_version: int
+    min_available_version: int
+    min_decryption_version: int
+    min_encryption_version: int
+    name: str
+    supports_decryption: bool
+    supports_derivation: bool
+    supports_encryption: bool
+    supports_signing: bool
+    type: KeyTypeEnum
+
+class PublicKeyType(BaseModel):
+    public_key: str
+    key_type: KeyTypeEnum
+    name: str
+    version: int
+    creation_time: datetime
+    expiration_time: datetime
+    supports_signing: bool
 
 # ---------------------------
 # Shared / Base schema
@@ -14,8 +60,6 @@ class TimestampedModel(BaseModel):
     created_at: Optional[datetime] = Field(None, description="Creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
 
-    class Config:
-        orm_mode = True
 
 
 # ---------------------------

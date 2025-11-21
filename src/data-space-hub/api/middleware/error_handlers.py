@@ -2,11 +2,12 @@
 Exception handlers for the FastAPI embeddings service.
 """
 from api.core.logging_config import setup_logging
-from api.exceptions.registration_service_exceptions import ProjectNameException
+from api.exceptions.registration_service_exceptions import ProjectNameException, RecordAlreadyExistsException, RecordNotFoundWarning, UnauthorizedException
 from api.models.dto.error_responses import ErrorResponse, ValidationErrorResponse
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
+from keycloak.exceptions import KeycloakPostError
 from pydantic import ValidationError
 from sqlalchemy.exc import DataError, IntegrityError
 
@@ -35,14 +36,15 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(status_code=exc.status_code, content=error_response.model_dump())
 
     @app.exception_handler(DataError)
-    async def data_error_exception_handler(request: Request, exc: DataError) -> JSONResponse:
+    @app.exception_handler(IntegrityError)
+    async def data_error_exception_handler(request: Request, exc: DataError | IntegrityError) -> JSONResponse:
         """Handle custom ProjectName service exceptions."""
 
         error_message = str(exc.orig) if exc.orig else str(exc)
         error_message = error_message.split("\n", maxsplit=1)[0]
 
         logger.error(
-            f"DataError occurred: {error_message}",
+            f"{exc.__class__.__name__} occurred: {error_message}",
             extra={
                 "url": str(request.url),
                 "method": request.method,
@@ -50,28 +52,9 @@ def register_exception_handlers(app: FastAPI) -> None:
             },
         )
 
-        error_response = ErrorResponse(error="Data Error", message=error_message, content={})
+        error_response = ErrorResponse(error=exc.__class__.__name__, message=error_message, content={})
 
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump())
-
-    @app.exception_handler(IntegrityError)
-    async def integrity_error_exception_handler(request: Request, exc: IntegrityError) -> JSONResponse:
-        """Handle custom ProjectName service exceptions."""
-        error_message = str(exc.orig) if exc.orig else str(exc)
-        error_message = error_message.split("\n", maxsplit=1)[0]
-
-        logger.error(
-            f"IntegrityError occurred: {error_message}",
-            extra={
-                "url": str(request.url),
-                "method": request.method,
-                "headers": dict(request.headers),
-            },
-        )
-
-        error_response = ErrorResponse(error="Integrity Error", message=error_message, content={})
-
-        return JSONResponse(status_code=400, content=error_response.model_dump())  # Bad Request
 
     @app.exception_handler(RequestValidationError)
     async def request_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -151,11 +134,65 @@ def register_exception_handlers(app: FastAPI) -> None:
 
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump())
 
+    @app.exception_handler(RecordAlreadyExistsException)
+    async def key_not_found_exception_handler(request: Request, exc: RecordAlreadyExistsException) -> JSONResponse:
+        """Handle unexpected exceptions."""
+
+        logger.error(
+            f"{exc.name} occurred: {exc.to_dict()}",
+            extra={
+                "url": str(request.url),
+                "method": request.method,
+                "headers": dict(request.headers),
+            },
+        )
+
+        error_response = ErrorResponse(error=exc.name, message=exc.message, content=exc.to_dict())
+
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=error_response.model_dump(),
+        )
+
+    @app.exception_handler(RecordNotFoundWarning)
+    async def record_not_found_exception_handler(request: Request, warn: RecordNotFoundWarning) -> JSONResponse:
+        """Handle unexpected exceptions."""
+
+        logger.warning(
+            f"{warn.name} occurred: {warn.to_dict()}",
+            extra={
+                "url": str(request.url),
+                "method": request.method,
+                "headers": dict(request.headers),
+            },
+        )
+
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    @app.exception_handler(KeycloakPostError)
+    async def keycloak_post_exception_handler(request: Request, exc: KeycloakPostError):
+        raise UnauthorizedException(message=str(exc), action="Keycloak not available for this user")        
+
+    @app.exception_handler(UnauthorizedException)
+    async def unauthorized_exception_handler(request: Request, warn: UnauthorizedException) -> JSONResponse:
+        """Handle unexpected exceptions."""
+
+        logger.warning(
+            f"{warn.name} occurred: {warn.to_dict()}",
+            extra={
+                "url": str(request.url),
+                "method": request.method,
+                "headers": dict(request.headers),
+            },
+        )
+
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Unautorized access")
+
     @app.exception_handler(Exception)
     async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         """Handle unexpected exceptions."""
 
-        logger.exception(
+        logger.error(
             f"Unexpected error occurred: {exc}",
             extra={
                 "url": str(request.url),
