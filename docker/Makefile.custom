@@ -29,6 +29,10 @@ build-data-space-hub: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
 build-data-space-hub: CONTEXT_PATH=../
 build-data-space-hub: BASE_IMAGE=$(BUILDER_IMAGE)
 
+build-user-management-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
+build-user-management-service: CONTEXT_PATH=../
+build-user-management-service: BASE_IMAGE=$(BUILDER_IMAGE)
+
 build-registration-service-frontend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
 build-registration-service-frontend: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
 build-registration-service-frontend: CONTEXT_PATH=../
@@ -54,6 +58,6 @@ build-issuer-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/openjdk:17-slim-bull
 build-issuer-service: CONTEXT_PATH=../
 build-issuer-service: BASE_IMAGE=$(BUILDER_IMAGE)
 
-build-maile-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
-build-maile-service: CONTEXT_PATH=../
-build-maile-service: BASE_IMAGE=$(BUILDER_IMAGE)
+build-mail-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
+build-mail-service: CONTEXT_PATH=../
+build-mail-service: BASE_IMAGE=$(BUILDER_IMAGE)
