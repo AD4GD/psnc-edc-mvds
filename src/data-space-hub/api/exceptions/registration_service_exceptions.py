@@ -36,21 +36,6 @@ class ProjectNameException(Exception):
         }
 
 
-class RecordNotFoundException(ProjectNameException):
-    """Exception raised when record is not found."""
-
-    def __init__(
-        self,
-        message: str = "Record not found",
-        task_id: Optional[str] = None,
-    ):
-        details = {}
-        if task_id:
-            details["task_id"] = task_id
-
-        super().__init__(message=message, status_code=404, details=details)
-
-
 class ServiceUnavailableException(ProjectNameException):
     """Exception raised when a service is unavailable."""
 
@@ -90,7 +75,7 @@ class RecordAlreadyExistsException(ProjectNameException):
         super().__init__(message=message, status_code=409, details=details)
 
 
-class RecordNotFoundWarning(ProjectNameException):
+class RecordNotFoundException(ProjectNameException):
     """Exception raised when a record is not found."""
 
     def __init__(
@@ -98,14 +83,16 @@ class RecordNotFoundWarning(ProjectNameException):
         message: str = "Record not found",
         record_type: Optional[str] = None,
         record_id: Optional[str] = None,
+        status_code: int = 404,
     ):
         details = {}
+        details["status_code"] = status_code or 404
         if record_id:
             details["record_id"] = record_id
         if record_type:
             details["record_type"] = record_type
 
-        super().__init__(message=message, status_code=404, details=details)
+        super().__init__(message=message, status_code=status_code, details=details)
 
 
 class UnauthorizedException(ProjectNameException):
