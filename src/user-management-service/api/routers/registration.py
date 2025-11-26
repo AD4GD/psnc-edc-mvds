@@ -86,7 +86,7 @@ async def accept_registration(request_id: UUID):
     # auth-related logic
     # token: str = Depends(require_admin_token))
 
-    return await registration_service.update_registration_status("token", request_id, RegistrationStatus.APPROVED)
+    return await registration_service.update_registration_status(request_id, RegistrationStatus.APPROVED)
 
 
 @router.put(
@@ -100,7 +100,7 @@ async def reject_registration(request_id: UUID):
     # auth-related logic
     # token: str = Depends(require_admin_token))
 
-    return await registration_service.update_registration_status("token", request_id, RegistrationStatus.REJECTED)
+    return await registration_service.update_registration_status(request_id, RegistrationStatus.REJECTED)
 
 
 @router.put(
@@ -114,8 +114,7 @@ async def onboard_registration(request_id: UUID):
     # auth-related logic
     # token: str = Depends(require_admin_token))
 
-    return await registration_service.update_registration_status("token", request_id, RegistrationStatus.ONBOARDED)
-
+    return await registration_service.update_registration_status(request_id, RegistrationStatus.ONBOARDED)
 
 @router.delete(
     "/{request_id}",
@@ -128,4 +127,4 @@ async def delete_registration(request_id: UUID):
     # auth-related logic
     # token: str = Depends(require_admin_token))
 
-    return await registration_service.delete_registration_request("token", request_id)
+    return await registration_service.delete_registration_request(request_id)

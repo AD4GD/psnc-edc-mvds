@@ -12,7 +12,7 @@ class ErrorResponse(BaseModel):
 
     error: str
     message: str
-    content: Any
+    content: Optional[dict[str, Any]] = None
 
 
 class ValidationErrorResponse(BaseModel):

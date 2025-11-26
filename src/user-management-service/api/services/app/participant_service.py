@@ -39,7 +39,7 @@ class ParticipantService:
         response = await async_postgres_service.create_registration_request(payload)
         logger.info(f"Created new registration - {response.id}")
         
-        '''
+        
         email_response = EmailService.send_email(
             recipients=[request.email],
             subject="Confirm your email",
@@ -49,8 +49,7 @@ class ParticipantService:
             ),
             body_type="html",
         )
-        logger.info(email_response)        
-        '''
+        logger.info(email_response)
 
         return SimpleMessageResponse(message="OK")
 
