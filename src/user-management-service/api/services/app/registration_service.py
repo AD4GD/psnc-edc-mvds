@@ -4,6 +4,7 @@ from api.models.dto.responses import SimpleMessageResponse
 from api.services.clients import async_postgres_service
 from fastapi import Response, status
 from fastapi.responses import JSONResponse
+from api.exceptions.registration_service_exceptions import RecordNotFoundException
 
 from . import participant_service
 
@@ -36,18 +37,18 @@ class RegistrationService:
         return await async_postgres_service.get_registration_requests_count()
 
     @classmethod
-    async def update_registration_status(cls, token: str, reg_id: str, new_status: RegistrationStatus) -> int:
+    async def update_registration_status(cls, reg_id: str, new_status: RegistrationStatus) -> int:
         """
         Updates registration status with checking if can change it
         REQUESTED -> APPROVED / REJECTED
         APPROVED -> ONBOARDED
         """
-        # TODO auth
         logger.info(reg_id)
         rr = await async_postgres_service.get_registration_request(reg_id)
-        logger.info(rr.__info_to_json__())
         if rr is None:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
+            raise RecordNotFoundException()
+
+        logger.info(rr.__info_to_json__())
         if (
             rr.status == RegistrationStatus.REQUESTED
             and new_status in [RegistrationStatus.APPROVED, RegistrationStatus.REJECTED]
@@ -68,12 +69,11 @@ class RegistrationService:
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
 
     @classmethod
-    async def delete_registration_request(cls, token: str, reg_id: str) -> int:
+    async def delete_registration_request(cls, reg_id: str) -> int:
         """
         Deletes registration request
         Function is called only when participant is being deleted
         """
-        # TODO auth
         return (
             SimpleMessageResponse(message="Record deleted")
             if await async_postgres_service.delete_registration_request(reg_id) > 0
