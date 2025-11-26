@@ -1,4 +1,4 @@
-template = """
+TEMPLATE = """
 {
     "iss": {issuer},
     "aud": {user_did},

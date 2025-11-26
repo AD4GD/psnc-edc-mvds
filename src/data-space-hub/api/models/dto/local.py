@@ -18,6 +18,12 @@ class KeyTypeEnum(StrEnum):
     AES256_GCM96 = "aes256-gcm96"  # Encryption key type
 
 
+class CredentialFormatEnum(StrEnum):
+    VC1_0_LD = "VC1_0_LD"
+    VC1_0_JWT = "VC1_0_JWT"
+    VC2_0_JOSE = "VC2_0_JOSE"
+
+
 class KeyInfo(TypedDict):
     certificate_chain: str
     creation_time: datetime
