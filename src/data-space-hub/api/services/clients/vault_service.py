@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings, ProjectSettings
-from api.exceptions.registration_service_exceptions import RecordAlreadyExistsException, RecordNotFoundWarning
+from api.exceptions.registration_service_exceptions import RecordAlreadyExistsException, RecordNotFoundException
 from api.models.dto.local import KeyDataType, KeyInfo, KeyTypeEnum, PublicKeyType
 from api.templates.dict_templates import DIDK8sDict, VerificationMethodDict
 from api.templates.keys import did_k8s_template, verification_method_template
@@ -99,14 +99,16 @@ class VaultService:
             Dict of type KeyInfo
         """
         try:
-            response = self.transit.read_key(name=key_name, mount_point=self.transit_mount)
+            response = self.transit.read_key(name=self.key_name, mount_point=self.transit_mount)
             key_data: KeyDataType = response["data"]
             keys = key_data.get("keys", {})
 
             if version:
                 version_str = str(version)
                 if version_str not in keys:
-                    raise RecordNotFoundWarning(message="Key version not found in Vault", record_id=key_name, record_type="key version")
+                    raise RecordNotFoundException(
+                        message="Key version not found in Vault", record_id=key_name, record_type="key version", status_code=204
+                    )
                 key_info: KeyInfo = keys[version_str]
             else:
                 # Get latest version
@@ -126,7 +128,7 @@ class VaultService:
             }
         except exceptions.InvalidPath as e:
             logger.error(f"Failed to get public key for '{key_name}': {e}")
-            raise RecordNotFoundWarning(message="Key not found in Vault", record_id=key_name, record_type="key")
+            raise RecordNotFoundException(message="Key not found in Vault", record_id=key_name, record_type="key", status_code=204)
         except Exception as e:  # pylint: disable=W0718
             logger.error(f"Failed to get public key for '{key_name}': {e}")
             return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -144,7 +146,6 @@ class VaultService:
         """
         key_info = self.get_public_key(self.key_name)
         public_key_pem = key_info["public_key"]
-        # key_type = key_info["key_type"]
         version = key_info["version"]
 
         verification_method = render_json_template_string(

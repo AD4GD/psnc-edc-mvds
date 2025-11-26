@@ -2,7 +2,7 @@ from typing import List
 from uuid import uuid4
 
 from api.core.logging_config import setup_logging
-from api.exceptions.registration_service_exceptions import RecordNotFoundWarning, UnauthorizedException
+from api.exceptions.registration_service_exceptions import RecordNotFoundException, UnauthorizedException
 from api.models.db.registration_request import RegistrationRequest, RegistrationStatus
 from api.models.dto.requests import ParticipantCreateRequest, ParticipantUpdateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse
@@ -105,7 +105,7 @@ class ParticipantService:
         for i, participant in enumerate(participants):
             participants[i] = participant.to_dict()
         if not participants:
-            raise RecordNotFoundWarning(message="No participants found", record_type="participant list")
+            raise RecordNotFoundException(message="No participants found", status_code=204, record_type="participant list")
         return participants
 
     @classmethod
@@ -132,7 +132,9 @@ class ParticipantService:
         elif participant_did:
             participant = await async_postgres_service.get_participant_by_did(participant_did)
         if not participant:
-            raise RecordNotFoundWarning(message="Participant not found", record_type="participant", record_id=str(participant_id) or participant_did)
+            raise RecordNotFoundException(
+                message="Participant not found", status_code=204, record_type="participant", record_id=str(participant_id) or participant_did
+            )
         return participant.to_dict()
 
     @classmethod

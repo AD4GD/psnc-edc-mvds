@@ -25,7 +25,6 @@ def render_json_template_string(template: str, context: Dict[str, Any]) -> Dict[
         return json.dumps(context[key], ensure_ascii=False)
 
     rendered = _PLACEHOLDER_RE.sub(_repl, template)
-    print(rendered)
     # parse to validate and return structured object
     return json.loads(rendered)
 
