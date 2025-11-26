@@ -5,7 +5,7 @@ from api.core.logging_config import setup_logging
 from api.exceptions.registration_service_exceptions import (
     ProjectNameException,
     RecordAlreadyExistsException,
-    RecordNotFoundWarning,
+    RecordNotFoundException,
     UnauthorizedException,
 )
 from api.models.dto.error_responses import ErrorResponse, ValidationErrorResponse
@@ -62,7 +62,8 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump())
 
     @app.exception_handler(RequestValidationError)
-    async def request_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    @app.exception_handler(ResponseValidationError)
+    async def request_validation_exception_handler(request: Request, exc: RequestValidationError | ResponseValidationError) -> JSONResponse:
         """Handle Pydantic validation errors."""
 
         field_errors = []
@@ -71,7 +72,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             field_errors.append({"field": field_path, "message": error["msg"], "type": error["type"]})
 
         logger.error(
-            f"Request Validation error occurred: {exc}",
+            f"{exc.__class__.__name__} error occurred: {exc}",
             extra={
                 "url": str(request.url),
                 "method": request.method,
@@ -81,8 +82,8 @@ def register_exception_handlers(app: FastAPI) -> None:
 
         first_error = field_errors[0] if field_errors else {}
         error_response = ValidationErrorResponse(
-            error="Request Validation Error",
-            message=first_error.get("message", "Invalid input provided"),
+            error=exc.__class__.__name__,
+            message=first_error.get("message", "Validation error for incoming data"),
             field=first_error.get("field"),
         )
 
@@ -112,35 +113,8 @@ def register_exception_handlers(app: FastAPI) -> None:
 
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=error_response.model_dump())
 
-    @app.exception_handler(ResponseValidationError)
-    async def response_validation_exception_handler(request: Request, exc: ResponseValidationError) -> JSONResponse:
-        """Handle Pydantic Response validation errors."""
-
-        field_errors = []
-        for error in exc.errors():
-            field_path = " -> ".join(str(loc) for loc in error["loc"])
-            field_errors.append({"field": field_path, "message": error["msg"], "type": error["type"]})
-
-        logger.error(
-            f"Response Validation error occurred: {exc}",
-            extra={
-                "url": str(request.url),
-                "method": request.method,
-                "validation_errors": field_errors,
-            },
-        )
-
-        first_error = field_errors[0] if field_errors else {}
-        error_response = ValidationErrorResponse(
-            error="Response Validation Error",
-            message=first_error.get("message", "Invalid response model"),
-            field=first_error.get("field"),
-        )
-
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump())
-
     @app.exception_handler(RecordAlreadyExistsException)
-    async def key_not_found_exception_handler(request: Request, exc: RecordAlreadyExistsException) -> JSONResponse:
+    async def record_already_exists_exception_handler(request: Request, exc: RecordAlreadyExistsException) -> JSONResponse:
         """Handle unexpected exceptions."""
 
         logger.error(
@@ -159,12 +133,12 @@ def register_exception_handlers(app: FastAPI) -> None:
             content=error_response.model_dump(),
         )
 
-    @app.exception_handler(RecordNotFoundWarning)
-    async def record_not_found_exception_handler(request: Request, warn: RecordNotFoundWarning) -> JSONResponse:
-        """Handle unexpected exceptions."""
+    @app.exception_handler(RecordNotFoundException)
+    async def record_not_found_exception_handler(request: Request, exc: RecordNotFoundException) -> Response:
+        """Handle Not Found exception."""
 
-        logger.warning(
-            f"{warn.name} occurred: {warn.to_dict()}",
+        logger.error(
+            f"{exc.name} occurred: {exc.to_dict()}",
             extra={
                 "url": str(request.url),
                 "method": request.method,
@@ -172,7 +146,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             },
         )
 
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status_code=exc.status_code, content="Record not found")
 
     @app.exception_handler(KeycloakPostError)
     async def keycloak_post_exception_handler(request: Request, exc: KeycloakPostError):
@@ -192,6 +166,26 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
         return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Unautorized access")
+
+    @app.exception_handler(KeyError)
+    async def key_error_exception_handler(request: Request, exc: KeyError) -> JSONResponse:
+        """Handle KeyError for filling json templates."""
+
+        logger.error(
+            f"{exc.__class__.__name__} occurred: {exc}",
+            extra={
+                "url": str(request.url),
+                "method": request.method,
+                "headers": dict(request.headers),
+            },
+        )
+
+        error_response = ErrorResponse(error=exc.__class__.__name__, message=str(exc), content=None)
+
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=error_response.model_dump(),
+        )
 
     @app.exception_handler(Exception)
     async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
