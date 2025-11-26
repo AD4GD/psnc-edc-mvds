@@ -26,7 +26,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             extra={
                 "url": str(request.url),
                 "method": request.method,
-                "headers": dict(request.headers),
+                "headers": dict(request.headers)
             },
         )
 

@@ -12,4 +12,4 @@ RUN pip install -r /tmp/requirements.txt
 
 COPY src/mail-service/* /app/
 
-COPY ../docker/mail-service/config/config.properties /app/.env
+COPY ../docker/mail-service/config/configuration.properties /app/.env
