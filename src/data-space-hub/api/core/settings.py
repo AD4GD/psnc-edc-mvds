@@ -74,8 +74,9 @@ class KeyVaultSettings(BaseSettings):
     }
 
 
-class NodeConnectionSettings(BaseSettings):
-    nc_endpoint: str = Field(..., alias="NODE_CONNECTION_ENDPOINT")
+class VerifiableCredentialsSettings(BaseSettings):
+    vc_issuer_did: str = Field(..., alias="ISSUER_DID")
+    contract_version: str = Field("1.0.0", alias="VC_CONTRACT_VERSION")
 
     model_config = {
         "env_file": ".env",
@@ -101,5 +102,5 @@ ProjectSettings = ProjectSettings()
 PostgreSQLSettings = PostgreSQLSettings()
 KeycloakSettings = KeycloakSettings()
 KeyVaultSettings = KeyVaultSettings()
-NodeConnectionSettings = NodeConnectionSettings()
+VerifiableCredentialsSettings = VerifiableCredentialsSettings()
 EmailServiceSettings = EmailServiceSettings()

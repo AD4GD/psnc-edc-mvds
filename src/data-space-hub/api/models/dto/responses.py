@@ -58,7 +58,7 @@ class VCResponse(BaseModel):
     """Response model for VC generating"""
 
     username: str
-    vc: Dict[str, Any] = Field(..., description="Verifiable Credential issued to the user")
+    vc: List[Dict[str, Any]] = Field(..., description="Verifiable Credential issued to the user")
     connector_token: str = Field(..., description="Token that is used by participant to check integration")
 
 
