@@ -5,10 +5,10 @@ from api.core.logging_config import setup_logging
 from api.models.db.registration_request import RegistrationStatus
 from api.models.dto.requests import UserCreateRequest
 from api.models.dto.responses import RegistrationRequestResponse, SimpleMessageResponse
-from api.services.app import participant_service, registration_service
+from api.services.app import registration_service
 
 # from api.services.helper import get_bearer_token, require_admin_token
-from fastapi import APIRouter, Body, Response, status, HTTPException  # , Depends
+from fastapi import APIRouter, Body, Response, status, HTTPException, Query, Path  # , Depends
 
 logger = setup_logging()
 router = APIRouter(prefix="/registration/requests", tags=["Registration"])
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/registration/requests", tags=["Registration"])
     summary="Start user registration",
 )
 async def start_registration(request: Annotated[UserCreateRequest, Body()]):
-    return await participant_service.start_participant_registration(request)
+    return await registration_service.start_participant_registration(request)
 
 @router.get(
     "",
@@ -74,6 +74,24 @@ async def get_registration(request_id: UUID):
     
     return registration_request
 
+@router.get(
+    "/{request_id}/email-confirm",
+    response_model=SimpleMessageResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Confirm user email",
+)
+async def confirm_email(
+    request_id: UUID = Path(..., description="Registration request UUID"),
+    token: str = Query(..., description="Email confirmation token"),
+):
+    is_valid = await registration_service.assert_registration_token(request_id, token)
+
+    if is_valid is False:
+        raise HTTPException(status_code=405, detail="Wrong or expired confirmation token") 
+    
+    await registration_service.confirm_email(request_id)
+
+    return SimpleMessageResponse(message="OK")
 
 @router.put(
     "/{request_id}/approve",

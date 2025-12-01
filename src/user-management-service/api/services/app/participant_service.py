@@ -24,64 +24,6 @@ class ParticipantService:
         pass
 
     @classmethod
-    async def start_participant_registration(cls, request: UserCreateRequest) -> SimpleMessageResponse:
-        """
-        Start participant registration process.
-        Participant sends a request with a form, it is then saved to db into registration_request and email is sent.
-        """
-        payload = {
-            "id": uuid4(),
-            "status": RegistrationStatus.REQUESTED.value,
-            "request_form": jsonable_encoder(request),
-            "error_detail": None,
-            "email_confirmed": False,
-        }
-        response = await async_postgres_service.create_registration_request(payload)
-        logger.info(f"Created new registration - {response.id}")
-        
-        
-        email_response = EmailService.send_email(
-            recipients=[request.email],
-            subject="Confirm your email",
-            body=render_jinja_template(
-                participant_confirm_email_template,
-                {"participant_name": request.name, "confirmation_link": "https://facebook.com"},
-            ),
-            body_type="html",
-        )
-        logger.info(email_response)
-
-        return SimpleMessageResponse(message="OK")
-
-    @classmethod
-    async def register_participant(cls, reg_id) -> ParticipantResponse:
-        """Register a new participant with the provided information."""
-        # TODO check content of request
-        reg_req: RegistrationRequest = await async_postgres_service.get_registration_request(reg_id)
-        form: UserCreateRequest = reg_req.request_form
-
-        location = await async_postgres_service.create_location(form["location"])
-        participant = await async_postgres_service.create_participant(
-            {
-                "did": create_did(form["name"]),  # or full_name
-                "name": form["name"],
-                "full_name": form["full_name"],
-                "protocol_url": form["protocol_url"],
-                "ums_url": form["ums_url"],
-                "location_id": location.id,
-                "VAT_number": form["VAT_number"],
-                "email": form["email"],
-            }
-        )
-        EmailService.send_email(
-            [form["email"]],
-            "Data Space - Onboarding",
-            render_jinja_template(participant_accepted_template, {"participant_name": form["full_name"]}),
-            "html",
-        )
-        return participant
-
-    @classmethod
     async def get_participant(cls, token: str, response: Response, participant_id: str = None, participant_did: str = None):
         # try:
         #     keycloak_service.decode_jwt_payload(token)
