@@ -46,6 +46,16 @@ class AsyncPostgresService:
         """Get registration request by id."""
         async with self.session_factory() as session:
             return await session.get(RegistrationRequest, reg_id)
+    
+    async def confirm_email(self, reg_id: int) -> bool:
+        async with self.session_factory() as session:
+            obj = await session.get(RegistrationRequest, reg_id)
+            if not obj:
+                return False
+
+            obj.email_confirmed = True
+            await session.commit()
+            return await session.refresh(obj)
 
     async def list_registration_requests(self, offset: int = 0, limit: int | None = None) -> List[RegistrationRequest]:
         """List registration requests, optional filter by participant."""
