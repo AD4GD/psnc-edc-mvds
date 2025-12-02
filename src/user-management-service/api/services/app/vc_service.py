@@ -9,16 +9,73 @@ from api.core.settings import KeyVaultSettings
 from api.models.dto.requests import UserInfoVCRequest
 from api.models.dto.responses import VCResponse
 from api.services.clients import async_postgres_service, vault_service
-
-# from api.services.helper import sha256_hex, sign_jwt_with_vault
-# from api.templates.credentials.jsonld_vc import template as jsonld_vc_template
-# from api.templates.credentials.vc_to_sign import template as vc_to_sign_template
-# from api.templates.dict_templates import JsonLdDict, VCDict
-# from api.templates.template_filler import render_json_template_string
-# from fastapi import HTTPException, status
+import httpx
+from fastapi import FastAPI, HTTPException
+from api.templates.template_filler import render_jinja_template
+import json
+import base64
 
 logger = setup_logging()
 
+# should be saved in config
+IH_API_KEY = 'c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo='
+
+# should be passed from the request
+PEM = """
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r
+oYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==
+-----END PUBLIC KEY-----
+"""
+CONNECTOR_API_KEY = 'password'
+
+DATA_TEMPLATE = """
+  {
+    "roles":[],
+    "serviceEndpoints":[
+      {
+        "type": "CredentialService",
+        "serviceEndpoint": "{{ credential_service_endpoint }}",
+        "id": "consumer-credentialservice-1"
+      },
+      {
+        "type": "ProtocolEndpoint",
+        "serviceEndpoint": "{{ protocol_service_endpoint }}",
+        "id": "consumer-dsp"
+      }
+    ],
+    "active": true,
+    "participantId": "{{ participant_did }}",
+    "did": "{{ participant_did }}",
+    "key":{
+      "keyId": "{{ participant_did }}#key-1",
+      "privateKeyAlias": "key-1",
+      "publicKeyPem":"{{ pem_value }}"
+    }
+  }
+"""
+
+IDENTITY_HUB_ID = 'did:web:provider-ih'
+IDENTITY_BASE = "http://provider-ih:7092/api/identity/v1alpha"
+
+SECRETS_DATA_TEMPLATE = """
+{
+  "@context": {
+    "edc": "https://w3id.org/edc/v0.0.1/ns/"
+  },
+  "@type": "https://w3id.org/edc/v0.0.1/ns/Secret",
+  "@id": "{{ participant_did }}:{{ sts_key_name }}",
+  "https://w3id.org/edc/v0.0.1/ns/value": "{{ client_secret }}"
+}
+"""
+
+class CreateParticipantPayload:
+  participant_context_id: str
+  display_name: str
+  did: str                   # did:web:example.com:participants:acme (example)
+  participant_api_key: str   # you can generate it here or let IH return one
+  # list of pre-issued VCs to seed (each item is either rawVc+format or a structured credential)
+  seed_vcs: list[dict] = []  # e.g. [{"format":"VC1_0_JWT","rawVc":"<...>"}]
 
 class VCService:
     """
@@ -34,207 +91,114 @@ class VCService:
     """
 
     def __init__(self):
-        self.postgres = async_postgres_service
-        self.vault = vault_service
-        # transit key name and jwt alg from settings
-        self.key_name = getattr(KeyVaultSettings, "rs_transit_key_name", "rs-signing-key")
-        self.jwt_alg = getattr(KeyVaultSettings, "rs_jwt_alg", "RS256")
+      pass
 
-    async def create_vc(self, req: UserInfoVCRequest) -> dict:
-        # TODO check if ok & correct
-        logger.info(self.key_name)
-        return VCResponse(username="user", vc={"key": "value"}, connector_token="token")
+    async def create_participant_and_save_vc(self, ctx: CreateParticipantPayload):
+      participant_id = f'{ctx.display_name}'
+      did = f'{IDENTITY_HUB_ID}:{participant_id}'
+      logger.info(did)
+      
+      participant_result = await self._create_participant_in_identity_hub(did)
+      logger.info(participant_result)
 
-        # # 1) Validation of incoming data
-        # print(req.participant_did)
-        # if not req.participant_did:
-        #     # Flow to add to main node (public one)
-        #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="participant_did is required")
-        # participant = await async_postgres_service.get_participant_by_did(req.participant_did)
-        # if not participant:
-        #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Participant (connector) not found")
+      # not needed if connector and ih use the same KeyVault
+      # await self._save_secret_in_connector(participant_result)
+      await self._store_credential_in_identity_hub(did, IH_API_KEY, ctx.vc)
 
-        # now_ts = int(datetime.now(timezone.utc).timestamp())
-        # credential_uuid = str(uuid4())
-        # print(credential_uuid)
+    async def _create_participant_in_identity_hub(self, did) -> dict:
+      safe_pem = PEM.strip().replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r")
 
-        # # 2) Build VC payload (JWT style)
+      url = f"{IDENTITY_BASE}/participants"
+      headers = {"x-api-key": IH_API_KEY, "Content-Type": "application/json"}
+      body = render_jinja_template(
+        DATA_TEMPLATE,
+        {
+          "credential_service_endpoint": "http://provider-ih:7091/api/credentials/v1/participants/ZGlkOndlYjpwcm92aWRlci1paCUzQTcwOTM6Ym9i",
+          "protocol_service_endpoint": "http://provider-connector:8192/api/dsp",
+          "participant_did": did,
+          "pem_value": safe_pem
+        })
+      
+      body = json.loads(body)
+      logger.info(body)
 
-        # # Optional JSON-LD VC template (unsigned) - will be saved as metadata and serves as base for vc
-        # try:
-        #     jsonld_vc = render_json_template_string(
-        #         jsonld_vc_template,
-        #         JsonLdDict(
-        #             credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
-        #             issuer=ProjectSettings.issuer_did,
-        #             user_did="",
-        #             issuance_date_iso=now_ts,
-        #             expiration_date_iso=now_ts + 3600,
-        #             processing_level="processing",
-        #             contract_version="1.0.0",
-        #             claims=[{"k": "v"}],
-        #             alumniOf=None,
-        #         ),
-        #     )
-        #     vc_payload = render_json_template_string(
-        #         vc_to_sign_template,
-        #         VCDict(
-        #             issuer=ProjectSettings.issuer_did,
-        #             user_did="",
-        #             issued_at=now_ts,
-        #             expires_at=now_ts + 3600,
-        #             metadata_vc="",
-        #             vc=sign_jwt_with_vault(jsonld_vc),
-        #         ),
-        #     )
-        #     print(jsonld_vc)
-        #     print(vc_payload)
-        # except Exception as e:
-        #     logger.warning(str(e))
-        #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-        # return [jsonld_vc, vc_payload]
+      async with httpx.AsyncClient(timeout=10) as client:
+          r = await client.post(url, headers=headers, json=body)
+          if r.status_code not in (200, 201):
+              raise HTTPException(status_code=502, detail={"create_participant_error": r.text})
+          return r.json() if r.text else {}
 
-        # sub = req.user_claims.get("sub") or req.user_claims.get("email") or f"user:{uuid4()}"
-        # vc_payload = {
-        #     "iss": ProjectSettings.issuer_did,  # issuer id / DID
-        #     "aud": f"did:web:{participant.did}",
-        #     "sub": sub,
-        #     "iat": now_ts,
-        #     "nbf": now_ts,
-        #     "exp": now_ts + (req.ttl_seconds or 3600),
-        #     "vc": {
-        #         "type": ["VerifiableCredential", "UserRegistrationCredential"],
-        #         "credentialSubject": req.user_claims,
-        #     },
-        #     "metadata": {
-        #         "credential_id": credential_uuid,
-        #         "issued_by": ProjectSettings.issuer_did,
-        #     },
-        # }
+      # TODO check if ok & correct
+      logger.info(self.key_name)
+      return VCResponse(username="user", vc={"key": "value"}, connector_token="token")
+      
+    async def _save_secret_in_connector(self, participant_result):
+      url = f"http://provider-connector:8191/api/management/v3/secrets"
+      client_secret = participant_result.clientSecret
+      headers = {"x-api-key": CONNECTOR_API_KEY, "Content-Type": "application/json"}
 
-        # # 3) Sign JWT-VC using Vault (async helper sign_jwt_with_vault)
-        # try:
-        #     jwt_vc = await sign_jwt_with_vault(vc_payload, self.key_name, alg=self.jwt_alg)
-        # except Exception as exc:
-        #     logger.exception("Vault signing failed")
-        #     raise RuntimeError("Signing VC failed") from exc
+      body = render_jinja_template(
+        SECRETS_DATA_TEMPLATE,
+        {
+          "sts_key_name": "piotr-sts-client-secret",
+          "client_secret": client_secret
+        })
+      
+      body = json.loads(body)
+      logger.info(body)
 
-        # # compute hash of VC for storage/reference
-        # vc_hash = sha256_hex(jwt_vc.encode("utf-8"))
+      async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(url, headers=headers, json=body)
+        if r.status_code not in (200, 201):
+            raise HTTPException(status_code=502, detail={"_save_secret_in_connector_error": r.text})
+      return r.json() if r.text else {}
+      
+    async def _store_credential_in_identity_hub(self, participant_id: str, participant_api_key: str, vc: dict):
+      url = f"{IDENTITY_BASE}/participants/{self._encode_participant_context_id(participant_id)}/credentials"
+      headers = {"x-api-key": participant_api_key, "Content-Type": "application/json"}
+      # manifest
+      body = {
+        "participantContextId": participant_id,
+        "verifiableCredentialContainer": {
+           "credential": {
+              "format": "VC1_0_JWT",
+              "rawVc": vc["rawVc"],
+              "credentialSubject": [
+                {
+                  "id": "did:web:provider-ih%3A7093:bob",
+                  "claims": {
+                    "id": "did:web:provider-ih%3A7093:bob",
+                    "contractVersion": "1.0.0",
+                    "level": "processing"
+                  }
+                }
+              ],
+              "id": "http://org.yourdataspace.com/credentials/1265",
+              "type": [
+                "VerifiableCredential",
+                "DataProcessorCredential"
+              ],
+              "issuer": {
+                "id": "did:web:dataspace-issuer",
+                "additionalProperties": {}
+              },
+              "issuanceDate": 1702339200.0,
+              "expirationDate": None,
+              "credentialStatus": None,
+              "description": None,
+              "name": None
+            }
+          }
+      }
+      logger.info(body)
 
-        # # 4) Perform DB operations + callback atomically using a DB transaction:
-        # #    - create IssuedCredential (pending)
-        # # Only commit when connector callback succeeds.
-        # session_factory = getattr(self.postgres, "session_factory", None)
-        # if session_factory is None:
-        #     # fallback to using service helper methods (best-effort)
-        #     # create audit and issued_credential using service methods if available
-        #     issued = None
-        #     try:
-        #         issued = await self.postgres.create_issued_credential(
-        #             {
-        #                 "participant_id": str(participant.id),
-        #                 "subject_id": sub,
-        #                 "credential_id": credential_uuid,
-        #                 "credential_hash": vc_hash,
-        #                 "credential_storage_ref": f"connector://{participant.did}/vc/{vc_hash}",
-        #                 "issued_by": KeyVaultSettings.rs_issuer,
-        #                 "issued_at": datetime.now(timezone.utc),
-        #                 "expires_at": None,
-        #                 "status": "pending",
-        #                 "metadata": {"jsonld": jsonld, "ttl_seconds": req.ttl_seconds},
-        #             }
-        #         )
-        #     except Exception:
-        #         logger.exception("Failed to persist issued credential")
-        #         raise RuntimeError("DB persist failed")
-
-        # # 2) store registration request (hashed token) for audit
-        # token_hash = sha256_hex(req.connector_token.encode("utf-8"))
-        # try:
-        #     # create_registration_request should be implemented on async_postgres_service
-        #     reg_req = await async_postgres_service.create_registration_request(
-        #         {
-        #             "participant_id": str(participant.id),
-        #             "connector_token_hash": token_hash,
-        #             "token_expires_at": None,
-        #             "status": "pending",
-        #             "payload": req.user_claims,
-        #         }
-        #     )
-        # except AttributeError:
-        #     # service method missing: log and continue but warn
-        #     logger.warning("async_postgres_service.create_registration_request not implemented; skipping DB audit entry")
-        #     reg_req = None
-        # except Exception:
-        #     logger.exception("Failed to store registration request")
-        #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DB error")
-
-        # # 3) Build VC payload
-        # issued_at = int(__import__("time").time())
-        # exp = issued_at + (req.ttl_seconds or 3600)
-        # vc_payload = {
-        #     "iss": KeyVaultSettings.rs_issuer,  # e.g. RS DID or issuer URL from settings
-        #     "sub": req.user_claims.get("sub") or req.user_claims.get("email"),
-        #     "iat": issued_at,
-        #     "nbf": issued_at,
-        #     "exp": exp,
-        #     "vc": {
-        #         "type": ["VerifiableCredential", "UserRegistrationCredential"],
-        #         "credentialSubject": req.user_claims,
-        #     },
-        #     "rcpt": {"participant_did": req.participant_did},
-        # }
-
-        # # 4) Sign VC as a JWT using Vault transit key (key name from settings)
-        # try:
-        #     signing_key_name = getattr(KeyVaultSettings, "rs_transit_key_name", "rs-signing-key")
-        #     jwt_vc = await sign_jwt_with_vault(vc_payload, signing_key_name, alg=getattr(KeyVaultSettings, "rs_jwt_alg", "RS256"))
-        # except Exception:
-        #     logger.exception("Failed to sign VC")
-        #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Signing failed")
-
-        # # 5) store issued credential metadata (hash + pointer)
-        # vc_hash = sha256_hex(jwt_vc.encode("utf-8"))
-        # try:
-        #     issued = await async_postgres_service.create_issued_credential(
-        #         {
-        #             "participant_id": str(participant.id),
-        #             "subject_id": vc_payload.get("sub"),
-        #             "credential_id": None,
-        #             "credential_hash": vc_hash,
-        #             "credential_storage_ref": f"connector://{participant.did}/vc/{vc_hash}",
-        #             "issued_by": KeyVaultSettings.rs_issuer,
-        #             "expires_at": None,
-        #             "status": "active",
-        #             "metadata": {"ttl_seconds": req.ttl_seconds},
-        #         }
-        #     )
-        # except AttributeError:
-        #     logger.warning("async_postgres_service.create_issued_credential not implemented; skipping DB insert")
-        #     issued = None
-        # except Exception:
-        #     logger.exception("Failed to persist issued credential metadata")
-        #     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DB error")
-
-        # # 6) Send VC back to connector callback
-        # try:
-        #     async with httpx.AsyncClient(timeout=10.0) as client:
-        #         resp = await client.post(
-        #             str(req.connector_callback_url),
-        #             json={"verifiable_credential": jwt_vc, "connector_token": req.connector_token},
-        #             headers={"Content-Type": "application/json"},
-        #         )
-        #     if resp.status_code >= 400:
-        #         logger.error(f"Connector callback failed: {resp.status_code} {resp.text}")
-        #         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Connector callback failed")
-        # except HTTPException:
-        #     raise
-        # except Exception as e:
-        #     logger.exception("Failed to call connector callback")
-        #     raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
-
-        # 7) respond to caller with metadata
-
-
+      async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(url, headers=headers, json=body)
+        if r.status_code != 204:
+            raise HTTPException(status_code=502, detail={"store_credential_error": r.text})
+      
+    def _encode_participant_context_id(self, participant_id: str) -> str:
+      # Base64-encode the exact participantId string used at creation time
+      return base64.b64encode(participant_id.encode("utf-8")).decode("ascii")
+    
 vc_service = VCService()
