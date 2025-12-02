@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Annotated
 
 from api.core.logging_config import setup_logging
-from api.models.dto.requests import UserInfoVCRequest
+from api.models.dto.requests import InsertVcRequest
 from api.models.dto.responses import SimpleMessageResponse, VCResponse
 from api.services.app import vc_service
 from fastapi import APIRouter, Body, status
@@ -11,41 +11,18 @@ from fastapi import APIRouter, Body, status
 logger = setup_logging()
 router = APIRouter(prefix="/verifiable-credentials", tags=["Verifiable Credentials"])
 
-
-@router.get(
-    "",
-    response_model=SimpleMessageResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Allow participant to generate new VCs for its users when keys rotate",
-)
-def test_endpoint():
-    # TODO implement actual public key retrieval
-    """
-    Test endpoint with various stages
-    """
-    return SimpleMessageResponse(message="Test endpoint reached successfully")
-
-
 @router.post(
     "",
-    response_model=VCResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Allow participant to generate new VCs for its users when keys rotate",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Allows to create participants and VCs",
 )
-def retrieve_vc(body: Annotated[UserInfoVCRequest, Body()]):
-    """
-    Main endpoint that is responsible for handling requests from User Management System and generating Verifiable Credentials for users of connector
-    """
-    return vc_service.create_vc(body)
+async def create_vc(body: Annotated[InsertVcRequest, Body()]):
+    return await vc_service.create_participant_and_save_vc(body)
 
-@router.post(
+@router.put(
     "",
-    response_model=VCResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Allow participant to generate new VCs for its users when keys rotate",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Allows to update VCs for the users, useful during issuer's private key rotation",
 )
-def update_vc(body: Annotated[UserInfoVCRequest, Body()]):
-    """
-    Main endpoint that is responsible for handling requests from User Management System and generating Verifiable Credentials for users of connector
-    """
-    return vc_service.create_vc(body)
+async def update_vc(body: Annotated[InsertVcRequest, Body()]):
+    return await vc_service.create_participant_and_save_vc(body)
