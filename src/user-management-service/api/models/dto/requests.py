@@ -42,8 +42,9 @@ class UserInfoVCRequest(BaseModel):
 
 class InsertVcRequest(BaseModel):
     participant_context_id: str
-    display_name: str
-    did: str                   # did:web:example.com:participants:acme (example)
-    participant_api_key: str   # you can generate it here or let IH return one
+    public_sts_key: str
+    connector_api_key: str
+    connector_dsp_url: str
+    connector_management_url: str
     # list of pre-issued VCs to seed (each item is either rawVc+format or a structured credential)
-    vc: dict  # e.g. {"format":"VC1_0_JWT","rawVc":"<...>"}
+    seed_vcs: list[dict] = []  # e.g. [{"format":"VC1_0_JWT","rawVc":"<...>"}]
