@@ -92,6 +92,18 @@ class EmailServiceSettings(BaseSettings):
         "extra": "ignore",
     }
 
+class IdentityHubSettings(BaseSettings):
+    identity_hub_did: str = Field(..., alias="IDENTITY_HUB_DID")
+    credentials_api_url: str = Field(..., alias="IDENTITY_HUB_CREDENTIALS_API_URL")
+    identity_api_url: str = Field(..., alias="IDENTITY_HUB_IDENTITY_API_URL")
+    api_key: str = Field(..., alias="IDENTITY_HUB_API_KEY")
+
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": False,
+        "extra": "ignore",
+    }
 
 ProjectSettings = ProjectSettings()
 PostgreSQLSettings = PostgreSQLSettings()
@@ -99,3 +111,4 @@ KeycloakSettings = KeycloakSettings()
 KeyVaultSettings = KeyVaultSettings()
 NodeConnectionSettings = NodeConnectionSettings()
 EmailServiceSettings = EmailServiceSettings()
+IdentityHubSettings = IdentityHubSettings()
