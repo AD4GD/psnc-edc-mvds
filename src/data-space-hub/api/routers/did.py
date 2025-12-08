@@ -15,9 +15,8 @@ router = APIRouter(tags=["Public key"])
     status_code=status.HTTP_200_OK,
     summary="Download issuer public key",
 )
-def test_endpoint():
-    # TODO implement actual public key retrieval
+def did_document():
     """
-    Test endpoint with various stages
+    Retreive DID Document with public key for verifying signatures of issued Verifiable Credentials.
     """
     return vault_service.prepare_did_document()
