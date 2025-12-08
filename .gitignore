@@ -7,3 +7,4 @@ venv
 build
 src/**/bin/
 **/.DS_Store
+./gradle/
