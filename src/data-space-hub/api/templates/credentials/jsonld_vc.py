@@ -11,7 +11,7 @@ TEMPLATE = """
     "credentialSchema": {credential_schema},
     "credentialStatus": {credential_status},
     "credentialSubject": {
-        "id": {user_did},
+        "id": {participant_did},
         "contractVersion": {contract_version},
         "claims": {claims},
         "level": {processing_level}

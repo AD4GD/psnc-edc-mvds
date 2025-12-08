@@ -76,7 +76,7 @@ class VCService:
         jsonld_vc_membership = render_json_template_string(
             jsonld_vc_template,
             JsonLdDict(
-                claims=req.user_claims,
+                claims=req.participant_claims,
                 context_for=membership_context_template,
                 credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
                 credential_schema=None,
@@ -89,7 +89,7 @@ class VCService:
                 list_of_credential_types=["VerifiableCredential", "MembershipCredential"],
                 name="Membership Credential",
                 processing_level="processing",
-                user_did=f"did:web:{participant.did}:{req.username}",
+                participant_did=f"did:web:{participant.did}",
             ),
         )
         proof_membership = render_json_template_string(
@@ -107,7 +107,7 @@ class VCService:
             vc_to_sign_template,
             VCDict(
                 issuer=ProjectSettings.issuer_did,
-                user_did=f"did:web:{participant.did}:{req.username}",
+                participant_did=f"did:web:{participant.did}",
                 issued_at=int(datetime.fromisoformat(now_iso).timestamp()),
                 expires_at=int(datetime.fromisoformat(public_key["expiration_time"]).timestamp()),
                 metadata_vc="",
@@ -127,7 +127,7 @@ class VCService:
                 raw_vc_jwt="to_be_filled_after_signing",  # TODO
                 reissuance_policy=None,
                 state=500,
-                user_did=f"did:web:{participant.did}:{req.username}",
+                participant_did=f"did:web:{participant.did}",
                 vc_format=CredentialFormatEnum.VC1_0_JWT,
             ),
         )
@@ -136,7 +136,7 @@ class VCService:
         jsonld_vc_dataprocessor = render_json_template_string(
             jsonld_vc_template,
             JsonLdDict(
-                claims=req.user_claims,
+                claims=req.participant_claims,
                 context_for=dataprocessor_context_template,
                 credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
                 credential_schema=None,
@@ -149,7 +149,7 @@ class VCService:
                 list_of_credential_types=["VerifiableCredential", "DataProcessorCredential"],
                 name="Dataprocessor Credential",
                 processing_level="processing",
-                user_did=f"did:web:{participant.did}:{req.username}",
+                participant_did=f"did:web:{participant.did}",
             ),
         )
         proof_dataprocessor = render_json_template_string(
@@ -166,7 +166,7 @@ class VCService:
             vc_to_sign_template,
             VCDict(
                 issuer=ProjectSettings.issuer_did,
-                user_did=f"did:web:{participant.did}:{req.username}",
+                participant_did=f"did:web:{participant.did}",
                 issued_at=int(datetime.fromisoformat(now_iso).timestamp()),
                 expires_at=int(datetime.fromisoformat(public_key["expiration_time"]).timestamp()),
                 metadata_vc="",
@@ -185,7 +185,7 @@ class VCService:
                 raw_vc_jwt="to_be_filled_after_signing",  # TODO
                 reissuance_policy=None,
                 state=500,
-                user_did=f"did:web:{participant.did}:{req.username}",
+                participant_did=f"did:web:{participant.did}",
                 vc_format=CredentialFormatEnum.VC1_0_JWT,
             ),
         )
