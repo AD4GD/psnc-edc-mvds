@@ -3,10 +3,10 @@
 TEMPLATE = """
 {
     "id": {credential_id},
-    "participantContextId": {user_did},
+    "participantContextId": {participant_did},
     "timestamp": {creation_timestamp},
     "issuerId": {issuer_did},
-    "holderId": {user_did},
+    "holderId": {participant_did},
     "state": {state},
     "issuancePolicy": {issuance_policy},
     "reissuancePolicy": {reissuance_policy},

@@ -18,12 +18,12 @@ class JsonLdDict(TypedDict):
     list_of_credential_types: List[str]
     name: str = ""
     processing_level: str
-    user_did: str
+    participant_did: str
 
 
 class VCDict(TypedDict):
     issuer: str
-    user_did: str
+    participant_did: str
     vc: JsonLdDict
     issued_at: int
     expires_at: int
@@ -39,7 +39,7 @@ class FullCredentialDict(TypedDict):
     raw_vc_jwt: str
     reissuance_policy: Dict[str, Any] | None = None
     state: int = 500
-    user_did: str
+    participant_did: str
     vc_format: CredentialFormatEnum
 
 
