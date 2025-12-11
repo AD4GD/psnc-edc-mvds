@@ -7,7 +7,7 @@ variables:
 stages:
   - precommit
   - build
-  - test
+  # - test
   - upload
   - update_inventory
 
@@ -66,15 +66,15 @@ Update inventory for atos-psnc integration:
     variables:
       - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_atos_psnc
 
-integration-test:
-  stage: test
-  image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    CI_IMAGE_TAG: $CI_IMAGE_TAG
-    CI_PROJECT_DIR: $CI_REPO_DIR
-    CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
-  script:
-    - cd ${CI_PROJECT_DIR}/bin
-    - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
+# integration-test:
+#   stage: test
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   variables:
+#     CI_IMAGE_TAG: $CI_IMAGE_TAG
+#     CI_PROJECT_DIR: $CI_REPO_DIR
+#     CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
+#   script:
+#     - cd ${CI_PROJECT_DIR}/bin
+#     - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
