@@ -46,35 +46,36 @@ class RegistrationService:
         return await async_postgres_service.get_registration_request_count()
 
     @classmethod
-    async def update_registration_status(cls, token: str, reg_id: str, new_status: RegistrationStatus) -> int:
+    async def update_registration_status(cls, token: str, reg_id: str, new_status: str) -> int:
         """
         Updates registration status with checking if can change it
         REQUESTED -> APPROVED / REJECTED
         APPROVED -> ONBOARDED
         """
         # TODO auth
-        logger.info(reg_id)
+        print(new_status)
+        if not RegistrationStatus.__includes__(new_status):
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
+        target_status = RegistrationStatus(RegistrationStatus.normalize(new_status))
         rr = await async_postgres_service.get_registration_request(reg_id)
-        logger.info(rr.to_dict())
+
         if rr is None:
             return Response(status_code=status.HTTP_204_NO_CONTENT)
-        if (
-            rr.status == RegistrationStatus.REQUESTED
-            and new_status in [RegistrationStatus.APPROVED, RegistrationStatus.REJECTED]
-            or rr.status == RegistrationStatus.APPROVED
-            and new_status in [RegistrationStatus.ONBOARDED, RegistrationStatus.REJECTED]
-        ):
-            await async_postgres_service.update_registration_request(reg_id, {"status": new_status})
-            if new_status == RegistrationStatus.APPROVED:
+
+        if RegistrationStatus.can_transition(rr.status, target_status):
+            logger.info(f"Updating registration {reg_id} to status {target_status}")
+            await async_postgres_service.update_registration_request(reg_id, {"status": target_status})
+            if target_status == RegistrationStatus.APPROVED:
                 # TODO actual logic to check if all participant's services for connection are working
                 # TODO if services not working then <error_detail> and stay on APPROVED (availability to change it manually from admin dash)
-                _ = await async_postgres_service.update_registration_request(reg_id, {"status": RegistrationStatus.ONBOARDED})
+                logger.info(f"Updating registration {reg_id} to status {RegistrationStatus.ONBOARDED.value}")
+                _ = await async_postgres_service.update_registration_request(reg_id, {"status": RegistrationStatus.ONBOARDED.value})
                 participant = await participant_service.register_participant(reg_id=reg_id)
                 if participant is None:
                     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={})  # TODO pottentially add content
 
                 return SimpleMessageResponse(message="Participant onboarded")
-            return SimpleMessageResponse(message="Status of registration has been changed")
+            return SimpleMessageResponse(message=f"Status of registration has been changed to {target_status}")
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
 
     @classmethod

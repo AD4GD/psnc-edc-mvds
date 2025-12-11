@@ -1,11 +1,13 @@
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from api.core.database import AsyncSessionLocal
 from api.core.logging_config import setup_logging
-from api.models.db import IssuedCredentials, Location, Participant, RegistrationRequest
+from api.models.db import Connector, IssuedCredentials, Location, Participant, RegistrationRequest
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = setup_logging()
 
@@ -15,6 +17,13 @@ class AsyncPostgresService:
 
     def __init__(self):
         self.session_factory = AsyncSessionLocal
+
+    @asynccontextmanager
+    async def atomic(self) -> AsyncGenerator[AsyncSession, None]:
+        """Zapewnia atomowość operacji w bloku."""
+        async with self.session_factory() as session:
+            async with session.begin():
+                yield session
 
     async def health(self) -> bool:
         """Check database connectivity."""
@@ -27,30 +36,35 @@ class AsyncPostgresService:
             return False
 
     # --- Participant helpers ---
-    async def create_participant(self, participant_data: Dict[str, Any]) -> Participant:
+    async def create_participant(self, participant_data: Dict[str, Any], session: Optional[AsyncSession]) -> Participant:
         """Insert new participant record (participant_data is a dict)."""
-        async with self.session_factory() as session:
+
+        async def _create(sess: AsyncSession) -> Participant:
             participant = Participant(**participant_data)
-            session.add(participant)
-            try:
-                await session.commit()
-                await session.refresh(participant)
-                return participant
-            except Exception:  # pylint: disable=W0718
-                await session.rollback()
-                logger.error("Failed to create participant")
-                return None
+            sess.add(participant)
+            await sess.flush()  # Flush zamiast commit, żeby nie kończyć transakcji
+            await sess.refresh(participant)
+            return participant
+
+        if session:
+            return await _create(session)
+        else:
+            async with self.session_factory() as session_:
+                participant = Participant(**participant_data)
+                session_.add(participant)
+                try:
+                    await session_.commit()
+                    await session_.refresh(participant)
+                    return participant
+                except Exception:  # pylint: disable=W0718
+                    await session_.rollback()
+                    logger.error("Failed to create participant")
+                    return None
 
     async def get_participant(self, participant_id) -> Optional[Participant]:
         """Get participant by ID."""
         async with self.session_factory() as session:
             return await session.get(Participant, participant_id)
-
-    async def get_participant_by_did(self, did: str) -> Optional[Participant]:
-        """Get participant by DID (unique)."""
-        async with self.session_factory() as session:
-            result = await session.execute(select(Participant).where(Participant.did == did))
-            return result.scalars().first()
 
     async def get_participant_count(self) -> int:
         async with self.session_factory() as session:
@@ -81,19 +95,13 @@ class AsyncPostgresService:
                 logger.error("Failed to update participant")
                 return None
 
-    async def delete_participant(self, p_id: str = None, did: str = None) -> bool:
+    async def delete_participant(self, p_id: str) -> bool:
         """Delete participant by id or did. Returns True if deleted."""
         async with self.session_factory() as session:
             try:
-                if p_id:
-                    await session.execute(delete(Participant).where(Participant.id == p_id))
-                elif did:
-                    await session.execute(delete(Participant).where(Participant.did == did))
-                else:
-                    logger.info(f"Participant {p_id if p_id else did if did else None} not found during delete trial")
-                    return False
+                await session.execute(delete(Participant).where(Participant.id == p_id))
                 await session.commit()
-                logger.info(f"Participant {p_id if p_id else did if did else None} was successfully deleted")
+                logger.info(f"Participant {p_id} was successfully deleted")
                 return True
             except Exception:  # pylint: disable=W0718
                 await session.rollback()
@@ -101,19 +109,28 @@ class AsyncPostgresService:
                 return False
 
     # --- Location helpers ---
-    async def create_location(self, location_data: Dict[str, Any]) -> Location:
-        """Insert new location record."""
-        async with self.session_factory() as session:
+    async def create_location(self, location_data: Dict[str, Any], session: Optional[AsyncSession] = None) -> Location:
+        """Insert new location record. Optionally uses provided session (for transactions)."""
+
+        async def _create(sess: AsyncSession) -> Location:
             loc = Location(**location_data)
-            session.add(loc)
-            try:
-                await session.commit()
-                await session.refresh(loc)
-                return loc
-            except Exception:
-                await session.rollback()
-                logger.error("Failed to create location")
-                raise
+            sess.add(loc)
+            await sess.flush()
+            await sess.refresh(loc)
+            return loc
+
+        if session:
+            return await _create(session)
+        else:
+            async with self.session_factory() as sess:
+                try:
+                    result = await _create(sess)
+                    await sess.commit()
+                    return result
+                except Exception:  # pylint: disable=W0718
+                    await sess.rollback()
+                    logger.error("Failed to create location")
+                    return None
 
     async def get_location(self, location_id) -> Optional[Location]:
         """Get location by ID."""
@@ -142,6 +159,92 @@ class AsyncPostgresService:
             except Exception:  # pylint: disable=W0718
                 await session.rollback()
                 logger.error("Failed to delete location")
+                return False
+
+    # --- Connector helpers ---
+    async def create_connector(self, connector_data: Dict[str, Any], session: Optional[AsyncSession] = None) -> Connector:
+        """Insert new connector record. Optionally uses provided session (for transactions)."""
+
+        async def _create(sess: AsyncSession) -> Connector:
+            conn = Connector(**connector_data)
+            sess.add(conn)
+            await sess.flush()
+            await sess.refresh(conn)
+            return conn
+
+        if session:
+            return await _create(session)
+        else:
+            async with self.session_factory() as sess:
+                try:
+                    result = await _create(sess)
+                    await sess.commit()
+                    return result
+                except Exception:  # pylint: disable=W0718
+                    await sess.rollback()
+                    logger.error("Failed to create connector")
+                    return None
+
+    async def get_connector(self, connector_id) -> Optional[Connector]:
+        """Get connector by ID."""
+        async with self.session_factory() as session:
+            return await session.get(Connector, connector_id)
+
+    async def get_connector_by_did(self, did: str) -> Optional[Connector]:
+        """Get connector by DID (unique)."""
+        async with self.session_factory() as session:
+            result = await session.execute(select(Connector).where(Connector.did == did))
+            return result.scalars().first()
+
+    async def list_connectors(self, offset: int = 0, limit: int | None = None) -> List[Connector]:
+        """Fetch paginated list of connectors."""
+        async with self.session_factory() as session:
+            result = await session.execute(select(Connector).offset(offset).limit(limit))
+            return result.scalars().all()
+
+    async def get_connectors_count(self) -> int:
+        async with self.session_factory() as session:
+            stmt = select(func.count()).select_from(Connector)
+            result = await session.execute(stmt)
+            count = result.scalar_one()
+            return count or 0
+
+    async def get_connectors_count_by_participant(self, participant_id: str) -> int:
+        async with self.session_factory() as session:
+            stmt = select(func.count()).select_from(Connector).where(Connector.participant_id == participant_id)
+            result = await session.execute(stmt)
+            count = result.scalar_one()
+            return count or 0
+
+    async def list_connectors_by_participant(self, participant_id: str, offset: int = 0, limit: int | None = None) -> List[Connector]:
+        """Fetch paginated list of connectors for a given participant."""
+        async with self.session_factory() as session:
+            stmt = select(Connector).where(Connector.participant_id == participant_id).offset(offset).limit(limit)
+            result = await session.execute(stmt)
+            return result.scalars().all()
+
+    async def update_connector(self, connector_id, fields: Dict[str, Any]) -> Optional[Connector]:
+        """Partial update of connector fields."""
+        async with self.session_factory() as session:
+            try:
+                await session.execute(update(Connector).where(Connector.id == connector_id).values(**{**fields}))
+                await session.commit()
+                return await session.get(Connector, connector_id)
+            except Exception:
+                await session.rollback()
+                logger.error("Failed to update connector")
+                raise
+
+    async def delete_connector(self, connector_id) -> bool:
+        """Delete connector by id."""
+        async with self.session_factory() as session:
+            try:
+                await session.execute(delete(Connector).where(Connector.id == connector_id))
+                await session.commit()
+                return True
+            except Exception:  # pylint: disable=W0718
+                await session.rollback()
+                logger.error("Failed to delete connector")
                 return False
 
     # --- RegistrationRequest / IssuedCredential helpers ---

@@ -1,4 +1,3 @@
-# api/services/vault_init.py
 """
 HashiCorp Vault initialization module for DCP/VC operations.
 
@@ -255,12 +254,12 @@ path "secret/data/vc-metadata/*" {
             logger.info("Starting Vault setup for VC operations...")
             logger.info("=" * 60)
 
-            # 1. Enable KV v2 engine
-            if self.enable_secrets_engine("kv", kv_mount, "KV v2 for secrets", {"version": "2"}):
-                _summary["engines_enabled"].append(f"kv-v2:{kv_mount}")
+            # # 1. Enable KV v2 engine
+            # if self.enable_secrets_engine("kv", kv_mount, "KV v2 for secrets", {"version": "2"}):
+            #     _summary["engines_enabled"].append(f"kv-v2:{kv_mount}")
 
-            # 2. Configure KV engine
-            self.configure_kv_engine(mount_point=kv_mount, max_versions=10, cas_required=False)
+            # # 2. Configure KV engine
+            # self.configure_kv_engine(mount_point=kv_mount, max_versions=10, cas_required=False)
 
             # 3. Enable Transit engine
             if self.enable_secrets_engine("transit", transit_mount, "Transit for crypto operations"):

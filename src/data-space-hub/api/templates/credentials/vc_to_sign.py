@@ -1,8 +1,8 @@
 TEMPLATE = """
 {
     "iss": {issuer},
-    "aud": {participant_did},
-    "sub": {participant_did},
+    "aud": {connector_did},
+    "sub": {connector_did},
     "vc": {vc},
     "iat": {issued_at},
     "exp": {expires_at},
