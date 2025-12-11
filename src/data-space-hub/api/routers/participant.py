@@ -6,7 +6,7 @@ from api.models.dto.requests import ParticipantUpdateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse
 from api.services.app import participant_service
 from api.services.helper import get_bearer_token  # , require_admin_token
-from fastapi import APIRouter, Body, Depends, Response, status
+from fastapi import APIRouter, Body, Depends, status
 
 logger = setup_logging()
 router = APIRouter(prefix="/participants", tags=["Participant"])
@@ -19,12 +19,12 @@ router = APIRouter(prefix="/participants", tags=["Participant"])
     summary="Get list of all participants (admin)",
     responses={status.HTTP_204_NO_CONTENT: {"message": "No participant found"}},
 )
-async def get_all_participants(response: Response, offset: int = 0, limit: int | None = None):  # token: str,  = Depends(require_admin_token)):
+async def get_all_participants(offset: int = 0, limit: int | None = None):  # token: str,  = Depends(require_admin_token)):
     """
     Create a new participant record.
     Requires an admin Keycloak token.
     """
-    return await participant_service.get_all_participants("", response, offset, limit)
+    return await participant_service.get_all_participants("", offset, limit)
 
 
 @router.get("/count", response_model=int, status_code=status.HTTP_200_OK, summary="Get participants count")
@@ -39,24 +39,24 @@ async def get_participants_count():  # token: str = Depends(get_bearer_token))
     summary="Get participant by id (admin or authorized)",
     responses={status.HTTP_204_NO_CONTENT: {"message": "No participant found"}},
 )
-async def get_participant(participant_id: UUID, response: Response):  # , token: str = Depends(get_bearer_token)):
+async def get_participant(participant_id: UUID):  # , token: str = Depends(get_bearer_token)):
     """
     Return participant. Admins allowed; non-admins allowed only if keycloak_service.authorized_for_participant returns True.
     """
-    return await participant_service.get_participant("token", response=response, participant_id=participant_id)
+    return await participant_service.get_participant("token", participant_id=participant_id)
 
 
-@router.get(
-    "/did/{participant_did}",
-    response_model=ParticipantResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Get participant by id (admin or authorized)",
-)
-async def get_participant_by_did(participant_did: str):  # , token: str = Depends(get_bearer_token)):
-    """
-    Return participant. Admins allowed; non-admins allowed only if keycloak_service.authorized_for_participant returns True.
-    """
-    return await participant_service.get_participant("token", participant_did=participant_did)
+# @router.get(
+#     "/did/{participant_did}",
+#     response_model=ParticipantResponse,
+#     status_code=status.HTTP_200_OK,
+#     summary="Get participant by id (admin or authorized)",
+# )
+# async def get_participant_by_did(participant_did: str):  # , token: str = Depends(get_bearer_token)):
+#     """
+#     Return participant. Admins allowed; non-admins allowed only if keycloak_service.authorized_for_participant returns True.
+#     """
+#     return await participant_service.get_participant("token", participant_did=participant_did)
 
 
 @router.put(

@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 from datetime import datetime, timedelta, timezone
@@ -7,9 +8,12 @@ from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings, ProjectSettings
 from api.exceptions.registration_service_exceptions import RecordAlreadyExistsException, RecordNotFoundException
 from api.models.dto.local import KeyDataType, KeyInfo, KeyTypeEnum, PublicKeyType
+from api.services.helper import b64url
 from api.templates.dict_templates import DIDK8sDict, VerificationMethodDict
 from api.templates.keys import did_k8s_template, verification_method_template
 from api.templates.template_filler import render_json_template_string
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ed25519
 from fastapi import status
 from fastapi.responses import Response
 from hvac import Client, exceptions
@@ -133,6 +137,37 @@ class VaultService:
             logger.error(f"Failed to get public key for '{key_name}': {e}")
             return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+    def get_public_key_pem(self, key_name: str, version: Optional[int] = None) -> str:
+        """
+        Retrieve public key from Vault and convert to PEM format.
+
+        Args:
+            key_name: Name of the Transit key
+            version: Specific version (None = latest)
+
+        Returns:
+            Public key in PEM format (string)
+        """
+        # Pobierz klucz z Vault (base64)
+        key_info = self.get_public_key(key_name, version)
+        public_key_b64 = key_info["public_key"]
+
+        try:
+            # Dekoduj Base64 -> surowe bajty (32 bajty dla Ed25519)
+            public_key_bytes = base64.b64decode(public_key_b64)
+
+            # Utwórz obiekt klucza publicznego Ed25519
+            public_key_obj = ed25519.Ed25519PublicKey.from_public_bytes(public_key_bytes)
+
+            # Konwertuj do formatu PEM
+            pem = public_key_obj.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+
+            return pem.decode("utf-8")
+
+        except Exception as e:
+            logger.error(f"Failed to convert public key to PEM: {e}")
+            raise
+
     def list_keys(self) -> list[str]:
         """List all Transit keys."""
         response: Dict = self.transit.list_keys(mount_point=self.transit_mount)
@@ -145,7 +180,7 @@ class VaultService:
             DID Document dict
         """
         key_info = self.get_public_key(self.key_name)
-        public_key_pem = key_info["public_key"]
+        public_key_pem = b64url(base64.b64decode(key_info["public_key"]))
         version = key_info["version"]
 
         verification_method = render_json_template_string(
@@ -257,6 +292,43 @@ class VaultService:
         except Exception as e:
             logger.error(f"Failed to sign data with '{key_name}': {e}")
             raise
+
+    async def make_jwt(self, payload: Dict, key_name: str, verification_method: str) -> str:
+        """
+        Creates a signed JWT (JWS) using Vault for signing.
+        Handles Vault's specific response format and ensures URL-safe Base64 encoding.
+        """
+        # 1. Prepare Header
+        # EdDSA is standard for Ed25519 keys. If using RSA, change to RS256.
+        header = {"alg": "EdDSA", "typ": "JWT", "kid": verification_method}
+
+        header_b64 = b64url(json.dumps(header, separators=(",", ":")).encode())
+        payload_b64 = b64url(json.dumps(payload, separators=(",", ":")).encode())
+        signing_input = f"{header_b64}.{payload_b64}".encode()
+
+        # vault_response = self.sign_data(key_name, signing_input)
+        signature = await asyncio.to_thread(
+            self.sign_data,
+            key_name,
+            signing_input
+            # hash_algorithm=HashAlgorithmEnum.SHA2_256 # Uncomment if using RSA/EC keys
+        )
+
+        # 3. Parse Vault Response (format: "vault:v1:base64_signature")
+        try:
+            # Extract the base64 part after the last colon
+            print(signature)
+            sig_base64_std = signature.split(":")[-1]
+        except AttributeError:
+            # Fallback if Vault returns raw bytes or unexpected format
+            sig_base64_std = signature
+        # 4. Convert Standard Base64 (Vault) -> Raw Bytes -> URL-Safe Base64 (JWT)
+        sig_b64url = b64url(base64.b64decode(sig_base64_std))
+        # sig_b64url = b64url(sig_bytes)
+        print(sig_base64_std)
+        print(sig_b64url)
+
+        return f"{header_b64}.{payload_b64}.{sig_b64url}"
 
     def verify_signature(self, key_name: str, data: bytes, signature: str, hash_algorithm: Optional[str] = None, prehashed: bool = False) -> bool:
         """
@@ -443,231 +515,6 @@ class VaultService:
             logger.warning(f"Public key not found: '{key_id}'")
             return None
 
-    # ==================== ENCRYPTION/DECRYPTION ====================
-
-    def encrypt_data(self, key_name: str, plaintext: bytes, context: Optional[str] = None, key_version: Optional[int] = None) -> str:
-        """
-        Encrypt data using Transit key.
-
-        Args:
-            key_name: Transit key name (must support encryption)
-            plaintext: Data to encrypt
-            context: Additional authenticated data (base64)
-            key_version: Specific key version
-
-        Returns:
-            Vault ciphertext (format: "vault:v{version}:{ciphertext}")
-        """
-        try:
-            plaintext_b64 = base64.b64encode(plaintext).decode("utf-8")
-
-            params = {
-                "name": key_name,
-                "plaintext": plaintext_b64,
-                "mount_point": self.transit_mount,
-            }
-
-            if context:
-                context_b64 = base64.b64encode(context.encode("utf-8")).decode("utf-8")
-                params["context"] = context_b64
-            if key_version:
-                params["key_version"] = key_version
-
-            response = self.transit.encrypt_data(**params)
-            return response["data"]["ciphertext"]
-
-        except Exception as e:
-            logger.error(f"Encryption failed: {e}")
-            raise
-
-    def decrypt_data(self, key_name: str, ciphertext: str, context: Optional[str] = None) -> bytes:
-        """
-        Decrypt Vault ciphertext.
-
-        Args:
-            key_name: Transit key name
-            ciphertext: Vault ciphertext string
-            context: Additional authenticated data (must match encryption)
-
-        Returns:
-            Decrypted plaintext bytes
-        """
-        try:
-            params = {
-                "name": key_name,
-                "ciphertext": ciphertext,
-                "mount_point": self.transit_mount,
-            }
-
-            if context:
-                context_b64 = base64.b64encode(context.encode("utf-8")).decode("utf-8")
-                params["context"] = context_b64
-
-            response = self.transit.decrypt_data(**params)
-            plaintext_b64 = response["data"]["plaintext"]
-            return base64.b64decode(plaintext_b64)
-
-        except Exception as e:
-            logger.error(f"Decryption failed: {e}")
-            raise
-
-    # ==================== GENERIC KV OPERATIONS ====================
-
-    def store_secret(self, path: str, secret: Dict[str, Any]) -> str:
-        """Store arbitrary secret in KV v2."""
-        try:
-            self.client.secrets.kv.v2.create_or_update_secret(path=path, secret=secret, mount_point=self.kv_mount)
-            logger.info(f"Stored secret at '{path}'")
-            return f"{self.kv_mount}/data/{path}"
-        except Exception as e:
-            logger.error(f"Failed to store secret: {e}")
-            raise
-
-    def read_secret(self, path: str, version: Optional[int] = None) -> Optional[Dict[str, Any]]:
-        """Read secret from KV v2."""
-        try:
-            response = self.client.secrets.kv.v2.read_secret_version(
-                path=path, version=version, raise_on_deleted_version=True, mount_point=self.kv_mount
-            )
-            return response["data"]["data"]
-        except exceptions.InvalidPath:
-            logger.warning(f"Secret not found: '{path}'")
-            return None
-
-    def delete_secret(self, path: str, versions: Optional[list[int]] = None) -> Dict[str, Any]:
-        """
-        Delete secret versions from KV v2.
-
-        Args:
-            path: Secret path
-            versions: Specific versions to delete (None = mark latest as deleted)
-        """
-        if versions:
-            response = self.client.secrets.kv.v2.delete_secret_versions(path=path, versions=versions, mount_point=self.kv_mount)
-        else:
-            response = self.client.secrets.kv.v2.delete_latest_version_of_secret(path=path, mount_point=self.kv_mount)
-        logger.info(f"Deleted secret at '{path}'")
-        return response
-
 
 # Singleton instance
 vault_service = VaultService()
-#     def get_public_key(self, key_name: str) -> Dict[str, Any]:
-#         response = self.transit.read_key(name=key_name, mount_point=self.transit_mount)
-#         key_data = response["data"]
-#         keys = key_data.get("keys", {})
-#         latest_version = str(key_data.get("latest_version", 1))
-#         key_info = keys[latest_version]
-#         return {
-#             "public_key": key_info.get("public_key"),
-#             "key_type": key_data.get("type"),
-#             "name": key_data.get("name"),
-#             "version": key_data.get("latest_version"),
-#             "creation_time": key_info.get("creation_time")
-#         }
-
-#     def list_keys(self) -> list[str]:
-#         response: Dict = self.transit.list_keys(mount_point=self.transit_mount)
-#         return response.get("data", {}).get("keys", [])
-
-#     def rotate_key(self, key_name: str) -> Dict[str, Any]:
-#         return self.transit.rotate_key(name=key_name, mount_point=self.transit_mount)
-
-#     def delete_key(self, key_name: str) -> Dict[str, Any]:
-#         self.transit.update_key_configuration(
-#             name=key_name, deletion_allowed=True, mount_point=self.transit_mount)
-#         return self.transit.delete_key(name=key_name, mount_point=self.transit_mount)
-
-#     # Signing & Verification
-#     def sign_data(self, key_name: str, data: bytes) -> str:
-#         input_b64 = base64.b64encode(data).decode("utf-8")
-#         response = self.transit.sign_data(
-#             name=key_name,
-#             hash_input=input_b64,
-#             mount_point=self.transit_mount
-#         )
-#         return response["data"]["signature"]
-
-#     def verify_signature(self, key_name: str, data: bytes, signature: str) -> bool:
-#         input_b64 = base64.b64encode(data).decode("utf-8")
-#         response = self.transit.verify_signed_data(
-#             name=key_name,
-#             hash_input=input_b64,
-#             signature=signature,
-#             mount_point=self.transit_mount
-#         )
-#         return response.get("data", {}).get("valid", False)
-
-#     # Signing VC as JWT
-#     def sign_vc_as_jwt(
-#         self,
-#         key_name: str,
-#         credential: Dict[str, Any],
-#         issuer_did: str,
-#         subject_did: Optional[str] = None,
-#         ttl_seconds: int = 3600
-#     ) -> str:
-#         import time
-#         now = int(time.time())
-#         claims = {
-#             "iss": issuer_did,
-#             "iat": now,
-#             "exp": now + ttl_seconds,
-#             "vc": credential,
-#         }
-#         if subject_did:
-#             claims["sub"] = subject_did
-
-#         headers = {
-#             "typ": "JWT",
-#             "alg": "EdDSA",
-#             "kid": f"{issuer_did}#{key_name}",
-#         }
-#         header_json = json.dumps(headers, separators=(",", ":"))
-#         payload_json = json.dumps(claims, separators=(",", ":"))
-#         header_b64 = base64.urlsafe_b64encode(header_json.encode()).rstrip(b"=").decode()
-#         payload_b64 = base64.urlsafe_b64encode(payload_json.encode()).rstrip(b"=").decode()
-#         signing_input = f"{header_b64}.{payload_b64}".encode()
-#         vault_signature = self.sign_data(key_name, signing_input)
-#         raw_sig = vault_signature.split(":")[-1]
-#         sig_bytes = base64.b64decode(raw_sig)
-#         sig_b64 = base64.urlsafe_b64encode(sig_bytes).rstrip(b"=").decode()
-#         return f"{header_b64}.{payload_b64}.{sig_b64}"
-
-#     def verify_vc_jwt(self, key_name: str, jwt_token: str) -> Tuple[bool, Dict[str, Any]]:
-#         parts = jwt_token.split(".")
-#         if len(parts) != 3:
-#             return False, {}
-#         header_b64, payload_b64, sig_b64 = parts
-#         signing_input = f"{header_b64}.{payload_b64}".encode()
-#         sig_bytes = base64.urlsafe_b64decode(sig_b64 + "=" * (-len(sig_b64) % 4))
-#         sig_b64_std = base64.b64encode(sig_bytes).decode()
-#         vault_sig = f"vault:v1:{sig_b64_std}"
-#         is_valid = self.verify_signature(key_name, signing_input, vault_sig)
-#         payload_json = base64.urlsafe_b64decode(payload_b64 + "=" * (-len(payload_b64) % 4)).decode()
-#         claims = json.loads(payload_json) if is_valid else {}
-#         return is_valid, claims
-
-#     # Public key KV storage
-#     def store_public_key_metadata(self, key_id: str, public_key_pem: str, meta: Optional[Dict[str, Any]] = None) -> str:
-#         path = f"public-keys/{key_id}"
-#         secret_data = {
-#             "public_key": public_key_pem,
-#             "created_at": datetime.now(timezone.utc).isoformat(),
-#         }
-#         if meta:
-#             secret_data.update({"meta": meta})
-#         self.client.secrets.kv.v2.create_or_update_secret(
-#             path=path, secret=secret_data, mount_point=self.kv_mount
-#         )
-#         return f"{self.kv_mount}/data/{path}"
-
-#     def read_public_key_metadata(self, key_id: str) -> Optional[Dict[str, Any]]:
-#         path = f"public-keys/{key_id}"
-#         try:
-#             response = self.client.secrets.kv.v2.read_secret_version(path=path, mount_point=self.kv_mount)
-#             return response["data"]["data"]
-#         except exceptions.InvalidPath:
-#             return None
-
-# # Użycie: vault = VaultService(url, token)

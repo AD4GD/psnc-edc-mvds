@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum as PyEnum
 from typing import TypedDict
 from uuid import uuid4
@@ -15,6 +17,41 @@ class RegistrationStatus(PyEnum):
     REJECTED = "REJECTED"
     APPROVED = "APPROVED"
     ONBOARDED = "ONBOARDED"  # approved & everything done
+
+    @classmethod
+    def normalize(cls, status: str | "RegistrationStatus") -> str:
+        if isinstance(status, cls):
+            return status.value
+        if isinstance(status, str):
+            return status.upper()
+        raise TypeError(f"Unsupported status type: {type(status)}")
+
+    @classmethod
+    def __includes__(cls, status: str | "RegistrationStatus") -> bool:
+        try:
+            normalized = cls.normalize(status)
+        except TypeError:
+            return False
+        return normalized in cls.__members__
+
+    @classmethod
+    def allowed_transitions(cls, current_status: str | "RegistrationStatus") -> list["RegistrationStatus"]:
+        current = cls.normalize(current_status)
+        transitions: dict[str, list["RegistrationStatus"]] = {
+            "REQUESTED": [cls.APPROVED, cls.REJECTED],
+            "APPROVED": [cls.ONBOARDED],
+            "REJECTED": [],
+            "ONBOARDED": [],
+        }
+        return transitions.get(current, [])
+
+    @classmethod
+    def can_transition(cls, current_status: str | "RegistrationStatus", new_status: str | "RegistrationStatus") -> bool:
+        try:
+            target = new_status if isinstance(new_status, cls) else cls(cls.normalize(new_status))
+        except (ValueError, TypeError):
+            return False
+        return target in cls.allowed_transitions(current_status)
 
 
 class RegistrationDict(TypedDict):

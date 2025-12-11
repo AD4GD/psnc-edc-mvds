@@ -1,12 +1,10 @@
-import asyncio
 import base64
 import hashlib
-import json
-from typing import Any, Dict, Optional
+from typing import Optional
 from uuid import uuid4
 
 from api.exceptions.registration_service_exceptions import UnauthorizedException
-from api.services.clients import keycloak_service, vault_service
+from api.services.clients import keycloak_service
 from fastapi import Depends, Header
 
 
@@ -34,37 +32,48 @@ def sha256_hex(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def b64url_no_padding(b: bytes) -> str:
-    s = base64.urlsafe_b64encode(b).decode()
-    return s.rstrip("=")
-
-
-async def sign_jwt_with_vault(payload: Dict[str, Any], key_name: str, alg: str = "RS256") -> str:
-    """
-    Async wrapper that creates compact JWT where signature is produced by Vault Transit.
-    Uses vault_service.sign_bytes via asyncio.to_thread to avoid blocking the event loop.
-    """
-    header = {"alg": alg, "typ": "JWT"}
-    header_b = json.dumps(header, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-    payload_b = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-
-    header_b64 = b64url_no_padding(header_b)
-    payload_b64 = b64url_no_padding(payload_b)
-    signing_input = f"{header_b64}.{payload_b64}".encode("utf-8")
-
-    # call vault sign in thread
-    sig_raw = await asyncio.to_thread(vault_service.sign_data, key_name, data=signing_input)
-
-    try:
-        sig_base64 = sig_raw.split(":")[-1]
-    except AttributeError:
-        sig_base64 = sig_raw
-
-    sig_bytes = base64.b64decode(sig_base64)
-    sig_b64url = b64url_no_padding(sig_bytes)
-    jwt = f"{header_b64}.{payload_b64}.{sig_b64url}"
-    return jwt
-
-
 def create_did(name: str) -> str:
     return "_".join(name.split()) + "_" + str(uuid4())
+
+
+def b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
+
+
+# async def make_jwt(payload: Dict, key_name: str, verification_method: str) -> str:
+#     """
+#     Creates a signed JWT (JWS) using Vault for signing.
+#     Handles Vault's specific response format and ensures URL-safe Base64 encoding.
+#     """
+#     # 1. Prepare Header
+#     # EdDSA is standard for Ed25519 keys. If using RSA, change to RS256.
+#     header = {"alg": "EdDSA", "typ": "JWT", "kid": verification_method}
+
+#     header_b64 = b64url(json.dumps(header, separators=(",", ":")).encode())
+#     payload_b64 = b64url(json.dumps(payload, separators=(",", ":")).encode())
+#     signing_input = f"{header_b64}.{payload_b64}".encode()
+
+#     vault_response = vault_service.sign_data(key_name, signing_input)
+#     # await asyncio.to_thread(
+#     #     vault_service.sign_data,
+#     #     key_name,
+#     #     signing_input
+#     #     # hash_algorithm=HashAlgorithmEnum.SHA2_256 # Uncomment if using RSA/EC keys
+#     # )
+
+#     # 3. Parse Vault Response (format: "vault:v1:base64_signature")
+#     try:
+#         # Extract the base64 part after the last colon
+#         print(vault_response)
+#         sig_base64_std = vault_response.split(":")[-1]
+#     except AttributeError:
+#         # Fallback if Vault returns raw bytes or unexpected format
+#         sig_base64_std = vault_response
+
+#     # 4. Convert Standard Base64 (Vault) -> Raw Bytes -> URL-Safe Base64 (JWT)
+#     sig_b64url = b64url(base64.b64decode(sig_base64_std))
+#     # sig_b64url = b64url(sig_bytes)
+#     print(sig_base64_std)
+#     print(sig_b64url)
+
+#     return f"{header_b64}.{payload_b64}.{sig_b64url}"

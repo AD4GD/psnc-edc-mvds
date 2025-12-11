@@ -28,22 +28,33 @@ class LocationResponse(BaseModel):
     postal_code: str
     street: str
     building_number: str
+    created_at: Optional[datetime] = Field(...)
+    updated_at: Optional[datetime] = Field(...)
+
+
+class ConnectorResponse(BaseModel):
+    id: str
+    did: str
+    protocol_url: AnyHttpUrl
+    name: Optional[str] = None
+    created_at: Optional[datetime] = Field(...)
+    updated_at: Optional[datetime] = Field(...)
 
 
 class ParticipantResponse(BaseModel):
     """Response model for participant information."""
 
     id: str
-    did: str
     name: str
     full_name: str
     email: str
-    protocol_url: List[AnyHttpUrl]
+    identity_hub_url: AnyHttpUrl
     ums_url: AnyHttpUrl
     created_at: Optional[datetime] = Field(...)
     updated_at: Optional[datetime] = Field(...)
     VAT_number: str
     location: LocationResponse
+    connectors: List[ConnectorResponse]
 
 
 class HealthResponse(BaseModel):
@@ -57,8 +68,8 @@ class HealthResponse(BaseModel):
 class VCResponse(BaseModel):
     """Response model for VC generating"""
 
-    username: str
-    vc: List[Dict[str, Any]] = Field(..., description="Verifiable Credential issued to the user")
+    vc: Dict[str, Any] = Field(..., description="Verifiable Credential issued to the user")
+    type: Literal["membership", "dataprocessor"] = Field(..., description="Type of the Verifiable Credential")
     connector_token: str = Field(..., description="Token that is used by participant to check integration")
 
 

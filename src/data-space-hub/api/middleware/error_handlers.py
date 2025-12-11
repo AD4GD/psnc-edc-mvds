@@ -168,7 +168,8 @@ def register_exception_handlers(app: FastAPI) -> None:
         return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Unautorized access")
 
     @app.exception_handler(KeyError)
-    async def key_error_exception_handler(request: Request, exc: KeyError) -> JSONResponse:
+    # @app.exception_handler(AttributeError)
+    async def key_error_exception_handler(request: Request, exc: KeyError | AttributeError) -> JSONResponse:
         """Handle KeyError for filling json templates."""
 
         logger.error(

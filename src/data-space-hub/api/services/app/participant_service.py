@@ -7,10 +7,9 @@ from api.models.db.registration_request import RegistrationRequest, Registration
 from api.models.dto.requests import ParticipantCreateRequest, ParticipantUpdateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse
 from api.services.clients import EmailService, async_postgres_service, keycloak_service
-from api.services.helper import create_did
 from api.templates.email import participant_accepted_template, participant_confirm_email_template
 from api.templates.template_filler import render_jinja_template
-from fastapi import HTTPException, Response, status
+from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 
 logger = setup_logging()
@@ -59,20 +58,24 @@ class ParticipantService:
         reg_req: RegistrationRequest = await async_postgres_service.get_registration_request(reg_id)
         form: ParticipantCreateRequest = reg_req.request_form
 
-        location = await async_postgres_service.create_location(form["location"])
-        participant = await async_postgres_service.create_participant(
-            {
-                "id": uuid4(),
-                "did": create_did(form["name"]),  # or full_name
-                "name": form["name"],
-                "full_name": form["full_name"],
-                "protocol_url": form["protocol_url"],
-                "ums_url": form["ums_url"],
-                "location_id": location.id,
-                "VAT_number": form["VAT_number"],
-                "email": form["email"],
-            }
-        )
+        async with async_postgres_service.atomic() as session:
+            form["location"]["id"] = uuid4()
+            location = await async_postgres_service.create_location(form["location"], session=session)
+            participant = await async_postgres_service.create_participant(
+                {
+                    "id": uuid4(),
+                    "name": form["name"],
+                    "full_name": form["full_name"],
+                    "identity_hub_url": form["identity_hub_url"],
+                    "ums_url": form["ums_url"],
+                    "location_id": location.id,
+                    "VAT_number": form["VAT_number"],
+                    "email": form["email"],
+                },
+                session=session,
+            )
+            form["connector"].update({"id": uuid4(), "participant_id": str(participant.id)})
+            await async_postgres_service.create_connector(form["connector"], session=session)
         EmailService.send_email(
             [form["email"]],
             "Data Space - Onboarding",
@@ -109,7 +112,7 @@ class ParticipantService:
         return participants
 
     @classmethod
-    async def get_participant(cls, token: str, response: Response, participant_id: str = None, participant_did: str = None):
+    async def get_participant(cls, token: str, participant_id: str):
         # try:
         #     keycloak_service.decode_jwt_payload(token)
         #     if not (
@@ -127,14 +130,9 @@ class ParticipantService:
         #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
         participant = None
-        if participant_id:
-            participant = await async_postgres_service.get_participant(participant_id)
-        elif participant_did:
-            participant = await async_postgres_service.get_participant_by_did(participant_did)
+        participant = await async_postgres_service.get_participant(participant_id)
         if not participant:
-            raise RecordNotFoundException(
-                message="Participant not found", status_code=204, record_type="participant", record_id=str(participant_id) or participant_did
-            )
+            raise RecordNotFoundException(message="Participant not found", status_code=204, record_type="participant", record_id=str(participant_id))
         return participant.to_dict()
 
     @classmethod
@@ -143,7 +141,7 @@ class ParticipantService:
         return SimpleMessageResponse(message="Participant has been updated")
 
     @classmethod
-    async def delete_participant(cls, token: str, participant_id: str = None, participant_did: str = None) -> None:
+    async def delete_participant(cls, token: str, participant_id: str) -> None:
         # TODO check if auth is ok
         try:
             keycloak_service.decode_jwt_payload(token)
@@ -156,7 +154,7 @@ class ParticipantService:
             keycloak_service.introspect_token(token)
 
         try:
-            ok = await async_postgres_service.delete_participant(p_id=participant_id, did=participant_did)
+            ok = await async_postgres_service.delete_participant(p_id=participant_id)
 
             if not ok:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Delete failed")

@@ -1,21 +1,13 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-# from fastapi import HTTPException, status
-import jwt
-
-# import httpx
 from api.core.logging_config import setup_logging
 from api.core.settings import KeyVaultSettings, ProjectSettings, VerifiableCredentialsSettings
-
-# from api.models.db import IssuedCredentials, Participant
 from api.exceptions.registration_service_exceptions import RecordNotFoundException
 from api.models.dto.local import CredentialFormatEnum, PublicKeyType
-from api.models.dto.requests import UserInfoVCRequest
+from api.models.dto.requests import VCRequest
 from api.models.dto.responses import VCResponse
 from api.services.clients import async_postgres_service, vault_service
-
-# from api.services.helper import sha256_hex, sign_jwt_with_vault
 from api.templates.credentials import (
     dataprocessor_context_template,
     full_credential_template,
@@ -50,34 +42,24 @@ class VCService:
         self.key_name = getattr(KeyVaultSettings, "key_name", "key_name")
         self.jwt_alg = getattr(KeyVaultSettings, "rs_jwt_alg", "RS256")
 
-    async def create_vc(self, req: UserInfoVCRequest) -> dict:
+    async def create_vc(self, req: VCRequest) -> dict:
         # TODO check if ok & correct
-        logger.info(self.key_name)
+        if not req.connector_did:
+            raise RecordNotFoundException(message="connector_did is required", record_type="connector_did for VC", status_code=400)
+        connector = await async_postgres_service.get_connector_by_did(req.connector_did)
+        if not connector:
+            raise RecordNotFoundException(message=f"Connector {req.connector_did} not found", record_type="connector", record_id=req.connector_did)
+
         public_key: PublicKeyType = vault_service.get_public_key(self.key_name)
-        logger.info(public_key)
-
-        # 1) Validation of incoming data
-        print(req.participant_did)
-        if not req.participant_did:
-            raise RecordNotFoundException(message="participant_did is required", record_type="participant_did for VC", status_code=400)
-        participant = await async_postgres_service.get_participant_by_did(req.participant_did)
-        if not participant:
-            raise RecordNotFoundException(
-                message=f"Participant {req.participant_did} not found", record_type="participant", record_id=req.participant_did
-            )
-
         now_iso = datetime.now(timezone.utc).isoformat()
-        print(datetime.fromisoformat(public_key["expiration_time"]).isoformat())
         credential_uuid = str(uuid4())
+        verification_method = f"{VerifiableCredentialsSettings.vc_issuer_did}#key-{public_key['version']}"
 
-        # 2) Build VC payload (JWT style)
-
-        # Optional JSON-LD VC template (unsigned) - will be saved as metadata and serves as base for vc
-        jsonld_vc_membership = render_json_template_string(
+        jsonld_vc = render_json_template_string(
             jsonld_vc_template,
             JsonLdDict(
-                claims=req.participant_claims,
-                context_for=membership_context_template,
+                claims=req.claims,
+                context_for=membership_context_template if req.vc_type == "membership" else dataprocessor_context_template,
                 credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
                 credential_schema=None,
                 credential_status=None,
@@ -86,121 +68,62 @@ class VCService:
                 issuer=VerifiableCredentialsSettings.vc_issuer_did,
                 issuance_date_iso=now_iso,
                 expiration_date_iso=public_key["expiration_time"],
-                list_of_credential_types=["VerifiableCredential", "MembershipCredential"],
-                name="Membership Credential",
+                list_of_credential_types=["VerifiableCredential", "MembershipCredential"]
+                if req.vc_type == "membership"
+                else ["VerifiableCredential", "DataProcessorCredential"],
+                name="Membership Credential"
+                if req.vc_type == "membership"
+                else "Data Processor Credential"
+                if req.vc_type == "dataprocessor"
+                else "Credential",
                 processing_level="processing",
-                participant_did=f"did:web:{participant.did}",
+                connector_did=f"{connector.did}",
             ),
         )
-        proof_membership = render_json_template_string(
-            proof_template,
-            ProofDict(
-                key_created_date_iso=public_key["creation_time"],
-                raw_vc_jwt="to_be_filled_after_signing",  # TODO
-                verification_method=f"{VerifiableCredentialsSettings.vc_issuer_did}#keys-1",  # TODO
-            ),
-        )
-        jsonld_vc_membership.update({"proof": proof_membership.get("proof")})
 
-        # TODO make hash
-        vc_membership_payload = render_json_template_string(
+        vc_payload = render_json_template_string(
             vc_to_sign_template,
             VCDict(
                 issuer=ProjectSettings.issuer_did,
-                participant_did=f"did:web:{participant.did}",
+                connector_did=f"{connector.did}",
                 issued_at=int(datetime.fromisoformat(now_iso).timestamp()),
                 expires_at=int(datetime.fromisoformat(public_key["expiration_time"]).timestamp()),
                 metadata_vc="",
-                vc=jsonld_vc_membership,
+                vc=jsonld_vc,
             ),
         )
-        print(vc_membership_payload)
+        token = await vault_service.make_jwt(vc_payload, key_name=self.key_name, verification_method=verification_method)
 
-        full_vc_membership_credential = render_json_template_string(
-            full_credential_template,
-            FullCredentialDict(
-                credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
-                credential_ld=jsonld_vc_membership,
-                creation_timestamp=int(datetime.now(timezone.utc).timestamp()),
-                issuer_did=VerifiableCredentialsSettings.vc_issuer_did,
-                issuance_policy=None,
-                raw_vc_jwt="to_be_filled_after_signing",  # TODO
-                reissuance_policy=None,
-                state=500,
-                participant_did=f"did:web:{participant.did}",
-                vc_format=CredentialFormatEnum.VC1_0_JWT,
-            ),
-        )
-        print(full_vc_membership_credential)
-
-        jsonld_vc_dataprocessor = render_json_template_string(
-            jsonld_vc_template,
-            JsonLdDict(
-                claims=req.participant_claims,
-                context_for=dataprocessor_context_template,
-                credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
-                credential_schema=None,
-                credential_status=None,
-                contract_version=VerifiableCredentialsSettings.contract_version,
-                description="Dataprocessor Credential for actions requiring identification of dataprocessor",
-                issuer=VerifiableCredentialsSettings.vc_issuer_did,
-                issuance_date_iso=now_iso,
-                expiration_date_iso=public_key["expiration_time"],
-                list_of_credential_types=["VerifiableCredential", "DataProcessorCredential"],
-                name="Dataprocessor Credential",
-                processing_level="processing",
-                participant_did=f"did:web:{participant.did}",
-            ),
-        )
-        proof_dataprocessor = render_json_template_string(
+        proof = render_json_template_string(
             proof_template,
             ProofDict(
                 key_created_date_iso=public_key["creation_time"],
-                raw_vc_jwt="to_be_filled_after_signing",  # TODO
-                verification_method=f"{VerifiableCredentialsSettings.vc_issuer_did}#keys-1",  # TODO
+                raw_vc_jwt=token,
+                verification_method=verification_method,
             ),
         )
-        jsonld_vc_dataprocessor.update({"proof": proof_dataprocessor})
+        jsonld_vc.update({"proof": proof.get("proof")})
 
-        vc_dataprocessor_payload = render_json_template_string(
-            vc_to_sign_template,
-            VCDict(
-                issuer=ProjectSettings.issuer_did,
-                participant_did=f"did:web:{participant.did}",
-                issued_at=int(datetime.fromisoformat(now_iso).timestamp()),
-                expires_at=int(datetime.fromisoformat(public_key["expiration_time"]).timestamp()),
-                metadata_vc="",
-                vc=jsonld_vc_dataprocessor,
-            ),
-        )
-
-        full_vc_dataprocessor_credential = render_json_template_string(
+        full_vc_credential = render_json_template_string(
             full_credential_template,
             FullCredentialDict(
                 credential_id=f"{ProjectSettings.frontend_url}/credentials/" + credential_uuid,
-                credential_ld=jsonld_vc_membership,
+                credential_ld=jsonld_vc,
                 creation_timestamp=int(datetime.now(timezone.utc).timestamp()),
                 issuer_did=VerifiableCredentialsSettings.vc_issuer_did,
                 issuance_policy=None,
-                raw_vc_jwt="to_be_filled_after_signing",  # TODO
+                raw_vc_jwt=token,
                 reissuance_policy=None,
                 state=500,
-                participant_did=f"did:web:{participant.did}",
+                connector_did=f"{connector.did}",
                 vc_format=CredentialFormatEnum.VC1_0_JWT,
             ),
         )
-        print(jsonld_vc_dataprocessor)
-        print(vc_dataprocessor_payload)
-        print(full_vc_dataprocessor_credential)
-        print(public_key)
-
-        vc_jwt = jwt.encode(vc_dataprocessor_payload, key=public_key["public_key"])
-        print(vc_jwt)
 
         # Perform DB operations
         # Create issued_credential record
 
-        return VCResponse(username="user", vc=[full_vc_membership_credential, full_vc_dataprocessor_credential], connector_token="token")
+        return VCResponse(vc=full_vc_credential, type=req.vc_type, connector_token="token")
 
 
 vc_service = VCService()
