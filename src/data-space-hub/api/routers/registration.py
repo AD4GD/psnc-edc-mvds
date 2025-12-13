@@ -4,10 +4,11 @@ from uuid import UUID
 from api.core.logging_config import setup_logging
 from api.models.dto.requests import ParticipantCreateRequest
 from api.models.dto.responses import RegistrationRequestResponse, SimpleMessageResponse
-from api.services.app import participant_service, registration_service
+from api.services.app import registration_service
 
 # from api.services.helper import get_bearer_token, require_admin_token
-from fastapi import APIRouter, Body, Response, status  # , Depends
+from fastapi import APIRouter, Body, Path, Query, Response, status  # , Depends
+from fastapi.responses import JSONResponse
 
 logger = setup_logging()
 router = APIRouter(prefix="/registration/request", tags=["Registration"])
@@ -37,7 +38,7 @@ async def start_registration(req: Annotated[ParticipantCreateRequest, Body()]):
     1. Participant creates infrastructure and run all required services.
     2. Participant's admin send request and waits for Data Space Hub's admin for accept
     """
-    return await participant_service.start_participant_registration(req)
+    return await registration_service.start_participant_registration(req)
 
 
 @router.get("/count", response_model=int, status_code=status.HTTP_200_OK, summary="Get registration request count")
@@ -83,38 +84,24 @@ async def registration_action(request_id: UUID, action: str):  # , token: str = 
     return await registration_service.update_registration_status("token", request_id, action.upper())
 
 
-# @router.put(
-#     "/{request_id}/approve",
-#     response_model=SimpleMessageResponse,
-#     status_code=status.HTTP_202_ACCEPTED,
-#     summary="Accept participant registrattion",
-# )
-# # Middleware for checking token and a role
-# async def accept_registration(request_id: UUID):  # , token: str = Depends(require_admin_token)):
-#     """Accept participant registration"""
-#     return await registration_service.update_registration_status("token", request_id, RegistrationStatus.APPROVED)
+@router.get(
+    "/{request_id}/email-confirm",
+    response_model=SimpleMessageResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Confirm user email",
+)
+async def confirm_email(
+    request_id: UUID = Path(..., description="Registration request UUID"),
+    token: str = Query(..., description="Email confirmation token"),
+):
+    is_valid = await registration_service.assert_registration_token(request_id, token)
 
+    if is_valid is False:
+        return JSONResponse(status_code=403, content={"message": "Wrong or expired confirmation token"})
 
-# @router.put(
-#     "/{request_id}/reject",
-#     response_model=SimpleMessageResponse,
-#     status_code=status.HTTP_202_ACCEPTED,
-#     summary="Reject participant registration",
-# )
-# async def reject_registration(request_id: UUID):  # , token: str = Depends(require_admin_token)):
-#     """Reject participant registration"""
-#     return await registration_service.update_registration_status("token", request_id, RegistrationStatus.REJECTED)
+    await registration_service.confirm_email(request_id)
 
-
-# @router.put(
-#     "/{request_id}/onboard",
-#     response_model=SimpleMessageResponse,
-#     status_code=status.HTTP_202_ACCEPTED,
-#     summary="Onboard participant",
-# )
-# async def onboard_registration(request_id: UUID):  # , token: str = Depends(require_admin_token)):
-#     """Onboard participant registration"""
-#     return await registration_service.update_registration_status("token", request_id, RegistrationStatus.ONBOARDED)
+    return SimpleMessageResponse(message="Email has been confirmed")
 
 
 @router.delete(

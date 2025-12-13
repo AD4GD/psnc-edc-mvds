@@ -9,6 +9,7 @@ class ProjectSettings(BaseSettings):
     port: int = Field(8000, alias="API_PORT")
     service_version: str = "0.0.0"
     frontend_url: str = Field("http://localhost", alias="FRONTEND_URL")
+    app_url: str = Field("http://localhost:8000", alias="APP_URL")
 
     model_config = {
         "env_file": ".env",

@@ -1,9 +1,17 @@
+from uuid import uuid4
+
 from api.core.logging_config import setup_logging
+from api.core.settings import ProjectSettings
 from api.exceptions.registration_service_exceptions import RecordNotFoundException
 from api.models.db.registration_request import RegistrationStatus
+from api.models.dto.requests import ParticipantCreateRequest
 from api.models.dto.responses import SimpleMessageResponse
-from api.services.clients import async_postgres_service
+from api.services.clients import EmailService, async_postgres_service
+from api.services.infrastructure import registration_token_service
+from api.templates.email import participant_confirm_email_template
+from api.templates.template_filler import render_jinja_template
 from fastapi import Response, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from . import participant_service
@@ -19,6 +27,55 @@ class RegistrationService:
 
     def __init__(self):
         pass
+
+    @classmethod
+    async def start_participant_registration(cls, request: ParticipantCreateRequest) -> SimpleMessageResponse:
+        """
+        Start participant registration process.
+        Participant sends a request with a form, it is then saved to db into registration_request and email is sent.
+        """
+        payload = {
+            "id": uuid4(),
+            "status": RegistrationStatus.REQUESTED.value,
+            "request_form": jsonable_encoder(request),
+            "error_detail": "",  # Test for some error details
+            "email_confirmed": False,
+        }
+        rr = await async_postgres_service.create_registration_request(payload)
+        logger.info(f"Created new registration - {rr.id}")
+
+        email_confirmation_link = await cls._get_email_confirmation_url(rr.id)
+        logger.info(email_confirmation_link)
+
+        email_response = EmailService.send_email(
+            recipients=[request.email],
+            subject="Confirm your email",
+            body=render_jinja_template(
+                participant_confirm_email_template,
+                {"participant_name": request.full_name, "confirmation_link": email_confirmation_link},
+            ),
+            body_type="html",
+        )
+        logger.info(email_response)
+        # TODO after participant admin email confirmation - send email to DS admin
+        return SimpleMessageResponse(message="Everything OK")  # Make correct response
+
+    @classmethod
+    async def _get_email_confirmation_url(cls, request_id):
+        token = await registration_token_service.generate_token(request_id)
+        return f"{ProjectSettings.app_url}/api/v1/registration/request/{request_id}/email-confirm?token={token}"
+
+    @classmethod
+    async def assert_registration_token(cls, request_id, token):
+        is_valid = await registration_token_service.is_valid_token(request_id, token)
+        if is_valid:
+            await registration_token_service.consume_token(request_id, token)
+
+        return is_valid
+
+    @classmethod
+    async def confirm_email(cls, request_id):
+        await async_postgres_service.confirm_email(request_id)
 
     @classmethod
     async def get_all_regitrations_requests(cls, token: str, response: Response, offset: int = 0, limit: int | None = None):
@@ -53,15 +110,15 @@ class RegistrationService:
         APPROVED -> ONBOARDED
         """
         # TODO auth
-        print(new_status)
         if not RegistrationStatus.__includes__(new_status):
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
-        target_status = RegistrationStatus(RegistrationStatus.normalize(new_status))
+        target_status = RegistrationStatus.normalize(new_status)
         rr = await async_postgres_service.get_registration_request(reg_id)
 
         if rr is None:
             return Response(status_code=status.HTTP_204_NO_CONTENT)
-
+        if target_status in RegistrationStatus.forward_transitions() and not rr.email_confirmed:
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Email not confirmed yet"})
         if RegistrationStatus.can_transition(rr.status, target_status):
             logger.info(f"Updating registration {reg_id} to status {target_status}")
             await async_postgres_service.update_registration_request(reg_id, {"status": target_status})

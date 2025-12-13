@@ -35,11 +35,15 @@ class RegistrationStatus(PyEnum):
         return normalized in cls.__members__
 
     @classmethod
+    def forward_transitions(cls) -> list["RegistrationStatus"]:
+        return [cls.APPROVED.value, cls.ONBOARDED.value]
+
+    @classmethod
     def allowed_transitions(cls, current_status: str | "RegistrationStatus") -> list["RegistrationStatus"]:
         current = cls.normalize(current_status)
         transitions: dict[str, list["RegistrationStatus"]] = {
             "REQUESTED": [cls.APPROVED, cls.REJECTED],
-            "APPROVED": [cls.ONBOARDED],
+            "APPROVED": [cls.ONBOARDED, cls.REJECTED],
             "REJECTED": [],
             "ONBOARDED": [],
         }
