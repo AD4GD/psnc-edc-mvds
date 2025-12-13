@@ -108,6 +108,17 @@ class AsyncPostgresService:
                 logger.error("Failed to delete participant")
                 return False
 
+    # --- Email confirmation helpers ---
+    async def confirm_email(self, reg_id: int) -> bool:
+        async with self.session_factory() as session:
+            obj = await session.get(RegistrationRequest, reg_id)
+            if not obj:
+                return False
+
+            obj.email_confirmed = True
+            await session.commit()
+            return await session.refresh(obj)
+
     # --- Location helpers ---
     async def create_location(self, location_data: Dict[str, Any], session: Optional[AsyncSession] = None) -> Location:
         """Insert new location record. Optionally uses provided session (for transactions)."""

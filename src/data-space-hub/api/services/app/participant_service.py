@@ -3,14 +3,13 @@ from uuid import uuid4
 
 from api.core.logging_config import setup_logging
 from api.exceptions.registration_service_exceptions import RecordNotFoundException, UnauthorizedException
-from api.models.db.registration_request import RegistrationRequest, RegistrationStatus
+from api.models.db.registration_request import RegistrationRequest
 from api.models.dto.requests import ParticipantCreateRequest, ParticipantUpdateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse
 from api.services.clients import EmailService, async_postgres_service, keycloak_service
-from api.templates.email import participant_accepted_template, participant_confirm_email_template
+from api.templates.email import participant_accepted_template
 from api.templates.template_filler import render_jinja_template
 from fastapi import HTTPException, status
-from fastapi.encoders import jsonable_encoder
 
 logger = setup_logging()
 
@@ -20,36 +19,6 @@ class ParticipantService:
 
     def __init__(self):
         pass
-
-    @classmethod
-    async def start_participant_registration(cls, request: ParticipantCreateRequest) -> SimpleMessageResponse:
-        """
-        Start participant registration process.
-        Participant sends a request with a form, it is then saved to db into registration_request and email is sent.
-        """
-        # try:
-        payload = {
-            "id": uuid4(),
-            "status": RegistrationStatus.REQUESTED.value,
-            "request_form": jsonable_encoder(request),
-            "error_detail": "",  # Test for some error details
-            "email_confirmed": False,
-        }
-        rr = await async_postgres_service.create_registration_request(payload)
-        logger.info(f"Created new registration - {rr.id}")
-
-        email_response = EmailService.send_email(
-            recipients=[request.email],
-            subject="Confirm your email",
-            body=render_jinja_template(
-                participant_confirm_email_template,
-                {"participant_name": request.full_name, "confirmation_link": "https://facebook.com"},
-            ),
-            body_type="html",
-        )
-        logger.info(email_response)
-        # TODO after participant admin email confirmation - send email to DS admin
-        return SimpleMessageResponse(message="Everything OK")  # Make correct response
 
     @classmethod
     async def register_participant(cls, reg_id) -> ParticipantResponse:
