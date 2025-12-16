@@ -18,7 +18,6 @@ COPY $PROJECT_PATH/alembic/ /app/alembic/
 COPY $PROJECT_PATH/Makefile /app/Makefile
 COPY $PROJECT_PATH/alembic.ini /app/alembic.ini
 
-COPY $DOCKER_PATH/config/configuration.properties /app/.env
 COPY $DOCKER_PATH/entrypoint.sh /app/entrypoint.sh
 
 # Make entrypoint executable
