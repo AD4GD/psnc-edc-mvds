@@ -61,7 +61,7 @@ SECRETS_DATA_TEMPLATE = """
     "edc": "https://w3id.org/edc/v0.0.1/ns/"
   },
   "@type": "https://w3id.org/edc/v0.0.1/ns/Secret",
-  "@id": "{{ participant_did }}:{{ sts_key_name }}",
+  "@id": "{{ participant_did }}-{{ sts_key_name }}",
   "https://w3id.org/edc/v0.0.1/ns/value": "{{ client_secret }}"
 }
 """
@@ -70,18 +70,11 @@ VC_MANIFEST_TEMPLATE = """
 {
   "participantContextId": "{{ participant_context_id }}",
   "verifiableCredentialContainer": {
+    "format": "{{ vc_format }}",
+    "rawVc": "{{ raw_vc }}",
     "credential": {
-        "format": "{{ vc_format }}",
-        "rawVc": "{{ raw_vc }}",
         "credentialSubject": [
-          {
-            "id": "{{ participant_did }}",
-            "claims": {
-              "id": "{{ participant_did }}",
-              "contractVersion": "1.0.0",
-              "level": "processing"
-            }
-          }
+          {{ credential_props }}
         ],
         "id": "http://org.yourdataspace.com/credentials/1265",
         "type": [
@@ -99,6 +92,30 @@ VC_MANIFEST_TEMPLATE = """
         "name": null
       }
     }
+}
+"""
+CREDENTIAL_PROPS_DATAPROCESSOR = """
+{
+  "claims": {
+    "id": "{{ participant_did }}",
+    "contractVersion": "1.0.0",
+    "level": "processing"
+  },
+  "id": "{{ participant_did }}"
+}
+"""
+
+CREDENTIAL_PROPS_MEMBERSHIP = """
+{
+  "claims": {
+    "membership": {
+      "membershipType": "FullMember",
+      "website": "www.company-website.com",
+      "contact": "max.mustermann@company.com",
+      "since": "2023-05-08T00:00:00Z"
+    }
+  },
+  "id": "{{ participant_did }}"
 }
 """
 
@@ -138,7 +155,7 @@ class VCService:
       headers = {"x-api-key": IdentityHubSettings.api_key, "Content-Type": "application/json"}
 
       participant_context_id_base64 = self._encode_participant_context_id(did)
-      credential_service_endpoint = f"{IdentityHubSettings.credentials_api_url}/v1alpha/participants/{participant_context_id_base64}"
+      credential_service_endpoint = f"{IdentityHubSettings.credentials_api_url}/v1/participants/{participant_context_id_base64}"
       
       body = render_jinja_template(
         PARTICIPANT_DATA_TEMPLATE,
@@ -188,7 +205,23 @@ class VCService:
       url = f"{IdentityHubSettings.identity_api_url}/v1alpha/participants/{participant_context_base64}/credentials"
       headers = {"x-api-key": IdentityHubSettings.api_key, "Content-Type": "application/json"}
 
+
       for vc in vcs:
+        
+        credential_props = None
+
+        if vc['credential_type'] == 'MembershipCredential':
+          credential_props = CREDENTIAL_PROPS_MEMBERSHIP
+        else:
+          credential_props = CREDENTIAL_PROPS_DATAPROCESSOR
+
+        credential_props = render_jinja_template(
+          credential_props,
+          {
+            "participant_did": participant_id
+          })
+        logger.info(credential_props)
+          
         # manifest
         body = render_jinja_template(
           VC_MANIFEST_TEMPLATE,
@@ -198,7 +231,8 @@ class VCService:
             "issuer_did": "did:web:dataspace-issuer",
             "issuance_date": time.time(),
             "vc_format": vc["format"],
-            "credential_type": vc["credential_type"]
+            "credential_type": vc["credential_type"],
+            "credential_props": credential_props
           })
         
         body = json.loads(body)
