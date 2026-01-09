@@ -61,3 +61,7 @@ build-issuer-service: BASE_IMAGE=$(BUILDER_IMAGE)
 build-mail-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
 build-mail-service: CONTEXT_PATH=../
 build-mail-service: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-identity-provider: BUILDER_IMAGE=maven:3-eclipse-temurin-17
+build-identity-provider: CONTEXT_PATH=../
+build-identity-provider: BASE_IMAGE=$(BUILDER_IMAGE)

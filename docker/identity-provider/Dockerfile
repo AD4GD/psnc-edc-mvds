@@ -18,17 +18,17 @@
 
 ARG KC_VERSION=26.5.0
 
-FROM maven:3-eclipse-temurin-17 AS daps-ext-builder
-ARG KC_VERSION
+COPY src/keycloak/pom.xml ./pom.xml
+COPY src/keycloak/src ./src
 
-WORKDIR /home/app
-COPY . ./
-RUN mvn -D "version.keycloak=${KC_VERSION}" clean package
+RUN mvn -Dversion.keycloak=${KC_VERSION} clean package
 
 FROM quay.io/keycloak/keycloak:${KC_VERSION}
-COPY --from=daps-ext-builder /home/app/target/dat-extension.jar /opt/keycloak/providers/dat-extension.jar
 
-# Theme Customization
-COPY themes/ /opt/keycloak/themes/
+COPY --from=admin-ext-builder \
+  /app/target/admin-approval-listener-1.0.0.jar \
+  /opt/keycloak/providers/admin-approval-listener-1.0.0.jar
+
+RUN /opt/keycloak/bin/kc.sh build
 
 CMD ["start", "--http-enabled=true"]
