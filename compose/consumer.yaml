@@ -65,7 +65,7 @@ services:
       - 'consumer-vault:/vault/file'
 
   consumer-keycloak:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/keycloak:${IMAGE_TAG}
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
     restart: always
     environment:
       KC_DB: postgres
@@ -84,7 +84,7 @@ services:
     depends_on:
       - consumer-keycloak-postgres
     ports:
-      - "48081:48081"
+      - "48082:48081"
 
   consumer-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -94,7 +94,7 @@ services:
       POSTGRESQL_PASSWORD: edc
       POSTGRESQL_DATABASE: edc
     ports:
-      - '5433:5432'
+      - '5450:5432'
     volumes:
       - 'consumer-postgresql:/bitnami/postgresql'
 
@@ -106,7 +106,7 @@ services:
       POSTGRESQL_PASSWORD: edc
       POSTGRESQL_DATABASE: keycloak
     ports:
-      - '5434:5432'
+      - '5451:5432'
     volumes:
       - 'consumer-keycloak-postgresql:/bitnami/postgresql'
 

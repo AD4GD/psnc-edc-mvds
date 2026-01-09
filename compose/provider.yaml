@@ -1,4 +1,5 @@
 services:
+  # Connector System
   provider-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
     ports:
@@ -65,7 +66,7 @@ services:
       - ./vault-data:/vault/file
 
   provider-keycloak:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/keycloak:${IMAGE_TAG}
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
     restart: always
     environment:
       KC_DB: postgres
@@ -84,7 +85,7 @@ services:
     depends_on:
       - provider-keycloak-postgres
     ports:
-      - "48081:48081"
+      - "48083:48081"
 
   provider-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -94,10 +95,11 @@ services:
       POSTGRESQL_PASSWORD: edc
       POSTGRESQL_DATABASE: edc
     ports:
-      - '5432:5432'
+      - '5440:5432'
     volumes:
       - 'provider-postgresql:/bitnami/postgresql'
 
+  # Digital Wallet System
   provider-keycloak-postgres:
     image: docker.io/bitnami/postgresql:11
     restart: always
@@ -106,9 +108,32 @@ services:
       POSTGRESQL_PASSWORD: edc
       POSTGRESQL_DATABASE: keycloak
     ports:
-      - '5434:5432'
+      - '5441:5432'
     volumes:
       - 'provider-keycloak-postgresql:/bitnami/postgresql'
+
+  # User Management System (UMS)
+  provider-user-management-service:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/user-management-service:${IMAGE_TAG}
+    volumes:
+      - ../docker/user-management-service/config/configuration.properties:/app/.env:ro
+    ports:
+      - "8300:8000"
+    depends_on:
+      - provider-user-management-service-postgres
+      - provider-keycloak
+
+  provider-user-management-service-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5442:5432'
+    volumes:
+      - 'provider-user-management-service-postgres:/bitnami/postgresql'
 
 volumes:
   provider-vault:
@@ -116,4 +141,6 @@ volumes:
   provider-postgresql:
     driver: local
   provider-keycloak-postgresql:
+    driver: local
+  provider-user-management-service-postgres:
     driver: local
