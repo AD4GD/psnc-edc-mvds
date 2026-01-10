@@ -19,16 +19,11 @@ services:
   #     - registration-service
 
   
-  #data-space-portal:
-  #  image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-portal:${IMAGE_TAG}
-  #  ports:
-  #    - "38081:80"
-  #  volumes:
-  #      - ../docker/data-space-portal/config/app.nginx.conf:/etc/nginx/nginx.conf
-  #      - ../docker/data-space-portal/config/app.config.json:/usr/share/nginx/html/assets/config/app.config.json
-  #  user: "root"
-  #  depends_on:
-  #    - data-space-hub
+  data-space-portal:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-portal:${IMAGE_TAG}
+    ports:
+      - "38081:80"
+    user: "root"
 
   #data-space-hub:
   #  image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-hub:${IMAGE_TAG}
