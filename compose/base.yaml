@@ -16,6 +16,14 @@ services:
   #       - ../docker/data-space-portal/config/app.config.json:/usr/share/nginx/html/assets/config/app.config.json
   #   user: "root"
   #   depends_on:
+  #     - registration-service
+
+  
+  data-space-portal:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-portal:${IMAGE_TAG}
+    ports:
+      - "38081:80"
+    user: "root"
   #     - data-space-hub
 
   #data-space-hub:
