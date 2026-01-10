@@ -65,3 +65,7 @@ build-mail-service: BASE_IMAGE=$(BUILDER_IMAGE)
 build-identity-provider: BUILDER_IMAGE=maven:3-eclipse-temurin-17
 build-identity-provider: CONTEXT_PATH=../
 build-identity-provider: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-data-space-portal: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
+build-data-space-portal: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
+build-data-space-portal: CONTEXT_PATH=../

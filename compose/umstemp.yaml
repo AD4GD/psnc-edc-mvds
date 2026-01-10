@@ -318,6 +318,14 @@ services:
     volumes:
       - 'federated-catalog-user-management-service-postgres:/bitnami/postgresql'
 
+  data-space-portal:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-portal:${IMAGE_TAG}
+    ports:
+      - "38081:80"
+    volumes:
+      - ../docker/data-space-portal/config/app.config.json:/app/public/app.config.json:ro
+    user: "root"    
+
 volumes:
   provider-user-management-service-postgres:
     driver: local
