@@ -324,7 +324,38 @@ services:
       - "38081:80"
     volumes:
       - ../docker/data-space-portal/config/app.config.json:/app/public/app.config.json:ro
-    user: "root"    
+    user: "root"   
+
+  data-space-hub:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-hub:${IMAGE_TAG}
+    volumes:
+      - ../docker/data-space-hub/config/config.properties:/app/.env:ro
+    ports:
+      - "8000:8000"
+    entrypoint: "./entrypoint.sh" 
+
+  data-space-hub-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5436:5432'
+    volumes:
+      - 'data-space-hub-postgres:/bitnami/postgresql'
+
+  data-space-hub-vault:
+    image: hashicorp/vault:1.16
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    command: vault server -dev
+    ports:
+      - "8200:8200"
 
 volumes:
   provider-user-management-service-postgres:
@@ -342,4 +373,6 @@ volumes:
   federated-catalog-postgresql:
     driver: local
   federated-catalog-user-management-service-postgres:
+    driver: local
+  data-space-hub-postgres:
     driver: local

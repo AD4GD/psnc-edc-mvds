@@ -17,3 +17,6 @@ COPY src/data-space-hub/alembic.ini /app/alembic.ini
 
 COPY ../docker/data-space-hub/config/config.properties /app/.env
 COPY ../docker/data-space-hub/entrypoint.sh /app/entrypoint.sh
+RUN chmod 0755 /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
