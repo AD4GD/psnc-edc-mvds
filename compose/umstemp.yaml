@@ -323,7 +323,7 @@ services:
     ports:
       - "38081:80"
     volumes:
-      - ../docker/data-space-portal/config/app.config.json:/app/public/app.config.json:ro
+      - ../docker/data-space-portal/config/app.config.json:/usr/share/nginx/html/app.config.json:ro
     user: "root"   
 
   data-space-hub:
