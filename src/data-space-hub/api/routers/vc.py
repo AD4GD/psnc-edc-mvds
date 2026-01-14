@@ -41,7 +41,7 @@ async def retrieve_vc(body: Annotated[VCRequest, Body()]):
     return await vc_service.create_vc(body)
 
 @router.post(
-    "test",
+    "/test",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Test save",
 )

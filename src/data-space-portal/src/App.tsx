@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { useConfig } from './config/ConfigContext'
-import { registerParticipant } from './api/participantRegistrationApi'
+import { useRegistrationApiService, type RegisterParticipantDto } from './api/useRegistrationApiService'
 
 function App() {
 
@@ -16,6 +16,8 @@ function App() {
   const [identityHubCredentialsUrl, setIdentityHubCredentialsUrl] = useState("");
   const [identityHubApiKey, setIdentityHubApiKey] = useState("");
   const [publicStsKey, setPublicStsKey] = useState("");
+
+  const { registerParticipant } = useRegistrationApiService();
 
   const setProviderDefaults = () => {
     setDid("did:web:provider-ih%3A7093:bob");
@@ -40,7 +42,7 @@ function App() {
   }
 
   const setFcDefaults = () => {
-    setDid("did:web:did:web:fc-ih%3A7103:piotr");
+    setDid("did:web:fc-ih%3A7103:piotr");
     setConnectorManagementUrl("http://federated-catalog:8291/api/management");
     setConnectorDspUrl("http://federated-catalog:8292/api/dsp");
     setConnectorApiKey("password");
@@ -48,6 +50,20 @@ function App() {
     setIdentityHubCredentialsUrl("http://fc-ih:7101/api/credentials");
     setIdentityHubApiKey("c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=");
     setPublicStsKey("-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r\noYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==\n-----END PUBLIC KEY-----\n");
+  }
+
+  const getDataModel = (): RegisterParticipantDto => {
+    return {
+      connector_did: did,
+      connector_dsp_url: connectorDspUrl,
+      connector_management_url: connectorManagementUrl,
+      connector_api_key: connectorApiKey,
+      identity_hub_identity_url: identityHubIdentityUrl,
+      identity_hub_credentials_url: identityHubCredentialsUrl,
+      identity_hub_api_key: identityHubApiKey,
+      sts_public_key_pem: publicStsKey,
+      generated_vcs: []
+    };
   }
 
   return (
@@ -140,7 +156,7 @@ function App() {
       </div>
     </div>
       <div className="card">
-        <button onClick={() => registerParticipant(config.apiBaseUrl, {})}>
+        <button onClick={() => registerParticipant(getDataModel())}>
           Register
         </button>
       </div>

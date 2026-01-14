@@ -48,8 +48,9 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_methods=["GET", "POST", "DELETE", "PUT"],
-    allow_headers=["x-api-key", "*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_origins=["*"],
 )
 
 register_exception_handlers(app)
