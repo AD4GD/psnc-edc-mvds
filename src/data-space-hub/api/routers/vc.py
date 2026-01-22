@@ -3,9 +3,7 @@ from __future__ import annotations
 from typing import Annotated
 
 from api.core.logging_config import setup_logging
-from api.models.dto.requests import VCRequest
 from api.models.dto.responses import SimpleMessageResponse, VCResponse
-from api.services.app import vc_service
 from api.services.app import vc_saver_service
 from fastapi import APIRouter, Body, status
 from api.models.dto.requests import InsertVcRequest
@@ -26,19 +24,6 @@ def test_endpoint():
     Test endpoint with various stages
     """
     return SimpleMessageResponse(message="Test endpoint reached successfully")
-
-
-@router.post(
-    "",
-    response_model=VCResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Allow participant to generate new VCs for its users when keys rotate",
-)
-async def retrieve_vc(body: Annotated[VCRequest, Body()]):
-    """
-    Main endpoint that is responsible for handling requests from User Management System and generating Verifiable Credentials for users of connector
-    """
-    return await vc_service.create_vc(body)
 
 @router.post(
     "/test",

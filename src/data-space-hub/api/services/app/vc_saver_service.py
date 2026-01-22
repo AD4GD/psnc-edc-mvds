@@ -12,7 +12,8 @@ from api.templates.template_filler import render_jinja_template
 import json
 import base64
 import time
-from api.models.dto.requests import InsertVcRequest
+from api.models.dto.requests import InsertVcRequest, GenerateVcRequest
+from api.services.app import vc_generator_service
 
 logger = setup_logging()
 
@@ -197,7 +198,13 @@ class VcSaverService:
       url = f"{identity_hub_identity_url}/v1alpha/participants/{participant_context_base64}/credentials"
       headers = {"x-api-key": identity_hub_api_key, "Content-Type": "application/json"}
 
-      vcs = self._get_example_vcs(participant_id)
+      vcs = await vc_generator_service.create_vc_set(GenerateVcRequest(
+          connector_did=participant_id,
+          vc_format="VC1_0_JWT",
+          credential_type="MembershipCredential",
+      ))
+
+      #vcs = self._get_example_vcs(participant_id)
 
       for vc in vcs:
 
