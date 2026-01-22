@@ -15,13 +15,13 @@ build-base: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=almalinux:9
 
 build-postgres: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=postgres:11
 
-build-connector: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/openjdk:17-slim-bullseye
+build-connector: BUILDER_IMAGE=bellsoft/liberica-openjdk-debian:17
 build-connector: CONTEXT_PATH=../
 
 build-base build-postgres: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
 build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
 
-build-federated-catalog: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/openjdk:17-slim-bullseye
+build-federated-catalog: BUILDER_IMAGE=bellsoft/liberica-openjdk-debian:17
 build-federated-catalog: CONTEXT_PATH=../
 build-federated-catalog: BASE_IMAGE=$(BUILDER_IMAGE)
 

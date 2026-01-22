@@ -72,6 +72,8 @@ public class DcpPatchExtension implements ServiceExtension {
         trustedIssuerRegistry.register(new Issuer("did:web:localhost%3A9876", Map.of()), WILDCARD); // for the standard credentials
         trustedIssuerRegistry.register(new Issuer("did:web:localhost%3A10100", Map.of()), WILDCARD); // for the credential used to demo the issuance flow
 
+        trustedIssuerRegistry.register(new Issuer("did:web:data-space-hub%3A8000", Map.of()), WILDCARD);
+
         // register a default scope provider
         var contextMappingFunction = new DefaultScopeMappingFunction(Set.of("org.eclipse.edc.vc.type:MembershipCredential:read"));
 

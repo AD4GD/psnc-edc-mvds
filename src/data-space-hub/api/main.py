@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from api.core.logging_config import setup_logging
 from api.core.settings import ProjectSettings
 from api.middleware.error_handlers import register_exception_handlers
-from api.routers.routers import main_router
+from api.routers.routers import main_router, public_router
 from api.services.clients import vault_service
 from api.services.clients.vault_init import initialize_vault
 from fastapi import FastAPI
@@ -56,3 +56,4 @@ app.add_middleware(
 register_exception_handlers(app)
 
 app.include_router(main_router)
+app.include_router(public_router)
