@@ -98,6 +98,22 @@ class EmailServiceSettings(BaseSettings):
         "extra": "ignore",
     }
 
+class FederatedCatalogSettings(BaseSettings):
+    did: str = Field(..., alias="FEDERATED_CATALOG_DID")
+    dsp_url: str = Field(..., alias="FEDERATED_CATALOG_DSP_URL")
+    management_url: str = Field(..., alias="FEDERATED_CATALOG_MANAGEMENT_URL")
+    api_key: str = Field(..., alias="FEDERATED_CATALOG_API_KEY")
+    identity_hub_identity_url: str = Field(..., alias="FEDERATED_CATALOG_IDENTITY_HUB_IDENTITY_URL")
+    identity_hub_credentials_url: str = Field(..., alias="FEDERATED_CATALOG_IDENTITY_HUB_CREDENTIALS_URL")
+    identity_hub_api_key: str = Field(..., alias="FEDERATED_CATALOG_IDENTITY_HUB_API_KEY")
+    sts_public_key_pem: str = Field(..., alias="FEDERATED_CATALOG_STS_PUBLIC_KEY_PEM")
+
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": False,
+        "extra": "ignore",
+    }
 
 ProjectSettings = ProjectSettings()
 PostgreSQLSettings = PostgreSQLSettings()
@@ -105,3 +121,4 @@ KeycloakSettings = KeycloakSettings()
 KeyVaultSettings = KeyVaultSettings()
 VerifiableCredentialsSettings = VerifiableCredentialsSettings()
 EmailServiceSettings = EmailServiceSettings()
+FederatedCatalogSettings = FederatedCatalogSettings()
