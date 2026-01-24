@@ -4,10 +4,11 @@ from api.core.logging_config import setup_logging
 from api.core.settings import ProjectSettings
 from api.middleware.error_handlers import register_exception_handlers
 from api.routers.routers import main_router, public_router
-from api.services.clients import vault_service
+from api.services.clients import vault_service, federated_catalog_service
 from api.services.clients.vault_init import initialize_vault
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
 
 logger = setup_logging()
 
@@ -22,6 +23,18 @@ async def lifespan(app: FastAPI):
         logger.info(f"Vault initialized: {summary}")
     except Exception as e:
         logger.error(f"Vault initialization failed: {e}")
+        # Decide if you want to fail fast or continue
+        raise
+
+    logger.info("Requesting VCs set...")
+    try:
+        logger.info("Waiting for dependent services to initialize...")
+        await asyncio.sleep(10)
+
+        summary = await federated_catalog_service.request_and_insert_vc_set()
+        logger.info(f"VCs has been saved: {summary}")
+    except Exception as e:
+        logger.error(f"VCs set initialization failed: {e}")
         # Decide if you want to fail fast or continue
         raise
 
