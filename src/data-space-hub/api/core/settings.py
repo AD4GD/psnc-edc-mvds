@@ -107,6 +107,7 @@ class FederatedCatalogSettings(BaseSettings):
     identity_hub_credentials_url: str = Field(..., alias="FEDERATED_CATALOG_IDENTITY_HUB_CREDENTIALS_URL")
     identity_hub_api_key: str = Field(..., alias="FEDERATED_CATALOG_IDENTITY_HUB_API_KEY")
     sts_public_key_pem: str = Field(..., alias="FEDERATED_CATALOG_STS_PUBLIC_KEY_PEM")
+    targets_url: str = Field(..., alias="FEDERATED_CATALOG_TARGETS_URL")
 
     model_config = {
         "env_file": ".env",

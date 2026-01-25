@@ -29,9 +29,9 @@ async def lifespan(app: FastAPI):
     logger.info("Requesting VCs set...")
     try:
         logger.info("Waiting for dependent services to initialize...")
-        await asyncio.sleep(10)
+        await asyncio.sleep(15)
 
-        summary = await federated_catalog_service.request_and_insert_vc_set()
+        summary = await federated_catalog_service.request_and_save_vc_set()
         logger.info(f"VCs has been saved: {summary}")
     except Exception as e:
         logger.error(f"VCs set initialization failed: {e}")
