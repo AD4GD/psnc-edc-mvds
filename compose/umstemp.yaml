@@ -1,13 +1,6 @@
 # TEMP File 
 # will be removed later
 services:
-  dataspace-issuer:
-    image: nginx:latest
-    ports:
-      - "9876:80"
-    volumes:
-      - ../docker/issuer-service/assets/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../docker/issuer-service/assets/did.k8s.json:/var/www/.well-known/did.json:ro
 
   provider-user-management-service:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/user-management-service:${IMAGE_TAG}
@@ -265,6 +258,7 @@ services:
       - "8293:8293"
       - "8294:8294"
       - "8295:8295"
+      - "8296:8296"
       - "13001:13001"
 
   fc-ih:
