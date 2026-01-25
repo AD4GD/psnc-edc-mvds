@@ -7,6 +7,7 @@ from api.models.dto.responses import SimpleMessageResponse, VCResponse
 from api.services.app import vc_saver_service
 from fastapi import APIRouter, Body, status
 from api.models.dto.requests import InsertVcRequest
+from api.services.clients import federated_catalog_service
 
 logger = setup_logging()
 router = APIRouter(prefix="/verifiable-credentials", tags=["Verifiable Credentials"])
@@ -31,4 +32,6 @@ def test_endpoint():
     summary="Test save",
 )
 async def save_vc(body: Annotated[InsertVcRequest, Body()]):
-    return await vc_saver_service.create_participant_and_save_vc(body)
+    result = await vc_saver_service.create_participant_and_save_vc(body)
+    await federated_catalog_service.create_target_node(body.connector_did, body.connector_dsp_url)
+    return result
