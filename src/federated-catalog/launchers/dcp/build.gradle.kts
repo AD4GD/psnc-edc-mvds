@@ -21,6 +21,7 @@ plugins {
 dependencies {
     implementation(project(":extensions:did-example-resolver"))
     implementation(project(":extensions:dcp-impl"))
+    implementation(project(":extensions:catalog-node-management-api"))
     runtimeOnly(libs.edc.api.secrets)
 
     runtimeOnly(libs.bundles.connector) // base runtime

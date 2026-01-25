@@ -26,6 +26,7 @@ include(":launchers:dcp")
 include(":extensions:catalog-node-resolver")
 include(":extensions:did-example-resolver")
 include(":extensions:dcp-impl")
+include(":extensions:catalog-node-management-api")
 
 include(":core:base")
 include(":launchers:daps")
