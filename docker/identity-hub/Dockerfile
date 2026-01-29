@@ -8,6 +8,8 @@ ARG JVM_ARGS=""
 ENV PROJECT_PATH="src/identity-hub"
 ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
 
+ENV ORG_GRADLE_PROJECT_persistence=true
+
 # Install required tools
 RUN apt update \
     && apt install -y curl unzip \

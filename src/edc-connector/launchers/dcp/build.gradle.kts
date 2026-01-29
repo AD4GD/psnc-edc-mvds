@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.psnc.auth.composite)
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {
+        runtimeOnly(libs.edc.vault.hashicorp)
         runtimeOnly(libs.bundles.edc.sql.control.plane)
         runtimeOnly(libs.bundles.edc.sql.data.plane)
     }

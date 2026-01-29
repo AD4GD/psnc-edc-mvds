@@ -41,6 +41,7 @@ dependencies {
     runtimeOnly(libs.edc.fc.api)
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {
+        runtimeOnly(libs.edc.vault.hashicorp)
         runtimeOnly(libs.bundles.edc.sql.federatedcatalog)
     } else {
         runtimeOnly(project(":extensions:catalog-node-resolver"))

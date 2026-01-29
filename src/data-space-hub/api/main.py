@@ -19,6 +19,8 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Initializing Vault...")
     try:
+        logger.info("Waiting for dependent services to initialize...")
+        await asyncio.sleep(20)
         summary = initialize_vault(create_default_keys=True)
         logger.info(f"Vault initialized: {summary}")
     except Exception as e:

@@ -133,7 +133,6 @@ class VcSaverService:
       
       logger.info(participant_result)
 
-      # not needed if connector and ih use the same KeyVault
       await self._save_secret_in_connector(
         ctx.connector_did, participant_result, ctx.connector_management_url, ctx.connector_api_key)
       
@@ -164,7 +163,7 @@ class VcSaverService:
 
       async with httpx.AsyncClient(timeout=10) as client:
           r = await client.post(url, headers=headers, json=body)
-          if r.status_code not in (200, 201):
+          if r.status_code not in (200, 201, 409):
               raise HTTPException(status_code=502, detail={"create_participant_error": r.text})
           return r.json() if r.text else {}
       
@@ -186,7 +185,7 @@ class VcSaverService:
 
       async with httpx.AsyncClient(timeout=10) as client:
         r = await client.post(url, headers=headers, json=body)
-        if r.status_code not in (200, 201):
+        if r.status_code not in (200, 201, 409):
             raise HTTPException(status_code=502, detail={"_save_secret_in_connector_error": r.text})
       
       logger.info(r.json())
@@ -212,7 +211,7 @@ class VcSaverService:
 
         async with httpx.AsyncClient(timeout=10) as client:
           r = await client.post(url, headers=headers, json=vc)
-          if r.status_code != 204:
+          if r.status_code not in (204, 409):
             raise HTTPException(status_code=502, detail={"store_credential_error": r.text})
       
     def _encode_participant_context_id(self, participant_id: str) -> str:
