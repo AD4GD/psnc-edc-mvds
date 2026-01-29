@@ -76,6 +76,15 @@ class VaultService:
         Returns:
             API response dict
         """
+        # 1. Check if key already exists
+        try:
+            key = self.transit.read_key(name=key_name, mount_point=self.transit_mount)
+            logger.info(f"Signing key '{key_name}' already exists")
+            return key
+        except exceptions.InvalidPath:
+            # Key does not exist → expected path
+            pass
+
         try:
             params = {
                 "name": key_name,

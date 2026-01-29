@@ -24,6 +24,7 @@ public class SecretsExtension implements ServiceExtension {
     // duplicated from DcpDefaultServicesExtension
     private static final String STS_PRIVATE_KEY_ALIAS = "edc.iam.sts.privatekey.alias";
     private static final String STS_PUBLIC_KEY_ID = "edc.iam.sts.publickey.id";
+    
     @Inject
     private Vault vault;
 
@@ -38,28 +39,43 @@ public class SecretsExtension implements ServiceExtension {
      * @param context the service extension context used for accessing configuration and other services
      */
     private void seedKeys(ServiceExtensionContext context) {
+        var publicKey = """
+            -----BEGIN PUBLIC KEY-----
+            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r
+            oYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==
+            -----END PUBLIC KEY-----
+            """;
+
+        var privateKey = """
+            -----BEGIN EC PRIVATE KEY-----
+            MHcCAQEEIARDUGJgKy1yzxkueIJ1k3MPUWQ/tbQWQNqW6TjyHpdcoAoGCCqGSM49
+            AwEHoUQDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5roYnkAXuqCYfNK3ex+hMWFuiX
+            GUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==
+            -----END EC PRIVATE KEY-----
+            """;
+
+        var privateKeyAlias = context.getConfig().getString(STS_PRIVATE_KEY_ALIAS);
+        var publicKeyId = context.getConfig().getString(STS_PUBLIC_KEY_ID);
+
         // Let's avoid pulling in the connector-core module, just for the instanceof check
         if (vault.getClass().getSimpleName().equals("InMemoryVault")) {
-            var publicKey = """
-                    -----BEGIN PUBLIC KEY-----
-                    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r
-                    oYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==
-                    -----END PUBLIC KEY-----
-                    """;
-
-            var privateKey = """
-                    -----BEGIN EC PRIVATE KEY-----
-                    MHcCAQEEIARDUGJgKy1yzxkueIJ1k3MPUWQ/tbQWQNqW6TjyHpdcoAoGCCqGSM49
-                    AwEHoUQDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5roYnkAXuqCYfNK3ex+hMWFuiX
-                    GUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==
-                    -----END EC PRIVATE KEY-----
-                    """;
 
 
-            vault.storeSecret(context.getConfig().getString(STS_PRIVATE_KEY_ALIAS), privateKey);
-            vault.storeSecret(context.getConfig().getString(STS_PUBLIC_KEY_ID), publicKey);
+            vault.storeSecret(privateKeyAlias, privateKey);
+            vault.storeSecret(publicKeyId, publicKey);
 
             context.getMonitor().withPrefix("DEMO").warning(">>>>>> This extension hard-codes a keypair into the vault! <<<<<<");
+        } else {
+
+            if (vault.resolveSecret(privateKeyAlias) == null) {
+                vault.storeSecret(privateKeyAlias, privateKey);
+                context.getMonitor().info("Seeded STS private key");
+            }
+
+            if (vault.resolveSecret(publicKeyId) == null) {
+                vault.storeSecret(publicKeyId, publicKey);
+                context.getMonitor().info("Seeded STS public key");
+            }
         }
     }
 }

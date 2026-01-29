@@ -2,16 +2,7 @@
 # will be removed later
 services:
 
-  provider-user-management-service:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/user-management-service:${IMAGE_TAG}
-    volumes:
-      - ../docker/user-management-service/config/configuration-provider.properties:/app/.env:ro
-    ports:
-      - "8300:8000"
-    depends_on:
-      - provider-user-management-service-postgres
-
-  provider-user-management-service-postgres:
+  provider-ih-postgres:
     image: docker.io/bitnami/postgresql:11
     restart: always
     environment:
@@ -21,7 +12,7 @@ services:
     ports:
       - '5442:5432'
     volumes:
-      - 'provider-user-management-service-postgres:/bitnami/postgresql'
+      - 'provider-ih-postgresql:/bitnami/postgresql'
   
   mail-service:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/mail-service:${IMAGE_TAG}
@@ -50,6 +41,7 @@ services:
     depends_on:
       - provider-postgres
       - provider-keycloak
+      - vault-unseal
 
   provider-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -89,6 +81,9 @@ services:
       - ../docker/identity-hub/credentials/provider:/app/credentials/provider:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
+    depends_on:
+      - provider-connector
+      - provider-ih-vault
 
   provider-keycloak:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
@@ -154,6 +149,7 @@ services:
     depends_on:
       - consumer-postgres
       - consumer-keycloak
+      - vault-unseal
 
   consumer-ih:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
@@ -171,6 +167,7 @@ services:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
       - consumer-connector
+      - consumer-ih-vault
 
   consumer-keycloak:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
@@ -219,16 +216,7 @@ services:
     volumes:
       - 'consumer-keycloak-postgresql:/bitnami/postgresql'
 
-  consumer-user-management-service:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/user-management-service:${IMAGE_TAG}
-    volumes:
-      - ../docker/user-management-service/config/configuration-consumer.properties:/app/.env:ro
-    ports:
-      - "8400:8000"
-    depends_on:
-      - consumer-user-management-service-postgres
-  
-  consumer-user-management-service-postgres:
+  consumer-ih-postgres:
     image: docker.io/bitnami/postgresql:11
     restart: always
     environment:
@@ -238,7 +226,7 @@ services:
     ports:
       - '5452:5432'
     volumes:
-      - 'consumer-user-management-service-postgres:/bitnami/postgresql'
+      - 'consumer-ih-postgresql:/bitnami/postgresql'
 
   federated-catalog:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
@@ -277,6 +265,7 @@ services:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
       - federated-catalog
+      - fc-ih-vault
   
   federated-catalog-postgres:
     image: docker.io/bitnami/postgresql:11
@@ -290,17 +279,7 @@ services:
     volumes:
       - 'federated-catalog-postgresql:/bitnami/postgresql'
 
-  # tmp instead of data space hub
-  federated-catalog-user-management-service:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/user-management-service:${IMAGE_TAG}
-    volumes:
-      - ../docker/user-management-service/config/configuration-federated-catalog.properties:/app/.env:ro
-    ports:
-      - "8500:8000"
-    depends_on:
-      - federated-catalog-user-management-service-postgres
-  
-  federated-catalog-user-management-service-postgres:
+  federated-catalog-ih-postgres:
     image: docker.io/bitnami/postgresql:11
     restart: always
     environment:
@@ -310,7 +289,7 @@ services:
     ports:
       - '5462:5432'
     volumes:
-      - 'federated-catalog-user-management-service-postgres:/bitnami/postgresql'
+      - 'fc-ih-postgresql:/bitnami/postgresql'
 
   data-space-portal:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-portal:${IMAGE_TAG}
@@ -324,6 +303,10 @@ services:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-hub:${IMAGE_TAG}
     volumes:
       - ../docker/data-space-hub/config/config.properties:/app/.env:ro
+    depends_on:
+      - data-space-hub-postgres
+      - data-space-hub-vault
+      - vault-unseal
     ports:
       - "8000:8000"
     entrypoint: "./entrypoint.sh" 
@@ -345,20 +328,80 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: root
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
-    command: vault server -dev
+      VAULT_API_ADDR: "http://localhost:8200"
+      VAULT_ADDR: "http://localhost:8200"
+    volumes:
+      - dsh-ih-vault:/vault/file
+      - ../docker/identity-hub/kv/vault.hcl:/vault/config/vault.hcl:ro
+    command: vault server -config=/vault/config/vault.hcl
     ports:
       - "8200:8200"
 
+  fc-ih-vault:
+    image: hashicorp/vault:1.16
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_API_ADDR: "http://localhost:8200"
+      VAULT_ADDR: "http://localhost:8200"
+    volumes:
+      - fc-ih-vault:/vault/file
+      - ../docker/identity-hub/kv/vault.hcl:/vault/config/vault.hcl:ro
+    command: vault server -config=/vault/config/vault.hcl
+    ports:
+      - "8201:8200"
+
+  consumer-ih-vault:
+    image: hashicorp/vault:1.16
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_API_ADDR: "http://localhost:8200"
+      VAULT_ADDR: "http://localhost:8200"
+    volumes:
+      - consumer-ih-vault:/vault/file
+      - ../docker/identity-hub/kv/vault.hcl:/vault/config/vault.hcl:ro
+    command: vault server -config=/vault/config/vault.hcl
+    ports:
+      - "8202:8200"
+
+  provider-ih-vault:
+    image: hashicorp/vault:1.16
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_API_ADDR: "http://localhost:8200"
+      VAULT_ADDR: "http://localhost:8200"
+    volumes:
+      - provider-ih-vault:/vault/file
+      - ../docker/identity-hub/kv/vault.hcl:/vault/config/vault.hcl:ro
+    command: vault server -config=/vault/config/vault.hcl
+    ports:
+      - "8203:8200"
+
+  vault-unseal:
+    image: ghcr.io/omegion/vault-unseal:latest
+    depends_on:
+      - data-space-hub-vault
+      - provider-ih-vault
+      - consumer-ih-vault
+      - fc-ih-vault
+    entrypoint: /bin/sh
+    command: >
+      -c "
+        echo 'Waiting 3 seconds for Vault to start...';
+        sleep 3;
+        vault-unseal unseal --address http://data-space-hub-vault:8200 --shard '5kBJDzxiP5SFzz1wNzUExEPauLcom6HFUfTRYoyGN4U=';
+        vault-unseal unseal --address http://provider-ih-vault:8200 --shard 'Pql6WtanxoUc8sAiJXbso5cxzJOBSMgBhYtewpPd2dI=';
+        vault-unseal unseal --address http://consumer-ih-vault:8200 --shard 'QgGabj1PLjyghIA40XaBWSqN+O1utXXNAZX2XGCLTJI=';
+        vault-unseal unseal --address http://fc-ih-vault:8200 --shard 'dEQMocMK8q/ioCB5LHj6TFCpD9NVqMjzOasNHzouo+o=';
+        echo 'Vaults Unsealed';
+      "
+
 volumes:
-  provider-user-management-service-postgres:
-    driver: local
   provider-postgresql:
     driver: local
   provider-keycloak-postgresql:
-    driver: local
-  consumer-user-management-service-postgres:
     driver: local
   consumer-postgresql:
     driver: local
@@ -366,7 +409,19 @@ volumes:
     driver: local
   federated-catalog-postgresql:
     driver: local
-  federated-catalog-user-management-service-postgres:
-    driver: local
   data-space-hub-postgres:
+    driver: local
+  consumer-ih-postgresql:
+    driver: local
+  provider-ih-postgresql:
+    driver: local
+  fc-ih-postgresql:
+    driver: local
+  dsh-ih-vault:
+    driver: local
+  consumer-ih-vault:
+    driver: local
+  provider-ih-vault:
+    driver: local
+  fc-ih-vault:
     driver: local

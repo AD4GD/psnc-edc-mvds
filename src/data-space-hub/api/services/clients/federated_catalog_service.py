@@ -25,10 +25,12 @@ class FederatedCatalogService:
             sts_public_key_pem=FederatedCatalogSettings.sts_public_key_pem,
             generated_vcs=[]
         )
-        await vc_saver_service.create_participant_and_save_vc(body)
-        return {
-            "status": "OK"
-        }
+        try:
+            await vc_saver_service.create_participant_and_save_vc(body)
+            return {"status": "OK"}
+
+        except Exception as e:
+            return {"status": "EXISTS"}
     
     async def create_target_node(self, did, dsp_url):
         url = f"{FederatedCatalogSettings.targets_url}/v1/targets"
