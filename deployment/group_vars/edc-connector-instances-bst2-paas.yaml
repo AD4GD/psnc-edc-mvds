@@ -82,7 +82,7 @@ identityprovider_resources:
     memory: "200Mi"
   limits:
     cpu: "1"
-    memory: "400Mi"
+    memory: "1Gi"
 
 federatedcatalog_resources:
   requests:
