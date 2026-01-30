@@ -1,23 +1,26 @@
-<div *ngIf="allContractOffers as filteredContractOffers" id="wrapper">
-  <div class="search-pagination-container">
-    <mat-form-field class="search-form-field" color="accent">
-      <mat-label>Search catalog</mat-label>
-      <input (input)="onSearch()" [(ngModel)]="searchText" matInput>
-      <mat-icon matPrefix>search</mat-icon>
-      <button (click)="searchText=''; onSearch()" *ngIf="searchText" mat-icon-button matSuffix>
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-form-field>
-
-    <mat-paginator
-      [length]="paginationState.filteredList.length"
-      [hidePageSize]="false"
-      [pageIndex]="paginationState.pageIndex"
-      [pageSize]="paginationState.pageSize"
-      [pageSizeOptions]="[10, 20, 50]"
-      (page)="onPageChange($event)"
-    />
-  </div>
+<div id="wrapper">
+  <edc-demo-access-denied-banner *ngIf="isUnauthorized" resourceName="the catalog" details="Please sign in with an account that has access, or ask an admin to grant permissions."></edc-demo-access-denied-banner>
+  
+  <ng-container *ngIf="!isUnauthorized">
+    <div class="search-pagination-container">
+      <mat-form-field class="search-form-field" color="accent">
+        <mat-label>Search catalog</mat-label>
+        <input (input)="onSearch()" [(ngModel)]="searchText" matInput [disabled]="isUnauthorized">
+        <mat-icon matPrefix>search</mat-icon>
+        <button (click)="searchText=''; onSearch()" *ngIf="searchText && !isUnauthorized" mat-icon-button matSuffix>
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+  
+      <mat-paginator *ngIf="!isUnauthorized"
+        [length]="paginationState.filteredList.length"
+        [hidePageSize]="false"
+        [pageIndex]="paginationState.pageIndex"
+        [pageSize]="paginationState.pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)"
+      />
+    </div>
 
     <div fxLayout="row wrap" fxLayoutAlign="start start">
         <mat-card *ngFor="let contractOffer of paginationState.pagedList" class="asset-card">
@@ -166,4 +169,5 @@
             </mat-card-footer>
         </mat-card>
     </div>
+  </ng-container>
 </div>

@@ -1,113 +1,117 @@
-<div *ngIf="allAssets as assets" id="wrapper">
-  <div class="search-pagination-container">
-    <mat-form-field appearance="fill" appearance="outline" class="search-form-field" color="accent">
-      <mat-label>Search assets</mat-label>
-      <input (input)="onSearch()" [(ngModel)]="searchText" matInput>
-      <mat-icon matPrefix>search</mat-icon>
-      <button (click)="searchText=''; onSearch()" *ngIf="searchText" mat-icon-button matSuffix>
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-form-field>
-
-    <mat-paginator
-      [length]="paginationState.filteredList.length"
-      [hidePageSize]="false"
-      [pageIndex]="paginationState.pageIndex"
-      [pageSize]="paginationState.pageSize"
-      [pageSizeOptions]="[10, 20, 50]"
-      (page)="onPageChange($event)"
-    />
-    
-    <button (click)="onCreate()" color="accent" mat-stroked-button>
-      <mat-icon>add_circle_outline</mat-icon>
-      Create asset
-    </button>
-  </div>
-
-  <div fxLayout="row wrap" fxLayoutAlign="start start">
-    <mat-card *ngFor="let asset of paginationState.pagedList" class="asset-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>attachment</mat-icon>
-        <mat-card-title
-          class="overflow-ellipsis"
-          [matTooltip]="utilService.shouldShowTooltip(idDiv, asset.id) ? asset.id : ''"
-          #idDiv
-          matTooltipPosition="below"
-          matTooltipClass="tooltip"
-        >
-          {{asset.id}}
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-list dense>
-          <mat-list-item>
-            <mat-icon matListItemIcon>info</mat-icon>
-            <div class="asset-property" matListItemTitle>Name</div>
-            <div 
-              matListItemLine
-              class="overflow-ellipsis"
-              #nameDiv
-              [matTooltip]="utilService.shouldShowTooltip(nameDiv, asset.properties.optionalValue('edc','name')) ? asset.properties.optionalValue('edc','name') ?? '' : ''"
-              matTooltipPosition="below"
-              matTooltipClass="tooltip"
-            >
-              {{asset.properties.optionalValue('edc','name')}}
-            </div>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>category</mat-icon>
-            <div class="asset-property" matListItemTitle>Content Type</div>
-            <div matListItemLine>{{asset.properties.optionalValue('edc','contenttype')}}</div>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>http</mat-icon>
-            <div class="asset-property" matListItemTitle>Base url</div>
-            <div 
-              matListItemLine 
-              class="no-truncate overflow-ellipsis"
-              #baseUrlDiv
-              [matTooltip]="utilService.shouldShowTooltip(baseUrlDiv, asset.dataAddress.optionalValue('edc','baseUrl')) ? asset.dataAddress.optionalValue('edc','baseUrl') ?? '' : ''"
-              matTooltipPosition="below"
-              matTooltipClass="tooltip"
-            >
-              {{asset.dataAddress.optionalValue('edc','baseUrl')}}
-            </div>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>file_copy</mat-icon>
-            <div class="asset-property" matListItemTitle>Version</div>
-            <div matListItemLine>{{asset.properties.optionalValue('edc','version')}}</div>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>alt_route</mat-icon>
-            <div class="asset-property" matListItemTitle>Proxy path</div>
-            <div matListItemLine>
-              {{ asset.properties.optionalValue('edc', 'proxyPath') ? 'Proxy path is allowed' : 'Proxy path is not allowed' }}
-            </div>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>explore</mat-icon>
-            <div class="asset-property" matListItemTitle>Proxy query params</div>
-            <div matListItemLine>
-              {{ asset.properties.optionalValue('edc', 'proxyQueryParams') ? 'Proxy query params are allowed' : 'Proxy query params are not allowed' }}
-            </div>
-          </mat-list-item>
-        </mat-list>
-      </mat-card-content>
+<div id="wrapper">
+  <edc-demo-access-denied-banner *ngIf="isUnauthorized" resourceName="assets" details="Please sign in with an account that has access, or ask an admin to grant permissions."></edc-demo-access-denied-banner>
+  
+  <ng-container *ngIf="!isUnauthorized">
+    <div class="search-pagination-container">
+      <mat-form-field appearance="fill" appearance="outline" class="search-form-field" color="accent">
+        <mat-label>Search assets</mat-label>
+        <input (input)="onSearch()" [(ngModel)]="searchText" matInput [disabled]="isUnauthorized">
+        <mat-icon matPrefix>search</mat-icon>
+        <button (click)="searchText=''; onSearch()" *ngIf="searchText && !isUnauthorized" mat-icon-button matSuffix>
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+  
+      <mat-paginator *ngIf="!isUnauthorized"
+        [length]="paginationState.filteredList.length"
+        [hidePageSize]="false"
+        [pageIndex]="paginationState.pageIndex"
+        [pageSize]="paginationState.pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)"
+      />
       
-      <mat-divider inset />
-      <mat-card-actions class="card-actions">
-        <button (click)="onDelete(asset)" [disabled]="isBusy()" color="warn" mat-stroked-button>
-          <mat-icon>delete_sweep</mat-icon> Delete
-        </button>
-        <button [disabled]="!shouldDisplayMetadata(asset)" (click)="onSelect(asset)" color="white" mat-stroked-button>
-          <mat-icon>view_list</mat-icon>
-          <h3>Display additional metadata</h3>
-        </button>
-      </mat-card-actions>
-      <mat-card-footer>
-        <mat-progress-bar *ngIf="isBusy()" color="accent" mode="indeterminate"></mat-progress-bar>
-      </mat-card-footer>
-    </mat-card>
-  </div>
+      <button *ngIf="!isUnauthorized" (click)="onCreate()" color="accent" mat-stroked-button>
+        <mat-icon>add_circle_outline</mat-icon>
+        Create asset
+      </button>
+    </div>
+
+    <div fxLayout="row wrap" fxLayoutAlign="start start">
+      <mat-card *ngFor="let asset of paginationState.pagedList" class="asset-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>attachment</mat-icon>
+          <mat-card-title
+            class="overflow-ellipsis"
+            [matTooltip]="utilService.shouldShowTooltip(idDiv, asset.id) ? asset.id : ''"
+            #idDiv
+            matTooltipPosition="below"
+            matTooltipClass="tooltip"
+          >
+            {{asset.id}}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list dense>
+            <mat-list-item>
+              <mat-icon matListItemIcon>info</mat-icon>
+              <div class="asset-property" matListItemTitle>Name</div>
+              <div 
+                matListItemLine
+                class="overflow-ellipsis"
+                #nameDiv
+                [matTooltip]="utilService.shouldShowTooltip(nameDiv, asset.properties.optionalValue('edc','name')) ? asset.properties.optionalValue('edc','name') ?? '' : ''"
+                matTooltipPosition="below"
+                matTooltipClass="tooltip"
+              >
+                {{asset.properties.optionalValue('edc','name')}}
+              </div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>category</mat-icon>
+              <div class="asset-property" matListItemTitle>Content Type</div>
+              <div matListItemLine>{{asset.properties.optionalValue('edc','contenttype')}}</div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>http</mat-icon>
+              <div class="asset-property" matListItemTitle>Base url</div>
+              <div 
+                matListItemLine 
+                class="no-truncate overflow-ellipsis"
+                #baseUrlDiv
+                [matTooltip]="utilService.shouldShowTooltip(baseUrlDiv, asset.dataAddress.optionalValue('edc','baseUrl')) ? asset.dataAddress.optionalValue('edc','baseUrl') ?? '' : ''"
+                matTooltipPosition="below"
+                matTooltipClass="tooltip"
+              >
+                {{asset.dataAddress.optionalValue('edc','baseUrl')}}
+              </div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>file_copy</mat-icon>
+              <div class="asset-property" matListItemTitle>Version</div>
+              <div matListItemLine>{{asset.properties.optionalValue('edc','version')}}</div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>alt_route</mat-icon>
+              <div class="asset-property" matListItemTitle>Proxy path</div>
+              <div matListItemLine>
+                {{ asset.properties.optionalValue('edc', 'proxyPath') ? 'Proxy path is allowed' : 'Proxy path is not allowed' }}
+              </div>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>explore</mat-icon>
+              <div class="asset-property" matListItemTitle>Proxy query params</div>
+              <div matListItemLine>
+                {{ asset.properties.optionalValue('edc', 'proxyQueryParams') ? 'Proxy query params are allowed' : 'Proxy query params are not allowed' }}
+              </div>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+        
+        <mat-divider inset />
+        <mat-card-actions class="card-actions">
+          <button (click)="onDelete(asset)" [disabled]="isBusy()" color="warn" mat-stroked-button>
+            <mat-icon>delete_sweep</mat-icon> Delete
+          </button>
+          <button [disabled]="!shouldDisplayMetadata(asset)" (click)="onSelect(asset)" color="white" mat-stroked-button>
+            <mat-icon>view_list</mat-icon>
+            <h3>Display additional metadata</h3>
+          </button>
+        </mat-card-actions>
+        <mat-card-footer>
+          <mat-progress-bar *ngIf="isBusy()" color="accent" mode="indeterminate"></mat-progress-bar>
+        </mat-card-footer>
+      </mat-card>
+    </div>
+  </ng-container>
 </div>

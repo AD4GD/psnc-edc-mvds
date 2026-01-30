@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { QUERY_LIMIT, TransferProcessService } from "../../../mgmt-api-client";
 import { TransferProcess } from "../../../mgmt-api-client/model";
 import { AppConfigService } from "../../../app/app-config.service";
@@ -6,13 +7,16 @@ import { ConfirmationDialogComponent, ConfirmDialogModel } from "../confirmation
 import { MatDialog } from "@angular/material/dialog";
 import { PageEvent } from '@angular/material/paginator';
 import { UtilService } from '../../services';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-state.service';
 
 @Component({
   selector: 'edc-demo-transfer-history',
   templateUrl: './transfer-history-viewer.component.html',
   styleUrls: ['./transfer-history-viewer.component.scss']
 })
-export class TransferHistoryViewerComponent implements OnInit {
+export class TransferHistoryViewerComponent implements OnInit, OnDestroy {
   paginationState = {
     filteredList: [] as TransferProcess[],
     pagedList: [] as TransferProcess[],
@@ -22,17 +26,37 @@ export class TransferHistoryViewerComponent implements OnInit {
   columns: string[] = ['id', 'state', 'lastUpdated', 'connectorId', 'assetId', 'contractId', 'action'];
   transferProcesses: TransferProcess[] = [];
   storageExplorerLinkTemplate: string | undefined;
+  isUnauthorized = false;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private transferProcessService: TransferProcessService,
     private dialog : MatDialog,
     private appConfigService: AppConfigService,
     private utilService: UtilService,
+    private readonly unauthorizedState: UnauthorizedStateService,
   ) { }
 
   ngOnInit(): void {
+    this.unauthorizedState
+      .isUnauthorized$('management')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isUnauthorized) => {
+        this.isUnauthorized = isUnauthorized;
+        if (isUnauthorized) {
+          this.transferProcesses = [];
+          this.paginationState.filteredList = [];
+          this.paginationState.pagedList = [];
+        }
+      });
+
     this.loadTransferProcesses();
     this.storageExplorerLinkTemplate = this.appConfigService.getConfig()?.storageExplorerLinkTemplate
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onDeprovision(transferProcess: TransferProcess): void {
@@ -64,14 +88,22 @@ export class TransferHistoryViewerComponent implements OnInit {
       sortField: 'createdAt',
       sortOrder: 'DESC'
     })
-    .subscribe(transferProcesses => { 
-      this.transferProcesses = transferProcesses;
-      this.utilService.applyFilterAndPagination(
-        [...this.transferProcesses],
-        () => {},
-        '',
-        this.paginationState
-      );
+    .subscribe({
+      next: transferProcesses => { 
+        this.transferProcesses = transferProcesses;
+        this.utilService.applyFilterAndPagination(
+          [...this.transferProcesses],
+          () => {},
+          '',
+          this.paginationState
+        );
+      },
+      error: (err: HttpErrorResponse) => {
+        if (this.unauthorizedState.isUnauthorized('management')) {
+          return;
+        }
+        console.error(err);
+      }
     })
   }
 

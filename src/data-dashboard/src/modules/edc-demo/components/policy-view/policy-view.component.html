@@ -1,30 +1,32 @@
-<div id="wrapper" *ngIf="allPolicies as policyDefinitions">
-<!--    entry fields for new policy-->
-  <div class="search-pagination-container">
-    <mat-form-field appearance="outline" class="search-form-field" color="accent">
-      <mat-label>Search policies</mat-label>
-      <input (input)="onSearch()" [(ngModel)]="searchText" matInput>
-      <mat-icon matPrefix>search</mat-icon>
-      <button (click)="searchText=''; onSearch()" *ngIf="searchText" mat-icon-button matSuffix>
-        <mat-icon>close</mat-icon>
+<div id="wrapper">
+<edc-demo-access-denied-banner *ngIf="isUnauthorized" resourceName="policies" details="Please sign in with an account that has access, or ask an admin to grant permissions."></edc-demo-access-denied-banner>
+
+<ng-container *ngIf="!isUnauthorized">
+    <div class="search-pagination-container">
+      <mat-form-field appearance="outline" class="search-form-field" color="accent">
+        <mat-label>Search policies</mat-label>
+        <input (input)="onSearch()" [(ngModel)]="searchText" matInput [disabled]="isUnauthorized">
+        <mat-icon matPrefix>search</mat-icon>
+        <button (click)="searchText=''; onSearch()" *ngIf="searchText && !isUnauthorized" mat-icon-button matSuffix>
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    
+      <mat-paginator
+        [length]="paginationState.filteredList.length"
+        [hidePageSize]="false"
+        [pageIndex]="paginationState.pageIndex"
+        [pageSize]="paginationState.pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)"
+      />
+    
+      <button (click)="onCreate()" color="accent" mat-stroked-button>
+        <mat-icon>add_circle_outline</mat-icon>
+        Create policy
       </button>
-    </mat-form-field>
-
-    <mat-paginator
-      [length]="paginationState.filteredList.length"
-      [hidePageSize]="false"
-      [pageIndex]="paginationState.pageIndex"
-      [pageSize]="paginationState.pageSize"
-      [pageSizeOptions]="[10, 20, 50]"
-      (page)="onPageChange($event)"
-    />
-
-    <button (click)="onCreate()" color="accent" mat-stroked-button>
-      <mat-icon>add_circle_outline</mat-icon>
-      Create policy
-    </button>
-
-  </div>
+    
+    </div>
 
   <div fxLayout="column" fxLayoutAlign="space-around stretch">
     <mat-card *ngFor="let policyDef of paginationState.pagedList" class="policy-card">
@@ -70,4 +72,5 @@
       </mat-card-actions>
     </mat-card>
   </div>
+  </ng-container>
 </div>
