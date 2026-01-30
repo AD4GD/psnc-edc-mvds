@@ -5,6 +5,7 @@ import { map, shareReplay } from 'rxjs/operators';
 import { routes } from '../../app-routing.module';
 import { Title } from '@angular/platform-browser';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { AuthSessionService } from '../../auth/auth-session.service';
 
 @Component({
   selector: 'app-navigation',
@@ -24,11 +25,12 @@ export class NavigationComponent {
   constructor(
     public titleService: Title,
     private breakpointObserver: BreakpointObserver,
-    private oauthService: OAuthService) {
+    private oauthService: OAuthService,
+    private authSession: AuthSessionService) {
   }
   
   logout() {
-    this.oauthService.logOut();
+    this.authSession.logout();
   }
 
   isLoggedIn() {

@@ -24,6 +24,8 @@ import { OBLIGATION_RULE, PERMISSION_RULE, PROHIBITION_RULE } from './policy-rul
 import { OAuthModule } from 'angular-oauth2-oidc';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule } from '@angular/material/dialog';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { UnauthorizedHttpInterceptor } from './auth/unauthorized-http.interceptor';
 
 
 @NgModule({
@@ -49,6 +51,11 @@ import { MatDialogModule } from '@angular/material/dialog';
     NavigationComponent,
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: UnauthorizedHttpInterceptor,
+      multi: true
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: (configService: AppConfigService) => () => configService.loadConfig(),

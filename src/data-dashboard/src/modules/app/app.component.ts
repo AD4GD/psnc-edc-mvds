@@ -5,6 +5,7 @@ import { filter, map } from 'rxjs/operators';
 import {AppConfigService} from "./app-config.service";
 import { OAuthService } from 'angular-oauth2-oidc';
 import { FetchInterceptorService } from './fetch-edc.interceptor';
+import { AuthSessionService } from './auth/auth-session.service';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +20,10 @@ export class AppComponent implements OnInit {
     private configService: AppConfigService,
     private activatedRoute: ActivatedRoute,
     private oauthService: OAuthService,
-    private fetchInterceptor: FetchInterceptorService) {
+    private fetchInterceptor: FetchInterceptorService,
+    private authSession: AuthSessionService) {
       fetchInterceptor.initFetchInterceptor();
+      authSession.init();
   }
 
   async ngOnInit(): Promise<void> {

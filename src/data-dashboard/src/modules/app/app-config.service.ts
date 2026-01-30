@@ -42,6 +42,8 @@ export class AppConfigService {
             requireHttps = true;
           }
           console.log(requireHttps);
+
+          const useRefreshToken = true;
           this.authConfig = {
             issuer: data.oauthIssuer,
             clientId: data.oauthClientId,
@@ -52,8 +54,7 @@ export class AppConfigService {
             sessionChecksEnabled: true,
             strictDiscoveryDocumentValidation: false, 
             requireHttps: requireHttps,
-             // Enables silent refresh (no full redirects)
-            useSilentRefresh: true,
+            useSilentRefresh: false,
             timeoutFactor: 0.75,
             clearHashAfterLogin: true,
             preserveRequestedRoute: true,
