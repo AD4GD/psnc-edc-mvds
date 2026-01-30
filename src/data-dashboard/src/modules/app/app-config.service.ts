@@ -51,7 +51,7 @@ export class AppConfigService {
             responseType: 'code',
             scope: 'openid profile email offline_access',
             showDebugInformation: true,
-            sessionChecksEnabled: true,
+            sessionChecksEnabled: false,
             strictDiscoveryDocumentValidation: false, 
             requireHttps: requireHttps,
             useSilentRefresh: false,
