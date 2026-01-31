@@ -16,7 +16,7 @@
 #    SPDX-License-Identifier: Apache-2.0
 #
 
-ARG KC_VERSION=24.0.3
+ARG KC_VERSION=26.5.0
 
 FROM maven:3-eclipse-temurin-17 AS daps-ext-builder
 ARG KC_VERSION
