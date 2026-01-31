@@ -1,0 +1,113 @@
+services:
+  consumer-postgres:
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5433:5432'
+    volumes:
+      - 'consumer-postgresql:/bitnami/postgresql'
+
+  consumer-keycloak-postgres:
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: keycloak
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: keycloak
+    ports:
+      - '5444:5432'
+    volumes:
+      - 'consumer-keycloak-postgresql:/bitnami/postgresql'
+
+  consumer-keycloak:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
+    restart: always
+    environment:
+      # Keep default enabled features; only enable preview token exchange.
+      KC_DB: postgres
+      KC_DB_URL_HOST: consumer-keycloak-postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_SCHEMA: public
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: edc
+      KC_HOSTNAME: http://localhost:8082
+      KC_HOSTNAME_ADMIN: http://localhost:8082
+      KC_HOSTNAME_STRICT: 'false'
+      KC_HOSTNAME_STRICT_BACKCHANNEL: 'false'
+      KC_HTTP_ENABLED: 'true'
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: edc
+      KEYCLOAK_FRONTEND_URL: http://consumer-keycloak:8080
+    depends_on:
+      - consumer-keycloak-postgres
+    ports:
+      - "8082:8080"
+
+  consumer-connector:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "29191:29191"
+      - "29193:29193"
+      - "29194:29194"
+      - "29195:29195"
+      - "29291:29291"
+      - "29192:29192"
+    volumes:
+      - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ../docker/connector/certs/consumer-daps.jks:/app/certs/consumer-daps.jks
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    user: "root"
+    depends_on:
+      - consumer-postgres
+      - consumer-keycloak
+
+  consumer-dashboard:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "28080:80"
+    volumes:
+      - ../docker/data-dashboard/config/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
+      - ../docker/data-dashboard/config/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
+    user: "root"
+    depends_on:
+      - consumer-connector
+
+  consumer-idp-filler:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
+    restart: no
+    tty: true
+    environment:
+      RUN_SCRIPT: 1
+      IDP_MODE: organization
+      KC_BASE: http://consumer-keycloak:8080
+      KC_USER: admin
+      KC_PASS: edc
+      RS_USERNAME: psnc
+      RS_PASSWORD: edc
+    # Use image's default Python entrypoint
+    depends_on:
+      - consumer-keycloak
+
+  consumer-backend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
+    ports:
+      - "4000:4000"
+    environment:
+      MINIO_ENDPOINT: "minio:9001"
+      MINIO_ACCESS_KEY: minio-user
+      MINIO_SECRET_KEY: minio-password
+    depends_on:
+      - minio
+
+volumes:
+  consumer-postgresql:
+    driver: local
+  consumer-keycloak-postgresql:
+    driver: local

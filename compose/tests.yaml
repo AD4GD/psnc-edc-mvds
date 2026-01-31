@@ -18,7 +18,7 @@ services:
       - identity-provider
 
   registration-service-postgres:
-    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -63,7 +63,7 @@ services:
       - identity-provider
 
   provider-postgres:
-    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -93,7 +93,7 @@ services:
       - identity-provider
 
   consumer-postgres:
-    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -131,8 +131,8 @@ services:
       KC_DB_SCHEMA: public
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: edc
-      KC_HOSTNAME_URL: http://localhost:8081
-      KC_HOSTNAME_ADMIN_URL: http://localhost:8081
+      KC_HOSTNAME: http://localhost:8081
+      KC_HOSTNAME_ADMIN: http://localhost:8081
       KC_HTTP_ENABLED: 'true'
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: edc
@@ -141,7 +141,7 @@ services:
       - identity-provider-postgres
 
   identity-provider-postgres:
-    image: registry.paas.psnc.pl/base/bitnamilegacy/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: keycloak
@@ -156,10 +156,10 @@ services:
     tty: true
     environment:
       RUN_SCRIPT: 1
-      WEB_HTTP_IDP_URI: http://identity-provider:8080
+      KC_BASE: http://identity-provider:8080
       WEB_HTTP_RS_URI: http://registration-service-backend:8182
-      IDP_USERNAME : admin
-      IDP_PASSWORD : edc
+      KC_USER : admin
+      KC_PASS : edc
       RS_USERNAME : psnc
       RS_PASSWORD : edc
     entrypoint: ["/bin/bash", "-c", "./entrypoint.sh && tail -f /dev/null"]
