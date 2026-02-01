@@ -76,10 +76,26 @@ minio_resources:
     cpu: "1500m"
     memory: "1Gi"
 
-identityprovider_resources:
+dataspacekeycloak_resources:
   requests:
     cpu: "100m"
-    memory: "200Mi"
+    memory: "400Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+consumerkeycloak_resources:
+  requests:
+    cpu: "100m"
+    memory: "400Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+providerkeycloak_resources:
+  requests:
+    cpu: "100m"
+    memory: "400Mi"
   limits:
     cpu: "1"
     memory: "1Gi"
@@ -141,7 +157,9 @@ registration_service_frontend_address_shorten: "registration-service-edc-connect
 consumer_dashboard_address: "https://{{ consumer_dashboard_address_shorten }}"
 provider_dashboard_address: "https://{{ provider_dashboard_address_shorten }}"
 registration_service_frontend_address: "https://{{ registration_service_frontend_address_shorten }}"
-identity_provider_address: "https://identity-provider-edc-connector.apps.bst2.paas.psnc.pl"
+data_space_keycloak_address: "https://data-space-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
+consumer_keycloak_address: "https://consumer-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
+provider_keycloak_address: "https://provider-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
 federated_catalog_address: "https://federated-catalog-edc-connector.apps.bst2.paas.psnc.pl"
 consumer_backend_address: "https://consumer-backend-edc-connector.apps.bst2.paas.psnc.pl"
 consumer_connector_address: "https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl"
@@ -177,7 +195,19 @@ SECRET_KEY:
 
 # DO NOT CHANGE DEFINITIONS BELOW
 
-deployed_parameters_packs: "{{ ['connectorconsumer', 'connectorprovider', 'consback', 'federatedcatalog', 'consumerdashboard', 'providerdashboard', 'identityprovider', 'registrationservicefrontend', 'registrationservicebackend'] }}"
+deployed_parameters_packs: "{{ [
+  'connectorconsumer',
+  'connectorprovider',
+  'consback',
+  'federatedcatalog',
+  'consumerdashboard',
+  'providerdashboard',
+  'dataspacekeycloak',
+  'consumerkeycloak',
+  'providerkeycloak',
+  'registrationservicefrontend',
+  'registrationservicebackend'
+  ] }}"
 
 # definitions below are helper definitions - do not change this
 

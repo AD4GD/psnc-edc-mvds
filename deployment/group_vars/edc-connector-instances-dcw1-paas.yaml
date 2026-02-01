@@ -91,7 +91,7 @@ consumer_dashboard_address_shorten: "consumer-dashboard-edc-connector.apps.dcw1.
 provider_dashboard_address_shorten: "ad4gd-dash-edc.dashboard-siba.store"
 consumer_dashboard_address: "https://{{ consumer_dashboard_address_shorten }}"
 provider_dashboard_address: "https://{{ provider_dashboard_address_shorten }}"
-identity_provider_address: "https://keycloak-daps.dashboard-siba.store"
+data_space_keycloak_address: "https://keycloak-daps.dashboard-siba.store"
 federated_catalog_address: "https://ad4gd-catalog-edc.dashboard-siba.store"
 consumer_backend_address: "https://consback-edc-connector.apps.dcw1.paas.psnc.pl"
 consumer_connector_address: "https://consumer-edc-connector.apps.dcw1.paas.psnc.pl"
