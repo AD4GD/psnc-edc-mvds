@@ -10,6 +10,8 @@ import {
   TransferProcessService,
 } from "../../mgmt-api-client";
 import {CONNECTOR_CATALOG_API, CONNECTOR_MANAGEMENT_API} from "../../app/variables";
+import { OAuthService } from 'angular-oauth2-oidc';
+import { AppConfigService } from '../../app/app-config.service';
 // import TypeEnum = Policy.TypeEnum; //TODO Use TypeEnum https://github.com/Think-iT-Labs/edc-connector-client/issues/103
 import {
   ContractNegotiationRequest,
@@ -18,7 +20,7 @@ import {
   TransferProcess,
   TransferProcessInput
 } from "../../mgmt-api-client/model";
-import { ContractAgreement, EdcConnectorClient } from '@think-it-labs/edc-connector-client';
+import { EdcConnectorClient } from '@think-it-labs/edc-connector-client';
 
 
 
@@ -36,27 +38,38 @@ export class CatalogBrowserService {
     private negotiationService: ContractNegotiationService,
     @Inject(CONNECTOR_MANAGEMENT_API) private managementApiUrl: string,
     @Inject(CONNECTOR_CATALOG_API) private catalogApiUrl: string,
+    private appConfig: AppConfigService,
+    private oauthService: OAuthService,
     private edcConnectorClient: EdcConnectorClient
   ) { }
 
   getContractOffers(): Observable<ContractOffer[]> {
-    let federatedCatalog = this.edcConnectorClient.federatedCatalog;
-    let queryObservable = scheduled(federatedCatalog.queryAll({
+    const querySpec = {
       // TODO: add pagination
       limit: QUERY_LIMIT,
       offset: 0,
-      sortOrder: "DESC"
-    }), asyncScheduler);
+      sortOrder: "DESC" as const
+    };
 
-    const w3Prefix = "http://www.w3.org/ns/dcat#";
-    const edcPrefix = "https://w3id.org/edc/v0.0.1/ns/";
-    const odrlPrefix = "http://www.w3.org/ns/odrl/2/";
-    const dspacePrefix = "https://w3id.org/dspace/v0.8/";
+    const catalogs$: Observable<any[]> = this.isCatalogProxyUrl(this.catalogApiUrl)
+      ? this.httpClient
+          .post<any | any[]>(this.catalogApiUrl, querySpec, {
+            headers: this.buildCatalogRequestAuthHeaders()
+          })
+          .pipe(map(c => (Array.isArray(c) ? c : [c])))
+      : scheduled(this.edcConnectorClient.federatedCatalog.queryAll(querySpec), asyncScheduler);
 
-    return queryObservable
+    // NOTE: The Federated Catalog returns *compacted* JSON-LD (e.g. keys like "dcat:dataset"
+    // and @vocab terms like "name"), not expanded-IRI keys.
+    const dcatPrefix = "dcat:";
+    const odrlPrefix = "odrl:";
+    const dspacePrefix = "dspace:";
+
+    return catalogs$
       .pipe(map(catalogs => catalogs.map(catalog => {
         const arr = Array<ContractOffer>();
-        let datasets = this.getItemProperties(catalog, "dataset", w3Prefix);
+        console.log(catalog["dcat:dataset"])
+        let datasets = this.getItemProperties(catalog, "dataset", dcatPrefix);
         if (!Array.isArray(datasets)) {
           datasets = [datasets];
         }
@@ -69,12 +82,13 @@ export class CatalogBrowserService {
           const properties: { [key: string]: string; } = {
             id: dataSet["@id"],
             type: dataSet["@type"],
-            name: this.getItemProperty(dataSet, "name", edcPrefix),
-            version: this.getItemProperty(dataSet, "version", edcPrefix),
-            contentType: this.getItemProperty(dataSet, "contenttype", edcPrefix),
-            proxyPath: this.getItemProperty(dataSet, "proxyPath", edcPrefix),
-            proxyQueryParams: this.getItemProperty(dataSet, "proxyQueryParams", edcPrefix),
-            baseUrl: this.getItemProperty(dataSet, "baseUrl", edcPrefix),
+            // These are @vocab terms in the returned compacted JSON-LD, so they appear unprefixed.
+            name: this.getItemProperty(dataSet, "name", ""),
+            version: this.getItemProperty(dataSet, "version", ""),
+            contentType: this.getItemProperty(dataSet, "contenttype", ""),
+            proxyPath: this.getItemProperty(dataSet, "proxyPath", ""),
+            proxyQueryParams: this.getItemProperty(dataSet, "proxyQueryParams", ""),
+            baseUrl: this.getItemProperty(dataSet, "baseUrl", ""),
           }
           const assetId = dataSet["@id"];
 
@@ -97,10 +111,11 @@ export class CatalogBrowserService {
           const newContractOffer: ContractOffer = {
             assetId: assetId,
             properties: properties,
-            "http://www.w3.org/ns/dcat#service": this.getItemProperty(catalog, "service", w3Prefix),
+            "http://www.w3.org/ns/dcat#service": this.getItemProperty(catalog, "service", dcatPrefix),
             "http://www.w3.org/ns/dcat#dataset": datasets,
             id: hasPolicy["@id"],
-            originator: this.getItemProperty(catalog, "originator", edcPrefix),
+            // originator is also an @vocab term in this compacted JSON-LD response.
+            originator: this.getItemProperty(catalog, "originator", ""),
             policy: policy,
             participantId: this.getItemProperty(catalog, "participantId", dspacePrefix),
           };
@@ -116,6 +131,32 @@ export class CatalogBrowserService {
         }
         return acc;
       }, new Array<ContractOffer>()));
+  }
+
+  private isCatalogProxyUrl(url: string | undefined | null): boolean {
+    if (url == null) {
+      return false;
+    }
+    // Catalog-proxy endpoint is served under /catalog-proxy/... and ends with /catalog/request.
+    return url.includes('/catalog-proxy/') || url.endsWith('/catalog/request');
+  }
+
+  private buildCatalogRequestAuthHeaders(): HttpHeaders {
+    const config = this.appConfig.getConfig();
+    const accessToken = this.oauthService.getAccessToken();
+
+    let headers = new HttpHeaders({ "Content-Type": "application/json" });
+
+    if (accessToken != null && accessToken !== "") {
+      headers = headers.set('Authorization', `Bearer ${accessToken}`);
+      return headers;
+    }
+
+    if (config?.edcApiKey != null && config.edcApiKey !== "") {
+      headers = headers.set('X-Api-Key', config.edcApiKey);
+    }
+
+    return headers;
   }
 
   initiateTransfer(transferRequest: TransferProcessInput): Observable<string> {
@@ -142,14 +183,12 @@ export class CatalogBrowserService {
   }
 
   private getItemProperties(item: any, property: string, prefix: string): any {
-    const field = this.getItemPropertyFullName(property, prefix);
-    const fieldValue = item[field];
+    const fieldValue = this.getJsonLdField(item, property, prefix);
     return fieldValue;
   }
 
   private getItemProperty(item: any, property: string, prefix: string): any {
-    const field = this.getItemPropertyFullName(property, prefix);
-    const fieldValue = item[field];
+    const fieldValue = this.getJsonLdField(item, property, prefix);
     
     let result;
 
@@ -169,16 +208,39 @@ export class CatalogBrowserService {
     return result;
   }
 
-  private getItemPropertyFullName(property: string, prefix: string): string {
-    return `${prefix}${property}`;
-  }
+  private getJsonLdField(item: any, property: string, prefix: string): any {
+    if (item == null) {
+      return undefined;
+    }
 
-  private post<T>(urlPath: string,
-                  params?: HttpParams | { [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>; })
-    : Observable<T> {
-    const url = `${urlPath}`;
-    let headers = new HttpHeaders({"Content-type": "application/json"});
-    return this.catchError(this.httpClient.post<T>(url, "{\"edc:operandLeft\": \"\",\"edc:operandRight\": \"\",\"edc:operator\": \"\",\"edc:Criterion\":\"\"}", {headers, params}), url, 'POST');
+    // 1) Try compact form: e.g. "dcat:dataset" or "odrl:hasPolicy"
+    if (prefix != null && prefix !== "") {
+      const compactKey = `${prefix}${property}`;
+      if (Object.prototype.hasOwnProperty.call(item, compactKey)) {
+        return item[compactKey];
+      }
+
+      // 2) If @context maps the prefix to an IRI, try expanded key too.
+      // Example: @context.dcat = "http://www.w3.org/ns/dcat#" -> "http://www.w3.org/ns/dcat#dataset"
+      if (prefix.endsWith(":")) {
+        const ctx = item["@context"];
+        const ctxPrefix = prefix.substring(0, prefix.length - 1);
+        const iriBase = ctx != null ? ctx[ctxPrefix] : undefined;
+        if (typeof iriBase === "string" && iriBase.length > 0) {
+          const expandedKey = `${iriBase}${property}`;
+          if (Object.prototype.hasOwnProperty.call(item, expandedKey)) {
+            return item[expandedKey];
+          }
+        }
+      }
+    }
+
+    // 3) Try @vocab term (unprefixed), e.g. "name", "originator", "proxyPath"
+    if (Object.prototype.hasOwnProperty.call(item, property)) {
+      return item[property];
+    }
+
+    return undefined;
   }
 
   private catchError<T>(observable: Observable<T>, url: string, method: string): Observable<T> {
