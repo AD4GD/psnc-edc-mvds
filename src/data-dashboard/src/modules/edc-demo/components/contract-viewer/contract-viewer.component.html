@@ -1,23 +1,26 @@
-<div *ngIf="allContracts as contracts" id="wrapper">
-  <div class="search-pagination-container">
-    <mat-form-field class="search-form-field" color="accent">
-      <mat-label>Search contracts</mat-label>
-      <input (input)="onSearch()" [(ngModel)]="searchText" matInput>
-      <mat-icon matPrefix>search</mat-icon>
-      <button (click)="searchText=''; onSearch()" *ngIf="searchText" mat-icon-button matSuffix>
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-form-field>
-
-    <mat-paginator
-      [length]="paginationState.filteredList.length"
-      [hidePageSize]="false"
-      [pageIndex]="paginationState.pageIndex"
-      [pageSize]="paginationState.pageSize"
-      [pageSizeOptions]="[10, 20, 50]"
-      (page)="onPageChange($event)"
-    />
-  </div>
+<div id="wrapper">
+  <edc-demo-access-denied-banner *ngIf="isUnauthorized" resourceName="contracts" details="Please sign in with an account that has access, or ask an admin to grant permissions."></edc-demo-access-denied-banner>
+  
+  <ng-container *ngIf="!isUnauthorized">
+    <div class="search-pagination-container">
+      <mat-form-field class="search-form-field" color="accent">
+        <mat-label>Search contracts</mat-label>
+        <input (input)="onSearch()" [(ngModel)]="searchText" matInput [disabled]="isUnauthorized">
+        <mat-icon matPrefix>search</mat-icon>
+        <button (click)="searchText=''; onSearch()" *ngIf="searchText && !isUnauthorized" mat-icon-button matSuffix>
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+  
+      <mat-paginator
+        [length]="paginationState.filteredList.length"
+        [hidePageSize]="false"
+        [pageIndex]="paginationState.pageIndex"
+        [pageSize]="paginationState.pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)"
+      />
+    </div>
 
   <div fxLayout="row wrap" fxLayoutAlign="start start">
     <mat-card *ngFor="let contract of paginationState.pagedList" class="contract-card">
@@ -97,4 +100,5 @@
       </mat-card-content>
     </mat-card>
   </div>
+  </ng-container>
 </div>

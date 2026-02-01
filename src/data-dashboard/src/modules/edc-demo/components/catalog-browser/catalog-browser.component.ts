@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CatalogBrowserService, NotificationService, SorterService, UtilService } from "../../services";
 import { Router } from "@angular/router";
@@ -9,6 +10,9 @@ import { ContractNegotiation } from "../../../mgmt-api-client/model";
 import { PageEvent } from '@angular/material/paginator';
 import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
 import { DATASET_CONTEXT, METADATA_CONTEXT } from 'src/modules/app/variables';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-state.service';
 
 interface RunningTransferProcess {
   processId: string;
@@ -21,7 +25,7 @@ interface RunningTransferProcess {
   templateUrl: './catalog-browser.component.html',
   styleUrls: ['./catalog-browser.component.scss']
 })
-export class CatalogBrowserComponent implements OnInit {
+export class CatalogBrowserComponent implements OnInit, OnDestroy {
   paginationState = {
     filteredList: [] as ContractOffer[],
     pagedList: [] as ContractOffer[],
@@ -30,10 +34,12 @@ export class CatalogBrowserComponent implements OnInit {
   };
   searchText = '';
   allContractOffers: ContractOffer[] = [];
+  isUnauthorized = false;
   runningTransferProcesses: RunningTransferProcess[] = [];
   runningNegotiations: Map<string, NegotiationResult> = new Map<string, NegotiationResult>();
   finishedNegotiations: Map<string, ContractNegotiation> = new Map<string, ContractNegotiation>();
   private pollingHandleNegotiation?: any;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private apiService: CatalogBrowserService,
@@ -44,20 +50,30 @@ export class CatalogBrowserComponent implements OnInit {
     @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
-    private readonly sorterService: SorterService
+    private readonly sorterService: SorterService,
+    private readonly unauthorizedState: UnauthorizedStateService
   ) { }
 
   loadContractOffers() {
-    this.apiService.getContractOffers().subscribe(contractOffers => {
-      this.allContractOffers = contractOffers.sort((a, b) =>
-        this.sorterService.naturalSort( a.assetId, b.assetId )
-      );
-      this.utilService.applyFilterAndPagination(
-        [...this.allContractOffers],
-        this.filterContractOffers.bind(this),
-        this.searchText,
-        this.paginationState
-      );
+    this.apiService.getContractOffers().subscribe({
+      next: contractOffers => {
+        this.allContractOffers = contractOffers.sort((a, b) =>
+          this.sorterService.naturalSort( a.assetId, b.assetId )
+        );
+        this.utilService.applyFilterAndPagination(
+          [...this.allContractOffers],
+          this.filterContractOffers.bind(this),
+          this.searchText,
+          this.paginationState
+        );
+      },
+      error: (err: HttpErrorResponse) => {
+        if (this.unauthorizedState.isUnauthorized('catalog')) {
+          return;
+        }
+        this.notificationService.showError('Failed to load catalog');
+        console.error(err);
+      }
     });
   }
 
@@ -73,7 +89,24 @@ export class CatalogBrowserComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.unauthorizedState
+      .isUnauthorized$('catalog')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isUnauthorized) => {
+        this.isUnauthorized = isUnauthorized;
+        if (isUnauthorized) {
+          this.allContractOffers = [];
+          this.paginationState.filteredList = [];
+          this.paginationState.pagedList = [];
+        }
+      });
+
     this.loadContractOffers();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
   
   onSearch() {

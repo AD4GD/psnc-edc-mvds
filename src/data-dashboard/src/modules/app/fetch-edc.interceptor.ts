@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { AppConfig, AppConfigService } from './app-config.service';
+import { UnauthorizedScope, UnauthorizedStateService } from './auth/unauthorized-state.service';
+import { AuthSessionService } from './auth/auth-session.service';
 
 /* 
 we need to use this service as a workaround,
@@ -13,23 +15,23 @@ and they doesn't provide a feature to include custom headers such as Authorizati
 export class FetchInterceptorService {
   constructor(
     private appConfig: AppConfigService,
-    private oauthService: OAuthService
+    private oauthService: OAuthService,
+    private unauthorizedState: UnauthorizedStateService,
+    private authSession: AuthSessionService
   ) {}
 
   isBackendUrl = (url: string, config: AppConfig) => {
     return url.startsWith(config.catalogUrl) || url.startsWith(config.managementApiUrl);
   };
 
-  convertInputToUrlString = (input: RequestInfo | URL) => {
-    let url = "";
-    if (input instanceof Request) {
-      url = input.url;
-    } else if (input instanceof URL) {
-      url = input.toString();
-    } else {
-      url = input;
+  convertInputToUrlString = (input: any) => {
+    if (input && typeof input === 'object' && typeof input.url === 'string') {
+      return input.url;
     }
-    return url;
+    if (typeof URL !== 'undefined' && input instanceof URL) {
+      return input.toString();
+    }
+    return String(input ?? '');
   }
 
   isNoAuthConfigured = (accessToken: string, config: AppConfig) => {
@@ -69,7 +71,7 @@ export class FetchInterceptorService {
   initFetchInterceptor(): void {
     const originalFetch = window.fetch;
 
-    window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    window.fetch = (async (input: any, init?: any): Promise<Response> => {
         
       const config = this.appConfig.getConfig();
       if (!config) {
@@ -92,7 +94,27 @@ export class FetchInterceptorService {
 
       const modifiedInit = this.cloneHeadersAndAddAuth(accessToken, url, config, init);
 
-      return originalFetch(input, modifiedInit);
-    };
+      const response = await originalFetch(input, modifiedInit);
+
+      const scope = this.resolveScope(url, config);
+      if (response.status === 401) {
+        this.authSession.handleAuthHttpStatus(response.status);
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        this.unauthorizedState.markUnauthorized(scope);
+      } else if (response.ok) {
+        this.unauthorizedState.clear(scope);
+      }
+
+      return response;
+    }) as any;
+  }
+
+  private resolveScope(url: string, config: AppConfig): UnauthorizedScope {
+    if (url.startsWith(config.catalogUrl)) {
+      return 'catalog';
+    }
+    return 'management';
   }
 }
