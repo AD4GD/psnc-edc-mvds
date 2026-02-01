@@ -15,8 +15,12 @@
 
   # deployed_parameters_packs is defining wheter a given service is deployed or not, it is located in group_vars/edc-connector-instances-<cluster>.yaml
   tasks:
-    - include_tasks: deploy-stateless-tasks/identity-provider.yaml
-      when: "'identityprovider' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/data-space-keycloak.yaml
+      when: "'dataspacekeycloak' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/consumer-keycloak.yaml
+      when: "'consumerkeycloak' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/provider-keycloak.yaml
+      when: "'providerkeycloak' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/consumer-dashboard.yaml
       when: "'consumerdashboard' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/consumer-connector.yaml
