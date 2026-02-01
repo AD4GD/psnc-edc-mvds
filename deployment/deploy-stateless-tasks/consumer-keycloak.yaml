@@ -1,15 +1,15 @@
-- name: "deploy deployment/{{ application }}-identityprovider"
+- name: "deploy deployment/{{ application }}-consumerkeycloak"
   tags:
-    - identityprovider
+    - consumerkeycloak
     - deployment
   k8s:
     definition:
       apiVersion: v1
       kind: Deployment
       metadata:
-        name: "{{ application }}-identityprovider"
+        name: "{{ application }}-consumerkeycloak"
         labels:
-          component: identityprovider
+          component: consumerkeycloak
           application: "{{ application }}"
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -19,15 +19,15 @@
           type: RollingUpdate
         selector:
           matchLabels:
-            component: identityprovider
+            component: consumerkeycloak
             application: "{{ application }}"
         template:
           metadata:
             labels:
-              component: identityprovider
+              component: consumerkeycloak
               application: "{{ application }}"
               image_tag: "{{ stateless_services_image_tag }}"
-              parameters_digest: "{{ (identityprovider_configmap_digest + identityprovider_secret_digest)|hash('sha1') }}"
+              parameters_digest: "{{ (consumerkeycloak_configmap_digest + consumerkeycloak_secret_digest)|hash('sha1') }}"
           spec:
             serviceAccountName: "run-any-uid"
             ports:
@@ -39,42 +39,42 @@
                 protocol: "TCP"
 
             containers:
-              - name: "identityprovider"
+              - name: "consumerkeycloak"
                 image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-provider:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
                   runAsUser: 1000
-                resources: "{{ identityprovider_resources }}"
+                resources: "{{ consumerkeycloak_resources }}"
                 envFrom:
                   - configMapRef:
-                      name: "{{ application }}-identityprovider"
+                      name: "{{ application }}-consumerkeycloak"
                       optional: true
                   - secretRef:
-                      name: "{{ application }}-identityprovider"
+                      name: "{{ application }}-consumerkeycloak"
                       optional: true
                 volumeMounts:
-                  - name: "identityprovider-tmp"
+                  - name: "consumerkeycloak-tmp"
                     mountPath: "/tmp"
             volumes:
-              - name: "identityprovider-tmp"
+              - name: "consumerkeycloak-tmp"
                 emptyDir:
                   medium: "Memory"
 
-- name: "deploy service/{{ application }}-identityprovider"
+- name: "deploy service/{{ application }}-consumerkeycloak"
   tags:
-    - identityprovider
+    - consumerkeycloak
     - service
   k8s:
     definition:
       apiVersion: v1
       kind: Service
       metadata:
-        name: "{{ application }}-identityprovider"
+        name: "{{ application }}-consumerkeycloak"
         labels:
           application: "{{ application }}"
-          component: identityprovider
+          component: consumerkeycloak
       spec:
         ports:
           - name: "keycloak-https"
@@ -83,11 +83,11 @@
             port: 8080
         selector:
           application: "{{ application }}"
-          component: identityprovider
+          component: consumerkeycloak
       envFrom:
         - configMapRef:
-            name: "{{ application }}-identityprovider"
+            name: "{{ application }}-consumerkeycloak"
             optional: true
         - secretRef:
-            name: "{{ application }}-identityprovider"
+            name: "{{ application }}-consumerkeycloak"
             optional: true
