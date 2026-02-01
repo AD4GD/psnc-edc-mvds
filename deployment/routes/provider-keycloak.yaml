@@ -1,0 +1,19 @@
+- name: Create route for provider-keycloak
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: provider-keycloak-route
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ provider_keycloak_address | regex_replace('^https?://', '') }}"
+        to:
+          kind: Service
+          name: "{{ application }}-providerkeycloak"
+        port:
+          targetPort: keycloak-http
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow

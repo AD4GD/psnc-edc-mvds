@@ -1,17 +1,17 @@
-- name: Create route for identity-provider
+- name: Create route for consumer-keycloak
   k8s:
     state: present
     definition:
       apiVersion: route.openshift.io/v1
       kind: Route
       metadata:
-        name: identity-provider
+        name: consumer-keycloak-route
         namespace: "{{ k8s_namespace }}"
       spec:
-        host: "{{ identity_provider_address | regex_replace('^https?://', '') }}"
+        host: "{{ consumer_keycloak_address | regex_replace('^https?://', '') }}"
         to:
           kind: Service
-          name: "{{ application }}-identityprovider"
+          name: "{{ application }}-consumerkeycloak"
         port:
           targetPort: keycloak-http
         tls:

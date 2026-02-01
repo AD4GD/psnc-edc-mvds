@@ -1,0 +1,19 @@
+- name: Create route for data-space-keycloak
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: data-space-keycloak-route
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ data_space_keycloak_address | regex_replace('^https?://', '') }}"
+        to:
+          kind: Service
+          name: "{{ application }}-dataspacekeycloak"
+        port:
+          targetPort: keycloak-http
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
