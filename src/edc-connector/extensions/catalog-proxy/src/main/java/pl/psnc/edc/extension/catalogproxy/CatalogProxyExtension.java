@@ -19,7 +19,7 @@ public class CatalogProxyExtension implements ServiceExtension {
 
     @Inject
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
-    
+
     @Inject
     private TypeManager typeManager;
 

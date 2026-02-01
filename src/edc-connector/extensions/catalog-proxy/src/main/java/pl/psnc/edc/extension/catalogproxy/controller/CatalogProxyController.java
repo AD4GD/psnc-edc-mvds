@@ -46,14 +46,14 @@ public class CatalogProxyController {
     private final String httpTargetUrl;
     private final String httpApiKeyHeader;
     private final String httpApiKey;
-    
+
     private final boolean dspEnabled;
 
     public CatalogProxyController(
         Monitor monitor,
         RemoteMessageDispatcherRegistry dispatcherRegistry,
         Config config,
-        ObjectMapper mapper) 
+        ObjectMapper mapper)
     {
         this.monitor = monitor;
         this.config = config;
@@ -62,7 +62,7 @@ public class CatalogProxyController {
 
         // DSP support (disabled by default; Federated Catalog 0.10 DSP doesn't return aggregated catalog)
         this.dspEnabled = config.getBoolean("edc.catalog.proxy.dsp.enabled", false);
-        
+
         // DSP-first target (Federated Catalog protocol endpoint)
         this.dspCounterPartyAddress = config.getString(
             "edc.catalog.proxy.dsp.counterparty.address",
@@ -104,7 +104,7 @@ public class CatalogProxyController {
         @HeaderParam("Authorization") String token,
         @QueryParam("providerUrl") String providerUrl,
         String body,
-        @Suspended AsyncResponse responseSuspended) 
+        @Suspended AsyncResponse responseSuspended)
     {
         // Auth is handled by the web context (composite: tokenbased + delegated).
 
@@ -175,7 +175,7 @@ public class CatalogProxyController {
                 ? throwable.toString()
                 : (catalogResult != null ? catalogResult.getFailureDetail() : "null result");
             monitor.warning("DSP catalog fetch failed, falling back to HTTP. Reason: " + failureDetail);
-            
+
             // 2) Fallback to HTTP (tokenbased x-api-key)
             fetchViaHttp(providerUrl, body, responseSuspended);
         });
