@@ -18,8 +18,8 @@ connectorconsumer_configmap__05_defaults:
   WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: "{{ (['tokenbased', 'delegated'] if is_auth else []) | to_json }}"
   WEB_HTTP_MANAGEMENT_AUTH_CONTEXT: "management-api"
   WEB_HTTP_MANAGEMENT_AUTH_KEY: "edc"
-  WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: "{{ identity_provider_address }}/realms/Organizations/protocol/openid-connect/certs"
-  EDC_API_AUTH_DAC_KEY_URL: "{{ identity_provider_address }}/realms/Organizations/protocol/openid-connect/certs"
+  WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: "{{ consumer_keycloak_address }}/realms/Organizations/protocol/openid-connect/certs"
+  EDC_API_AUTH_DAC_KEY_URL: "{{ consumer_keycloak_address }}/realms/Organizations/protocol/openid-connect/certs"
   WEB_HTTP_CONTROL_AUTH_TYPE: "{{ 'tokenbased' if is_auth else 'none' }}"
   WEB_HTTP_CONTROL_AUTH_CONTEXT: "control-api"
   WEB_HTTP_CONTROL_AUTH_KEY: "edc"
@@ -34,12 +34,38 @@ connectorconsumer_configmap__05_defaults:
   PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/consumer-daps.jks"
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
-  EDC_OAUTH_PROVIDER_JWKS_URL: "{{ identity_provider_address }}/realms/DAPS/protocol/openid-connect/certs"
-  EDC_OAUTH_TOKEN_URL: "{{ identity_provider_address }}/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_JWKS_URL: "{{ consumer_keycloak_address }}/realms/DAPS/protocol/openid-connect/certs"
+  EDC_OAUTH_TOKEN_URL: "{{ consumer_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_CLIENT_ID: "consumer"
   EDC_OAUTH_CERTIFICATE_ALIAS: "dapsPublic"
   EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
-  EDC_OAUTH_PROVIDER_AUDIENCE: "{{ identity_provider_address }}/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_AUDIENCE: "{{ consumer_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
+
+  # Catalog proxy settings
+  EDC_CATALOG_PROXY_DSP_ENABLED: false
+  # edc.catalog.proxy.dsp.enabled=false
+  # Catalog proxy API (separate web context)
+  WEB_HTTP_CATALOGPROXY_PORT: "29195"
+  WEB_HTTP_CATALOGPROXY_PATH: "/catalog-proxy"
+  # Authentication for catalog-proxy API (same mechanism as management)
+  WEB_HTTP_CATALOGPROXY_AUTH_TYPE: "composite"
+  # tokenbased - api-key, delegated - oauth2/daps
+  WEB_HTTP_CATALOGPROXY_AUTH_INCLUDES: '["tokenbased", "delegated"]'
+  WEB_HTTP_CATALOGPROXY_AUTH_CONTEXT: "catalogproxy"
+  WEB_HTTP_CATALOGPROXY_AUTH_KEY: "edc"
+  WEB_HTTP_CATALOGPROXY_AUTH_DAC_KEY_URL: "{{ consumer_keycloak_address }}/realms/Organizations/protocol/openid-connect/certs"
+  WEB_HTTP_CATALOGPROXY_AUTH_AUDIENCE: '["federated-catalog", "consumer-connector"]'
+  WEB_HTTP_CATALOGPROXY_AUTH_ROLES: '["access-catalog"]'
+  # Only if needed: Audience validation config for delegated auth
+  # WEB_HTTP_CATALOGPROXY_AUTH_DAC_AUDIENCE: '["federated-catalog", "consumer-connector"]'
+
+  # Catalog proxy -> Federated Catalog settings (DSP-first, then HTTP fallback)
+  EDC_CATALOG_PROXY_DSP_COUNTERPARTY_ADDRESS: "{{ federated_catalog_address }}/catalog"
+  EDC_CATALOG_PROXY_DSP_COUNTERPARTY_ID: "federated-catalog"
+  EDC_CATALOG_PROXY_DSP_PROTOCOL: "dataspace-protocol-http"
+  EDC_CATALOG_PROXY_HTTP_TARGET_URL: "{{ federated_catalog_address }}/catalog/v1alpha/catalog/query"
+  EDC_CATALOG_PROXY_HTTP_APIKEY_HEADER: "x-api-key"
+  EDC_CATALOG_PROXY_HTTP_APIKEY: "edc"
