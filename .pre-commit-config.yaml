@@ -2,7 +2,6 @@
 # See https://pre-commit.com/hooks.html for more hooks
 
 
-
 exclude: venv/|modules/|docker/|pkgs/|common/|reports/settings.py
 
 repos:
