@@ -39,7 +39,7 @@
           kind: Service
           name: "{{ application }}-connectorconsumer"
         port:
-          targetPort: public
+          targetPort: catalogproxy
         tls:
           termination: edge
           insecureEdgeTerminationPolicy: Allow
