@@ -21,6 +21,29 @@
           termination: edge
           insecureEdgeTerminationPolicy: Allow
 
+- name: Create route for provider-connector-catalog-proxy
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
+        name: provider-connector-catalog-proxy
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        host: "{{ provider_connector_address | regex_replace('^https?://', '') }}"
+        path: /catalog-proxy
+        to:
+          kind: Service
+          name: "{{ application }}-connectorprovider"
+        port:
+          targetPort: public
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
+
 - name: Create route for provider-connector-control
   k8s:
     state: present

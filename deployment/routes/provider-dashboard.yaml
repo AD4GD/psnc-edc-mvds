@@ -19,3 +19,49 @@
         tls:
           termination: edge
           insecureEdgeTerminationPolicy: Allow
+
+- name: Create route for provider-dashboard-catalog-proxy
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: provider-dashboard-catalog-proxy
+        namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
+      spec:
+        host: "{{ provider_dashboard_address | regex_replace('^https?://', '') }}"
+        path: /catalog-proxy
+        to:
+          kind: Service
+          name: "{{ application }}-providerdashboard"
+        port:
+          targetPort: www
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
+
+- name: Create route for provider-dashboard-catalog
+  k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: provider-dashboard-catalog
+        namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
+      spec:
+        host: "{{ provider_dashboard_address | regex_replace('^https?://', '') }}"
+        path: /catalog
+        to:
+          kind: Service
+          name: "{{ application }}-providerdashboard"
+        port:
+          targetPort: www
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Allow
