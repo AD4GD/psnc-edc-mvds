@@ -7,13 +7,17 @@
       metadata:
         name: consumer-keycloak-route
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ consumer_keycloak_address | regex_replace('^https?://', '') }}"
         to:
           kind: Service
           name: "{{ application }}-consumerkeycloak"
+          weight: 100
         port:
           targetPort: keycloak-http
         tls:
           termination: edge
           insecureEdgeTerminationPolicy: Allow
+        wildcardPolicy: None
