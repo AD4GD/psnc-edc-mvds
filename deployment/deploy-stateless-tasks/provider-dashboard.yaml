@@ -59,7 +59,7 @@
                 proxy_pass {{ provider_connector_address }}/catalog-proxy/;
               }
               location /catalog {
-                proxy_pass {{ provider_dashboard_address }}/catalog-proxy/catalog/request;
+                proxy_pass {{ provider_connector_address }}/catalog-proxy/catalog/request;
               }
             }
           }
@@ -98,7 +98,7 @@
             serviceAccountName: "run-any-uid"
             ports:
               - name: "www"
-                containerPort: 80
+                containerPort: 8080
                 protocol: "TCP"
             containers:
               - name: "providerdashboard"
