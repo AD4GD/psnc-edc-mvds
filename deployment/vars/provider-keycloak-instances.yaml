@@ -4,10 +4,12 @@ random_keycloak_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_le
 providerkeycloak_configmap__05_defaults:
   KC_DB: "postgres"
   KC_DB_SCHEMA: "public"
-  KC_HOSTNAME_URL: "{{ provider_keycloak_address }}"
-  KC_HOSTNAME_ADMIN_URL: "{{ provider_keycloak_address }}"
-  KEYCLOAK_FRONTEND_URL: "{{ provider_keycloak_address }}/protocol"
+  KC_HOSTNAME: "{{ provider_keycloak_address | regex_replace('^https?://|/$', '') }}"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HOSTNAME_STRICT_HTTPS: "false"
+  # KC_HTTP_ENABLED: "true"
   KC_PROXY: "edge"
+  KC_PROXY_HEADERS: "xforwarded"
 
 providerkeycloak_secret__05_defaults:
   KEYCLOAK_ADMIN: "{{ random_keycloak_user }}"
