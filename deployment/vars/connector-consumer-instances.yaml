@@ -51,6 +51,7 @@ connectorconsumer_configmap__05_defaults:
   EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
   EDC_OAUTH_PROVIDER_AUDIENCE: "{{ data_space_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
+  EDC_OAUTH_TOKEN_EXPIRATION_CHECK_VALIDITY_GRACE_PERIOD_SECONDS: "-1"
 
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
