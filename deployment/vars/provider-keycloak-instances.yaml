@@ -9,8 +9,6 @@ providerkeycloak_configmap__05_defaults:
   KC_HTTP_ENABLED: "true"
   KC_PROXY_HEADERS: "xforwarded"
   KC_PROXY_ADDRESS_FORWARDING: "true"
-  KC_HTTPS_CERTIFICATE_FILE: "/dev/null"
-  KC_HTTPS_CERTIFICATE_KEY_FILE: "/dev/null"
 
 providerkeycloak_secret__05_defaults:
   KEYCLOAK_ADMIN: "{{ random_keycloak_user }}"

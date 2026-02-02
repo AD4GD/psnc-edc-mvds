@@ -31,4 +31,4 @@ COPY --from=daps-ext-builder /home/app/target/dat-extension.jar /opt/keycloak/pr
 # Theme Customization
 COPY themes/ /opt/keycloak/themes/
 
-CMD ["start"]
+CMD ["start", "--http-enabled=true"]
