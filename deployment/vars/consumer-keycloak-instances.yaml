@@ -6,10 +6,11 @@ consumerkeycloak_configmap__05_defaults:
   KC_DB_SCHEMA: "public"
   KC_HOSTNAME: "{{ consumer_keycloak_address | regex_replace('^https?://|/$', '') }}"
   KC_HOSTNAME_STRICT: "false"
-  KC_HOSTNAME_STRICT_HTTPS: "false"
-  # KC_HTTP_ENABLED: "true"
-  KC_PROXY: "edge"
+  KC_HTTP_ENABLED: "true"
   KC_PROXY_HEADERS: "xforwarded"
+  KC_PROXY_ADDRESS_FORWARDING: "true"
+  KC_HTTPS_CERTIFICATE_FILE: "/dev/null"
+  KC_HTTPS_CERTIFICATE_KEY_FILE: "/dev/null"
 
 consumerkeycloak_secret__05_defaults:
   KEYCLOAK_ADMIN: "{{ random_keycloak_user }}"
