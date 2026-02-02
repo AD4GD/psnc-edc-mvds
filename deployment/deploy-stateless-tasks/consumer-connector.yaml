@@ -1,8 +1,8 @@
 - name: "deploy secret/{{ application }}-connectorconsumer"
   tags:
-  - connector
-  - connectorconsumer
-  - secret
+    - connector
+    - connectorconsumer
+    - secret
   k8s:
     definition:
       apiVersion: v1
