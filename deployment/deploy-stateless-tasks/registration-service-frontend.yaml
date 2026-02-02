@@ -6,7 +6,7 @@
         "federatedCatalogApiUrl": "{{ federated_catalog_address }}/catalog",
         "environment": "production",
         "oauthIssuer": "{{ data_space_keycloak_address }}/realms/Organizations",
-        "oauthClientId": "data-space"
+        "oauthClientId": "data-space-users"
       }
 
 - name: "deploy configmap/{{ application }}-registrationservicefrontend"
