@@ -34,12 +34,12 @@ connectorprovider_configmap__05_defaults:
   PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/provider-daps.jks"
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
-  EDC_OAUTH_PROVIDER_JWKS_URL: "{{ provider_keycloak_address }}/realms/DAPS/protocol/openid-connect/certs"
-  EDC_OAUTH_TOKEN_URL: "{{ provider_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_JWKS_URL: "{{ data_space_keycloak_address }}/realms/DAPS/protocol/openid-connect/certs"
+  EDC_OAUTH_TOKEN_URL: "{{ data_space_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_CLIENT_ID: "provider"
   EDC_OAUTH_CERTIFICATE_ALIAS: "dapsPublic"
   EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
-  EDC_OAUTH_PROVIDER_AUDIENCE: "{{ provider_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_AUDIENCE: "{{ data_space_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
