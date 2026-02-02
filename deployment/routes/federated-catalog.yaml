@@ -7,6 +7,8 @@
       metadata:
         name: federated-catalog-api
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
         path: /api
@@ -28,6 +30,8 @@
       metadata:
         name: federated-catalog-catalog
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
         path: /catalog

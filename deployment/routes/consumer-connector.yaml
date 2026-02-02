@@ -7,6 +7,8 @@
       metadata:
         name: consumer-connector-api
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
         path: /api
@@ -28,6 +30,8 @@
       metadata:
         name: consumer-connector-control
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
         path: /control
@@ -49,6 +53,8 @@
       metadata:
         name: consumer-connector-management
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
         path: /management
@@ -68,6 +74,8 @@
       apiVersion: route.openshift.io/v1
       kind: Route
       metadata:
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
         name: consumer-connector-protocol
         namespace: "{{ k8s_namespace }}"
       spec:
@@ -89,6 +97,8 @@
       apiVersion: route.openshift.io/v1
       kind: Route
       metadata:
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
         name: consumer-connector-public
         namespace: "{{ k8s_namespace }}"
       spec:
