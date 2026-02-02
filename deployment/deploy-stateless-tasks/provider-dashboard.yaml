@@ -7,7 +7,7 @@
         "theme": "theme-3",
         "deploymentMode": "production",
         "backendUrl": "{{ consumer_backend_address }}/edr-endpoint",
-        "oauthIssuer": "{{ consumer_keycloak_address }}/realms/Organizations",
+        "oauthIssuer": "{{ provider_keycloak_address }}/realms/Organizations",
         "oauthClientId": "data-space-users"
       }
   when: is_auth
