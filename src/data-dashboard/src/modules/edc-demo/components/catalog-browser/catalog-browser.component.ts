@@ -150,14 +150,19 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
   }
 
   findMetadataForAsset(offer: ContractOffer) {
-    return offer[DATASET_CONTEXT].filter((_asset : any) => {
+    const asset = offer[DATASET_CONTEXT]?.filter((_asset : any) => {
       return _asset['@id'] === offer.assetId || _asset.id === offer.assetId;
-    })?.[0]?.[METADATA_CONTEXT]?.[0] || {};
+    })?.[0];
+    
+    if (!asset) return {};
+    
+    if (asset['metadata']) {
+      return asset['metadata'];
+    }
+    
+    // Fallback to METADATA_CONTEXT (old JSON-LD transformed format)
+    return asset[METADATA_CONTEXT]?.[0] || {};
   }
-
-  // ,
-  // "oauthIssuer": "http://localhost:8081/realms/Organizations",
-  // "oauthClientId": "data-space"
 
   onNegotiateClicked(contractOffer: ContractOffer) {
     console.log("Negotiation cliked");
