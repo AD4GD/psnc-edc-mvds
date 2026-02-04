@@ -194,7 +194,7 @@ export class ContractViewerComponent implements OnInit, OnDestroy {
     if(epochSeconds){
       const d = new Date(0);
       d.setUTCSeconds(epochSeconds);
-      return d.toLocaleDateString();
+      return d.toLocaleString();
     }
     return '';
   }

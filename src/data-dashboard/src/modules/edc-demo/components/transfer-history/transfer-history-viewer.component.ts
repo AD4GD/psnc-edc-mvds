@@ -118,6 +118,6 @@ export class TransferHistoryViewerComponent implements OnInit, OnDestroy {
   }
 
   asDate(epochMillis?: number) {
-    return epochMillis ? new Date(epochMillis).toLocaleDateString() : '';
+    return epochMillis ? new Date(epochMillis).toLocaleString() : '';
   }
 }
