@@ -182,6 +182,7 @@ federated_catalog_address: "https://federated-catalog-edc-connector.apps.bst2.pa
 consumer_backend_address: "https://consumer-backend-edc-connector.apps.bst2.paas.psnc.pl"
 consumer_connector_address: "https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl"
 provider_connector_address: "https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl"
+sage_connector_address: "https://sage-connector-edc-connector.apps.bst2.paas.psnc.pl"
 minio_address: "https://minio-edc-connector.apps.bst2.paas.psnc.pl"
 registration_service_backend_address: "https://registration-service-api-edc-connector.apps.bst2.paas.psnc.pl"
 # TODO DV-272 remove KUBECTL_COMMAND
