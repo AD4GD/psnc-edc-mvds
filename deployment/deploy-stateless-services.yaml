@@ -29,6 +29,10 @@
       when: "'providerdashboard' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/provider-connector.yaml
       when: "'connectorprovider' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/sage-dashboard.yaml
+      when: "'sagedashboard' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/sage-connector.yaml
+      when: "'connectorsage' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/consumer-backend.yaml
       when: "'consback' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/federated-catalog.yaml
