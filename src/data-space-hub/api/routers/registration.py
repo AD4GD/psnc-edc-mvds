@@ -5,6 +5,7 @@ from api.core.logging_config import setup_logging
 from api.models.dto.requests import ParticipantCreateRequest
 from api.models.dto.responses import RegistrationRequestResponse, SimpleMessageResponse
 from api.services.app import registration_service
+from api.models.db.registration_request import RegistrationStatus
 
 # from api.services.helper import get_bearer_token, require_admin_token
 from fastapi import APIRouter, Body, Path, Query, Response, status  # , Depends
@@ -71,19 +72,6 @@ async def get_registration(response: Response, request_id: UUID):  # , token: st
     """Get registration request"""
     return await registration_service.get_registration_request("token", response, request_id)
 
-
-@router.put(
-    "/{request_id}/{action}",
-    response_model=SimpleMessageResponse,
-    status_code=status.HTTP_202_ACCEPTED,
-    summary="Accept participant registrattion",
-)
-# Middleware for checking token and a role
-async def registration_action(request_id: UUID, action: str):  # , token: str = Depends(require_admin_token)):
-    """Accept participant registration"""
-    return await registration_service.update_registration_status("token", request_id, action.upper())
-
-
 @router.get(
     "/{request_id}/email-confirm",
     response_model=SimpleMessageResponse,
@@ -103,6 +91,31 @@ async def confirm_email(
 
     return SimpleMessageResponse(message="Email has been confirmed")
 
+@router.put(
+    "/{request_id}/approve",
+    response_model=SimpleMessageResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Accept participant registrattion",
+)
+async def accept_registration(request_id: UUID):
+    # should be protected via JWT-signed token
+    # auth-related logic
+    # token: str = Depends(require_admin_token))
+
+    return await registration_service.update_registration_status(request_id, RegistrationStatus.APPROVED)
+
+@router.put(
+    "/{request_id}/reject",
+    response_model=SimpleMessageResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Reject participant registration",
+)
+async def reject_registration(request_id: UUID):
+    # should be protected via JWT-signed token
+    # auth-related logic
+    # token: str = Depends(require_admin_token))
+
+    return await registration_service.update_registration_status(request_id, RegistrationStatus.REJECTED)
 
 @router.delete(
     "/{request_id}",

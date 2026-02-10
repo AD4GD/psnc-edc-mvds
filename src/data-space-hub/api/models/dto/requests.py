@@ -12,30 +12,35 @@ class LocationRequest(BaseModel):
     street: str = Field(..., max_length=200)
     building_number: Optional[str] = Field(..., max_length=20)
 
-
 class ConnectorRequest(BaseModel):
     did: str = Field(..., description="Participant DID")
     name: Optional[str] = Field(None, description="Participant connector name")
     protocol_url: AnyHttpUrl = Field(..., description="Participant connector protocol URL")
 
+class InsertVcRequest(BaseModel):
+    connector_did: str = Field(..., description="DID of participant owning the connector")
+    identity_hub_identity_url: str = Field(..., description="")
+    identity_hub_api_key: str = Field(..., description="")
+    # if we also create participant context and generate STS secrets
+    # potentially optional fields
+    connector_dsp_url: str = Field(..., description="")
+    connector_management_url: str = Field(..., description="")
+    connector_api_key: str = Field(..., description="")
+    identity_hub_credentials_url: str = Field(..., description="")
+    sts_public_key_pem: str = Field(..., description="")
 
 class ParticipantCreateRequest(BaseModel):
     """Request model for creating a new participant."""
-
-    ums_url: AnyHttpUrl = Field(..., description="Participant User Management Service URL")
-    identity_hub_url: AnyHttpUrl = Field(..., description="Participant Identity Hub URL")
     name: str = Field(..., description="Participant name")
     full_name: str = Field(..., description="Participant full name")
     VAT_number: str = Field(..., description="Participant VAT number")
     email: EmailStr = Field(..., description="Participant contact email")
     location: LocationRequest = Field(None, description="Location info")
-    connector: ConnectorRequest = Field(..., description="Participant connector info")
-
+    data_space_components: InsertVcRequest = Field(..., description="Data Space Components")
 
 class ParticipantUpdateRequest(BaseModel):
     id: str = Field(..., description="Participant UUID")
     identity_hub_url: AnyHttpUrl = Field(..., description="Participant connector protocol URL")
-    ums_url: AnyHttpUrl = Field(..., description="Participant User Management Service URL")
     name: str = Field(..., description="Participant name")
     full_name: str = Field(None, description="Participant full name")
     VAT_number: str = Field(None, description="Participant VAT number")
@@ -49,14 +54,3 @@ class GenerateVcRequest(BaseModel):
     connector_did: str = Field(..., description="DID of participant owning the connector")
     vc_format: str = Field(..., description="vc format")
     credential_type: Literal["MembershipCredential", "DataProcessorCredential"] = Field(..., description="credential type")
-
-class InsertVcRequest(BaseModel):
-    connector_did: str = Field(..., description="DID of participant owning the connector")
-    connector_dsp_url: str = Field(..., description="")
-    connector_management_url: str = Field(..., description="")
-    connector_api_key: str = Field(..., description="")
-    identity_hub_identity_url: str = Field(..., description="")
-    identity_hub_credentials_url: str = Field(..., description="")
-    identity_hub_api_key: str = Field(..., description="")
-    sts_public_key_pem: str = Field(..., description="")
-    generated_vcs: List[Any] = Field(..., description="VC objects")

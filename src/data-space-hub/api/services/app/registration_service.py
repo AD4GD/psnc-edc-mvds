@@ -4,7 +4,7 @@ from api.core.logging_config import setup_logging
 from api.core.settings import ProjectSettings
 from api.exceptions.registration_service_exceptions import RecordNotFoundException
 from api.models.db.registration_request import RegistrationStatus
-from api.models.dto.requests import ParticipantCreateRequest
+from api.models.dto.requests import ParticipantCreateRequest, InsertVcRequest
 from api.models.dto.responses import SimpleMessageResponse
 from api.services.clients import EmailService, async_postgres_service
 from api.services.infrastructure import registration_token_service
@@ -103,26 +103,34 @@ class RegistrationService:
         return await async_postgres_service.get_registration_request_count()
 
     @classmethod
-    async def update_registration_status(cls, token: str, reg_id: str, new_status: str) -> int:
+    async def update_registration_status(cls, reg_id: str, new_status: str) -> int:
         """
         Updates registration status with checking if can change it
         REQUESTED -> APPROVED / REJECTED
         APPROVED -> ONBOARDED
         """
+        logger.info(new_status)
+
         # TODO auth
         if not RegistrationStatus.__includes__(new_status):
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
         target_status = RegistrationStatus.normalize(new_status)
         rr = await async_postgres_service.get_registration_request(reg_id)
 
+        logger.info(rr)
+
         if rr is None:
             return Response(status_code=status.HTTP_204_NO_CONTENT)
-        if target_status in RegistrationStatus.forward_transitions() and not rr.email_confirmed:
+        if not rr.email_confirmed:
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Email not confirmed yet"})
+        
         if RegistrationStatus.can_transition(rr.status, target_status):
             logger.info(f"Updating registration {reg_id} to status {target_status}")
             await async_postgres_service.update_registration_request(reg_id, {"status": target_status})
-            if target_status == RegistrationStatus.APPROVED:
+            if new_status == RegistrationStatus.APPROVED:
+
+                await cls._issue_vc_and_add_to_federated_catalog(rr.request_form['data_space_components'])
+
                 # TODO actual logic to check if all participant's services for connection are working
                 # TODO if services not working then <error_detail> and stay on APPROVED (availability to change it manually from admin dash)
                 logger.info(f"Updating registration {reg_id} to status {RegistrationStatus.ONBOARDED.value}")
@@ -130,10 +138,21 @@ class RegistrationService:
                 participant = await participant_service.register_participant(reg_id=reg_id)
                 if participant is None:
                     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={})  # TODO pottentially add content
-
+            
                 return SimpleMessageResponse(message="Participant onboarded")
             return SimpleMessageResponse(message=f"Status of registration has been changed to {target_status}")
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
+
+    @classmethod
+    async def _issue_vc_and_add_to_federated_catalog(cls, request_form) -> int:
+        
+        insert_vc_request = InsertVcRequest(**request_form)
+
+        from api.services.app.vc_saver_service import vc_saver_service
+        from api.services.clients.federated_catalog_service import federated_catalog_service
+
+        result = await vc_saver_service.create_participant_and_save_vc(insert_vc_request)
+        await federated_catalog_service.create_target_node(insert_vc_request.connector_did, insert_vc_request.connector_dsp_url)
 
     @classmethod
     async def delete_registration_request(cls, token: str, reg_id: str) -> int:

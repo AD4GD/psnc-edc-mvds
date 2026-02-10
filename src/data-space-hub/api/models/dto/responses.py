@@ -3,8 +3,9 @@ from typing import Any, Dict, List, Literal, Optional
 from uuid import UUID
 
 from api.models.db.registration_request import RegistrationStatus
-from pydantic import AnyHttpUrl, BaseModel, Field
-
+from pydantic import AnyHttpUrl, BaseModel, Field, JsonValue, field_validator
+import json
+import ast
 
 class SimpleMessageResponse(BaseModel):
     """Response model for simple messages."""
@@ -43,19 +44,48 @@ class ConnectorResponse(BaseModel):
 
 class ParticipantResponse(BaseModel):
     """Response model for participant information."""
-
     id: str
     name: str
     full_name: str
+    VAT_number: str
     email: str
-    identity_hub_url: AnyHttpUrl
-    ums_url: AnyHttpUrl
+    location_id: str
+    location: LocationResponse
+
     created_at: Optional[datetime] = Field(...)
     updated_at: Optional[datetime] = Field(...)
-    VAT_number: str
-    location: LocationResponse
-    connectors: List[ConnectorResponse]
 
+    data_space_components: dict[str, Any]
+
+    @field_validator("data_space_components", mode="before")
+    @classmethod
+    def parse_components(cls, v):
+        # Already a dict -> ok
+        if isinstance(v, dict):
+            return v
+
+        # If it is a string, try JSON first, then python-literal dict
+        if isinstance(v, str):
+            s = v.strip()
+
+            # 1) Try proper JSON
+            try:
+                return json.loads(s)
+            except Exception:
+                pass
+
+            # 2) Try python dict literal string: "{'a': 1}"
+            try:
+                parsed = ast.literal_eval(s)
+            except Exception as e:
+                raise ValueError(f"data_space_components is not valid JSON or python dict literal: {e}")
+
+            if not isinstance(parsed, dict):
+                raise ValueError("data_space_components must be an object/dict")
+
+            return parsed
+
+        raise ValueError("data_space_components must be dict or string")
 
 class HealthResponse(BaseModel):
     """Response model for health check."""

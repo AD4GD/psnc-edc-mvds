@@ -31,6 +31,8 @@ class RegistrationTokenService:
     @classmethod
     async def is_valid_token(cls, request_id: UUID, token: str):
         token_entry = await registration_token_repository.get(request_id, token)
+        logger.info(token_entry)
+        logger.info(f"{request_id}#{token}")
 
         if token_entry is None:
             return False

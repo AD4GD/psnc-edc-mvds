@@ -35,16 +35,14 @@ class ParticipantService:
                     "id": uuid4(),
                     "name": form["name"],
                     "full_name": form["full_name"],
-                    "identity_hub_url": form["identity_hub_url"],
-                    "ums_url": form["ums_url"],
+                    "data_space_components": form["data_space_components"],
                     "location_id": location.id,
                     "VAT_number": form["VAT_number"],
                     "email": form["email"],
                 },
                 session=session,
             )
-            form["connector"].update({"id": uuid4(), "participant_id": str(participant.id)})
-            await async_postgres_service.create_connector(form["connector"], session=session)
+
         EmailService.send_email(
             [form["email"]],
             "Data Space - Onboarding",

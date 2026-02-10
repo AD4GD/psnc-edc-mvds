@@ -42,7 +42,7 @@ class RegistrationTokenRepository:
                 .where(
                     RegistrationToken.request_id == request_id,
                     RegistrationToken.token == token_hash,
-                    RegistrationToken.consumed_at is None
+                    RegistrationToken.consumed_at.is_(None)
                 )
                 .limit(1)
             )

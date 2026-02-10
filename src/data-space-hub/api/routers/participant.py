@@ -11,7 +11,6 @@ from fastapi import APIRouter, Body, Depends, status
 logger = setup_logging()
 router = APIRouter(prefix="/participants", tags=["Participant"])
 
-
 @router.get(
     "/list",
     response_model=List[ParticipantResponse],
