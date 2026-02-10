@@ -17,34 +17,35 @@ logger = setup_logging()
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
-    logger.info("Initializing Vault...")
-    try:
-        logger.info("Waiting for dependent services to initialize...")
-        await asyncio.sleep(20)
-        summary = initialize_vault(create_default_keys=True)
-        logger.info(f"Vault initialized: {summary}")
-    except Exception as e:
-        logger.error(f"Vault initialization failed: {e}")
-        # Decide if you want to fail fast or continue
-        raise
+    if (ProjectSettings.is_skip_init == False):
+        logger.info("Initializing Vault...")
+        try:
+            logger.info("Waiting for dependent services to initialize...")
+            await asyncio.sleep(20)
+            summary = initialize_vault(create_default_keys=True)
+            logger.info(f"Vault initialized: {summary}")
+        except Exception as e:
+            logger.error(f"Vault initialization failed: {e}")
+            # Decide if you want to fail fast or continue
+            raise
 
-    logger.info("Requesting VCs set...")
-    try:
-        logger.info("Waiting for dependent services to initialize...")
-        await asyncio.sleep(15)
+        logger.info("Requesting VCs set...")
+        try:
+            logger.info("Waiting for dependent services to initialize...")
+            await asyncio.sleep(15)
 
-        summary = await federated_catalog_service.request_and_save_vc_set()
-        logger.info(f"VCs has been saved: {summary}")
-    except Exception as e:
-        logger.error(f"VCs set initialization failed: {e}")
-        # Decide if you want to fail fast or continue
-        raise
+            summary = await federated_catalog_service.request_and_save_vc_set()
+            logger.info(f"VCs has been saved: {summary}")
+        except Exception as e:
+            logger.error(f"VCs set initialization failed: {e}")
+            # Decide if you want to fail fast or continue
+            raise
 
-    # Check health
-    if vault_service.health():
-        logger.info("✅ Vault is healthy and ready")
-    else:
-        logger.warning("⚠️  Vault health check failed")
+        # Check health
+        if vault_service.health():
+            logger.info("✅ Vault is healthy and ready")
+        else:
+            logger.warning("⚠️  Vault health check failed")
 
     yield
 

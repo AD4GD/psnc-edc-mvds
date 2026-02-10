@@ -4,7 +4,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from api.core.database import AsyncSessionLocal
 from api.core.logging_config import setup_logging
-from api.models.db import Connector, IssuedCredentials, Location, Participant, RegistrationRequest
+from api.models.db import IssuedCredentials, Location, Participant, RegistrationRequest
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -172,96 +172,11 @@ class AsyncPostgresService:
                 logger.error("Failed to delete location")
                 return False
 
-    # --- Connector helpers ---
-    async def create_connector(self, connector_data: Dict[str, Any], session: Optional[AsyncSession] = None) -> Connector:
-        """Insert new connector record. Optionally uses provided session (for transactions)."""
-
-        async def _create(sess: AsyncSession) -> Connector:
-            conn = Connector(**connector_data)
-            sess.add(conn)
-            await sess.flush()
-            await sess.refresh(conn)
-            return conn
-
-        if session:
-            return await _create(session)
-        else:
-            async with self.session_factory() as sess:
-                try:
-                    result = await _create(sess)
-                    await sess.commit()
-                    return result
-                except Exception:  # pylint: disable=W0718
-                    await sess.rollback()
-                    logger.error("Failed to create connector")
-                    return None
-
-    async def get_connector(self, connector_id) -> Optional[Connector]:
-        """Get connector by ID."""
-        async with self.session_factory() as session:
-            return await session.get(Connector, connector_id)
-
-    async def get_connector_by_did(self, did: str) -> Optional[Connector]:
-        """Get connector by DID (unique)."""
-        async with self.session_factory() as session:
-            result = await session.execute(select(Connector).where(Connector.did == did))
-            return result.scalars().first()
-
-    async def list_connectors(self, offset: int = 0, limit: int | None = None) -> List[Connector]:
-        """Fetch paginated list of connectors."""
-        async with self.session_factory() as session:
-            result = await session.execute(select(Connector).offset(offset).limit(limit))
-            return result.scalars().all()
-
-    async def get_connectors_count(self) -> int:
-        async with self.session_factory() as session:
-            stmt = select(func.count()).select_from(Connector)
-            result = await session.execute(stmt)
-            count = result.scalar_one()
-            return count or 0
-
-    async def get_connectors_count_by_participant(self, participant_id: str) -> int:
-        async with self.session_factory() as session:
-            stmt = select(func.count()).select_from(Connector).where(Connector.participant_id == participant_id)
-            result = await session.execute(stmt)
-            count = result.scalar_one()
-            return count or 0
-
-    async def list_connectors_by_participant(self, participant_id: str, offset: int = 0, limit: int | None = None) -> List[Connector]:
-        """Fetch paginated list of connectors for a given participant."""
-        async with self.session_factory() as session:
-            stmt = select(Connector).where(Connector.participant_id == participant_id).offset(offset).limit(limit)
-            result = await session.execute(stmt)
-            return result.scalars().all()
-
-    async def update_connector(self, connector_id, fields: Dict[str, Any]) -> Optional[Connector]:
-        """Partial update of connector fields."""
-        async with self.session_factory() as session:
-            try:
-                await session.execute(update(Connector).where(Connector.id == connector_id).values(**{**fields}))
-                await session.commit()
-                return await session.get(Connector, connector_id)
-            except Exception:
-                await session.rollback()
-                logger.error("Failed to update connector")
-                raise
-
-    async def delete_connector(self, connector_id) -> bool:
-        """Delete connector by id."""
-        async with self.session_factory() as session:
-            try:
-                await session.execute(delete(Connector).where(Connector.id == connector_id))
-                await session.commit()
-                return True
-            except Exception:  # pylint: disable=W0718
-                await session.rollback()
-                logger.error("Failed to delete connector")
-                return False
-
     # --- RegistrationRequest / IssuedCredential helpers ---
     async def create_registration_request(self, data: Dict[str, Any]) -> RegistrationRequest:
         """Create a registration request audit row."""
         async with self.session_factory() as session:
+            logger.info(data)
             req = RegistrationRequest(**data)
             session.add(req)
             try:

@@ -3,7 +3,7 @@ TEMPLATE = """
   "credentialSubject": [
     {credential_props}
   ],
-  "id": "http://org.yourdataspace.com/credentials/1265",
+  "id": {vc_id},
   "type": [
     "VerifiableCredential",
     {credential_type}

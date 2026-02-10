@@ -141,6 +141,7 @@ class VcGeneratorService:
             vc_credential_str = render_json_template_string(
                 jsonld_vc_credential_template,
                 JsonLdDict(
+                    vc_id=credential_uuid,
                     credential_props=cred_props_json,
                     credential_type=credential_type,
                     issuer_did=VerifiableCredentialsSettings.vc_issuer_did,

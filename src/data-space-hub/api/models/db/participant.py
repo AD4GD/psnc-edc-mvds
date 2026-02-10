@@ -2,7 +2,7 @@ from typing import Any, Dict, TypedDict
 from uuid import uuid4
 
 from api.core.database import Base
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, text
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, text, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -12,8 +12,7 @@ class ParticipantDict(TypedDict):
     name: str
     full_name: str
     VAT_number: str
-    identity_hub_url: str
-    ums_url: str
+    data_space_components: JSON
     email: str
     location_id: str
     location: Dict[str, Any]
@@ -28,12 +27,10 @@ class Participant(Base):
     name = Column(String(255), nullable=False)  # nickname or shorten organization name
     full_name = Column(String(500), nullable=False)  # full name of the organization
     VAT_number = Column(String(50), nullable=False)  # VAT number if applicable
-    identity_hub_url = Column(String, nullable=False)
-    ums_url = Column(String, nullable=False)
+    data_space_components = Column(JSON, nullable=True)
     email = Column(String(255), nullable=False)
     location_id = Column(UUID(as_uuid=True), ForeignKey("location.id"), nullable=True)
     location = relationship("Location", lazy="subquery")
-    connectors = relationship("Connector", back_populates="participant")
 
     created_at = Column(TIMESTAMP(timezone=True), default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), default=text("now()"), onupdate=text("now()"))
@@ -44,12 +41,10 @@ class Participant(Base):
             "name": f"{self.name}",
             "full_name": f"{self.full_name}",
             "VAT_number": f"{self.VAT_number}",
-            "identity_hub_url": f"{self.identity_hub_url}",
-            "ums_url": f"{self.ums_url}",
+            "data_space_components": f"{self.data_space_components}",
             "email": f"{self.email}",
             "location_id": f"{self.location_id}",
             "location": self.location.to_dict(),
-            "connectors": [connector.to_dict() for connector in self.connectors],
             "created_at": f"{self.created_at}",
             "updated_at": f"{self.updated_at}",
         }
