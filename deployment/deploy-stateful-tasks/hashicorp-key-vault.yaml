@@ -142,7 +142,7 @@
               - name: vault
                 image: "hashicorp/vault:{{ vault_image_tag_eff }}"
                 imagePullPolicy: Always
-                args: ["server", "-config=/vault/config/vault.hcl"]
+                args: ["server", "-config=/etc/vault/vault.hcl"]
                 ports:
                   - name: vault-http
                     containerPort: 8200
@@ -163,7 +163,7 @@
                   runAsNonRoot: false
                 volumeMounts:
                   - name: vault-config
-                    mountPath: /vault/config
+                    mountPath: /etc/vault
                     readOnly: true
                   - name: vault-data
                     mountPath: /vault/data
@@ -181,6 +181,9 @@
               - name: vault-config
                 configMap:
                   name: "{{ vault_name }}-config"
+                  items:
+                    - key: vault.hcl
+                      path: vault.hcl
         volumeClaimTemplates:
           - metadata:
               name: vault-data
