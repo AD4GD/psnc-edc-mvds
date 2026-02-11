@@ -6,6 +6,7 @@
     vault_replicas_eff: "{{ vault_replicas | default(3) }}"
     vault_image_tag_eff: "{{ vault_image_tag | default('1.16.3') }}"
     vault_storage_eff: "{{ vault_pvc_storage_size | default('1Gi') }}"
+    vault_pvc_storage_class_name: "standard"
 
 # -----------------------------
 # ConfigMap with raft config
