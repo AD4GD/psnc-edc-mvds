@@ -123,7 +123,7 @@
           vault_instance: "{{ vault_instance }}"
       spec:
         serviceName: "{{ vault_headless_svc }}"
-        replicas: {{ vault_replicas_eff | int }}
+        replicas: 3
         selector:
           matchLabels:
             application: "{{ application }}"
