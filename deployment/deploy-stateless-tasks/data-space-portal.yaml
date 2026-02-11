@@ -1,0 +1,138 @@
+- name: Set app.config.json for dataspaceportal
+  ansible.builtin.set_fact:
+    app_config_json: "{{ dataspaceportal_app_config_obj | to_nice_json }}"
+
+- name: "deploy configmap/{{ application }}-dataspaceportal"
+  tags:
+    - dataspaceportal
+    - configmap
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application }}-dataspaceportal-config"
+        labels:
+          application: "{{ application }}"
+      data:
+        # JSON is already a string from to_nice_json above; don't encode twice.
+        app.config.json: "{{ app_config_json }}"
+        nginx.conf: |
+          events {}
+          pid /tmp/nginx.pid;
+          http {
+            include /etc/nginx/mime.types;
+            server {
+              listen 8080;
+              server_name {{ data_space_portal_address_shorten }};
+              root /usr/share/nginx/html;
+              index index.html;
+              access_log off;
+
+              # React SPA routing
+              location / {
+                try_files $uri $uri/ /index.html;
+              }
+
+              # Optional: if the portal calls backend APIs via nginx
+              # Adjust/remove these if your portal doesn't need them.
+              location /management {
+                proxy_pass {{ consumer_connector_address }}/management;
+              }
+              location /catalog {
+                proxy_pass {{ federated_catalog_address }}/catalog;
+              }
+            }
+          }
+
+- name: "deploy deployment/{{ application }}-dataspaceportal"
+  tags:
+    - dataspaceportal
+    - deployment
+  k8s:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-dataspaceportal"
+        labels:
+          component: dataspaceportal
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: dataspaceportal
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: dataspaceportal
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (dataspaceportal_configmap_digest + dataspaceportal_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            containers:
+              - name: "dataspaceportal"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-space-portal:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                resources: "{{ dataspaceportal_resources }}"
+                envFrom:
+                  - secretRef:
+                      name: "{{ application }}-dataspaceportal"
+                      optional: true
+                  - configMapRef:
+                      name: "{{ application }}-dataspaceportal-config"
+                      optional: true
+                ports:
+                  - name: "www"
+                    containerPort: 8080
+                    protocol: "TCP"
+                volumeMounts:
+                  - name: "dataspaceportal-tmp"
+                    mountPath: "/tmp"
+                  - name: "dataspaceportal-nginx-config"
+                    mountPath: "/etc/nginx/nginx.conf"
+                    subPath: "nginx.conf"
+                  - name: "dataspaceportal-app-config"
+                    mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                    subPath: "app.config.json"
+            volumes:
+              - name: "dataspaceportal-tmp"
+                emptyDir:
+                  medium: "Memory"
+              - name: "dataspaceportal-nginx-config"
+                configMap:
+                  name: "{{ application }}-dataspaceportal-config"
+              - name: "dataspaceportal-app-config"
+                configMap:
+                  name: "{{ application }}-dataspaceportal-config"
+
+- name: "deploy service/{{ application }}-dataspaceportal"
+  tags:
+    - dataspaceportal
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-dataspaceportal"
+        labels:
+          application: "{{ application }}"
+          component: dataspaceportal
+      spec:
+        ports:
+          - name: "www"
+            port: 8080
+            targetPort: "www"
+        selector:
+          application: "{{ application }}"
+          component: dataspaceportal

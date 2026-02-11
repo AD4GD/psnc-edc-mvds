@@ -1,0 +1,106 @@
+- name: "deploy deployment/{{ application }}-identityhubconsumer"
+  tags:
+    - connector
+    - identityhubconsumer
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-identityhubconsumer"
+        labels:
+          component: identityhubconsumer
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: identityhubconsumer
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: identityhubconsumer
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (identityhubconsumer_configmap_digest + identityhubconsumer_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "api"
+                containerPort: 7080
+                protocol: "TCP"
+              - name: "credentials"
+                containerPort: 7081
+                protocol: "TCP"
+              - name: "identity"
+                containerPort: 7082
+                protocol: "TCP"
+              - name: "did"
+                containerPort: 7083
+                protocol: "TCP"
+              - name: "version"
+                containerPort: 7085
+                protocol: "TCP"
+              - name: "sts"
+                containerPort: 7086
+                protocol: "TCP"
+            containers:
+              - name: "identityhubconsumer"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ identityhubconsumer_resources }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-identityhubconsumer"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-identityhubconsumer"
+                      optional: true
+                volumeMounts:
+                  - name: "identityhubconsumer-tmp"
+                    mountPath: "/tmp"
+            volumes:
+              - name: "identityhubconsumer-tmp"
+                emptyDir:
+                  medium: "Memory"
+
+- name: "deploy service/{{ application }}-identityhubconsumer"
+  tags:
+    - connector
+    - identityhubconsumer
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-identityhubconsumer"
+        labels:
+          application: "{{ application }}"
+          component: identityhubconsumer
+      spec:
+        ports:
+          - name: "api"
+            port: 7080
+          - name: "credentials"
+            port: 7081
+          - name: "identity"
+            port: 7082
+          - name: "did"
+            port: 7083
+          - name: "version"
+            port: 7085
+          - name: "sts"
+            port: 7085
+        selector:
+          application: "{{ application }}"
+          component: identityhubconsumer
