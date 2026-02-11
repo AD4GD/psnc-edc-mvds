@@ -1,21 +1,22 @@
-- name: Set app.config.json with auth
-  set_fact:
-    app_config_json: "{{ provider_dashboard_app_config_obj | to_nice_json }}"
+- name: Set app.config.json for dataspaceportal
+  ansible.builtin.set_fact:
+    app_config_json: "{{ dataspaceportal_app_config_obj | to_nice_json }}"
 
-- name: "deploy configmap/{{ application }}-providerdashboard"
+- name: "deploy configmap/{{ application }}-dataspaceportal"
   tags:
-    - providerdashboard
+    - dataspaceportal
     - configmap
   k8s:
     definition:
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: "{{ application }}-providerdashboard-config"
+        name: "{{ application }}-dataspaceportal-config"
         labels:
           application: "{{ application }}"
       data:
-        app.config.json: "{{ app_config_json | to_nice_json }}"
+        # JSON is already a string from to_nice_json above; don't encode twice.
+        app.config.json: "{{ app_config_json }}"
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
@@ -23,15 +24,20 @@
             include /etc/nginx/mime.types;
             server {
               listen 8080;
-              server_name {{ provider_dashboard_address_shorten }};
+              server_name {{ data_space_portal_address_shorten }};
               root /usr/share/nginx/html;
               index index.html;
               access_log off;
+
+              # React SPA routing
               location / {
                 try_files $uri $uri/ /index.html;
               }
+
+              # Optional: if the portal calls backend APIs via nginx
+              # Adjust/remove these if your portal doesn't need them.
               location /management {
-                proxy_pass {{ provider_connector_address }}/management;
+                proxy_pass {{ consumer_connector_address }}/management;
               }
               location /catalog {
                 proxy_pass {{ federated_catalog_address }}/catalog;
@@ -39,18 +45,18 @@
             }
           }
 
-- name: "deploy deployment/{{ application }}-providerdashboard"
+- name: "deploy deployment/{{ application }}-dataspaceportal"
   tags:
-    -providerdashboard
+    - dataspaceportal
     - deployment
   k8s:
     definition:
-      apiVersion: v1
+      apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: "{{ application }}-providerdashboard"
+        name: "{{ application }}-dataspaceportal"
         labels:
-          component: providerdashboard
+          component: dataspaceportal
           application: "{{ application }}"
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -59,74 +65,74 @@
           type: RollingUpdate
         selector:
           matchLabels:
-            component: providerdashboard
+            component: dataspaceportal
             application: "{{ application }}"
         template:
           metadata:
             labels:
-              component: providerdashboard
+              component: dataspaceportal
               application: "{{ application }}"
               image_tag: "{{ stateless_services_image_tag }}"
-              parameters_digest: "{{ (providerdashboard_configmap_digest + providerdashboard_secret_digest)|hash('sha1') }}"
+              parameters_digest: "{{ (dataspaceportal_configmap_digest + dataspaceportal_secret_digest)|hash('sha1') }}"
           spec:
             serviceAccountName: "run-any-uid"
-            ports:
-              - name: "www"
-                containerPort: 80
-                protocol: "TCP"
             containers:
-              - name: "providerdashboard"
-                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-dashboard:{{ stateless_services_image_tag }}"
+              - name: "dataspaceportal"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-space-portal:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
-                # runAsUser: 1000
-                resources: "{{ providerdashboard_resources }}"
+                resources: "{{ dataspaceportal_resources }}"
                 envFrom:
                   - secretRef:
-                      name: "{{ application }}-providerdashboard"
+                      name: "{{ application }}-dataspaceportal"
                       optional: true
                   - configMapRef:
-                      name: "{{ application }}-providerdashboard-config"
+                      name: "{{ application }}-dataspaceportal-config"
                       optional: true
+                ports:
+                  - name: "www"
+                    containerPort: 8080
+                    protocol: "TCP"
                 volumeMounts:
-                  - name: "providerdashboard-tmp"
+                  - name: "dataspaceportal-tmp"
                     mountPath: "/tmp"
-                  - name: "providerdashboard-nginx-config"
+                  - name: "dataspaceportal-nginx-config"
                     mountPath: "/etc/nginx/nginx.conf"
                     subPath: "nginx.conf"
-                  - name: "providerdashboard-app-config"
+                  - name: "dataspaceportal-app-config"
                     mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
                     subPath: "app.config.json"
             volumes:
-              - name: "providerdashboard-tmp"
+              - name: "dataspaceportal-tmp"
                 emptyDir:
                   medium: "Memory"
-              - name: "providerdashboard-nginx-config"
+              - name: "dataspaceportal-nginx-config"
                 configMap:
-                  name: "{{ application }}-providerdashboard-config"
-              - name: "providerdashboard-app-config"
+                  name: "{{ application }}-dataspaceportal-config"
+              - name: "dataspaceportal-app-config"
                 configMap:
-                  name: "{{ application }}-providerdashboard-config"
+                  name: "{{ application }}-dataspaceportal-config"
 
-- name: "deploy service/{{ application }}-providerdashboard"
+- name: "deploy service/{{ application }}-dataspaceportal"
   tags:
-    - providerdashboard
+    - dataspaceportal
     - service
   k8s:
     definition:
       apiVersion: v1
       kind: Service
       metadata:
-        name: "{{ application }}-providerdashboard"
+        name: "{{ application }}-dataspaceportal"
         labels:
           application: "{{ application }}"
-          component: providerdashboard
+          component: dataspaceportal
       spec:
         ports:
           - name: "www"
             port: 8080
+            targetPort: "www"
         selector:
           application: "{{ application }}"
-          component: providerdashboard
+          component: dataspaceportal

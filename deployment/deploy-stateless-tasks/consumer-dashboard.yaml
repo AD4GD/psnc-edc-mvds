@@ -1,28 +1,6 @@
 - name: Set app.config.json with auth
   set_fact:
-    app_config_json: |
-      {
-        "managementApiUrl": "{{ consumer_connector_address }}/management",
-        "catalogUrl": "{{ federated_catalog_address }}/catalog",
-        "theme": "theme-3",
-        "deploymentMode": "production",
-        "backendUrl": "{{ consumer_backend_address }}/edr-endpoint",
-        "oauthIssuer": "{{ identity_provider_address }}/realms/Organizations",
-        "oauthClientId": "data-space"
-      }
-  when: is_auth
-
-- name: Set app.config.json without auth
-  set_fact:
-    app_config_json: |
-      {
-        "managementApiUrl": "{{ consumer_connector_address }}/management",
-        "catalogUrl": "{{ federated_catalog_address }}/catalog",
-        "theme": "theme-3",
-        "deploymentMode": "production",
-        "backendUrl": "{{ consumer_backend_address }}/edr-endpoint"
-      }
-  when: not is_auth
+    app_config_json: "{{ consumer_dashboard_app_config_obj | to_nice_json }}"
 
 - name: "deploy configmap/{{ application }}-consumerdashboard"
   tags:
