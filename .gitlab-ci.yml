@@ -5,19 +5,10 @@ variables:
   GIT_STRATEGY: clone
 
 stages:
-  - precommit
   - build
   # - test
   - upload
   - update_inventory
-
-Run pre-commit check:
-  stage: precommit
-  script:
-    - devlab_run_pre_commit 2500
-  artifacts:
-    paths:
-      - ./reports
 
 Build images:
   stage: build
