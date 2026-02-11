@@ -159,8 +159,8 @@
                     value: "http://127.0.0.1:8200"
                 resources: "{{ vault_resources | default({}) }}"
                 securityContext:
-                  readOnlyRootFilesystem: false
-                  runAsNonRoot: false
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
                 volumeMounts:
                   - name: vault-config
                     mountPath: /etc/vault
@@ -178,12 +178,14 @@
                   initialDelaySeconds: 30
                   periodSeconds: "{{ liveness_probe_period }}"
             volumes:
-              - name: vault-config
+              - name: vault-config-ro
                 configMap:
                   name: "{{ vault_name }}-config"
                   items:
                     - key: vault.hcl
                       path: vault.hcl
+              - name: vault-config
+                emptyDir: {}
         volumeClaimTemplates:
           - metadata:
               name: vault-data
