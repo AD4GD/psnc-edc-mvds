@@ -100,7 +100,7 @@
           - name: "version"
             port: 7085
           - name: "sts"
-            port: 7085
+            port: 7086
         selector:
           application: "{{ application }}"
           component: identityhubconsumer
