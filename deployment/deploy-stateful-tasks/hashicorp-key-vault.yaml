@@ -122,7 +122,7 @@
           vault_instance: "{{ vault_instance }}"
       spec:
         serviceName: "{{ vault_headless_svc }}"
-        replicas: "{{ vault_replicas_eff }}"
+        replicas: "{{ vault_replicas_eff | int }}"
         selector:
           matchLabels:
             application: "{{ application }}"
@@ -189,7 +189,7 @@
                 vault_instance: "{{ vault_instance }}"
             spec:
               accessModes: ["ReadWriteOnce"]
-              storageClassName: "{{ vault_pvc_storage_class_name | default(omit) }}"
+              storageClassName: "{{ vault_pvc_storage_class_name }}"
               resources:
                 requests:
                   storage: "{{ vault_storage_eff }}"
