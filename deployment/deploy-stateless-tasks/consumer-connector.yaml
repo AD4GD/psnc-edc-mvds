@@ -68,9 +68,8 @@
                 image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
-                  readOnlyRootFilesystem: false
+                  readOnlyRootFilesystem: true
                   runAsNonRoot: true
-                  runAsUser: 1000
                 resources: "{{ connectorconsumer_resources }}"
                 envFrom:
                   - configMapRef:
