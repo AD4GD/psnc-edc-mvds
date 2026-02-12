@@ -77,8 +77,9 @@
                 image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/federated-catalog:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
-                  readOnlyRootFilesystem: true
+                  readOnlyRootFilesystem: false
                   runAsNonRoot: true
+                  runAsUser: 1000
                 resources: "{{ federatedcatalog_resources }}"
                 envFrom:
                   - configMapRef:
