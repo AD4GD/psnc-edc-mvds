@@ -26,13 +26,13 @@
       data:
         vault.hcl: |
           ui = true
-
+          disable_mlock = true
           listener "tcp" {
             address     = "0.0.0.0:8200"
             tls_disable = 1
           }
 
-          storage "raft" {
+          storage "file" {
             path = "/vault/data"
 
             # Peer discovery via headless service DNS.
@@ -157,15 +157,17 @@
                         fieldPath: metadata.name
                   - name: VAULT_ADDR
                     value: "http://127.0.0.1:8200"
+                  - name: SKIP_SETCAP
+                    value: 'true'
                 resources: "{{ vault_resources | default({}) }}"
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
                   runAsUser: 1000
                 volumeMounts:
-                  - name: vault-config
-                    mountPath: /etc/vault
+                  - name: vault-config-ro
                     readOnly: true
+                    mountPath: /etc/vault
                   - name: vault-data
                     mountPath: /vault/data
                 readinessProbe:
@@ -185,8 +187,6 @@
                   items:
                     - key: vault.hcl
                       path: vault.hcl
-              - name: vault-config
-                emptyDir: {}
         volumeClaimTemplates:
           - metadata:
               name: vault-data
