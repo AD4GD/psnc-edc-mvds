@@ -159,8 +159,9 @@
                     value: "http://127.0.0.1:8200"
                 resources: "{{ vault_resources | default({}) }}"
                 securityContext:
-                  readOnlyRootFilesystem: true
+                  readOnlyRootFilesystem: false
                   runAsNonRoot: true
+                  runAsUser: 1000
                 volumeMounts:
                   - name: vault-config
                     mountPath: /etc/vault
