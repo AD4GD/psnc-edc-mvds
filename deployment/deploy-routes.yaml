@@ -1,24 +1,40 @@
-- name: Create OpenShift Routes
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: route.openshift.io/v1
-      kind: Route
-      metadata:
-        name: "{{ item.name }}"
-        namespace: "{{ k8s_namespace }}"
-        labels:
-          app.kubernetes.io/part-of: "{{ application }}"
-      spec:
-        host: "{{ item.host }}"
-        to:
-          kind: Service
-          name: "{{ item.service }}"
-        port:
-          targetPort: "{{ item.target_port | default('http') }}"
-        tls:
-          termination: edge
-          insecureEdgeTerminationPolicy: Allow
-  loop: "{{ routes }}"
-  loop_control:
-    label: "{{ item.name }}"
+---
+- name: deploy routes
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
+
+  module_defaults:
+    k8s:
+      wait: true
+      wait_timeout: "{{ k8s_wait_timeout }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    - name: "deploy routes loop"
+      tags:
+        - route
+      k8s:
+        state: present
+        definition:
+          apiVersion: route.openshift.io/v1
+          kind: Route
+          metadata:
+            name: "{{ item.name }}"
+            namespace: "{{ k8s_namespace }}"
+            labels:
+              application: "{{ application }}"
+              app.kubernetes.io/part-of: "{{ application }}"
+          spec:
+            host: "{{ item.host }}"
+            path: "{{ item.path | default(omit) }}"
+            to:
+              kind: Service
+              name: "{{ item.service }}"
+            port:
+              targetPort: "{{ item.target_port | default('http') }}"
+            tls:
+              termination: "{{ item.tls_termination | default('edge') }}"
+              insecureEdgeTerminationPolicy: "{{ item.insecure_policy | default('Allow') }}"
+      loop: "{{ routes }}"
+      loop_control:
+        label: "{{ item.name }}"
