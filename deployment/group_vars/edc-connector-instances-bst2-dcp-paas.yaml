@@ -250,3 +250,286 @@ deployed_parameters_packs: "{{ ['connectorconsumer', 'identityhubconsumer', 'con
 # definitions below are helper definitions - do not change this
 
 # DO NOT CHANGE DEFINITIONS ABOVE
+
+routes:
+  # consumer connector
+  - name: consumer-connector-api
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}/api"
+    service: "{{ application }}-connectorconsumer"
+    target_port: api
+
+  - name: consumer-connector-management
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}/api/management"
+    service: "{{ application }}-connectorconsumer"
+    target_port: management
+
+  - name: consumer-connector-dsp
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}/api/dsp"
+    service: "{{ application }}-connectorconsumer"
+    target_port: dsp
+
+  - name: consumer-connector-control
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}/api/control"
+    service: "{{ application }}-connectorconsumer"
+    target_port: control
+
+  - name: consumer-connector-catalog
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}/api/catalog"
+    service: "{{ application }}-connectorconsumer"
+    target_port: catalog
+
+  - name: consumer-connector-version
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}/api/version"
+    service: "{{ application }}-connectorconsumer"
+    target_port: version
+
+  - name: consumer-connector-public
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}/api/public"
+    service: "{{ application }}-connectorconsumer"
+    target_port: public
+
+  # consumer dashboard
+  - name: consumer-dashboard
+    host: "{{ consumer_dashboard_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-consumerdashboard"
+    target_port: www
+
+  # consumer ih
+  - name: consumer-identity-hub-api
+    host: "{{ consumer_identity_hub_address | regex_replace('^https?://', '') }}/api"
+    service: "{{ application }}-identityhubconsumer"
+    target_port: api
+
+  - name: consumer-identity-hub-credentials
+    host: "{{ consumer_identity_hub_address | regex_replace('^https?://', '') }}/api/credentials"
+    service: "{{ application }}-identityhubconsumer"
+    target_port: credentials
+
+  - name: consumer-identity-hub-identity
+    host: "{{ consumer_identity_hub_address | regex_replace('^https?://', '') }}/api/identity"
+    service: "{{ application }}-identityhubconsumer"
+    target_port: identity
+
+  - name: consumer-identity-hub-did
+    host: "{{ consumer_identity_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-identityhubconsumer"
+    target_port: did
+
+  - name: consumer-identity-hub-version
+    host: "{{ consumer_identity_hub_address | regex_replace('^https?://', '') }}/api/version"
+    service: "{{ application }}-identityhubconsumer"
+    target_port: version
+
+  - name: consumer-identity-hub-sts
+    host: "{{ consumer_identity_hub_address | regex_replace('^https?://', '') }}/api/sts"
+    service: "{{ application }}-identityhubconsumer"
+    target_port: sts
+
+  # consumer kv
+  - name: consumer-key-vault
+    host: "{{ consumer_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultconsumer"
+    target_port: vault-http
+
+  # consumer keycloak
+  - name: consumer-keycloak
+    host: "{{ consumer_identity_provider_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultconsumer"
+    target_port: keycloak-https
+
+  # consumer minio
+  - name: consumer-minio
+    host: "{{ minio_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-minio"
+    target_port: minio-http
+
+  # consumer backend
+  - name: consumer-backend
+    host: "{{ consumer_backend_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-consback"
+    target_port: receiver
+
+  # provider connector
+  - name: provider-connector-api
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}/api"
+    service: "{{ application }}-connectorprovider"
+    target_port: api
+
+  - name: provider-connector-management
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}/api/management"
+    service: "{{ application }}-connectorprovider"
+    target_port: management
+
+  - name: provider-connector-dsp
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}/api/dsp"
+    service: "{{ application }}-connectorprovider"
+    target_port: dsp
+
+  - name: provider-connector-control
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}/api/control"
+    service: "{{ application }}-connectorprovider"
+    target_port: control
+
+  - name: provider-connector-catalog
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}/api/catalog"
+    service: "{{ application }}-connectorprovider"
+    target_port: catalog
+
+  - name: provider-connector-version
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}/api/version"
+    service: "{{ application }}-connectorprovider"
+    target_port: version
+
+  - name: provider-connector-public
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}/api/public"
+    service: "{{ application }}-connectorprovider"
+    target_port: public
+
+  # provider dashboard
+  - name: provider-dashboard
+    host: "{{ provider_dashboard_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-providerdashboard"
+    target_port: www
+
+  # provider ih
+  - name: provider-identity-hub-api
+    host: "{{ provider_identity_hub_address | regex_replace('^https?://', '') }}/api"
+    service: "{{ application }}-identityhubprovider"
+    target_port: api
+
+  - name: provider-identity-hub-credentials
+    host: "{{ provider_identity_hub_address | regex_replace('^https?://', '') }}/api/credentials"
+    service: "{{ application }}-identityhubprovider"
+    target_port: credentials
+
+  - name: provider-identity-hub-identity
+    host: "{{ provider_identity_hub_address | regex_replace('^https?://', '') }}/api/identity"
+    service: "{{ application }}-identityhubprovider"
+    target_port: identity
+
+  - name: provider-identity-hub-did
+    host: "{{ provider_identity_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-identityhubprovider"
+    target_port: did
+
+  - name: provider-identity-hub-version
+    host: "{{ provider_identity_hub_address | regex_replace('^https?://', '') }}/api/version"
+    service: "{{ application }}-identityhubprovider"
+    target_port: version
+
+  - name: provider-identity-hub-sts
+    host: "{{ provider_identity_hub_address | regex_replace('^https?://', '') }}/api/sts"
+    service: "{{ application }}-identityhubprovider"
+    target_port: sts
+
+  # provider kv
+  - name: provider-key-vault
+    host: "{{ provider_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultprovider"
+    target_port: vault-http
+
+  # provider keycloak
+  - name: provider-keycloak
+    host: "{{ provider_identity_provider_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultprovider"
+    target_port: keycloak-https
+
+  # federated catalog
+  - name: federated-catalog-api
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api"
+    service: "{{ application }}-federatedcatalog"
+    target_port: api
+
+  - name: federated-catalog-management
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api/management"
+    service: "{{ application }}-federatedcatalog"
+    target_port: management
+
+  - name: federated-catalog-dsp
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api/dsp"
+    service: "{{ application }}-federatedcatalog"
+    target_port: dsp
+
+  - name: federated-catalog-control
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api/control"
+    service: "{{ application }}-federatedcatalog"
+    target_port: control
+
+  - name: federated-catalog-catalog
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api/catalog"
+    service: "{{ application }}-federatedcatalog"
+    target_port: catalog
+
+  - name: federated-catalog-version
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api/version"
+    service: "{{ application }}-federatedcatalog"
+    target_port: version
+
+  - name: federated-catalog-targets
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api/targets"
+    service: "{{ application }}-federatedcatalog"
+    target_port: targets
+
+  - name: federated-catalog-public
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}/api/public"
+    service: "{{ application }}-federatedcatalog"
+    target_port: public
+
+  # federated catalog identity hub
+  - name: federated-catalog-identity-hub-api
+    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api"
+    service: "{{ application }}-identityhubfederatedcatalog"
+    target_port: api
+
+  - name: federated-catalog-identity-hub-credentials
+    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/credentials"
+    service: "{{ application }}-identityhubfederatedcatalog"
+    target_port: credentials
+
+  - name: federated-catalog-identity-hub-identity
+    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/identity"
+    service: "{{ application }}-identityhubfederatedcatalog"
+    target_port: identity
+
+  - name: federated-catalog-identity-hub-did
+    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-identityhubfederatedcatalog"
+    target_port: did
+
+  - name: federated-catalog-identity-hub-version
+    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/version"
+    service: "{{ application }}-identityhubfederatedcatalog"
+    target_port: version
+
+  - name: federated-catalog-identity-hub-sts
+    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/sts"
+    service: "{{ application }}-identityhubfederatedcatalog"
+    target_port: sts
+
+  # federated catalog identity hub kv
+  - name: federated-catalog-keyvault
+    host: "{{ federated_catalog_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultfederatedcatalog"
+    target_port: vault-http
+
+  - name: data-space-hub
+    host: "{{ data_space_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-dataspacehub"
+    target_port: receiver
+  
+  # data space hub kv
+  - name: data-space-hub-keyvault
+    host: "{{ data_space_hub_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultdataspacehub"
+    target_port: vault-http
+
+  - name: data-space-portal
+    host: "{{ data_space_portal_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-dataspaceportal"
+    target_port: www
+
+  # mail service
+  - name: mail-service
+    host: "{{ mail_service_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-mailservice"
+    target_port: receiver
