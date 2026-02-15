@@ -248,6 +248,14 @@ provider_dashboard_app_config_obj:
 dataspaceportal_app_config_obj:
   apiBaseUrl: "{{ data_space_hub_address }}/api"
 
+# DO NOT CHANGE DEFINITIONS BELOW
+
+deployed_parameters_packs: "{{ ['connectorconsumer', 'identityhubconsumer', 'consumerdashboard', 'identityproviderconsumer', 'connectorprovider', 'identityhubprovider', 'providerdashboard', 'identityproviderprovider', 'consback', 'federatedcatalog', 'dataspacehub', 'dataspaceportal', 'identityhubfederatedcatalog', 'keyvaultconsumer', 'keyvaultprovider', 'keyvaultdataspacehub', 'keyvaultfederatedcatalog', 'mailservice'] }}"
+
+# definitions below are helper definitions - do not change this
+
+# DO NOT CHANGE DEFINITIONS ABOVE
+
 routes:
   # consumer connector
   - name: consumer-connector-api
@@ -530,11 +538,3 @@ routes:
     host: "{{ mail_service_address | regex_replace('^https?://', '') }}"
     service: "{{ application }}-mailservice"
     target_port: receiver
-
-# DO NOT CHANGE DEFINITIONS BELOW
-
-deployed_parameters_packs: "{{ ['connectorconsumer', 'identityhubconsumer', 'consumerdashboard', 'identityproviderconsumer', 'connectorprovider', 'identityhubprovider', 'providerdashboard', 'identityproviderprovider', 'consback', 'federatedcatalog', 'dataspacehub', 'dataspaceportal', 'identityhubfederatedcatalog', 'keyvaultconsumer', 'keyvaultprovider', 'keyvaultdataspacehub', 'keyvaultfederatedcatalog', 'mailservice'] }}"
-
-# definitions below are helper definitions - do not change this
-
-# DO NOT CHANGE DEFINITIONS ABOVE
