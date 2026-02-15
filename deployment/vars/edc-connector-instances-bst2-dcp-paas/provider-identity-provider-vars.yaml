@@ -1,0 +1,14 @@
+provider_random_keycloak_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
+provider_random_keycloak_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+
+identityproviderprovider_configmap__05_defaults:
+  KC_DB: "postgres"
+  KC_DB_SCHEMA: "public"
+  KC_HOSTNAME_URL: "{{ provider_identity_provider_address }}"
+  KC_HOSTNAME_ADMIN_URL: "{{ provider_identity_provider_address }}"
+  KEYCLOAK_FRONTEND_URL: "{{ provider_identity_provider_address }}/protocol"
+  KC_PROXY: "edge"
+
+identityproviderprovider_secret__05_defaults:
+  KEYCLOAK_ADMIN: "{{ provider_random_keycloak_user }}"
+  KEYCLOAK_ADMIN_PASSWORD: "{{ provider_random_keycloak_pass }}"

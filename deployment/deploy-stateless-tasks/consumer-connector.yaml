@@ -49,19 +49,25 @@
             serviceAccountName: "run-any-uid"
             ports:
               - name: "api"
-                containerPort: 29191
+                containerPort: 8080
                 protocol: "TCP"
               - name: "management"
-                containerPort: 29193
+                containerPort: 8081
                 protocol: "TCP"
-              - name: "protocol"
-                containerPort: 29194
-                protocol: "TCP"
-              - name: "public"
-                containerPort: 29291
+              - name: "dsp"
+                containerPort: 8082
                 protocol: "TCP"
               - name: "control"
-                containerPort: 29192
+                containerPort: 8083
+                protocol: "TCP"
+              - name: "catalog"
+                containerPort: 8084
+                protocol: "TCP"
+              - name: "version"
+                containerPort: 8085
+                protocol: "TCP"
+              - name: "public"
+                containerPort: 11001
                 protocol: "TCP"
             containers:
               - name: "connectorconsumer"
@@ -112,15 +118,19 @@
       spec:
         ports:
           - name: "api"
-            port: 29191
+            port: 8080
           - name: "management"
-            port: 29193
-          - name: "protocol"
-            port: 29194
-          - name: "public"
-            port: 29291
+            port: 8081
+          - name: "dsp"
+            port: 8082
           - name: "control"
-            port: 29192
+            port: 8083
+          - name: "catalog"
+            port: 8084
+          - name: "version"
+            port: 8085
+          - name: "public"
+            port: 11001
         selector:
           application: "{{ application }}"
           component: connectorconsumer

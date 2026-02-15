@@ -1,0 +1,66 @@
+connectorprovider_configmap__05_defaults:
+  # control plane specific config
+  EDC_IAM_ISSUER_ID: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob
+  WEB_HTTP_PORT: 8080
+  WEB_HTTP_PATH: /api
+  WEB_HTTP_MANAGEMENT_PORT: 8081
+  WEB_HTTP_MANAGEMENT_PATH: /api/management
+  WEB_HTTP_PROTOCOL_PORT: 8082
+  WEB_HTTP_PROTOCOL_PATH: /api/dsp
+  WEB_HTTP_CONTROL_PORT: 8083
+  WEB_HTTP_CONTROL_PATH: /api/control
+  WEB_HTTP_CATALOG_PORT: 8084
+  WEB_HTTP_CATALOG_PATH: /api/catalog
+  WEB_HTTP_VERSION_PORT: 8085
+  WEB_HTTP_VERSION_PATH: /api/version
+  EDC_IAM_DID_WEB_USE_HTTPS: true
+  EDC_IAM_STS_PRIVATEKEY_ALIAS: key-1
+  EDC_IAM_STS_PUBLICKEY_ID: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob#key-1
+  EDC_DSP_CALLBACK_ADDRESS: https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp
+  EDC_PARTICIPANT_ID: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob
+  EDC_MANAGEMENT_CONTEXT_ENABLED: true
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob-sts-client-secret
+  EDC_IAM_STS_OAUTH_CLIENT_ID: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob
+  EDC_IAM_STS_OAUTH_TOKEN_URL: https://provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api/sts/token
+
+  # control plane AUTH (tokenbased, delegated, composite, none)
+  WEB_HTTP_AUTH_TYPE: composite
+  WEB_HTTP_AUTH_INCLUDES: ["tokenbased", "delegated"]
+  # Move to secrets
+  #WEB_HTTP_AUTH_KEY: TODO
+  WEB_HTTP_AUTH_DAC_KEY_URL: https://provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+  WEB_HTTP_AUTH_DAC_AUDIENCE: account
+
+  WEB_HTTP_MANAGEMENT_AUTH_TYPE: composite
+  WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: ["tokenbased", "delegated"]
+  # Move to secrets
+  #WEB_HTTP_MANAGEMENT_AUTH_KEY: TODO
+  WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: https://provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+  WEB_HTTP_MANAGEMENT_AUTH_DAC_AUDIENCE: account
+
+  WEB_HTTP_CONTROL_AUTH_TYPE: tokenbased
+  # Move to secrets
+  #WEB_HTTP_CONTROL_AUTH_KEY: TODO
+
+  # dataplane specific config
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob#key-1
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: key-1
+  EDC_DPF_SELECTOR_URL: https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/control/v1/dataplanes
+  WEB_HTTP_PUBLIC_PORT: 11001
+  WEB_HTTP_PUBLIC_PATH: /api/public
+
+  # CORS
+  EDC_WEB_REST_CORS_ENABLED: true
+  EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
+
+  # persistence
+  EDC_SQL_SCHEMA_AUTOCREATE: true
+  # Move to secrets
+  #EDC_DATASOURCE_DEFAULT_URL: jdbc:postgresql://provider-postgres:5432/edc
+  #EDC_DATASOURCE_DEFAULT_USER: edc
+  #EDC_DATASOURCE_DEFAULT_PASSWORD: TODO
+  EDC_VAULT_HASHICORP_URL: https://provider-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl
+  # Move to secrets
+  #EDC_VAULT_HASHICORP_TOKEN: TODO
+  EDC_VAULT_HASHICORP_TOKEN_TTL: 0
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED-RENEW-ENABLED: false

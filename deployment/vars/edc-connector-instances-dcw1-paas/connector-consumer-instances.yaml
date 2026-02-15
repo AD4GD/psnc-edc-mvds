@@ -1,5 +1,4 @@
 connectorconsumer_configmap__05_defaults:
-  TEST_VAR: "TEST"
   SERVICE_HOST: "{{ consumer_connector_address }}"
   EDC_IDS_ID: "urn:connectorconsumer:psnc"
   EDC_PARTICIPANT_ID: "consumer"

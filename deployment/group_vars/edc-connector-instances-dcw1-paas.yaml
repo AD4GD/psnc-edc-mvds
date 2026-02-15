@@ -1,5 +1,5 @@
 ---
-deployment_profile: dcw1-daps
+deployment_profile: edc-connector-instances-dcw1-paas
 
 application: edc-connector
 ansible_connection: local

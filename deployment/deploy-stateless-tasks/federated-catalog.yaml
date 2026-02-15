@@ -67,10 +67,28 @@
             serviceAccountName: "run-any-uid"
             ports:
               - name: "api"
-                containerPort: 8080
+                containerPort: 8290
+                protocol: "TCP"
+              - name: "management"
+                containerPort: 8291
+                protocol: "TCP"
+              - name: "dsp"
+                containerPort: 8292
+                protocol: "TCP"
+              - name: "control"
+                containerPort: 8293
                 protocol: "TCP"
               - name: "catalog"
-                containerPort: 8181
+                containerPort: 8294
+                protocol: "TCP"
+              - name: "version"
+                containerPort: 8295
+                protocol: "TCP"
+              - name: "targets"
+                containerPort: 8296
+                protocol: "TCP"
+              - name: "public"
+                containerPort: 13001
                 protocol: "TCP"
             containers:
               - name: "federatedcatalog"
@@ -124,9 +142,21 @@
       spec:
         ports:
           - name: "api"
-            port: 8080
+            port: 8290
+          - name: "management"
+            port: 8291
+          - name: "dsp"
+            port: 8292
+          - name: "control"
+            port: 8293
           - name: "catalog"
-            port: 8181
+            port: 8294
+          - name: "version"
+            port: 8295
+          - name: "targets"
+            port: 8296
+          - name: "public"
+            port: 13001
         selector:
           application: "{{ application }}"
           component: federatedcatalog
