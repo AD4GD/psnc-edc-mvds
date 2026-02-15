@@ -57,6 +57,18 @@ Update inventory for atos-psnc integration:
     variables:
       - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_atos_psnc
 
+Update inventory for bst2-dcp:
+  stage: update_inventory
+  variables:
+    inventory_repository_name: pcss-data-space-bst2-dcp-inventory
+    inventory_hostname: $inventory_hostname_pcss_bst2_dcp
+    gitlab_push_token: $gitlab_push_token_pcss_bst2_dcp
+  script:
+    - devlab_update_inventory
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_pcss_bst2_dcp
+
 integration-test:
   stage: test
   image: docker:latest
