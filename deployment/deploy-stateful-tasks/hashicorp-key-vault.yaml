@@ -124,6 +124,7 @@
       spec:
         serviceName: "{{ vault_headless_svc }}"
         replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: "{{ initial_replicas }}"
         selector:
           matchLabels:
             application: "{{ application }}"
