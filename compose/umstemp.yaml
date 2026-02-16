@@ -297,6 +297,7 @@ services:
       - "38081:80"
     volumes:
       - ../docker/data-space-portal/config/app.config.json:/usr/share/nginx/html/app.config.json:ro
+      - ../docker/data-space-portal/config/app.nginx.conf:/etc/nginx/nginx.conf
     user: "root"   
 
   data-space-hub:

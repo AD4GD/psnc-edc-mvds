@@ -32,15 +32,6 @@
               location / {
                 try_files $uri $uri/ /index.html;
               }
-
-              # Optional: if the portal calls backend APIs via nginx
-              # Adjust/remove these if your portal doesn't need them.
-              location /management {
-                proxy_pass {{ consumer_connector_address }}/management;
-              }
-              location /catalog {
-                proxy_pass {{ federated_catalog_address }}/catalog;
-              }
             }
           }
 
