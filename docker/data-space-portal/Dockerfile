@@ -1,20 +1,17 @@
 ARG BUILDER_IMAGE
 ARG BASE_IMAGE
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} as build
 
 WORKDIR /app
-COPY src/data-space-portal/package*.json ./
-RUN npm ci
-
-COPY src/data-space-portal .
+COPY src/data-space-portal /app
+RUN npm install
 RUN npm run build
 
 # Runtime stage (static hosting)
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+FROM ${BASE_IMAGE}
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 8080
 
-# Optional: SPA routing (recommended) - see nginx.conf below
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+HEALTHCHECK --interval=2s --timeout=5s --retries=10 \
+  CMD curl -f http://localhost/ || exit 1
 
