@@ -224,6 +224,32 @@ SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
 SECRET_KEY:
   when_missing: "{{ random_django_secret_key }}"
 
+# Service adresses
+consumer_connector_address: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_identity_hub_address: "https://consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_dashboard_address: "https://consumer-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_dashboard_address_shorten: "consumer-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_identity_provider_address: "https://consumer-identity-provider-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_keyvault_address: "https://consumer-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_backend_address: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl"
+minio_address: "https://consumer-minio-dcp-data-space.apps.bst2.paas.psnc.pl"
+
+provider_connector_address: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl"
+provider_identity_hub_address: "https://provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
+provider_dashboard_address: "https://provider-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
+provider_dashboard_address_shorten: "provider-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
+provider_identity_provider_address: "https://provider-identity-provider-dcp-data-space.apps.bst2.paas.psnc.pl"
+provider_keyvault_address: "https://provider-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
+
+federated_catalog_address: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl"
+federated_catalog_identity_hub_address: "https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
+federated_catalog_keyvault_address: "https://federated-catalog-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
+data_space_portal_address: "https://data-space-portal-dcp-data-space.apps.bst2.paas.psnc.pl"
+data_space_portal_address_shorten: "data-space-portal-dcp-data-space.apps.bst2.paas.psnc.pl"
+data_space_hub_address: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
+data_space_hub_keyvault_address: "https://data-space-hub-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
+mail_service_address: "https://mail-service-dcp-data-space.apps.bst2.paas.psnc.pl"
+
 consumer_dashboard_app_config_obj:
   managementApiUrl: "{{ consumer_connector_address }}/management"
   catalogUrl: "{{ federated_catalog_address }}/catalog"
