@@ -250,6 +250,7 @@ provider_dashboard_app_config_obj:
 
 dataspaceportal_app_config_obj:
   apiBaseUrl: "{{ data_space_hub_address }}/api"
+  isProduction: false
 
 # DO NOT CHANGE DEFINITIONS BELOW
 
