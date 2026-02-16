@@ -1,6 +1,6 @@
 - name: "deploy deployment/{{ application }}-identityhubfederatedcatalog"
   tags:
-    - connector
+    - identityhub
     - identityhubfederatedcatalog
     - deployment
   k8s:
@@ -51,7 +51,7 @@
                 protocol: "TCP"
             containers:
               - name: "identityhubfederatedcatalog"
-                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-hub:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
                   readOnlyRootFilesystem: false
@@ -75,7 +75,7 @@
 
 - name: "deploy service/{{ application }}-identityhubfederatedcatalog"
   tags:
-    - connector
+    - identity-hub
     - identityhubfederatedcatalog
     - service
   k8s:
