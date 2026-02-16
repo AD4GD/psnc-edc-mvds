@@ -15,8 +15,7 @@
         labels:
           application: "{{ application }}"
       data:
-        # JSON is already a string from to_nice_json above; don't encode twice.
-        app.config.json: "{{ app_config_json }}"
+        app.config.json: "{{ app_config_json | to_nice_json }}"
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
