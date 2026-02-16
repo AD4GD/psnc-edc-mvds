@@ -30,14 +30,14 @@ federatedcatalog_configmap__05_defaults:
 
   # CONTROL plane AUTH (tokenbased, delegated, composite, none)
   WEB_HTTP_AUTH_TYPE: composite
-  WEB_HTTP_AUTH_INCLUDES: ["tokenbased", "delegated"]
+  WEB_HTTP_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
   # Move to secrets
   #WEB_HTTP_AUTH_KEY: TODO
   WEB_HTTP_AUTH_DAC_KEY_URL: https://federated-catalog-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
   WEB_HTTP_AUTH_DAC_AUDIENCE: account
 
   WEB_HTTP_CATALOG_AUTH_TYPE: composite
-  WEB_HTTP_CATALOG_AUTH_INCLUDES: ["tokenbased", "delegated"]
+  WEB_HTTP_CATALOG_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
   # Move to secrets
   #WEB_HTTP_CATALOG_AUTH_KEY: TODO
   WEB_HTTP_CATALOG_AUTH_DAC_KEY_URL: https://federated-catalog-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs

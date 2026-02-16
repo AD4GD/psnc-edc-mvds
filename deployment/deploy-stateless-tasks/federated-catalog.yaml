@@ -18,21 +18,6 @@
           application: "{{ application }}"
       data:
         participants.json: "{{ participants_json_obj | to_nice_json }}"
-- name: "deploy secret/{{ application }}-federatedcatalog"
-  tags:
-    - federatedcatalog
-    - secret
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: "{{ application }}-federatedcatalog-jks"
-        labels:
-          application: "{{ application }}"
-          component: federatedcatalog
-      data:
-        federated-catalog-daps.jks: "{{ lookup('file', 'certs/federated-catalog-daps.jks') | b64encode }}"
 
 - name: "deploy deployment/{{ application }}-federatedcatalog"
   tags:
@@ -119,13 +104,7 @@
               - name: "federatedcatalog-participants-config"
                 configMap:
                   name: "{{ application }}-federatedcatalog"
-              - name: "jks-volume"
-                secret:
-                  secretName: "{{ application }}-federatedcatalog-jks"
-                  items:
-                    - key: "federated-catalog-daps.jks"
-                      path: "federated-catalog-daps.jks"
-
+                  
 - name: "deploy service/{{ application }}-federatedcatalog"
   tags:
     - federatedcatalog
