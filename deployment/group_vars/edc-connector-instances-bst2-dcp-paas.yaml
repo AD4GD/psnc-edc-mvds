@@ -485,32 +485,32 @@ routes:
 
   # federated catalog identity hub
   - name: federated-catalog-identity-hub-api
-    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api"
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}/api"
     service: "{{ application }}-identityhubfederatedcatalog"
     target_port: api
 
   - name: federated-catalog-identity-hub-credentials
-    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/credentials"
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/credentials"
     service: "{{ application }}-identityhubfederatedcatalog"
     target_port: credentials
 
   - name: federated-catalog-identity-hub-identity
-    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/identity"
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/identity"
     service: "{{ application }}-identityhubfederatedcatalog"
     target_port: identity
 
   - name: federated-catalog-identity-hub-did
-    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}"
     service: "{{ application }}-identityhubfederatedcatalog"
     target_port: did
 
   - name: federated-catalog-identity-hub-version
-    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/version"
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/version"
     service: "{{ application }}-identityhubfederatedcatalog"
     target_port: version
 
   - name: federated-catalog-identity-hub-sts
-    host: "{{ federated-catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/sts"
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}/api/sts"
     service: "{{ application }}-identityhubfederatedcatalog"
     target_port: sts
 
