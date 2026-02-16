@@ -2,68 +2,68 @@ import { useState } from 'react'
 import './App.css'
 import { useConfig } from './config/ConfigContext'
 import { useRegistrationApiService, type RegisterParticipantDto } from './api/useRegistrationApiService'
+import { defaults, type Env, type Service } from "./config/defaults";
+
+type FormState = RegisterParticipantDto;
+
+const emptyForm: FormState = {
+  connector_did: "",
+  connector_dsp_url: "",
+  connector_management_url: "",
+  connector_api_key: "",
+  identity_hub_identity_url: "",
+  identity_hub_credentials_url: "",
+  identity_hub_api_key: "",
+  sts_public_key_pem: "",
+  generated_vcs: []
+};
+
+const envFromConfig = (isProduction: boolean): Env => (isProduction ? "prod" : "local");
 
 function App() {
-
   const config = useConfig();
-  console.log(config);
+  const env = envFromConfig(config.isProduction); // <- runtime config approach
 
-  const [did, setDid] = useState("");
-  const [connectorDspUrl, setConnectorDspUrl] = useState("");
-  const [connectorManagementUrl, setConnectorManagementUrl] = useState("");
-  const [connectorApiKey, setConnectorApiKey] = useState("");
-  const [identityHubIdentityUrl, setIdentityHubIdentityUrl] = useState("");
-  const [identityHubCredentialsUrl, setIdentityHubCredentialsUrl] = useState("");
-  const [identityHubApiKey, setIdentityHubApiKey] = useState("");
-  const [publicStsKey, setPublicStsKey] = useState("");
+  const setServiceDefaults = (svc: Service) => {
+    setForm(defaults[env][svc]);
+  };
+
+  const [form, setForm] = useState<FormState>(emptyForm);
+
+  console.log(config);
 
   const { registerParticipant } = useRegistrationApiService();
 
   const setProviderDefaults = () => {
-    setDid("did:web:provider-ih%3A7093:bob");
-    setConnectorManagementUrl("http://provider-connector:8191/api/management");
-    setConnectorDspUrl("http://provider-connector:8192/api/dsp");
-    setConnectorApiKey("password");
-    setIdentityHubIdentityUrl("http://provider-ih:7092/api/identity");
-    setIdentityHubCredentialsUrl("http://provider-ih:7091/api/credentials");
-    setIdentityHubApiKey("c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=");
-    setPublicStsKey("-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r\noYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==\n-----END PUBLIC KEY-----\n");
+    setServiceDefaults("provider");
   }
 
   const setConsumerDefaults = () => {
-    setDid("did:web:consumer-ih%3A7083:alice");
-    setConnectorManagementUrl("http://consumer-connector:8081/api/management");
-    setConnectorDspUrl("http://consumer-connector:8082/api/dsp");
-    setConnectorApiKey("password");
-    setIdentityHubIdentityUrl("http://consumer-ih:7082/api/identity");
-    setIdentityHubCredentialsUrl("http://consumer-ih:7081/api/credentials");
-    setIdentityHubApiKey("c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=");
-    setPublicStsKey("-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r\noYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==\n-----END PUBLIC KEY-----\n");
+    setServiceDefaults("consumer");
   }
 
   const setFcDefaults = () => {
-    setDid("did:web:fc-ih%3A7103:piotr");
-    setConnectorManagementUrl("http://federated-catalog:8291/api/management");
-    setConnectorDspUrl("http://federated-catalog:8292/api/dsp");
-    setConnectorApiKey("password");
-    setIdentityHubIdentityUrl("http://fc-ih:7102/api/identity");
-    setIdentityHubCredentialsUrl("http://fc-ih:7101/api/credentials");
-    setIdentityHubApiKey("c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=");
-    setPublicStsKey("-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r\noYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==\n-----END PUBLIC KEY-----\n");
+    setServiceDefaults("fc");
   }
 
-  const getDataModel = (): RegisterParticipantDto => {
-    return {
-      connector_did: did,
-      connector_dsp_url: connectorDspUrl,
-      connector_management_url: connectorManagementUrl,
-      connector_api_key: connectorApiKey,
-      identity_hub_identity_url: identityHubIdentityUrl,
-      identity_hub_credentials_url: identityHubCredentialsUrl,
-      identity_hub_api_key: identityHubApiKey,
-      sts_public_key_pem: publicStsKey,
-      generated_vcs: []
-    };
+  const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  function Field(props: {
+    label: string;
+    value: string;
+    onChange: (v: string) => void;
+  }) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <label>{props.label}</label>
+        <input
+          value={props.value}
+          onChange={(e) => props.onChange(e.target.value)}
+        />
+      </div>
+    );
   }
 
   return (
@@ -75,88 +75,19 @@ function App() {
         <button onClick={setFcDefaults}>Set FC Defaults</button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="did">DID</label>
-        <input
-          id="did"
-          type="text"
-          value={did}
-          onChange={(e) => setDid(e.target.value)}
-        />
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 16 }}>
+        <Field label="DID" value={form.connector_did} onChange={(v) => update("connector_did", v)} />
+        <Field label="Connector Management URL" value={form.connector_management_url} onChange={(v) => update("connector_management_url", v)} />
+        <Field label="Connector DSP URL" value={form.connector_dsp_url} onChange={(v) => update("connector_dsp_url", v)} />
+        <Field label="Connector API Key" value={form.connector_api_key} onChange={(v) => update("connector_api_key", v)} />
+        <Field label="Identity Hub Identity URL" value={form.identity_hub_identity_url} onChange={(v) => update("identity_hub_identity_url", v)} />
+        <Field label="Identity Hub Credentials URL" value={form.identity_hub_credentials_url} onChange={(v) => update("identity_hub_credentials_url", v)} />
+        <Field label="Identity Hub API Key" value={form.identity_hub_api_key} onChange={(v) => update("identity_hub_api_key", v)} />
+        <Field label="Public STS Key (PEM)" value={form.sts_public_key_pem} onChange={(v) => update("sts_public_key_pem", v)} />
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="connectorManagementUrl">Connector Management URL</label>
-        <input
-          id="connectorManagementUrl"
-          type="text"
-          value={connectorManagementUrl}
-          onChange={(e) => setConnectorManagementUrl(e.target.value)}
-        />
-      </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="connectorDspUrl">Connector DSP URL</label>
-        <input
-          id="connectorDspUrl"
-          type="text"
-          value={connectorDspUrl}
-          onChange={(e) => setConnectorDspUrl(e.target.value)}
-        />
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="connectorApiKey">Connector API Key</label>
-        <input
-          id="connectorApiKey"
-          type="text"
-          value={connectorApiKey}
-          onChange={(e) => setConnectorApiKey(e.target.value)}
-        />
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="identityHubIdentityUrl">Identity Hub Identity URL</label>
-        <input
-          id="identityHubIdentityUrl"
-          type="text"
-          value={identityHubIdentityUrl}
-          onChange={(e) => setIdentityHubIdentityUrl(e.target.value)}
-        />
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="identityHubCredentialsUrl">Identity Hub Credentials URL</label>
-        <input
-          id="identityHubCredentialsUrl"
-          type="text"
-          value={identityHubCredentialsUrl}
-          onChange={(e) => setIdentityHubCredentialsUrl(e.target.value)}
-        />
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="identityHubApiKey">Identity Hub API Key</label>
-        <input
-          id="identityHubApiKey"
-          type="text"
-          value={identityHubApiKey}
-          onChange={(e) => setIdentityHubApiKey(e.target.value)}
-        />
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <label htmlFor="publicStsKey">Public Sts Key (PEM)</label>
-        <input
-          id="publicStsKey"
-          value={publicStsKey}
-          onChange={(e) => setPublicStsKey(e.target.value)}
-        />
-      </div>
-    </div>
       <div className="card">
-        <button onClick={() => registerParticipant(getDataModel())}>
+        <button onClick={() => registerParticipant(form)}>
           Register
         </button>
       </div>
