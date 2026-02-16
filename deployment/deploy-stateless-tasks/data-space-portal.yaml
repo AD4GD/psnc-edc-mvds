@@ -82,6 +82,7 @@
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
+                  runAsUser: 1000
                 resources: "{{ dataspaceportal_resources }}"
                 envFrom:
                   - secretRef:

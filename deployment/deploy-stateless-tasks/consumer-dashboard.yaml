@@ -107,7 +107,7 @@
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
-                # runAsUser: 1000
+                  runAsUser: 1000
                 resources: "{{ consumerdashboard_resources }}"
                 envFrom:
                   - secretRef:
