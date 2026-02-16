@@ -367,13 +367,13 @@ routes:
   # consumer kv
   - name: consumer-key-vault
     host: "{{ consumer_keyvault_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-keyvaultconsumer"
+    service: "{{ application }}-vault-keyvaultconsumer"
     target_port: vault-http
 
   # consumer keycloak
   - name: consumer-keycloak
     host: "{{ consumer_identity_provider_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-keyvaultconsumer"
+    service: "{{ application }}-identityproviderconsumer"
     target_port: keycloak-https
 
   # consumer minio
@@ -476,13 +476,13 @@ routes:
   # provider kv
   - name: provider-key-vault
     host: "{{ provider_keyvault_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-keyvaultprovider"
+    service: "{{ application }}-vault-keyvaultprovider"
     target_port: vault-http
 
   # provider keycloak
   - name: provider-keycloak
     host: "{{ provider_identity_provider_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-keyvaultprovider"
+    service: "{{ application }}-identityproviderprovider"
     target_port: keycloak-https
 
   # federated catalog
@@ -573,7 +573,7 @@ routes:
   # federated catalog identity hub kv
   - name: federated-catalog-keyvault
     host: "{{ federated_catalog_keyvault_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-keyvaultfederatedcatalog"
+    service: "{{ application }}-vault-keyvaultfederatedcatalog"
     target_port: vault-http
 
   - name: data-space-hub
@@ -584,7 +584,7 @@ routes:
   # data space hub kv
   - name: data-space-hub-keyvault
     host: "{{ data_space_hub_keyvault_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-keyvaultdataspacehub"
+    service: "{{ application }}-vault-keyvaultdataspacehub"
     target_port: vault-http
 
   - name: data-space-portal
