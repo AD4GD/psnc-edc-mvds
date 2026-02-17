@@ -66,6 +66,7 @@ federatedcatalog_configmap__05_defaults:
   #EDC_DATASOURCE_DEFAULT_PASSWORD: TODO
   EDC_VAULT_HASHICORP_URL: https://federated-catalog-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl
   EDC_VAULT_HASHICORP_TOKEN_TTL: 0
-  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED-RENEW-ENABLED: false
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
+  JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
   # Move to secrets
   #EDC_VAULT_HASHICORP_TOKEN: TODO

@@ -74,6 +74,8 @@ public class DcpPatchExtension implements ServiceExtension {
 
         trustedIssuerRegistry.register(new Issuer("did:web:data-space-hub%3A8000", Map.of()), WILDCARD);
 
+        trustedIssuerRegistry.register(new Issuer("did:web:data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl", Map.of()), WILDCARD);
+
         // register a default scope provider
         var contextMappingFunction = new DefaultScopeMappingFunction(Set.of("org.eclipse.edc.vc.type:MembershipCredential:read"));
 
