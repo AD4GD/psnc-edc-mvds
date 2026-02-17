@@ -43,6 +43,7 @@ connectorprovider_configmap__05_defaults:
   #WEB_HTTP_CONTROL_AUTH_KEY: TODO
 
   # dataplane specific config
+  EDC_DATAPLANE_API_PUBLIC_BASEURL: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/public"
   EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob#key-1
   EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: key-1
   EDC_DPF_SELECTOR_URL: https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/control/v1/dataplanes
