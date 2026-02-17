@@ -235,7 +235,7 @@ mail_service_address: "https://mail-service-dcp-data-space.apps.bst2.paas.psnc.p
 consumer_dashboard_app_config_obj:
   managementApiUrl: "{{ consumer_connector_address }}/api/management"
   catalogUrl: "{{ federated_catalog_address }}/api/catalog"
-  theme: "theme-3"
+  theme: "theme-4"
   deploymentMode: "production"
   backendUrl: "{{ consumer_backend_address }}/edr-endpoint"
   edcApiKey: "edc"
