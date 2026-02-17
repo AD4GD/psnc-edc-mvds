@@ -37,7 +37,8 @@
         labels:
           application: "{{ application }}"
       data:
-        app.config.json: "{{ app_config_json }}"
+        app.config.json: |-
+          {{ app_config_json | indent(4) }}
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
