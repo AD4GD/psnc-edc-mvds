@@ -38,7 +38,15 @@
           application: "{{ application }}"
       data:
         app.config.json: |-
-          {{ app_config_json | indent(4) }}
+          {
+            "backendUrl": "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint",
+            "catalogUrl": "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog",
+            "deploymentMode": "production",
+            "managementApiUrl": "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management",
+            "edcApiKey": "edc",
+            "theme": "theme-4"
+          }
+
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
