@@ -12,12 +12,8 @@
         labels:
           application: "{{ application }}"
       data:
-        app.config.json: |-
-          {
-            "apiBaseUrl": "{{ data_space_hub_address }}/api",
-            "isProduction": true
-          }
-          
+        app.config.json: "{{ dataspaceportal_app_config_obj | to_nice_json }}"
+
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
