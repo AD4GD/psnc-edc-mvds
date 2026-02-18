@@ -1,6 +1,6 @@
 dataspacehub_configmap__05_defaults:
   # API
-  APP_URL: httpss://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl
+  APP_URL: https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl
   ISSUER_DID: did:web:data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl
   API_CONTAINER_NAME: data-space-hub-api
   PROJECT_NAME: data-space-hub
