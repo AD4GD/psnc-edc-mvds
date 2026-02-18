@@ -20,7 +20,6 @@ services:
       - "5555:5555"
     volumes:
       - ../docker/mail-service/config/configuration.properties:/app/.env:ro
-    entrypoint: "make prod p=5555"
 
   # will go to the provider
   provider-connector:
