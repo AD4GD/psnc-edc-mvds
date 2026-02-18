@@ -30,6 +30,7 @@ class FederatedCatalogService:
             return {"status": "OK"}
 
         except Exception as e:
+            logger.info(e)
             return {"status": "EXISTS"}
     
     async def create_target_node(self, did, dsp_url):
