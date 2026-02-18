@@ -1,6 +1,3 @@
-- name: Set app.config.json for dataspaceportal
-  ansible.builtin.set_fact:
-    app_config_json: "{{ dataspaceportal_app_config_obj | to_nice_json }}"
 
 - name: "deploy configmap/{{ application }}-dataspaceportal"
   tags:
