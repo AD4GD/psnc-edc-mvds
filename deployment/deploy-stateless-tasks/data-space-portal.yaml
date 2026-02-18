@@ -17,6 +17,7 @@
             "apiBaseUrl": "{{ data_space_hub_address }}/api",
             "isProduction": true
           }
+          
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
