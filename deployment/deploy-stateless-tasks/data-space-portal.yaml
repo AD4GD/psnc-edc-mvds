@@ -15,7 +15,11 @@
         labels:
           application: "{{ application }}"
       data:
-        app.config.json: "{{ app_config_json | to_nice_json }}"
+        app.config.json: |-
+          {
+            "apiBaseUrl": "{{ data_space_hub_address }}/api",
+            "isProduction": true
+          }
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
@@ -93,7 +97,7 @@
                     mountPath: "/etc/nginx/nginx.conf"
                     subPath: "nginx.conf"
                   - name: "dataspaceportal-app-config"
-                    mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+                    mountPath: "/usr/share/nginx/html/app.config.json"
                     subPath: "app.config.json"
             volumes:
               - name: "dataspaceportal-tmp"
