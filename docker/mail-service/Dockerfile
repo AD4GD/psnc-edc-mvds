@@ -13,5 +13,7 @@ RUN pip install -r /tmp/requirements.txt
 COPY src/mail-service/* /app/
 
 COPY ../docker/mail-service/config/configuration.properties /app/.env
+COPY ../docker/mail-service/entrypoint.sh /app/entrypoint.sh
+RUN chmod 0755 /app/entrypoint.sh
 
-CMD ["python", "-u", "main.py"]
+ENTRYPOINT ["/app/entrypoint.sh"]
