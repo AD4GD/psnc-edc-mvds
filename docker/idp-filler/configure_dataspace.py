@@ -78,7 +78,8 @@ def main():
     daps_clients = {
         "consumer": "client_consumer_daps.json",
         "provider": "client_provider_daps.json",
-        "federated-catalog": "client_fc_daps.json"
+        "sage": "client_sage_daps.json",
+        "federated-catalog": "client_fc_daps.json",
     }
     
     for alias, fname in daps_clients.items():
@@ -109,8 +110,9 @@ def main():
     if RS_USER and RS_PASS:
         ku.ensure_user(kc, REALM, RS_USER, RS_PASS, email=f"{RS_USER}@example.com")
 
-    register_participant(RS_URL, ku.get_access_token(KC_BASE, REALM, RS_USER, RS_PASS), "consumer", "http://consumer-connector:29194/protocol")
-    register_participant(RS_URL, ku.get_access_token(KC_BASE, REALM, RS_USER, RS_PASS), "provider", "http://provider-connector:19194/protocol")
+    register_participant(RS_URL, ku.get_access_token(KC_BASE, REALM, RS_USER, RS_PASS), "consumer", "https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl/protocol")
+    register_participant(RS_URL, ku.get_access_token(KC_BASE, REALM, RS_USER, RS_PASS), "provider", "https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl/protocol")
+    register_participant(RS_URL, ku.get_access_token(KC_BASE, REALM, RS_USER, RS_PASS), "sage", "https://sage-connector-edc-connector.apps.bst2.paas.psnc.pl/protocol")
          
     print("=== Data Space Configuration Complete ===")
 

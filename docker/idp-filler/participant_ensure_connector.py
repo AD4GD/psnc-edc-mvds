@@ -20,7 +20,7 @@ CONNECTOR_ROLE = "access-connector"
 # Defaults
 PARTICIPANT_REALM_DEFAULT = "Organizations"
 USER_CLIENT_ID = "data-space-users"
-TEST_USER = f"test-{CONNECTOR_CLIENT_ID}"
+TEST_USER = f"psnc"
 TEST_PASS = "edc"
 
 KC_BASE = "http://localhost:8083"
