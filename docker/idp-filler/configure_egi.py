@@ -67,6 +67,7 @@ def configure_egi_idp(
         authorization_url = discovery_data.get("authorization_endpoint")
         token_url = discovery_data.get("token_endpoint")
         userinfo_url = discovery_data.get("userinfo_endpoint")
+        logout_url = discovery_data.get("end_session_endpoint")
         jwks_url = discovery_data.get("jwks_uri")
         issuer = discovery_data.get("issuer")
         token_introspection_url = discovery_data.get("introspection_endpoint")
@@ -100,7 +101,7 @@ def configure_egi_idp(
             "tokenIntrospectionUrl": token_introspection_url,
             "issuer": issuer,
             "jwksUrl": jwks_url,
-            # "logoutUrl": logout_url,
+            "logoutUrl": logout_url,
             "clientId": client_id,
             "clientSecret": client_secret,
             "defaultScope": scopes,
@@ -113,8 +114,8 @@ def configure_egi_idp(
             "linkOnly": "false",
             "pkceEnabled": "true",
             "pkceMethod": "S256",
-            "frontchannelLogout": "true",
-            "backchannel_logout_session_required": "false",
+            "frontchannelLogout": "false",
+            "backchannelSupported": "true",
             "validateLogoutSignature": "false"
         }
     }
