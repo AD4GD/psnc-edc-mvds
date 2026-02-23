@@ -66,7 +66,6 @@ def configure_egi_idp(
         
         authorization_url = discovery_data.get("authorization_endpoint")
         token_url = discovery_data.get("token_endpoint")
-        logout_url = discovery_data.get("end_session_endpoint")
         userinfo_url = discovery_data.get("userinfo_endpoint")
         jwks_url = discovery_data.get("jwks_uri")
         issuer = discovery_data.get("issuer")
@@ -92,7 +91,7 @@ def configure_egi_idp(
         "displayName": idp_display_name,
         "providerId": "oidc",
         "enabled": True,
-        "trustEmail": False,
+        "trustEmail": True,
         "storeToken": False,
         "config": {
             "authorizationUrl": authorization_url,
@@ -101,7 +100,7 @@ def configure_egi_idp(
             "tokenIntrospectionUrl": token_introspection_url,
             "issuer": issuer,
             "jwksUrl": jwks_url,
-            "logoutUrl": logout_url,
+            # "logoutUrl": logout_url,
             "clientId": client_id,
             "clientSecret": client_secret,
             "defaultScope": scopes,
@@ -112,9 +111,8 @@ def configure_egi_idp(
             "syncMode": "IMPORT",
             "userNameAttributeName": "sub",
             "linkOnly": "false",
-            "pkceMethod": "true",
-            # "pkceMethod": "false",
-            "frontchannelLogout": "false",
+            "pkceMethod": "false",
+            "frontchannelLogout": "true",
             "backchannel_logout_session_required": "false",
             "validateLogoutSignature": "false"
         }
