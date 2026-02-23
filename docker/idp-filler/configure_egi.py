@@ -111,7 +111,8 @@ def configure_egi_idp(
             "syncMode": "IMPORT",
             "userNameAttributeName": "sub",
             "linkOnly": "false",
-            "pkceMethod": "false",
+            "pkceEnabled": "true",
+            "pkceMethod": "S256",
             "frontchannelLogout": "true",
             "backchannel_logout_session_required": "false",
             "validateLogoutSignature": "false"
