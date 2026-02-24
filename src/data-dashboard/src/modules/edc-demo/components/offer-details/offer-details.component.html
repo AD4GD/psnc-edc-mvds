@@ -120,7 +120,7 @@
               <div class="detail-text">
                 <div class="label">Proxy path</div>
                 <div class="value">
-                  {{ offer.properties.proxyPath ? 'Allowed' : 'Not allowed' }}
+                  {{ isAllowed(offer.properties.proxyPath) ? 'Allowed' : 'Not allowed' }}
                 </div>
               </div>
             </div>
@@ -129,7 +129,7 @@
               <div class="detail-text">
                 <div class="label">Proxy query params</div>
                 <div class="value">
-                  {{ offer.properties.proxyQueryParams ? 'Allowed' : 'Not allowed' }}
+                  {{ isAllowed(offer.properties.proxyQueryParams) ? 'Allowed' : 'Not allowed' }}
                 </div>
               </div>
             </div>

@@ -143,6 +143,8 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
         .subscribe({
             next: offer => {
                 this.offer = offer;
+                console.log(offer);
+                console.log(typeof offer.properties.proxyPath);
                 const extracted = this.extractMetadata(offer, offer.assetId);
                 this.metadata = this.hasMetadataValue(extracted)
                     ? extracted
@@ -245,8 +247,8 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
 
         const dialogRef = this.dialog.open(CatalogBrowserTransferDialog, {
             data: {
-                isProxyPath: this.offer.properties.proxyPath ?? false,
-                isProxyQueryParams: this.offer.properties.proxyQueryParams ?? false,
+                isProxyPath: this.isAllowed(this.offer.properties.proxyPath),
+                isProxyQueryParams: this.isAllowed(this.offer.properties.proxyQueryParams),
             }
         });
 
@@ -309,6 +311,19 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
 
     getOfferTitle(): string {
         return this.offer?.properties?.name || this.offer?.assetId || 'Offer';
+    }
+
+    /**
+     * Safely compare value to true, handles both boolean and string "true"/"false"
+     */
+    isAllowed(value: any): boolean {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true';
+        }
+        return !!value;
     }
 
     backToCatalog(): void {
@@ -446,6 +461,7 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             const authCode = address["https://w3id.org/edc/v0.0.1/ns/authorization"][0]["@value"];
             console.log('[EDR] Endpoint:', endpoint);
             console.log('[EDR] AuthCode:', authCode);
+            console.log('[EDR] Proxy options:', proxyDataAddressOptions);
 
             const adjustedEndpoint = this.adjustServiceUrl(endpoint);
             const publicEndpoint = this.getUrlWithQueryParams(adjustedEndpoint, proxyDataAddressOptions);
