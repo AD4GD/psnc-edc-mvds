@@ -24,7 +24,7 @@
 
     <div fxLayout="row wrap" fxLayoutAlign="start start">
         <mat-card
-          *ngFor="let contractOffer of paginationState.pagedList"
+          *ngFor="let contractOffer of paginationState.pagedList; trackBy: trackByAssetId"
           class="asset-card clickable"
           tabindex="0"
           (click)="onOfferClicked(contractOffer)"

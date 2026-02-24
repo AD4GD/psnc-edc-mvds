@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CatalogBrowserService, NotificationService, SorterService, UtilService } from "../../services";
 import { Router } from "@angular/router";
 import { ContractOffer } from "../../models/contract-offer";
@@ -12,7 +12,8 @@ import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-stat
 @Component({
   selector: 'edc-demo-catalog-browser',
   templateUrl: './catalog-browser.component.html',
-  styleUrls: ['./catalog-browser.component.scss']
+  styleUrls: ['./catalog-browser.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CatalogBrowserComponent implements OnInit, OnDestroy {
   paginationState = {
@@ -32,7 +33,8 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     public readonly utilService: UtilService,
     private readonly sorterService: SorterService,
-    private readonly unauthorizedState: UnauthorizedStateService
+    private readonly unauthorizedState: UnauthorizedStateService,
+    private readonly cdr: ChangeDetectorRef
   ) { }
 
   loadContractOffers() {
@@ -47,6 +49,7 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
           this.searchText,
           this.paginationState
         );
+        this.cdr.markForCheck();
       },
       error: (err: HttpErrorResponse) => {
         if (this.unauthorizedState.isUnauthorized('catalog')) {
@@ -80,6 +83,7 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
           this.paginationState.filteredList = [];
           this.paginationState.pagedList = [];
         }
+        this.cdr.markForCheck();
       });
 
     this.loadContractOffers();
@@ -98,6 +102,11 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
       this.searchText,
       this.paginationState
     );
+    this.cdr.markForCheck();
+  }
+
+  trackByAssetId(index: number, item: ContractOffer): string {
+    return item.assetId;
   }
   
   onPageChange(event: PageEvent) {
@@ -108,6 +117,7 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
       this.searchText,
       this.paginationState
     );
+    this.cdr.markForCheck();
   }
 
   findMetadataForAsset(offer: ContractOffer) {
