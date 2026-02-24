@@ -31,7 +31,10 @@ export class PublicService {
     private transferData(url: string, headers: any): Promise<Response> {
       return fetch(url, {
         method: 'GET',
-        headers: headers
+        headers: {
+          ...headers,
+          "Accept": "*/*" // Allow any file type (PDF, CSV, XLSX, ZIP, JSON, etc.)
+        }
       })
       .then(response => {
         if (!response.ok) {

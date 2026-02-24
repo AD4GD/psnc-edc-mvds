@@ -45,6 +45,9 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
     isLoading = true;
     loadError = '';
 
+    downloadProgress = 0;
+    downloadedSizeMB = 0;
+    hasContentLength = false;
     negotiationState = 'IDLE';
     negotiation?: ContractNegotiation;
     negotiationInProgress = false;
@@ -221,6 +224,8 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
                         if (updatedNegotiation.state === 'VERIFIED' || updatedNegotiation.state === 'FINALIZED') {
                             this.contractAgreementId = this.getContractAgreementId(updatedNegotiation);
                             this.notificationService.showInfo('Contract negotiation complete!');
+                        } else if (updatedNegotiation.state === 'ERROR') {
+                            this.notificationService.showError('Negotiation failed - stopped polling');
                         }
                     }
                 });
@@ -380,6 +385,15 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             filter(({ runningTransferProcess, transferProcess }) =>
                 OfferDetailsComponent.isFinishedState(transferProcess.state!) && !runningTransferProcess.isTransferStarted),
             tap(({ runningTransferProcess, transferProcess }) => {
+                // Handle error state
+                if (transferProcess.state === 'ERROR') {
+                    console.error(`[Transfer] Transfer ${runningTransferProcess.processId} failed`);
+                    this.runningTransfers = this.runningTransfers.filter(rtp => rtp.processId !== transferProcess.id);
+                    this.notificationService.showError(`Transfer failed - stopped polling`);
+                    return;
+                }
+
+                // Handle success states
                 console.log(`[Transfer] Starting download for ${runningTransferProcess.processId} in state: ${transferProcess.state}`);
                 try {
                     runningTransferProcess.isTransferStarted = true;
@@ -389,6 +403,9 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
                 } catch (err) {
                     console.error(`[Transfer Error] Failed to process transfer ${runningTransferProcess.processId}:`, err);
                     runningTransferProcess.isTransferStarted = false;
+                    // Remove from running transfers on error
+                    this.runningTransfers = this.runningTransfers.filter(rtp => rtp.processId !== transferProcess.id);
+                    this.notificationService.showError(`Transfer processing failed - stopped polling`);
                 }
             })
             )
@@ -447,6 +464,9 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             
             // Start download in background (don't await)
             this.isDownloading = true;
+            this.downloadProgress = 0;
+            this.downloadedSizeMB = 0;
+            this.hasContentLength = false;
             this.notificationService.showInfo('Download started, please wait...');
             this.saveFileToDownloads(data, transfer);
         } catch (e: any) {
@@ -454,15 +474,33 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             console.log('[Transfer] Error:', e);
             this.isDownloading = false;
             this.notificationService.showError(message);
+            // Ensure transfer is removed from running transfers on error (without success notification)
+            this.runningTransfers = this.runningTransfers.filter(rtp => rtp.processId !== transfer.id);
         }
     }
 
     private saveFileToDownloads = async (data: Response, transfer: TransferProcess) => {
         try {
             const contentType = data.headers.get('Content-Type') || 'application/octet-stream';
-            console.log('[Download] Starting blob conversion...');
-            const blob = await data.blob();
+            const contentDisposition = data.headers.get('Content-Disposition') || '';
+            const contentLength = data.headers.get('Content-Length');
+            const totalSize = contentLength ? parseInt(contentLength, 10) : 0;
+            
+            console.log('[Download] Response headers:');
+            console.log('[Download] Content-Type:', contentType);
+            console.log('[Download] Content-Disposition:', contentDisposition);
+            console.log('[Download] Content-Length:', contentLength);
+            console.log('[Download] Total size:', totalSize, 'bytes');
+            console.log('[Download] All headers:', {
+                'content-type': contentType,
+                'content-disposition': contentDisposition,
+                'content-length': contentLength
+            });
+            
+            console.log('[Download] Starting blob conversion with progress tracking...');
+            const blob = await this.readResponseAsBlob(data, totalSize);
             console.log('[Download] Blob created, size:', blob.size, 'bytes');
+            console.log('[Download] Blob type:', blob.type);
 
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -483,12 +521,61 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             console.log('[Download] File download initiated successfully');
             
             this.isDownloading = false;
+            this.downloadProgress = 0;
+            this.downloadedSizeMB = 0;
             this.notificationService.showInfo(`File downloaded: ${a.download}`);
         } catch (err) {
             console.error('[Download] Error:', err);
             this.isDownloading = false;
+            this.downloadProgress = 0;
+            this.downloadedSizeMB = 0;
             this.notificationService.showError('Download failed');
         }
+    };
+
+    private readResponseAsBlob = async (data: Response, totalSize: number): Promise<Blob> => {
+        if (!data.body) {
+            return await data.blob();
+        }
+
+        const reader = data.body.getReader();
+        const chunks: Uint8Array[] = [];
+        let downloadedSize = 0;
+        const hasContentLength = totalSize > 0;
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                chunks.push(value);
+                downloadedSize += value.length;
+
+                if (hasContentLength) {
+                    this.downloadProgress = Math.round((downloadedSize / totalSize) * 100);
+                    console.log(`[Download] Progress: ${downloadedSize}/${totalSize} bytes (${this.downloadProgress}%)`);
+                } else {
+                    // No Content-Length - show downloaded size in MB
+                    this.downloadedSizeMB = parseFloat((downloadedSize / (1024 * 1024)).toFixed(2));
+                    console.log(`[Download] Downloaded: ${this.downloadedSizeMB} MB (${downloadedSize} bytes)`);
+                }
+                
+                // Update flag for template
+                this.hasContentLength = hasContentLength;
+            }
+        } finally {
+            reader.releaseLock();
+        }
+
+        const buffer = new Uint8Array(downloadedSize);
+        let offset = 0;
+        for (const chunk of chunks) {
+            buffer.set(chunk, offset);
+            offset += chunk.length;
+        }
+
+        const contentType = data.headers.get('Content-Type') || 'application/octet-stream';
+        return new Blob([buffer], { type: contentType });
     };
 
     private adjustServiceUrl = (url: string): string => {

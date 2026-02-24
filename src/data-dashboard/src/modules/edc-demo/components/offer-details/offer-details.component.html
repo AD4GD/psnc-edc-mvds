@@ -214,16 +214,26 @@
             <mat-chip color="accent" selected class="status-chip">Negotiation: {{ negotiationState }}</mat-chip>
             <mat-chip color="primary" selected class="status-chip">Transfer: {{ getTransferState() }}</mat-chip>
             <mat-chip *ngIf="isDownloading" color="warn" selected class="status-chip">
-              <mat-spinner diameter="16" style="display: inline-block; vertical-align: middle; margin-right: 8px;"></mat-spinner>
-              Downloading file...
+              <ng-container *ngIf="hasContentLength; else noSize">
+                Downloading: {{ downloadProgress }}%
+              </ng-container>
+              <ng-template #noSize>
+                Downloading: {{ downloadedSizeMB }} MB
+              </ng-template>
             </mat-chip>
             <mat-chip *ngIf="contractAgreementId" selected class="status-chip">Agreement: {{ contractAgreementId }}</mat-chip>
           </div>
 
           <mat-progress-bar
-            *ngIf="negotiationInProgress || isTransferInProgress() || isDownloading"
+            *ngIf="negotiationInProgress || isTransferInProgress()"
             color="accent"
             mode="indeterminate"
+          ></mat-progress-bar>
+          <mat-progress-bar
+            *ngIf="isDownloading"
+            [color]="hasContentLength ? 'primary' : 'accent'"
+            [mode]="hasContentLength ? 'determinate' : 'indeterminate'"
+            [value]="hasContentLength ? downloadProgress : 0"
           ></mat-progress-bar>
         </mat-card-content>
       </mat-card>
