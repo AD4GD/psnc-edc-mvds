@@ -186,6 +186,19 @@ export class AssetViewerComponent implements OnInit, OnDestroy {
     return asset.properties[METADATA_CONTEXT]?.[0]
   }
 
+  /**
+   * Safely compare value to true, handles both boolean and string "true"/"false"
+   */
+  isAllowed(value: any): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return !!value;
+  }
+
   ngAfterContentChecked() {
     this.cdref.detectChanges();
   }

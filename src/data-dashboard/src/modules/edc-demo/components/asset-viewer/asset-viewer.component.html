@@ -85,14 +85,14 @@
               <mat-icon matListItemIcon>alt_route</mat-icon>
               <div class="asset-property" matListItemTitle>Proxy path</div>
               <div matListItemLine>
-                {{ asset.properties.optionalValue('edc', 'proxyPath') ? 'Proxy path is allowed' : 'Proxy path is not allowed' }}
+                {{ isAllowed(asset.properties.optionalValue('edc', 'proxyPath')) ? 'Proxy path is allowed' : 'Proxy path is not allowed' }}
               </div>
             </mat-list-item>
             <mat-list-item>
               <mat-icon matListItemIcon>explore</mat-icon>
               <div class="asset-property" matListItemTitle>Proxy query params</div>
               <div matListItemLine>
-                {{ asset.properties.optionalValue('edc', 'proxyQueryParams') ? 'Proxy query params are allowed' : 'Proxy query params are not allowed' }}
+                {{ isAllowed(asset.properties.optionalValue('edc', 'proxyQueryParams')) ? 'Proxy query params are allowed' : 'Proxy query params are not allowed' }}
               </div>
             </mat-list-item>
           </mat-list>
