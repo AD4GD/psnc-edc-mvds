@@ -159,6 +159,31 @@ export class CatalogBrowserService {
     return headers;
   }
 
+  requestDatasetById(counterPartyAddress: string, datasetId: string): Observable<any> {
+    const baseUrl = this.managementApiUrl.replace(/\/$/, "");
+    const url = `${baseUrl}/v3/catalog/dataset/request`;
+    const body = {
+      "@context": {
+        "edc": "https://w3id.org/edc/v0.0.1/ns/"
+      },
+      "@type": "CatalogRequest",
+      counterPartyAddress: counterPartyAddress,
+      "@id": datasetId,
+      protocol: "dataspace-protocol-http"
+    };
+
+    return this.httpClient.post<any>(url, body, {
+      headers: this.buildCatalogRequestAuthHeaders()
+    });
+  }
+
+  requestDatasetOfferById(counterPartyAddress: string, datasetId: string, participantId: string): Observable<ContractOffer> {
+    return this.requestDatasetById(counterPartyAddress, datasetId)
+      .pipe(
+        map(payload => this.buildContractOfferFromDataset(payload, datasetId, counterPartyAddress, participantId))
+      );
+  }
+
   initiateTransfer(transferRequest: TransferProcessInput): Observable<string> {
     return this.transferProcessService.initiateTransfer(transferRequest).pipe(map(t => t.id!))
   }
@@ -241,6 +266,86 @@ export class CatalogBrowserService {
     }
 
     return undefined;
+  }
+
+  private buildContractOfferFromDataset(payload: any, datasetId: string, originator: string, participantId: string): ContractOffer {
+    const dcatPrefix = "dcat:";
+    const odrlPrefix = "odrl:";
+    const dspacePrefix = "dspace:";
+
+    const dataset = this.findDatasetInPayload(payload, datasetId);
+    if (!dataset) {
+      throw new Error(`Dataset ${datasetId} not found in response`);
+    }
+
+    const properties: { [key: string]: string } = {
+      id: dataset["@id"] ?? datasetId,
+      type: dataset["@type"],
+      name: this.getItemProperty(dataset, "name", ""),
+      version: this.getItemProperty(dataset, "version", ""),
+      contentType: this.getItemProperty(dataset, "contenttype", ""),
+      proxyPath: this.getItemProperty(dataset, "proxyPath", ""),
+      proxyQueryParams: this.getItemProperty(dataset, "proxyQueryParams", ""),
+      baseUrl: this.getItemProperty(dataset, "baseUrl", ""),
+    };
+
+    const hasPolicy = this.getFirstPolicy(this.getItemProperty(dataset, "hasPolicy", odrlPrefix));
+
+    const policy: PolicyInput = {
+      "@type": "Set",
+      "@context": "http://www.w3.org/ns/odrl.jsonld",
+      "uid": hasPolicy?.["@id"] ?? datasetId,
+      "assignee": hasPolicy?.["assignee"],
+      "assigner": hasPolicy?.["assigner"],
+      "obligation": this.getItemProperties(hasPolicy, "obligation", odrlPrefix),
+      "permission": this.getItemProperties(hasPolicy, "permission", odrlPrefix),
+      "prohibition": this.getItemProperties(hasPolicy, "prohibition", odrlPrefix),
+      "target": this.getItemProperty(hasPolicy, "target", odrlPrefix) ?? datasetId
+    };
+
+    const rawDatasets = payload?.["dcat:dataset"] ?? payload?.["http://www.w3.org/ns/dcat#dataset"];
+    const datasetList = Array.isArray(rawDatasets)
+      ? rawDatasets
+      : rawDatasets
+        ? [rawDatasets]
+        : [dataset];
+
+    return {
+      assetId: dataset["@id"] ?? datasetId,
+      properties: properties,
+      "http://www.w3.org/ns/dcat#service": this.getItemProperty(payload, "service", dcatPrefix),
+      "http://www.w3.org/ns/dcat#dataset": datasetList,
+      id: hasPolicy?.["@id"] ?? datasetId,
+      originator: this.getItemProperty(payload, "originator", "") ?? originator,
+      policy: policy,
+      participantId: this.getItemProperty(payload, "participantId", dspacePrefix) ?? participantId,
+    };
+  }
+
+  private findDatasetInPayload(payload: any, datasetId: string): any | null {
+    if (!payload) {
+      return null;
+    }
+
+    const datasetKeys = [
+      "dcat:dataset",
+      "http://www.w3.org/ns/dcat#dataset",
+      "dataset"
+    ];
+
+    for (const key of datasetKeys) {
+      if (payload[key]) {
+        const datasets = Array.isArray(payload[key]) ? payload[key] : [payload[key]];
+        const match = datasets.find((_asset: any) => _asset?.["@id"] === datasetId || _asset?.id === datasetId);
+        return match ?? datasets[0];
+      }
+    }
+
+    if (payload["@id"] === datasetId) {
+      return payload;
+    }
+
+    return null;
   }
 
   private catchError<T>(observable: Observable<T>, url: string, method: string): Observable<T> {

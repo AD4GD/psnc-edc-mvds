@@ -20,7 +20,7 @@ export class NavigationComponent {
       shareReplay()
     );
 
-  routes = routes;
+  routes = routes.filter(route => !route.data?.hideNav);
 
   constructor(
     public titleService: Title,

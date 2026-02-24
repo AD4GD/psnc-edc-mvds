@@ -49,6 +49,7 @@ import { PolicyRuleModalComponent } from './components/policy-rule-modal/policy-
 import { JsonLdCodeDisplayComponent } from './components/common/jsonld-code-display/jsonld-code-display';
 import { MetadataDisplayComponent } from './components/common/metadata-display/metadata-display.component';
 import { AccessDeniedBannerComponent } from './components/common/access-denied-banner/access-denied-banner.component';
+import { OfferDetailsComponent } from './components/offer-details/offer-details.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -111,6 +112,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     JsonLdCodeDisplayComponent,
     MetadataDisplayComponent,
     AccessDeniedBannerComponent,
+    OfferDetailsComponent,
   ],
   exports: [
     CatalogBrowserComponent,
@@ -121,7 +123,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     PolicyRuleViewerComponent,
     IntroductionComponent,
     NewPolicyDialogComponent,
-    ContractViewerComponent
+    ContractViewerComponent,
+    OfferDetailsComponent
   ]
 })
 export class EdcDemoModule {
