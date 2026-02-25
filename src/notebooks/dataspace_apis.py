@@ -12,7 +12,7 @@ def create_asset(
     baseUrl: str = "https://jsonplaceholder.typicode.com/users",
     additional_metadata: dict = {},
     version: str = "1.0",
-    context : dict = { "edc" : "https://w3id.org/edc/v0.0.1/ns/" },
+    context : dict = {"edc" : "https://w3id.org/edc/v0.0.1/ns/"},
     proxy: bool = True,
 ):
     return requests.post(
@@ -60,11 +60,11 @@ def update_asset(
     content_type: str = "application/json",
     baseUrl: str = "https://jsonplaceholder.typicode.com/users",
     additional_metadata : dict = {},
-    context : dict = { "edc" : "https://w3id.org/edc/v0.0.1/ns/" },
+    context : dict = {"edc" : "https://w3id.org/edc/v0.0.1/ns/"},
     proxy: bool = True
 ):
-    properties = { 
-        "name": asset_name, 
+    properties = {
+        "name": asset_name,
         "contenttype": content_type,
         "proxyPath": "true" if proxy else "false",
         "proxyQueryParams": "true" if proxy else "false",
@@ -80,9 +80,9 @@ def update_asset(
                 "@id" : asset_id,
                 "properties" : properties,
                 "private_properties" : properties,
-                "dataAddress" : { 
-                    "name" : asset_name, 
-                    "baseUrl" : baseUrl, 
+                "dataAddress" : {
+                    "name" : asset_name,
+                    "baseUrl" : baseUrl,
                     "type" : "HttpData",
                     "proxyPath": "true" if proxy else "false",
                     "proxyQueryParams": "true" if proxy else "false",
