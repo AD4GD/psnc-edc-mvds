@@ -12,7 +12,7 @@ def create_asset(
     baseUrl: str = "https://jsonplaceholder.typicode.com/users",
     additional_metadata: dict = {},
     version: str = "1.0",
-    context : dict = {"edc" : "https://w3id.org/edc/v0.0.1/ns/"},
+    context: dict = {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
     proxy: bool = True,
 ):
     return requests.post(
@@ -56,12 +56,12 @@ def update_asset(
     asset_id: str,
     management_url: str,
     default_headers: dict,
-    asset_name : str,
+    asset_name: str,
     content_type: str = "application/json",
     baseUrl: str = "https://jsonplaceholder.typicode.com/users",
-    additional_metadata : dict = {},
-    context : dict = {"edc" : "https://w3id.org/edc/v0.0.1/ns/"},
-    proxy: bool = True
+    additional_metadata: dict = {},
+    context: dict = {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
+    proxy: bool = True,
 ):
     properties = {
         "name": asset_name,
@@ -76,14 +76,14 @@ def update_asset(
         headers=default_headers,
         data=json.dumps(
             {
-                "@context" : context,
-                "@id" : asset_id,
-                "properties" : properties,
-                "private_properties" : properties,
-                "dataAddress" : {
-                    "name" : asset_name,
-                    "baseUrl" : baseUrl,
-                    "type" : "HttpData",
+                "@context": context,
+                "@id": asset_id,
+                "properties": properties,
+                "private_properties": properties,
+                "dataAddress": {
+                    "name": asset_name,
+                    "baseUrl": baseUrl,
+                    "type": "HttpData",
                     "proxyPath": "true" if proxy else "false",
                     "proxyQueryParams": "true" if proxy else "false",
                 },
@@ -93,10 +93,7 @@ def update_asset(
     )
 
 
-def get_asset(
-    asset_id: str,
-    management_url: str,
-    default_headers: dict
+def get_asset(asset_id: str, management_url: str, default_headers: dict
 ):
     return requests.get(
         headers=default_headers,
