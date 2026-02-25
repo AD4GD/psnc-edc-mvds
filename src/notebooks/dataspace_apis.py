@@ -93,8 +93,7 @@ def update_asset(
     )
 
 
-def get_asset(asset_id: str, management_url: str, default_headers: dict
-):
+def get_asset(asset_id: str, management_url: str, default_headers: dict):
     return requests.get(
         headers=default_headers,
         url=f"{management_url}/v3/assets/{asset_id}",
