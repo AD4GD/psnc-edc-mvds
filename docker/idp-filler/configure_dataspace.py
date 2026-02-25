@@ -15,6 +15,16 @@ import time
 import requests
 import keycloak_utils as ku
 
+KC_BASE = ku.env("KC_BASE", "http://localhost:8081")
+KC_USER = ku.env("KC_USER", "admin")
+KC_PASS = ku.env("KC_PASS", "edc")
+REALM = ku.env("REALM_NAME", "Organizations") # Data Space Realm
+DAPS_REALM = "DAPS"
+
+RS_URL = ku.env("WEB_HTTP_RS_URI", "http://localhost:38182")
+RS_USER = ku.env("RS_USERNAME", "rs-admin")
+RS_PASS = ku.env("RS_PASSWORD", "edc")
+
 # --- Registration Service Logic ---
 
 def wait_for_registration_service(rs_url: str, timeout: int = 2):
@@ -52,16 +62,6 @@ def register_participant(rs_url: str, token : str, did : str, participant_url: s
 # --- Main ---
 
 def main():
-    KC_BASE = ku.env("KC_BASE", "http://localhost:8081")
-    KC_USER = ku.env("KC_USER", "admin")
-    KC_PASS = ku.env("KC_PASS", "edc")
-    REALM = ku.env("REALM_NAME", "Organizations") # Data Space Realm
-    DAPS_REALM = "DAPS"
-    
-    RS_URL = ku.env("WEB_HTTP_RS_URI", "http://localhost:38182")
-    RS_USER = ku.env("RS_USERNAME", "rs-admin")
-    RS_PASS = ku.env("RS_PASSWORD", "edc")
-
     ku.wait_for_keycloak(KC_BASE)
     conn = ku.get_connection(KC_BASE, KC_USER, KC_PASS)
     token = ku.get_access_token(KC_BASE, "master", KC_USER, KC_PASS)
