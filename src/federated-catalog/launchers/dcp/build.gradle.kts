@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":extensions:did-example-resolver"))
     implementation(project(":extensions:dcp-impl"))
     implementation(project(":extensions:catalog-node-management-api"))
+    implementation(project(":extensions:catalog-geo-spatial-filtering"))
     runtimeOnly(libs.edc.api.secrets)
 
     runtimeOnly(libs.bundles.connector) // base runtime

@@ -267,12 +267,12 @@ services:
       - fc-ih-vault
   
   federated-catalog-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: postgis/postgis:11-3.3
     restart: always
     environment:
-      POSTGRESQL_USERNAME: edc
-      POSTGRESQL_PASSWORD: edc
-      POSTGRESQL_DATABASE: edc
+      POSTGRES_USER: edc
+      POSTGRES_PASSWORD: edc
+      POSTGRES_DATABASE: edc
     ports:
       - '5435:5432'
     volumes:
