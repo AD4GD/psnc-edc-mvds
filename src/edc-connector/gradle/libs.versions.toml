@@ -45,6 +45,7 @@ edc-control-plane-api-client = { module = "org.eclipse.edc:control-plane-api-cli
 edc-control-plane-api = { module = "org.eclipse.edc:control-plane-api", version.ref = "edc" }
 edc-control-plane-core = { module = "org.eclipse.edc:control-plane-core", version.ref = "edc" }
 edc-control-plane-spi = { module = "org.eclipse.edc:control-plane-spi", version.ref = "edc" }
+edc-catalog-spi = { module = "org.eclipse.edc:catalog-spi", version.ref = "edc" }
 
 edc-data-plane-client = { module = "org.eclipse.edc:data-plane-client", version.ref = "edc" }
 edc-data-plane-core = { module = "org.eclipse.edc:data-plane-core", version.ref = "edc" }
@@ -82,6 +83,8 @@ edc-transfer-spi = { module = "org.eclipse.edc:transfer-spi", version.ref = "edc
 edc-vault-filesystem = { module = "org.eclipse.edc:vault-filesystem", version.ref = "edc" }
 
 edc-api-observability = { module = "org.eclipse.edc:api-observability", version.ref = "edc" }
+
+edc-web-spi = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
 
 edc-core-spi = { module = "org.eclipse.edc:core-spi", version.ref = "edc"}
 edc-sql-core = { module = "org.eclipse.edc:sql-core", version.ref = "edc"}

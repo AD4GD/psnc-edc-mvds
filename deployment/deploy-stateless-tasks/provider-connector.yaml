@@ -58,6 +58,9 @@
               - name: "protocol"
                 containerPort: 19194
                 protocol: "TCP"
+              - name: "catalogproxy"
+                containerPort: 19195
+                protocol: "TCP"
               - name: "public"
                 containerPort: 19291
                 protocol: "TCP"
@@ -118,6 +121,8 @@
             port: 19193
           - name: "protocol"
             port: 19194
+          - name: "catalogproxy"
+            port: 19195
           - name: "public"
             port: 19291
           - name: "control"

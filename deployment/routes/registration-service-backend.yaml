@@ -7,6 +7,8 @@
       metadata:
         name: registration-service-backend-api
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ registration_service_backend_address | regex_replace('^https?://', '') }}"
         path: /api
@@ -28,6 +30,8 @@
       metadata:
         name: registration-service-backend-authority
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ registration_service_backend_address | regex_replace('^https?://', '') }}"
         path: /authority

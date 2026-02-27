@@ -4,5 +4,5 @@
   "environment": "development",
   "isUseFakeBackend": false,
   "oauthIssuer": "http://localhost:8081/realms/Organizations",
-  "oauthClientId": "data-space"
+  "oauthClientId": "data-space-users"
 }

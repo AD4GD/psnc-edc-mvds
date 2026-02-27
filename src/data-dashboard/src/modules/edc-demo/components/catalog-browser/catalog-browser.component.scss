@@ -8,6 +8,23 @@
   margin-bottom: 15px;
 }
 
+.asset-card.clickable {
+  cursor: pointer !important;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.asset-card.clickable * {
+  cursor: pointer !important;
+}
+
+.asset-card.clickable:hover {
+  box-shadow: 0 12px 32px rgba(251, 245, 231, 0.25);
+  transform: translateY(-4px);
+  background-color: rgba(251, 245, 231, 0.05);
+  border-color: rgba(251, 245, 231, 0.3);
+}
+
 .main-property-icon {
   font-size: 12px;
 }

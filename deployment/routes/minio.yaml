@@ -7,6 +7,8 @@
       metadata:
         name: minio
         namespace: "{{ k8s_namespace }}"
+        annotations:
+          haproxy.router.openshift.io/ip_whitelist: ''
       spec:
         host: "{{ minio_address | regex_replace('^https?://', '') }}"
         to:

@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.edc.data.plane.core)
     implementation(libs.edc.data.plane.http)
     implementation(project(":extensions:data-plane-oauth2-access-token"))
+    implementation(project(":extensions:catalog-proxy"))
 
     implementation(libs.edc.api.observability)
 

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import {
   ContractAgreementService,
   MIME_TO_EXTENSION,
@@ -21,6 +22,9 @@ import { EdcConnectorClientContext } from '@think-it-labs/edc-connector-client';
 import { SorterService, CatalogBrowserService, NotificationService, UtilService } from '../../services';
 import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
 import { PageEvent } from '@angular/material/paginator';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-state.service';
 
 interface RunningTransferProcess {
   processId: string;
@@ -41,7 +45,7 @@ interface ContractAgreementWithOfferData extends ContractAgreement {
   styleUrls: ['./contract-viewer.component.scss']
 })
 
-export class ContractViewerComponent implements OnInit {
+export class ContractViewerComponent implements OnInit, OnDestroy {
   paginationState = {
     filteredList: [] as ContractAgreementWithOfferData[],
     pagedList: [] as ContractAgreementWithOfferData[],
@@ -50,8 +54,10 @@ export class ContractViewerComponent implements OnInit {
   };
   allContracts: ContractAgreementWithOfferData[] = [];
   searchText = '';
+  isUnauthorized = false;
   private runningTransfers: RunningTransferProcess[] = [];
   private pollingHandleTransfer?: any;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private contractAgreementService: ContractAgreementService,
@@ -67,6 +73,7 @@ export class ContractViewerComponent implements OnInit {
     private sorterService: SorterService,
     private readonly cdref: ChangeDetectorRef,
     public readonly utilService: UtilService,
+    private readonly unauthorizedState: UnauthorizedStateService,
     @Inject('HOME_CONNECTOR_STORAGE_ACCOUNT') private homeConnectorStorageAccount: string,
   ) { }
 
@@ -86,27 +93,53 @@ export class ContractViewerComponent implements OnInit {
       switchMap(contracts => {
         return this.loadContractsWithAssets( contracts )
       })
-    ).subscribe(contracts => {
-      this.allContracts = contracts.sort((a, b) => {
-        // Sort by contractSigningDate (descending)
-        const dateA = a.contractSigningDate || 0;
-        const dateB = b.contractSigningDate || 0;
-        if (dateA !== dateB) {
-          return dateB - dateA; // Newest first
+    ).subscribe({
+      next: contracts => {
+        this.allContracts = contracts.sort((a, b) => {
+          // Sort by contractSigningDate (descending)
+          const dateA = a.contractSigningDate || 0;
+          const dateB = b.contractSigningDate || 0;
+          if (dateA !== dateB) {
+            return dateB - dateA; // Newest first
+          }
+          return this.sorterService.naturalSort(a.assetId || '', b.assetId || '');
+        });
+        this.utilService.applyFilterAndPagination(
+          [...this.allContracts],
+          this.filterContracts.bind(this),
+          this.searchText,
+          this.paginationState
+        );
+      },
+      error: (err: HttpErrorResponse) => {
+        if (this.unauthorizedState.isUnauthorized('management')) {
+          return;
         }
-        return this.sorterService.naturalSort(a.assetId || '', b.assetId || '');
-      });
-      this.utilService.applyFilterAndPagination(
-        [...this.allContracts],
-        this.filterContracts.bind(this),
-        this.searchText,
-        this.paginationState
-      );
+        this.notificationService.showError('Failed to load contracts');
+        console.error(err);
+      }
     });
   }
 
   ngOnInit(): void {
+    this.unauthorizedState
+      .isUnauthorized$('management')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isUnauthorized) => {
+        this.isUnauthorized = isUnauthorized;
+        if (isUnauthorized) {
+          this.allContracts = [];
+          this.paginationState.filteredList = [];
+          this.paginationState.pagedList = [];
+        }
+      });
+
     this.loadContractAgreements();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   filterContracts(mainList: ContractAgreementWithOfferData[]): ContractAgreementWithOfferData[] {
@@ -161,7 +194,7 @@ export class ContractViewerComponent implements OnInit {
     if(epochSeconds){
       const d = new Date(0);
       d.setUTCSeconds(epochSeconds);
-      return d.toLocaleDateString();
+      return d.toLocaleString();
     }
     return '';
   }

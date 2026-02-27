@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { first } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetInput, Asset } from "../../../mgmt-api-client/model";
@@ -9,6 +10,9 @@ import { NotificationService, SorterService, UtilService } from "../../services"
 import { PageEvent } from '@angular/material/paginator';
 import { MetadataDisplayComponent } from '../common/metadata-display/metadata-display.component';
 import { METADATA_CONTEXT } from 'src/modules/app/variables';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-state.service';
 
 
 @Component({
@@ -16,7 +20,7 @@ import { METADATA_CONTEXT } from 'src/modules/app/variables';
   templateUrl: './asset-viewer.component.html',
   styleUrls: ['./asset-viewer.component.scss']
 })
-export class AssetViewerComponent implements OnInit {
+export class AssetViewerComponent implements OnInit, OnDestroy {
   paginationState = {
     filteredList: [] as Asset[],
     pagedList: [] as Asset[],
@@ -26,6 +30,8 @@ export class AssetViewerComponent implements OnInit {
   allAssets: Asset[] = [];
   searchText = '';
   isTransferring = false;
+  isUnauthorized = false;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private assetService: AssetService,
@@ -34,6 +40,7 @@ export class AssetViewerComponent implements OnInit {
     private readonly metadataViewDialog: MatDialog,
     private readonly sorterService: SorterService,
     private readonly cdref: ChangeDetectorRef,
+    private readonly unauthorizedState: UnauthorizedStateService,
     public readonly utilService: UtilService,
   ) { }
 
@@ -41,7 +48,8 @@ export class AssetViewerComponent implements OnInit {
     this.assetService.requestAssets({ 
       limit: QUERY_LIMIT,
       offset: 0 
-    }).subscribe(assets => {
+    }).subscribe({
+      next: assets => {
       this.allAssets = assets.sort((a, b) =>
         this.sorterService.naturalSort(
           a.properties.optionalValue<string>('edc', 'name') || a['@id'],
@@ -54,6 +62,13 @@ export class AssetViewerComponent implements OnInit {
         this.searchText,
         this.paginationState
       );
+      },
+      error: (err: HttpErrorResponse) => {
+        if (this.unauthorizedState.isUnauthorized('management')) {
+          return;
+        }
+        this.showError(err as any, 'Failed to load assets');
+      }
     });
   }
 
@@ -67,7 +82,24 @@ export class AssetViewerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.unauthorizedState
+      .isUnauthorized$('management')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isUnauthorized) => {
+        this.isUnauthorized = isUnauthorized;
+        if (isUnauthorized) {
+          this.allAssets = [];
+          this.paginationState.filteredList = [];
+          this.paginationState.pagedList = [];
+        }
+      });
+
     this.loadAssets();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   isBusy() {
@@ -152,6 +184,19 @@ export class AssetViewerComponent implements OnInit {
 
   findMetadataForAsset(asset: Asset) {
     return asset.properties[METADATA_CONTEXT]?.[0]
+  }
+
+  /**
+   * Safely compare value to true, handles both boolean and string "true"/"false"
+   */
+  isAllowed(value: any): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return !!value;
   }
 
   ngAfterContentChecked() {

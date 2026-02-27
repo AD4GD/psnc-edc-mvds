@@ -314,12 +314,44 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: identity-provider
+  name: data-space-keycloak
 spec:
-  host: identity-provider-edc-connector.apps.bst2.paas.psnc.pl
+  host: data-space-keycloak-edc-connector.apps.bst2.paas.psnc.pl
   to:
     kind: Service
-    name: edc-connector-identityprovider
+    name: edc-connector-dataspacekeycloak
+  port:
+    targetPort: keycloak-http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: consumer-keycloak
+spec:
+  host: consumer-keycloak-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-consumerkeycloak
+  port:
+    targetPort: keycloak-http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: provider-keycloak
+spec:
+  host: provider-keycloak-edc-connector.apps.bst2.paas.psnc.pl
+  to:
+    kind: Service
+    name: edc-connector-providerkeycloak
   port:
     targetPort: keycloak-http
   tls:

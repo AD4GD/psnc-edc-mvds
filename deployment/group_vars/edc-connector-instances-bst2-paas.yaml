@@ -44,6 +44,14 @@ connectorprovider_resources:
     cpu: "1"
     memory: "2000Mi"
 
+connectorsage_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
 consumerdashboard_resources:
   requests:
     cpu: "100m"
@@ -53,6 +61,14 @@ consumerdashboard_resources:
     memory: "400Mi"
 
 providerdashboard_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+sagedashboard_resources:
   requests:
     cpu: "100m"
     memory: "200Mi"
@@ -76,10 +92,26 @@ minio_resources:
     cpu: "1500m"
     memory: "1Gi"
 
-identityprovider_resources:
+dataspacekeycloak_resources:
   requests:
     cpu: "100m"
-    memory: "200Mi"
+    memory: "400Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+consumerkeycloak_resources:
+  requests:
+    cpu: "100m"
+    memory: "400Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+providerkeycloak_resources:
+  requests:
+    cpu: "100m"
+    memory: "400Mi"
   limits:
     cpu: "1"
     memory: "1Gi"
@@ -138,17 +170,21 @@ expose_http_k8s_entity_api_version: "{{ 'v1' if expose_http_kind == 'routes' els
 consumer_dashboard_address_shorten: "consumer-dashboard-edc-connector.apps.bst2.paas.psnc.pl"
 provider_dashboard_address_shorten: "provider-dashboard-edc-connector.apps.bst2.paas.psnc.pl"
 registration_service_frontend_address_shorten: "registration-service-edc-connector.apps.bst2.paas.psnc.pl"
+sage_dashboard_address_shorten: "sage-dashboard-edc-connector.apps.bst2.paas.psnc.pl"
 consumer_dashboard_address: "https://{{ consumer_dashboard_address_shorten }}"
 provider_dashboard_address: "https://{{ provider_dashboard_address_shorten }}"
+sage_dashboard_address: "https://{{ sage_dashboard_address_shorten }}"
 registration_service_frontend_address: "https://{{ registration_service_frontend_address_shorten }}"
-identity_provider_address: "https://identity-provider-edc-connector.apps.bst2.paas.psnc.pl"
+data_space_keycloak_address: "https://data-space-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
+consumer_keycloak_address: "https://consumer-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
+provider_keycloak_address: "https://provider-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
 federated_catalog_address: "https://federated-catalog-edc-connector.apps.bst2.paas.psnc.pl"
 consumer_backend_address: "https://consumer-backend-edc-connector.apps.bst2.paas.psnc.pl"
 consumer_connector_address: "https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl"
 provider_connector_address: "https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl"
+sage_connector_address: "https://sage-connector-edc-connector.apps.bst2.paas.psnc.pl"
 minio_address: "https://minio-edc-connector.apps.bst2.paas.psnc.pl"
 registration_service_backend_address: "https://registration-service-api-edc-connector.apps.bst2.paas.psnc.pl"
-
 # TODO DV-272 remove KUBECTL_COMMAND
 KUBECTL_COMMAND: kubectl
 kubectl_command: "{{ KUBECTL_COMMAND }}"
@@ -177,7 +213,21 @@ SECRET_KEY:
 
 # DO NOT CHANGE DEFINITIONS BELOW
 
-deployed_parameters_packs: "{{ ['connectorconsumer', 'connectorprovider', 'consback', 'federatedcatalog', 'consumerdashboard', 'providerdashboard', 'identityprovider', 'registrationservicefrontend', 'registrationservicebackend'] }}"
+deployed_parameters_packs: "{{ [
+  'connectorconsumer',
+  'connectorprovider',
+  'connectorsage',
+  'consback',
+  'federatedcatalog',
+  'consumerdashboard',
+  'providerdashboard',
+  'sagedashboard',
+  'dataspacekeycloak',
+  'consumerkeycloak',
+  'providerkeycloak',
+  'registrationservicefrontend',
+  'registrationservicebackend'
+  ] }}"
 
 # definitions below are helper definitions - do not change this
 

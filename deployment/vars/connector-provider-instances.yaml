@@ -4,28 +4,37 @@ connectorprovider_configmap__05_defaults:
   EDC_PARTICIPANT_ID: "provider"
   EDC_DSP_CALLBACK_ADDRESS: "{{ provider_connector_address }}/protocol"
   EDC_DATAPLANE_API_PUBLIC_BASEURL: "{{ provider_connector_address }}/public"
+
   WEB_HTTP_PORT: "19191"
   WEB_HTTP_PATH: "/api"
-  WEB_HTTP_MANAGEMENT_PORT: "19193"
-  WEB_HTTP_MANAGEMENT_PATH: "/management"
+
   WEB_HTTP_PROTOCOL_PORT: "19194"
   WEB_HTTP_PROTOCOL_PATH: "/protocol"
+
   WEB_HTTP_PUBLIC_PORT: "19291"
   WEB_HTTP_PUBLIC_PATH: "/public"
-  WEB_HTTP_CONTROL_PORT: "19192"
-  WEB_HTTP_CONTROL_PATH: "/control"
+
+  WEB_HTTP_MANAGEMENT_PORT: "19193"
+  WEB_HTTP_MANAGEMENT_PATH: "/management"
   WEB_HTTP_MANAGEMENT_AUTH_TYPE: "{{ 'composite' if is_auth else 'none' }}"
   WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: "{{ (['tokenbased', 'delegated'] if is_auth else []) | to_json }}"
   WEB_HTTP_MANAGEMENT_AUTH_CONTEXT: "management-api"
   WEB_HTTP_MANAGEMENT_AUTH_KEY: "edc"
-  WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: "{{ identity_provider_address }}/realms/Organizations/protocol/openid-connect/certs"
-  EDC_API_AUTH_DAC_KEY_URL: "{{ identity_provider_address }}/realms/Organizations/protocol/openid-connect/certs"
+  WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: "{{ provider_keycloak_address }}/realms/Organizations/protocol/openid-connect/certs"
+  WEB_HTTP_MANAGEMENT_AUTH_AUDIENCE: provider-connector
+  # WEB_HTTP_MANAGEMENT_AUTH_DAC_AUDIENCE: provider-connector
+  # WEB_HTTP_MANAGEMENT_AUTH_ROLES: '["access-connector"]'
+  EDC_API_AUTH_DAC_KEY_URL: "{{ provider_keycloak_address }}/realms/Organizations/protocol/openid-connect/certs"
+
+  WEB_HTTP_CONTROL_PORT: "19192"
+  WEB_HTTP_CONTROL_PATH: "/control"
   WEB_HTTP_CONTROL_AUTH_TYPE: "{{ 'tokenbased' if is_auth else 'none' }}"
   WEB_HTTP_CONTROL_AUTH_CONTEXT: "control-api"
   WEB_HTTP_CONTROL_AUTH_KEY: "edc"
   WEB_HTTP_DEFAULT_AUTH_TYPE: "{{ 'tokenbased' if is_auth else 'none' }}"
   WEB_HTTP_DEFAULT_AUTH_CONTEXT: "default-api"
   WEB_HTTP_DEFAULT_AUTH_KEY: "edc"
+
   EDC_RECEIVER_HTTP_ENDPOINT: "{{ federated_catalog_address }}/edr-endpoint"
   EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: "{{ provider_connector_address }}/control/token"
   EDC_PUBLIC_KEY_ALIAS: "dapsPublic"
@@ -34,12 +43,34 @@ connectorprovider_configmap__05_defaults:
   PSNC_CONNECTOR_DAPS_KEYSTORE_FILE_PATH: "certs/provider-daps.jks"
   EDC_WEB_REST_CORS_ENABLED: true
   EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
-  EDC_OAUTH_PROVIDER_JWKS_URL: "{{ identity_provider_address }}/realms/DAPS/protocol/openid-connect/certs"
-  EDC_OAUTH_TOKEN_URL: "{{ identity_provider_address }}/realms/DAPS/protocol/openid-connect/token"
+
+  EDC_OAUTH_PROVIDER_JWKS_URL: "{{ data_space_keycloak_address }}/realms/DAPS/protocol/openid-connect/certs"
+  EDC_OAUTH_TOKEN_URL: "{{ data_space_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_CLIENT_ID: "provider"
   EDC_OAUTH_CERTIFICATE_ALIAS: "dapsPublic"
   EDC_OAUTH_PRIVATE_KEY_ALIAS: "dapsPrivate"
-  EDC_OAUTH_PROVIDER_AUDIENCE: "{{ identity_provider_address }}/realms/DAPS/protocol/openid-connect/token"
+  EDC_OAUTH_PROVIDER_AUDIENCE: "{{ data_space_keycloak_address }}/realms/DAPS/protocol/openid-connect/token"
   EDC_OAUTH_ENDPOINT_AUDIENCE: "idsc:IDS_CONNECTORS_ALL"
+  EDC_OAUTH_TOKEN_EXPIRATION_CHECK_VALIDITY_GRACE_PERIOD_SECONDS: "-1"
+
   EDC_AGENT_IDENTITY_KEY: "client_id"
   EDC_IAM_TOKEN_SCOPE: "idsc:IDS_CONNECTOR_ATTRIBUTES_ALL"
+
+  EDC_CATALOG_PROXY_DSP_ENABLED: false
+  WEB_HTTP_CATALOGPROXY_PORT: "19195"
+  WEB_HTTP_CATALOGPROXY_PATH: "/catalog-proxy"
+  WEB_HTTP_CATALOGPROXY_AUTH_TYPE: "composite"
+  WEB_HTTP_CATALOGPROXY_AUTH_INCLUDES: '["tokenbased", "delegated"]'
+  WEB_HTTP_CATALOGPROXY_AUTH_CONTEXT: "catalogproxy"
+  WEB_HTTP_CATALOGPROXY_AUTH_KEY: "edc"
+  WEB_HTTP_CATALOGPROXY_AUTH_DAC_KEY_URL: "{{ provider_keycloak_address }}/realms/Organizations/protocol/openid-connect/certs"
+  WEB_HTTP_CATALOGPROXY_AUTH_AUDIENCE: '["federated-catalog", "provider-connector"]'
+  WEB_HTTP_CATALOGPROXY_AUTH_ROLES: '["access-catalog"]'
+  # Only if needed: Audience validation config for delegated auth
+
+  EDC_CATALOG_PROXY_DSP_COUNTERPARTY_ADDRESS: "{{ federated_catalog_address }}/catalog"
+  EDC_CATALOG_PROXY_DSP_COUNTERPARTY_ID: "federated-catalog"
+  EDC_CATALOG_PROXY_DSP_PROTOCOL: "dataspace-protocol-http"
+  EDC_CATALOG_PROXY_HTTP_TARGET_URL: "{{ federated_catalog_address }}/catalog/v1alpha/catalog/query"
+  EDC_CATALOG_PROXY_HTTP_APIKEY_HEADER: "x-api-key"
+  EDC_CATALOG_PROXY_HTTP_APIKEY: "edc"
