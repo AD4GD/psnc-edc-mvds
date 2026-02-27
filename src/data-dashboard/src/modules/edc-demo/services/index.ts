@@ -4,3 +4,4 @@ export { DateTimeService } from "./common/date-time.service";
 export { CatalogBrowserService } from "./catalog-browser.service";
 export { NotificationService } from "./notification.service";
 export { PolicyPresetsService } from "./policy-presets.service";
+export { ParticipantsRegistryService } from "./participants-registry.service";

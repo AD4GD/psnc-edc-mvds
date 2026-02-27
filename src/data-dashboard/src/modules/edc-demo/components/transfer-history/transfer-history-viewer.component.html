@@ -1,4 +1,7 @@
 <div id="wrapper">
+  <edc-demo-access-denied-banner *ngIf="isUnauthorized" resourceName="transfer history" details="Please sign in with an account that has access, or ask an admin to grant permissions."></edc-demo-access-denied-banner>
+  
+  <ng-container *ngIf="!isUnauthorized">
     <mat-card>
       <div class="info-box">
         <mat-icon>info</mat-icon>
@@ -8,7 +11,7 @@
         </span>
       </div>
     </mat-card>
-
+    
     <div *ngIf="transferProcesses">
       <div class="table-header-container">
       <button mat-stroked-button (click)="loadTransferProcesses()" color="accent">
@@ -72,5 +75,7 @@
       <tr mat-header-row *matHeaderRowDef="columns" class="transfer-history-table-header"></tr>
       <tr mat-row *matRowDef="let row; columns: columns;"></tr>
     </table>
-  </div>
+
+    </div>
+  </ng-container>
 </div>

@@ -8,30 +8,33 @@ def create_asset(
     management_url: str,
     default_headers: dict,
     asset_name: str = "",
-    contentType: str = "application/json",
-    version: str = "1.0",
+    content_type: str = "application/json",
     baseUrl: str = "https://jsonplaceholder.typicode.com/users",
+    additional_metadata: dict = {},
+    version: str = "1.0",
+    context: dict = {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
+    proxy: bool = True,
 ):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
             {
-                "@context": {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
+                "@context": context,
                 "@id": asset_id,
                 "properties": {
                     "name": asset_name if asset_name else asset_id,
-                    "contenttype": contentType,
-                    "proxyPath": "true",
-                    "proxyQueryParams": "true",
+                    "contenttype": content_type,
+                    "proxyPath": "true" if proxy else "false",
+                    "proxyQueryParams": "true" if proxy else "false",
                     "version": version,
                     "baseUrl": baseUrl,
-                    "metadata": {},
+                    "metadata": additional_metadata,
                 },
                 "private_properties": {
                     "name": asset_name if asset_name else asset_id,
-                    "contenttype": contentType,
-                    "proxyPath": "true",
-                    "proxyQueryParams": "true",
+                    "contenttype": content_type,
+                    "proxyPath": "true" if proxy else "false",
+                    "proxyQueryParams": "true" if proxy else "false",
                     "version": version,
                     "baseUrl": baseUrl,
                 },
@@ -39,13 +42,72 @@ def create_asset(
                     "name": "Test data",
                     "baseUrl": baseUrl,
                     "type": "HttpData",
-                    "contentType": contentType,
-                    "proxyPath": "true",
-                    "proxyQueryParams": "true",
+                    "contentType": content_type,
+                    "proxyPath": "true" if proxy else "false",
+                    "proxyQueryParams": "true" if proxy else "false",
                 },
             }
         ),
         url=f"{management_url}/v3/assets",
+    )
+
+
+def update_asset(
+    asset_id: str,
+    management_url: str,
+    default_headers: dict,
+    asset_name: str,
+    content_type: str = "application/json",
+    baseUrl: str = "https://jsonplaceholder.typicode.com/users",
+    additional_metadata: dict = {},
+    context: dict = {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
+    proxy: bool = True,
+):
+    properties = {
+        "name": asset_name,
+        "contenttype": content_type,
+        "proxyPath": "true" if proxy else "false",
+        "proxyQueryParams": "true" if proxy else "false",
+        "version": "1.0",
+        "metadata": additional_metadata,
+        "baseUrl": baseUrl,
+    }
+    return requests.put(
+        headers=default_headers,
+        data=json.dumps(
+            {
+                "@context": context,
+                "@id": asset_id,
+                "properties": properties,
+                "private_properties": properties,
+                "dataAddress": {
+                    "name": asset_name,
+                    "baseUrl": baseUrl,
+                    "type": "HttpData",
+                    "proxyPath": "true" if proxy else "false",
+                    "proxyQueryParams": "true" if proxy else "false",
+                },
+            }
+        ),
+        url=f"{management_url}/v3/assets",
+    )
+
+
+def get_asset(asset_id: str, management_url: str, default_headers: dict):
+    return requests.get(
+        headers=default_headers,
+        url=f"{management_url}/v3/assets/{asset_id}",
+    )
+
+
+def delete_asset(
+    asset_id: str,
+    management_url: str,
+    default_headers: dict,
+):
+    return requests.delete(
+        headers=default_headers,
+        url=f"{management_url}/v3/assets/{asset_id}",
     )
 
 
@@ -86,6 +148,17 @@ def create_contract_definition(
             }
         ),
         url=f"{management_url}/v3/contractdefinitions",
+    )
+
+
+def delete_contract_definition(
+    contract_definition_id: str,
+    management_url: str,
+    default_headers: dict,
+):
+    return requests.delete(
+        headers=default_headers,
+        url=f"{management_url}/v3/contractdefinitions/{contract_definition_id}",
     )
 
 

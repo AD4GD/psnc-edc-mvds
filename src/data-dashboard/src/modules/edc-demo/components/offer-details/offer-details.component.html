@@ -1,0 +1,242 @@
+<div id="wrapper" class="offer-page">
+  <edc-demo-access-denied-banner *ngIf="isUnauthorized" resourceName="the catalog" details="Please sign in with an account that has access, or ask an admin to grant permissions."></edc-demo-access-denied-banner>
+
+  <ng-container *ngIf="!isUnauthorized">
+    <div class="page-header">
+      <div class="title-block">
+        <h1>{{ getOfferTitle() }}</h1>
+        <div class="subtitle">Offer details</div>
+        <div class="id-row" *ngIf="offer?.assetId as assetId">
+          <span class="label">Asset ID</span>
+          <span
+            class="value overflow-ellipsis"
+            #assetIdDiv
+            [matTooltip]="utilService.shouldShowTooltip(assetIdDiv, assetId) ? assetId : ''"
+            matTooltipPosition="below"
+            matTooltipClass="tooltip"
+          >
+            {{ assetId }}
+          </span>
+        </div>
+      </div>
+
+      <button mat-stroked-button color="accent" (click)="backToCatalog()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to catalog
+      </button>
+    </div>
+
+    <mat-card class="section-card" *ngIf="isLoading">
+      <mat-card-content class="loading-state">
+        <mat-progress-spinner mode="indeterminate" color="accent"></mat-progress-spinner>
+        <div>Loading offer details...</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section-card" *ngIf="!isLoading && loadError">
+      <mat-card-content class="error-state">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <span>{{ loadError }}</span>
+      </mat-card-content>
+    </mat-card>
+
+    <ng-container *ngIf="!isLoading && !loadError && offer">
+      <mat-card class="section-card">
+        <mat-card-title>
+          <div class="card-title">
+            <mat-icon>info</mat-icon>
+            Main details
+          </div>
+        </mat-card-title>
+        <mat-card-content>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <mat-icon>title</mat-icon>
+              <div class="detail-text">
+                <div class="label">Name</div>
+                <div class="value">{{ offer.properties.name || offer.assetId }}</div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>category</mat-icon>
+              <div class="detail-text">
+                <div class="label">Type</div>
+                <div class="value">{{ offer.properties.type || '-' }}</div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>link</mat-icon>
+              <div class="detail-text">
+                <div class="label">Originator</div>
+                <div
+                  class="value wrap-text"
+                  #originatorDiv
+                  [matTooltip]="utilService.shouldShowTooltip(originatorDiv, offer.originator) ? offer.originator : ''"
+                  matTooltipPosition="below"
+                  matTooltipClass="tooltip"
+                >
+                  {{ offer.originator }}
+                </div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>badge</mat-icon>
+              <div class="detail-text">
+                <div class="label">Participant ID</div>
+                <div class="value">{{ offer.participantId || '-' }}</div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>numbers</mat-icon>
+              <div class="detail-text">
+                <div class="label">Version</div>
+                <div class="value">{{ offer.properties.version || '-' }}</div>
+              </div>
+            </div>
+            <div class="detail-item" *ngIf="offer.properties.contentType">
+              <mat-icon>description</mat-icon>
+              <div class="detail-text">
+                <div class="label">Content-Type</div>
+                <div class="value">{{ offer.properties.contentType }}</div>
+              </div>
+            </div>
+            <div class="detail-item" *ngIf="offer.properties.baseUrl">
+              <mat-icon>http</mat-icon>
+              <div class="detail-text">
+                <div class="label">Base URL</div>
+                <div
+                  class="value wrap-text"
+                  #baseUrlDiv
+                  [matTooltip]="utilService.shouldShowTooltip(baseUrlDiv, offer.properties.baseUrl) ? offer.properties.baseUrl : ''"
+                  matTooltipPosition="below"
+                  matTooltipClass="tooltip"
+                >
+                  {{ offer.properties.baseUrl }}
+                </div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>alt_route</mat-icon>
+              <div class="detail-text">
+                <div class="label">Proxy path</div>
+                <div class="value">
+                  {{ isAllowed(offer.properties.proxyPath) ? 'Allowed' : 'Not allowed' }}
+                </div>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>travel_explore</mat-icon>
+              <div class="detail-text">
+                <div class="label">Proxy query params</div>
+                <div class="value">
+                  {{ isAllowed(offer.properties.proxyQueryParams) ? 'Allowed' : 'Not allowed' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-block" *ngIf="offer.properties.additionalPropertyKeys?.length">
+            <div class="block-title">Additional properties</div>
+            <div class="detail-list">
+              <div class="detail-row" *ngFor="let additionalPropertyKey of offer.properties.additionalPropertyKeys">
+                <div class="label" *ngIf="additionalPropertyKey.replace('asset:prop:', '') as name">
+                  {{ name.charAt(0).toUpperCase() + name.slice(1) }}
+                </div>
+                <div class="value overflow-ellipsis" title="{{ offer.properties.properties[additionalPropertyKey] }}">
+                  {{ offer.properties.properties[additionalPropertyKey] }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <policy-rules
+              [permissionRules]="offer.policy.permission"
+              [prohibitionRules]="offer.policy.prohibition"
+              [obligationRules]="offer.policy.obligation"
+              title="Associated policy rules"
+            >
+            </policy-rules>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="section-card">
+        <mat-card-title>
+          <div class="card-title">
+            <mat-icon>list_alt</mat-icon>
+            Metadata
+          </div>
+        </mat-card-title>
+        <mat-card-content>
+          <ng-container *ngIf="hasMetadata(); else noMetadata">
+            <jsonld-code-display [content]="metadata" [isCopyButton]="true" [isEditable]="false" />
+          </ng-container>
+          <ng-template #noMetadata>
+            <div class="empty-state">
+              <mat-icon>info</mat-icon>
+              <span>No metadata available for this offer.</span>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="section-card">
+        <mat-card-title>
+          <div class="card-title">
+            <mat-icon>sync_alt</mat-icon>
+            Negotiate & transfer
+          </div>
+        </mat-card-title>
+        <mat-card-content>
+          <div class="action-row">
+            <button
+              mat-stroked-button
+              color="accent"
+              (click)="onNegotiateClicked()"
+              [disabled]="negotiationInProgress || negotiationState === 'VERIFIED' || negotiationState === 'FINALIZED'"
+            >
+              <mat-icon>drive_file_rename_outline</mat-icon>
+              Negotiate
+            </button>
+            <button
+              mat-stroked-button
+              color="primary"
+              (click)="onTransferClicked()"
+              [disabled]="!contractAgreementId || isTransferInProgress() || isDownloading"
+            >
+              <mat-icon>downloading</mat-icon>
+              Transfer
+            </button>
+          </div>
+
+          <div class="status-row">
+            <mat-chip color="accent" selected class="status-chip">Negotiation: {{ negotiationState }}</mat-chip>
+            <mat-chip color="primary" selected class="status-chip">Transfer: {{ getTransferState() }}</mat-chip>
+            <mat-chip *ngIf="isDownloading" color="warn" selected class="status-chip">
+              <ng-container *ngIf="hasContentLength; else noSize">
+                Downloading: {{ downloadProgress }}%
+              </ng-container>
+              <ng-template #noSize>
+                Downloading: {{ downloadedSizeMB }} MB
+              </ng-template>
+            </mat-chip>
+            <mat-chip *ngIf="contractAgreementId" selected class="status-chip">Agreement: {{ contractAgreementId }}</mat-chip>
+          </div>
+
+          <mat-progress-bar
+            *ngIf="negotiationInProgress || isTransferInProgress()"
+            color="accent"
+            mode="indeterminate"
+          ></mat-progress-bar>
+          <mat-progress-bar
+            *ngIf="isDownloading"
+            [color]="hasContentLength ? 'primary' : 'accent'"
+            [mode]="hasContentLength ? 'determinate' : 'indeterminate'"
+            [value]="hasContentLength ? downloadProgress : 0"
+          ></mat-progress-bar>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
+  </ng-container>
+</div>

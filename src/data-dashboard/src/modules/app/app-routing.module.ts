@@ -11,6 +11,7 @@ import {
 } from '../edc-demo/components/transfer-history/transfer-history-viewer.component';
 import {PolicyViewComponent} from "../edc-demo/components/policy-view/policy-view.component";
 import {ContractViewerComponent} from "../edc-demo/components/contract-viewer/contract-viewer.component";
+import { OfferDetailsComponent } from '../edc-demo/components/offer-details/offer-details.component';
 import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
@@ -24,6 +25,12 @@ export const routes: Routes = [
     path: 'browse-catalog',
     component: CatalogBrowserComponent,
     data: {title: 'Catalog Browser', icon: 'sim_card'},
+    canActivate: [authGuard],
+  },
+  {
+    path: 'offer/:id',
+    component: OfferDetailsComponent,
+    data: {title: 'Offer details', icon: 'description', hideNav: true},
     canActivate: [authGuard],
   },
   {

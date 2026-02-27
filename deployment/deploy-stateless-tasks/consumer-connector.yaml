@@ -1,8 +1,8 @@
 - name: "deploy secret/{{ application }}-connectorconsumer"
   tags:
-  - connector
-  - connectorconsumer
-  - secret
+    - connector
+    - connectorconsumer
+    - secret
   k8s:
     definition:
       apiVersion: v1
@@ -57,6 +57,9 @@
                 protocol: "TCP"
               - name: "protocol"
                 containerPort: 29194
+                protocol: "TCP"
+              - name: "catalogproxy"
+                containerPort: 29195
                 protocol: "TCP"
               - name: "public"
                 containerPort: 29291
@@ -118,6 +121,8 @@
             port: 29193
           - name: "protocol"
             port: 29194
+          - name: "catalogproxy"
+            port: 29195
           - name: "public"
             port: 29291
           - name: "control"

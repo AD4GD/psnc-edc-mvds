@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+#wrapper {
+  margin: 24px;
+}
+
+.offer-page {
+  --surface: #1e1f22;
+  --surface-2: #26282c;
+  --surface-3: #2f3238;
+  --text: #f4f6f8;
+  --muted: rgba(244, 246, 248, 0.65);
+  --accent: #f4b740;
+  font-family: 'Source Sans 3', 'IBM Plex Sans', sans-serif;
+  color: var(--text);
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.title-block h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.id-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.section-card {
+  margin-bottom: 16px;
+  padding: 8px;
+  background: var(--surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+:host ::ng-deep .section-card .mat-card-title {
+  color: var(--text);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--surface-3);
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detail-item mat-icon {
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.detail-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-block {
+  margin-top: 16px;
+}
+
+.block-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.detail-list {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.label {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.value {
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.wrap-text {
+  white-space: normal;
+  overflow: visible;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.status-chip {
+  font-size: 12px;
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  color: var(--text);
+}
+
+.overflow-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep jsonld-code-display pre {
+  background: #17181b;
+  color: #f8f9fb;
+  border-radius: 12px;
+  padding: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+:host ::ng-deep jsonld-code-display button {
+  color: var(--accent);
+}

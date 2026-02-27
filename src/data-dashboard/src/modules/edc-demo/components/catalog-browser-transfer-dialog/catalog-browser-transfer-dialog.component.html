@@ -11,17 +11,17 @@
   </mat-form-field>
 
   <!-- HttpData Options Section -->
-  <div class="rest-api-options">
+  <div class="rest-api-options" *ngIf="isProxyPath || isProxyQueryParams">
     <h4>HttpData Source Options</h4>
 
     <!-- Proxy URL Path (Optional) -->
-    <mat-form-field class="form-field" color="accent" id="form-field-proxy-url">
+    <mat-form-field *ngIf="isProxyPath" class="form-field" color="accent" id="form-field-proxy-url">
       <mat-label>Proxy URL Path (Optional)</mat-label>
-      <input matInput [(ngModel)]="proxyUrlPath" placeholder="Enter proxy URL path" [disabled]="!isProxyPath">
+      <input matInput [(ngModel)]="proxyUrlPath" placeholder="Enter proxy URL path">
     </mat-form-field>
 
     <!-- Proxy Query Params (Optional Key-Value Pairs) -->
-    <div>
+    <div *ngIf="isProxyQueryParams">
       <h5>Proxy Query Params (Optional)</h5>
 
       <div *ngFor="let param of proxyQueryParams; let i = index" class="query-param-row">
@@ -38,7 +38,7 @@
         </button>
       </div>
 
-      <button mat-stroked-button color="primary" (click)="addQueryParam()" [disabled]="!isProxyQueryParams">
+      <button mat-stroked-button color="primary" (click)="addQueryParam()">
         <mat-icon>add</mat-icon> Add Query Param
       </button>
     </div>

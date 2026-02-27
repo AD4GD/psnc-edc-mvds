@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { AppConfigService } from '../app-config.service';
 
@@ -15,7 +15,7 @@ const clearUrlFromKeycloakParams = () => {
   }, 100);
 }
 
-export const authGuard: CanActivateFn = async () => {
+export const authGuard: CanActivateFn = async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
 
   const appConfig = inject(AppConfigService);
   if (!appConfig.isOAuthConfigured()) {
@@ -23,6 +23,7 @@ export const authGuard: CanActivateFn = async () => {
   }
 
   const oauthService = inject(OAuthService);
+  const router = inject(Router);
 
   await oauthService.loadDiscoveryDocumentAndTryLogin();
 
@@ -31,8 +32,23 @@ export const authGuard: CanActivateFn = async () => {
 
   if (oauthService.hasValidAccessToken()) {
     clearUrlFromKeycloakParams();
+    
+    // Check if there was a stored return URL after successful login
+    const returnUrl = sessionStorage.getItem('auth_return_url');
+    if (returnUrl) {
+      sessionStorage.removeItem('auth_return_url');
+      console.log('[Auth] Redirecting to stored URL:', returnUrl);
+      await router.navigateByUrl(returnUrl);
+      return false; // Prevent navigation to current route, we're redirecting
+    }
+    
     return true;
   } else {
+    // Store the target URL before redirecting to Keycloak
+    const targetUrl = state.url;
+    console.log('[Auth] Storing return URL:', targetUrl);
+    sessionStorage.setItem('auth_return_url', targetUrl);
+    
     oauthService.initLoginFlow();
     return false;
   }

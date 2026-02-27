@@ -66,7 +66,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
             e.printStackTrace();
         }
 
-        return Result.success(new CompositeAuthenticationService(compositeTypes, providerRegistry, config, monitor));
+        return Result.success(new CompositeAuthenticationService(compositeTypes, providerRegistry, config, monitor, objectMapper));
     }
 
     public Result<AuthenticationService> noneProvider(Config config) {

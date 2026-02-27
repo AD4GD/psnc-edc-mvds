@@ -3,12 +3,12 @@
     app_config_json: |
       {
         "managementApiUrl": "{{ consumer_connector_address }}/management",
-        "catalogUrl": "{{ federated_catalog_address }}/catalog",
+        "catalogUrl": "{{ consumer_dashboard_address }}/catalog-proxy/catalog/request",
         "theme": "theme-3",
         "deploymentMode": "production",
         "backendUrl": "{{ consumer_backend_address }}/edr-endpoint",
-        "oauthIssuer": "{{ identity_provider_address }}/realms/Organizations",
-        "oauthClientId": "data-space"
+        "oauthIssuer": "{{ consumer_keycloak_address }}/realms/Organizations",
+        "oauthClientId": "data-space-users"
       }
   when: is_auth
 
@@ -17,7 +17,7 @@
     app_config_json: |
       {
         "managementApiUrl": "{{ consumer_connector_address }}/management",
-        "catalogUrl": "{{ federated_catalog_address }}/catalog",
+        "catalogUrl": "{{ consumer_dashboard_address }}/catalog-proxy/catalog/request",
         "theme": "theme-3",
         "deploymentMode": "production",
         "backendUrl": "{{ consumer_backend_address }}/edr-endpoint"
@@ -55,8 +55,11 @@
               location /management {
                 proxy_pass {{ consumer_connector_address }}/management;
               }
+              location /catalog-proxy/ {
+                proxy_pass {{ consumer_connector_address }}/catalog-proxy/;
+              }
               location /catalog {
-                proxy_pass {{ federated_catalog_address }}/catalog;
+                proxy_pass {{ consumer_connector_address }}/catalog-proxy/catalog/request;
               }
             }
           }
