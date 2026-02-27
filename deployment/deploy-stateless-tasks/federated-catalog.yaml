@@ -81,6 +81,19 @@
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
                   runAsUser: 1000
+                livenessProbe:
+                  httpGet:
+                    path: /api/check/health
+                    port: 8080
+                    scheme: HTTP
+                    httpHeaders:
+                      - name: x-api-key
+                        value: edc
+                  initialDelaySeconds: 60
+                  timeoutSeconds: 2
+                  periodSeconds: 30
+                  successThreshold: 1
+                  failureThreshold: 3
                 resources: "{{ federatedcatalog_resources }}"
                 envFrom:
                   - configMapRef:
