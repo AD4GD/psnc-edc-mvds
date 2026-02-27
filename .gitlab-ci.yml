@@ -41,7 +41,6 @@ Upload images to public DockerHub:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
     - if: '$CI_COMMIT_BRANCH == "develop"'
-    - if: '$CI_COMMIT_BRANCH == "DEM-550_one_keycloak_per_participant"'
 
 Update inventory for main project:
   stage: update_inventory
