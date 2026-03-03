@@ -1,0 +1,44 @@
+name: Local
+variables:
+  - name: CONSUMER_URL
+    value: https://consumer-edc-connector.apps.dcw1.paas.psnc.pl
+  - name: PROVIDER_URL
+    value: https://ad4gd-provider-edc.dashboard-siba.store
+  - name: contract-agreement-id
+    value: bb80c2cd-ec59-4c7e-ba34-366f6d92c564
+  - name: pull-transfer-id
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-endpoint
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-auth-type
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-auth-authorization
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_BACKEND_URL
+    value: https://consback-edc-connector.apps.dcw1.paas.psnc.pl/edr-endpoint
+  - name: PROVIDER_IDENTITY_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_IDENTITY_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: FEDERATED_CATALOG_IDENTITY_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: DATA_SPACE_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: FEDERATED_CATALOG_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: child_ids
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: child_idx
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: vc-to-delete
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_DID
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_DSP_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: PROVIDER_DID
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: PROVIDER_DSP_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
+    value: "{{ENTER_VALUE_HERE}}"

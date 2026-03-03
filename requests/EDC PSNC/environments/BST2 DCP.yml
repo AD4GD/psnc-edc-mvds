@@ -1,0 +1,42 @@
+name: BST2 DCP
+variables:
+  - name: CONSUMER_URL
+    value: https://consumer-edc-connector.apps.dcw1.paas.psnc.pl
+  - name: PROVIDER_URL
+    value: https://ad4gd-provider-edc.dashboard-siba.store
+  - name: contract-agreement-id
+    value: bb80c2cd-ec59-4c7e-ba34-366f6d92c564
+  - name: pull-transfer-id
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-endpoint
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-auth-type
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-auth-authorization
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_BACKEND_URL
+    value: https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl
+  - name: PROVIDER_IDENTITY_HUB_URL
+    value: https://provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl
+  - name: CONSUMER_IDENTITY_HUB_URL
+    value: https://consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl
+  - name: FEDERATED_CATALOG_IDENTITY_HUB_URL
+    value: https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl
+  - name: DATA_SPACE_HUB_URL
+    value: https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl
+  - name: FEDERATED_CATALOG_URL
+    value: https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl
+  - name: child_ids
+    value: '["cf6384ad-cae0-4553-b166-7a3d3584432e","fe396668-e027-4f60-875d-0b25fb3e1a61"]'
+  - name: child_idx
+    value: "0"
+  - name: vc-to-delete
+    value: f374cc7c-fe3a-4e62-a59e-9df311d5fe25
+  - name: FC_IH_BASE64
+    value: ZGlkOndlYjpmZWRlcmF0ZWQtY2F0YWxvZy1pZGVudGl0eS1odWItZGNwLWRhdGEtc3BhY2UuYXBwcy5ic3QyLnBhYXMucHNuYy5wbDpwaW90cg==
+  - name: PROVIDER_IH_BASE64
+    value: ZGlkOndlYjpwcm92aWRlci1pZGVudGl0eS1odWItZGNwLWRhdGEtc3BhY2UuYXBwcy5ic3QyLnBhYXMucHNuYy5wbDpib2I=
+  - name: CONSUMER_IH_BASE64
+    value: ZGlkOndlYjpjb25zdW1lci1pZGVudGl0eS1odWItZGNwLWRhdGEtc3BhY2UuYXBwcy5ic3QyLnBhYXMucHNuYy5wbDphbGljZQ==
+  - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
+    value: https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management
