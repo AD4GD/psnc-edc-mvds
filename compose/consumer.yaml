@@ -1,6 +1,4 @@
 services:
-<<<<<<< HEAD
-=======
   consumer-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
     ports:
@@ -21,6 +19,7 @@ services:
       - "8083:8083"
       - "8084:8084"
       - "8085:8085"
+      - "8086:8086"
       - "11001:11001"
     volumes:
       - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
@@ -30,6 +29,7 @@ services:
     depends_on:
       - consumer-postgres
       - consumer-keycloak
+      - vault-unseal
 
   consumer-ih:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
@@ -47,24 +47,7 @@ services:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
       - consumer-connector
-
-  consumer-vault:
-    image: hashicorp/vault:1.17
-    container_name: consumer-vault
-    cap_add:
-      - IPC_LOCK
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: root
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:9200"
-    ports:
-      - "9200:9200"
-    command: >
-      server -dev
-      -dev-root-token-id=root
-      -dev-listen-address=0.0.0.0:9200
-    # optional: keep a file volume for any exports you do
-    volumes:
-      - 'consumer-vault:/vault/file'
+      - consumer-ih-vault
 
   consumer-keycloak:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
@@ -76,21 +59,34 @@ services:
       KC_DB_SCHEMA: public
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: edc
-      KC_HTTP_PORT: '48081'
-      KC_HOSTNAME_URL: http://localhost:48081
-      KC_HOSTNAME_ADMIN_URL: http://localhost:48081
+      KC_HOSTNAME: http://localhost:48082
+      KC_HOSTNAME_ADMIN: http://localhost:48082
+      KC_HOSTNAME_STRICT: 'false'
+      KC_HOSTNAME_STRICT_BACKCHANNEL: 'false'
       KC_HTTP_ENABLED: 'true'
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: edc
-      KEYCLOAK_FRONTEND_URL: http://keycloak:48081
+      KEYCLOAK_FRONTEND_URL: http://consumer-keycloak:8080
+      KC_CACHE: local
     depends_on:
       - consumer-keycloak-postgres
     ports:
-      - "48082:48081"
+      - "48082:8080"
 
->>>>>>> 8329b6f ((DEM-542) Add Keycloak extension for user request acceptance, add keycloak-per participant)
-  consumer-postgres:
+  consumer-keycloak-postgres:
     image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: keycloak
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: keycloak
+    ports:
+      - '5451:5432'
+    volumes:
+      - 'consumer-keycloak-postgresql:/bitnami/postgresql'
+
+  consumer-postgres:
+    image: docker.io/bitnami/postgresql:11
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -101,93 +97,31 @@ services:
     volumes:
       - 'consumer-postgresql:/bitnami/postgresql'
 
-  consumer-keycloak-postgres:
-    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
+  consumer-ih-postgres:
+    image: docker.io/bitnami/postgresql:11
     restart: always
     environment:
-      POSTGRESQL_USERNAME: keycloak
+      POSTGRESQL_USERNAME: edc
       POSTGRESQL_PASSWORD: edc
-      POSTGRESQL_DATABASE: keycloak
+      POSTGRESQL_DATABASE: edc
     ports:
-<<<<<<< HEAD
-      - '5444:5432'
-=======
-      - '5451:5432'
->>>>>>> 8329b6f ((DEM-542) Add Keycloak extension for user request acceptance, add keycloak-per participant)
+      - '5452:5432'
     volumes:
-      - 'consumer-keycloak-postgresql:/bitnami/postgresql'
+      - 'consumer-ih-postgresql:/bitnami/postgresql'
 
-  consumer-keycloak:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
-    restart: always
+  consumer-ih-vault:
+    image: hashicorp/vault:1.16
+    cap_add:
+      - IPC_LOCK
     environment:
-      # Keep default enabled features; only enable preview token exchange.
-      KC_DB: postgres
-      KC_DB_URL_HOST: consumer-keycloak-postgres
-      KC_DB_URL_DATABASE: keycloak
-      KC_DB_SCHEMA: public
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: edc
-      KC_HOSTNAME: http://localhost:8082
-      KC_HOSTNAME_ADMIN: http://localhost:8082
-      KC_HOSTNAME_STRICT: 'false'
-      KC_HOSTNAME_STRICT_BACKCHANNEL: 'false'
-      KC_HTTP_ENABLED: 'true'
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: edc
-      KEYCLOAK_FRONTEND_URL: http://consumer-keycloak:8080
-    depends_on:
-      - consumer-keycloak-postgres
-    ports:
-      - "8082:8080"
-
-  consumer-connector:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
-    restart: unless-stopped
-    ports:
-      - "29191:29191"
-      - "29193:29193"
-      - "29194:29194"
-      - "29195:29195"
-      - "29291:29291"
-      - "29192:29192"
+      VAULT_API_ADDR: "http://localhost:8200"
+      VAULT_ADDR: "http://localhost:8200"
     volumes:
-      - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/consumer-daps.jks:/app/certs/consumer-daps.jks
-    environment:
-      EDC_FS_CONFIG: /app/configuration.properties
-    user: "root"
-    depends_on:
-      - consumer-postgres
-      - consumer-keycloak
-
-  consumer-dashboard:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
-    restart: unless-stopped
+      - consumer-ih-vault:/vault/file
+      - ../docker/identity-hub/kv/vault.hcl:/vault/config/vault.hcl:ro
+    command: vault server -config=/vault/config/vault.hcl
     ports:
-      - "28080:80"
-    volumes:
-      - ../docker/data-dashboard/config/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
-      - ../docker/data-dashboard/config/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
-    user: "root"
-    depends_on:
-      - consumer-connector
-
-  consumer-idp-filler:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
-    restart: no
-    tty: true
-    environment:
-      RUN_SCRIPT: 1
-      IDP_MODE: organization
-      KC_BASE: http://consumer-keycloak:8080
-      KC_USER: admin
-      KC_PASS: edc
-      RS_USERNAME: psnc
-      RS_PASSWORD: edc
-    # Use image's default Python entrypoint
-    depends_on:
-      - consumer-keycloak
+      - "8202:8200"
 
   consumer-backend:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
@@ -200,8 +134,26 @@ services:
     depends_on:
       - minio
 
+  minio:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}
+    command: server /storage --address :9001
+    environment:
+      - HOSTNAME=minio
+      - MINIO_ACCESS_KEY=minio-user
+      - MINIO_SECRET_KEY=minio-password
+      - MINIO_IS_SECURE=False
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+
 volumes:
   consumer-postgresql:
     driver: local
   consumer-keycloak-postgresql:
     driver: local
+  consumer-ih-postgresql:
+    driver: local
+  consumer-ih-vault:
+    driver: local
+  

@@ -15,17 +15,4 @@
 #
 #    SPDX-License-Identifier: Apache-2.0
 #
-
-ARG KC_VERSION=26.5.0
-
-FROM maven:3-eclipse-temurin-17 AS builder
-ARG KC_VERSION
-
-WORKDIR /home/app
-COPY ./docker/identity-provider/* ./
-RUN mvn -D "version.keycloak=${KC_VERSION}" clean package
-
-FROM quay.io/keycloak/keycloak:${KC_VERSION}
-COPY --from=builder /home/app/target/dat-extension.jar /opt/keycloak/providers/dat-extension.jar
-
-CMD ["start", "--http-enabled=true"]
+de.sovity.keycloak.mapper.dat.DatMapper

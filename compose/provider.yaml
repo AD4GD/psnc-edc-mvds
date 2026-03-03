@@ -1,7 +1,37 @@
 services:
-<<<<<<< HEAD
-=======
-  # Connector System
+  provider-connector:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
+    ports:
+      - "8190:8190"
+      - "8191:8191"
+      - "8192:8192"
+      - "8193:8193"
+      - "8194:8194"
+      - "8195:8195"
+      - "8196:8196"
+      - "12001:12001"
+    volumes:
+      - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    user: "root"
+    depends_on:
+      - provider-postgres
+      - provider-keycloak
+      - vault-unseal
+
+  provider-postgres:
+    image: docker.io/bitnami/postgresql:11
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: edc
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: edc
+    ports:
+      - '5440:5432'
+    volumes:
+      - 'provider-postgresql:/bitnami/postgresql'
+
   provider-dashboard:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
     ports:
@@ -13,25 +43,7 @@ services:
     depends_on:
       - provider-connector
 
-  provider-connector:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
-    ports:
-      - "8190:8190"
-      - "8191:8191"
-      - "8192:8192"
-      - "8193:8193"
-      - "8194:8194"
-      - "8195:8195"
-      - "12001:12001"
-    volumes:
-      - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
-    environment:
-      EDC_FS_CONFIG: /app/configuration.properties
-    user: "root"
-    depends_on:
-      - provider-postgres
-      - provider-keycloak
-
+  # Digital Wallet System
   provider-ih:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-hub:${IMAGE_TAG}
     ports:
@@ -48,160 +60,10 @@ services:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
       - provider-connector
+      - provider-ih-postgres
+      - provider-ih-vault
 
-  provider-vault:
-    image: hashicorp/vault:1.17
-    container_name: provider-vault
-    cap_add:
-      - IPC_LOCK
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: root
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:10200"
-    ports:
-      - "10200:10200"
-    command: >
-      server -dev
-      -dev-root-token-id=root
-      -dev-listen-address=0.0.0.0:10200
-    # optional: keep a file volume for any exports you do
-    volumes:
-      - ./vault-data:/vault/file
-
-  provider-keycloak:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
-    restart: always
-    environment:
-      KC_DB: postgres
-      KC_DB_URL_HOST: provider-keycloak-postgres
-      KC_DB_URL_DATABASE: keycloak
-      KC_DB_SCHEMA: public
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: edc
-      KC_HTTP_PORT: '48081'
-      KC_HOSTNAME_URL: http://localhost:48081
-      KC_HOSTNAME_ADMIN_URL: http://localhost:48081
-      KC_HTTP_ENABLED: 'true'
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: edc
-      KEYCLOAK_FRONTEND_URL: http://provider-keycloak:48081
-    depends_on:
-      - provider-keycloak-postgres
-    ports:
-      - "48083:48081"
-
->>>>>>> 8329b6f ((DEM-542) Add Keycloak extension for user request acceptance, add keycloak-per participant)
-  provider-postgres:
-    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
-    restart: always
-    environment:
-      POSTGRESQL_USERNAME: edc
-      POSTGRESQL_PASSWORD: edc
-      POSTGRESQL_DATABASE: edc
-    ports:
-      - '5440:5432'
-    volumes:
-      - 'provider-postgresql:/bitnami/postgresql'
-
-  # Digital Wallet System
-  provider-keycloak-postgres:
-    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
-    restart: always
-    environment:
-      POSTGRESQL_USERNAME: keycloak
-      POSTGRESQL_PASSWORD: edc
-      POSTGRESQL_DATABASE: keycloak
-    ports:
-<<<<<<< HEAD
-      - '5443:5432'
-    volumes:
-      - 'provider-keycloak-postgresql:/bitnami/postgresql'
-
-  provider-keycloak:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
-    restart: always
-    environment:
-      KC_DB: postgres
-      KC_DB_URL_HOST: provider-keycloak-postgres
-      KC_DB_URL_DATABASE: keycloak
-      KC_DB_SCHEMA: public
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: edc
-      KC_HOSTNAME: http://localhost:8083
-      KC_HOSTNAME_ADMIN: http://localhost:8083
-      KC_HOSTNAME_STRICT: 'false'
-      KC_HOSTNAME_STRICT_BACKCHANNEL: 'false'
-      KC_HTTP_ENABLED: 'true'
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: edc
-      KEYCLOAK_FRONTEND_URL: http://provider-keycloak:8080
-    depends_on:
-      - provider-keycloak-postgres
-    ports:
-      - "8083:8080"
-
-  provider-connector:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/connector:${IMAGE_TAG}
-    restart: unless-stopped
-    ports:
-      - "19191:19191"
-      - "19193:19193"
-      - "19194:19194"
-      - "19195:19195"
-      - "19291:19291"
-      - "19192:19192"
-    volumes:
-      - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
-      - ../docker/connector/certs/provider-daps.jks:/app/certs/provider-daps.jks
-    environment:
-      EDC_FS_CONFIG: /app/configuration.properties
-    user: "root"
-    depends_on:
-      - provider-postgres
-      - provider-keycloak
-  provider-dashboard:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-dashboard:${IMAGE_TAG}
-    restart: unless-stopped
-    ports:
-      - "18080:80"
-    volumes:
-      - ../docker/data-dashboard/config/conf-provider/provider.nginx.conf:/etc/nginx/nginx.conf
-      - ../docker/data-dashboard/config/conf-provider/provider.config.json:/usr/share/nginx/html/assets/config/app.config.json
-    user: "root"
-    depends_on:
-      - provider-connector
-
-  provider-idp-filler:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/idp-filler:${IMAGE_TAG}
-    restart: no
-    tty: true
-    environment:
-      RUN_SCRIPT: 1
-      IDP_MODE: organization
-      KC_BASE: http://provider-keycloak:8080
-      KC_USER: admin
-      KC_PASS: edc
-      RS_USERNAME: psnc
-      RS_PASSWORD: edc
-    # Use image's default Python entrypoint
-    depends_on:
-      - provider-keycloak
-=======
-      - '5441:5432'
-    volumes:
-      - 'provider-keycloak-postgresql:/bitnami/postgresql'
-
-  # User Management System (UMS)
-  provider-user-management-service:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/user-management-service:${IMAGE_TAG}
-    volumes:
-      - ../docker/user-management-service/config/configuration.properties:/app/.env:ro
-    ports:
-      - "8300:8000"
-    depends_on:
-      - provider-user-management-service-postgres
-      - provider-keycloak
-
-  provider-user-management-service-postgres:
+  provider-ih-postgres:
     image: docker.io/bitnami/postgresql:11
     restart: always
     environment:
@@ -211,13 +73,64 @@ services:
     ports:
       - '5442:5432'
     volumes:
-      - 'provider-user-management-service-postgres:/bitnami/postgresql'
->>>>>>> 8329b6f ((DEM-542) Add Keycloak extension for user request acceptance, add keycloak-per participant)
+      - 'provider-ih-postgresql:/bitnami/postgresql'
+
+  provider-keycloak:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
+    restart: always
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: provider-keycloak-postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_SCHEMA: public
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: edc
+      KC_HOSTNAME: http://localhost:48083
+      KC_HOSTNAME_ADMIN: http://localhost:48083
+      KC_HOSTNAME_STRICT: 'false'
+      KC_HOSTNAME_STRICT_BACKCHANNEL: 'false'
+      KC_HTTP_ENABLED: 'true'
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: edc
+      KEYCLOAK_FRONTEND_URL: http://provider-keycloak:8080
+      KC_CACHE: local
+    depends_on:
+      - provider-keycloak-postgres
+    ports:
+      - "48083:8080"
+
+  provider-keycloak-postgres:
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: keycloak
+      POSTGRESQL_PASSWORD: edc
+      POSTGRESQL_DATABASE: keycloak
+    ports:
+      - '5441:5432'
+    volumes:
+      - 'provider-keycloak-postgresql:/bitnami/postgresql'
+
+  provider-ih-vault:
+    image: hashicorp/vault:1.16
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_API_ADDR: "http://localhost:8200"
+      VAULT_ADDR: "http://localhost:8200"
+    volumes:
+      - provider-ih-vault:/vault/file
+      - ../docker/identity-hub/kv/vault.hcl:/vault/config/vault.hcl:ro
+    command: vault server -config=/vault/config/vault.hcl
+    ports:
+      - "8203:8200"
 
 volumes:
   provider-postgresql:
     driver: local
   provider-keycloak-postgresql:
     driver: local
-  provider-user-management-service-postgres:
+  provider-ih-postgresql:
+    driver: local
+  provider-ih-vault:
     driver: local

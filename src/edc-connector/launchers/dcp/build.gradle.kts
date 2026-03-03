@@ -26,6 +26,7 @@ dependencies {
     runtimeOnly(libs.edc.api.secrets)
     runtimeOnly(project(":extensions:data-plane-oauth2-access-token"))
     runtimeOnly(project(":extensions:policy-engine"))
+    implementation(project(":extensions:catalog-proxy"))
 
     // data plane part
     runtimeOnly(libs.edc.bom.dataplane)

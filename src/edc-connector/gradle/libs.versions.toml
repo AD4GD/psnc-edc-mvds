@@ -11,6 +11,7 @@ parsson = "1.1.6"
 postgres = "42.7.3"
 restAssured = "5.5.6"
 shared-extensions = "1.0.0"
+jakartaRs = "3.1.0"
 
 [libraries]
 # PSNC libs
@@ -52,6 +53,12 @@ edc-sts-remote-client = { module = "org.eclipse.edc:identity-trust-sts-remote-cl
 
 # third-party libs
 postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+
+# catalog proxy
+edc-spi-core = { module = "org.eclipse.edc:core-spi", version.ref = "edc" }
+edc-spi-control-plane = { module = "org.eclipse.edc:control-plane-spi", version.ref = "edc" }
+edc-spi-web = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
+jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "jakartaRs" }
 
 # dcp-impl
 edc-spi-identity-trust = { module = "org.eclipse.edc:identity-trust-spi", version.ref = "edc" }

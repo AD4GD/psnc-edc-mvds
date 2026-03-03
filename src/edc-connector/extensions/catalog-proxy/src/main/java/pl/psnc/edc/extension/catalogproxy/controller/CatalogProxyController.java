@@ -66,7 +66,7 @@ public class CatalogProxyController {
         // DSP-first target (Federated Catalog protocol endpoint)
         this.dspCounterPartyAddress = config.getString(
             "edc.catalog.proxy.dsp.counterparty.address",
-            "http://federated-catalog:8182/protocol"
+            "http://federated-catalog:8292/api/dsp"
         );
         this.dspCounterPartyId = config.getString(
             "edc.catalog.proxy.dsp.counterparty.id",
@@ -80,7 +80,7 @@ public class CatalogProxyController {
         // HTTP fallback target (Federated Catalog REST API)
         this.httpTargetUrl = config.getString(
             "edc.catalog.proxy.http.target.url",
-            "http://federated-catalog:8181/catalog/v1alpha/catalog/query"
+            "http://federated-catalog:8294/api/catalog/v1alpha/catalog/query"
         );
         this.httpApiKeyHeader = config.getString(
             "edc.catalog.proxy.http.apikey.header",
