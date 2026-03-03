@@ -13,10 +13,10 @@ http:
         "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
         "@type": "QuerySpec",
         "filterExpression": [
-          { 
-              "operandLeft": "datasets[0].properties.'https://w3id.org/edc/v0.0.1/ns/name'", 
-              "operator": "=", 
-              "operandRight": "test-asset-01" 
+          {
+              "operandLeft": "datasets[0].properties.'https://w3id.org/edc/v0.0.1/ns/name'",
+              "operator": "=",
+              "operandRight": "test-asset-01"
           }
         ]
       }
