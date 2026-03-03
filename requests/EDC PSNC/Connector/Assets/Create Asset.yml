@@ -1,0 +1,93 @@
+info:
+  name: Create Asset
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{PROVIDER_CONNECTOR_MANAGEMENT_URL}}/v3/assets"
+  body:
+    type: json
+    data: |-
+      {
+        "@context": {
+          "@vocab": "http://www.w3.org/ns/dcat#",
+          "dcat": "http://www.w3.org/ns/dcat#",
+          "dct": "http://purl.org/dc/terms/",
+          "foaf": "http://xmlns.com/foaf/0.1/",
+          "adms": "http://www.w3.org/ns/adms#",
+          "prov": "http://www.w3.org/ns/prov#",
+          "locn": "http://www.w3.org/ns/locn#",
+          "skos": "http://www.w3.org/2004/02/skos/core#",
+          "xsd": "http://www.w3.org/2001/XMLSchema#",
+          "gsp": "http://www.opengis.net/ont/geosparql#",
+          "stac": "https://stacspec.org/terms/",
+          "federation": "https://api.openeo.org/extensions/federation/"
+        },
+        "@id": "{{asset-id}}",
+        "dataAddress": {
+          "baseUrl": "https://jsonplaceholder.typicode.com/posts",
+          "contentType": "application/json",
+          "header:content-type": "application/json",
+          "proxyPath": "true",
+          "proxyQueryParams": "true",
+          "type": "HttpData"
+        },
+        "properties": {
+          "baseUrl": "https://jsonplaceholder.typicode.com/posts",
+          "contenttype": "application/json",
+          "metadata": {
+            "dcat:dataQuality": "",
+            "dcat:keyword": "GMOS in-situ PAS",
+            "dcat:theme": [
+              {
+                "@id": "https://sdi.iia.cnr.it/gos4mcat/thesaurus/IGOS-ESHAPE/atmospheric%20mercury"
+              },
+              {
+                "@id": "https://sdi.iia.cnr.it/gos4mcat/thesaurus/IGOS-ESHAPE/passive%20samplers"
+              },
+              {
+                "@id": "https://sdi.iia.cnr.it/gos4mcat/thesaurus/IGOS-ESHAPE/total%20mercury"
+              },
+              {
+                "@id": "https://sdi.iia.cnr.it/gos4mcat/thesaurus/iso/topicCategory/environment"
+              },
+              {
+                "@id": "https://sdi.iia.cnr.it/gos4mcat/thesaurus/IGOS-ESHAPE/atmospheric%20mercury%20monitoring"
+              }
+            ],
+            "dct:abstract": "Goma (1563 m a.s.l.) is the capital city of North Kivu province in the eastern Democratic Republic of the Congo. It is located on the northern shore of Lake Kivu, next to the Rwandan city of Gisenyi. The lake and the two cities are in the Albertine Rift, the western branch of the East African Rift system. Goma lies only 13 to 18 km due south of the crater of the active Nyiragongo Volcano. The recent history of Goma has been dominated by the volcano and the Rwandan Genocide of 1994, which in turn fuelled the First and Second Congo Wars.\n\nSite name, Latitude, Longitude, Altitude, Site characteristics. \nGoma PAS  1, -1.668311, 29.238610, 1534, Remote\nGoma PAS  2, -1.652568, 29.239960, 1563, Urban",
+            "dct:accrualPeriodicity": "asNeeded",
+            "dct:language": "eng",
+            "dct:license": "intellectualPropertyRights",
+            "dct:publisher": [
+              {
+                "@id": "https://sdi.iia.cnr.it/gos4mcat/organization/EmiAfrican%2520Climate%2520Impact%2520Assessment"
+              },
+              {
+                "@id": "https://sdi.iia.cnr.it/gos4mcat/organization/CNR-Institute%2520of%2520Atmospheric%2520Pollution%2520Research"
+              }
+            ],
+            "dct:spatial": {
+              "@id": "_:N1e996fe2713d4c5e9b2586e3b410e48e",
+              "@type": "http://www.opengis.net/rdf#Polygon",
+              "http://www.opengis.net/rdf#asWKT": "<http://www.opengis.net/def/crs/OGC/1.3/CRS84>\n            Polygon((29.01555493 -1.81076878, 29.01555493 -1.54721034, 29.47148755 -1.54721034, 29.47148755 -1.81076878, 29.01555493 -1.81076878))"
+            },
+            "dct:updated": "2023-10-10",
+            "http://xmlns.com/foaf/0.1/thumbnail": {
+              "@id": "https://sdi.iia.cnr.it/gos4mcat/srv/api/records/98e38fdd-7aa5-4bb6-943d-85eb4ccf76ab/attachments/pass_goma.png"
+            }
+          },
+          "name": "{{asset-id}}",
+          "proxyPath": "true",
+          "proxyQueryParams": "true",
+          "version": ""
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
