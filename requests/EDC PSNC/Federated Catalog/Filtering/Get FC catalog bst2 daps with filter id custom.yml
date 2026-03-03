@@ -1,0 +1,28 @@
+info:
+  name: Get FC catalog bst2 daps with filter id custom
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{FEDERATED_CATALOG_URL}}/api/catalog/v1alpha/catalog/query"
+  body:
+    type: json
+    data: |-
+      {
+        "@context": {
+          "@vocab": "https://w3id.org/edc"
+        },
+        "@type": "QuerySpec",
+        "limit": 1000,
+        "offset": 0,
+        "sortOrder": "DESC",
+        "filterExpression": []
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
