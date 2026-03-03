@@ -1,0 +1,26 @@
+info:
+  name: Get Agreeements
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{CONSUMER_URL}}/management/v3/contractagreements/request"
+  body:
+    type: form-urlencoded
+    data:
+      - name: |-
+          {
+            "@context": {
+              "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+            },
+            "@type": "QuerySpec"
+          }
+        value: ""
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

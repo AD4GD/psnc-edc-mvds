@@ -1,0 +1,26 @@
+info:
+  name: Get Agreement (Negotiated contract) by id
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{CONSUMER_URL}}/management/v3/contractnegotiations/%7B%7Bnegotiation-id%7D%7D"
+  body:
+    type: form-urlencoded
+    data:
+      - name: |-
+          {
+            "@context": {
+              "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+            },
+            "@type": "QuerySpec"
+          }
+        value: ""
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

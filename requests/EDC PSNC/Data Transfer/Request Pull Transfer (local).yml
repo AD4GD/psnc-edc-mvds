@@ -1,0 +1,33 @@
+info:
+  name: Request Pull Transfer (local)
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{CONSUMER_URL}}/management/v3/transferprocesses"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+        },
+        "@type": "TransferRequestDto",
+        "connectorId": "provider",
+        "counterPartyAddress": "{{PROVIDER_URL}}/protocol",
+        "contractId": "{{contract-agreement-id}}",
+        "assetId": "BerlinLakes_String",
+        "protocol": "dataspace-protocol-http",
+        "transferType": "HttpData-PULL"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
