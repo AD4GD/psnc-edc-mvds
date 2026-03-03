@@ -1,0 +1,23 @@
+info:
+  name: Delete Participantc Context (Provider)
+  type: http
+  seq: 7
+
+http:
+  method: DELETE
+  url: "{{PROVIDER_IDENTITY_HUB_URL}}/api/identity/v1alpha/participants/{{PARTICIPANTS_CONTEXT}}"
+  headers:
+    - name: x-api-key
+      value: c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=
+  auth: inherit
+
+runtime:
+  variables:
+    - name: PARTICIPANTS_CONTEXT
+      value: ZGlkOndlYjpwcm92aWRlci1paCUzQTcwOTM6Ym9i
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

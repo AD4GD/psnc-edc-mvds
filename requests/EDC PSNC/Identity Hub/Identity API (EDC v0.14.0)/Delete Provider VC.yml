@@ -1,0 +1,18 @@
+info:
+  name: Delete Provider VC
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{PROVIDER_IDENTITY_HUB_URL}}/api/identity/v1alpha/participants/{{PROVIDER_IH_BASE64}}/credentials/{{vc-to-delete}}"
+  headers:
+    - name: x-api-key
+      value: c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

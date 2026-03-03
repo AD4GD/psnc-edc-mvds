@@ -1,0 +1,7 @@
+info:
+  name: Identity API (EDC v0.14.0)
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
