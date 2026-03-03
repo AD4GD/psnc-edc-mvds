@@ -40,3 +40,15 @@ variables:
     value: ZGlkOndlYjpjb25zdW1lci1pZGVudGl0eS1odWItZGNwLWRhdGEtc3BhY2UuYXBwcy5ic3QyLnBhYXMucHNuYy5wbDphbGljZQ==
   - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
     value: https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management
+  - name: FC_IH_BASE64
+    value: ZGlkOndlYjpmYy1paCUzQTcxMDM6cGlvdHI=
+  - name: PARTICIPANTS_CONTEXT
+    value: ZGlkOndlYjpwcm92aWRlci1paCUzQTcwOTM6Ym9i
+  - name: transferr-process-id
+    value: ""
+  - name: policy-id
+    value: test-policy
+  - name: asset-id
+    value: geo-spatial-asset-01
+  - name: contract-definition-id
+    value: cdef-test

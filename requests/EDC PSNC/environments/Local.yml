@@ -42,3 +42,9 @@ variables:
     value: "{{ENTER_VALUE_HERE}}"
   - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
     value: "{{ENTER_VALUE_HERE}}"
+  - name: policy-id
+    value: test-policy
+  - name: asset-id
+    value: geo-spatial-asset-01
+  - name: contract-definition-id
+    value: cdef-test

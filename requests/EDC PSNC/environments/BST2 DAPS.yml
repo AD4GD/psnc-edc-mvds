@@ -1,7 +1,7 @@
 name: BST2 DAPS
 variables:
   - name: CONSUMER_URL
-    value: https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl/
+    value: https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl
   - name: PROVIDER_URL
     value: https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl/
   - name: contract-agreement-id
@@ -42,3 +42,11 @@ variables:
     value: "{{ENTER_VALUE_HERE}}"
   - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
     value: https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl/management
+  - name: transferr-process-id
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: policy-id
+    value: test-policy
+  - name: asset-id
+    value: geo-spatial-asset-01
+  - name: contract-definition-id
+    value: cdef-test
