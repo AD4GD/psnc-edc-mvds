@@ -1,0 +1,32 @@
+info:
+  name: Get FC Catalog bst2 daps
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{FEDERATED_CATALOG_URL}}/catalog/v1alpha/catalog/query"
+  body:
+    type: json
+    data: |-
+      {
+          "@context": {
+              "@vocab": "https://w3id.org/edc"
+          },
+          "@type" : "QuerySpec",
+          "limit": 1000,
+          "offset": 0,
+          "sortOrder": "DESC",
+          "filterExpression": [{
+              "operantLeft" : "id",
+              "operator" : "==",
+              "operantRight" : "test-asset"
+          }]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
