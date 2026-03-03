@@ -1,0 +1,7 @@
+info:
+  name: Contract Definitions
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit

@@ -1,0 +1,29 @@
+info:
+  name: Get FC catalog bst2 daps with other filter
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{FEDERATED_CATALOG_URL}}/api/catalog/v1alpha/catalog/query"
+  body:
+    type: json
+    data: |-
+      {
+        "@context": { "@vocab": "https://w3id.org/edc/v0.0.1/ns/" },
+        "@type": "QuerySpec",
+        "filterExpression": [
+          {
+              "operandLeft": "datasets[0].properties.'https://w3id.org/edc/v0.0.1/ns/name'",
+              "operator": "=",
+              "operandRight": "test-asset-01"
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,52 @@
+name: BST2 DAPS
+variables:
+  - name: CONSUMER_URL
+    value: https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl
+  - name: PROVIDER_URL
+    value: https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl/
+  - name: contract-agreement-id
+    value: bb80c2cd-ec59-4c7e-ba34-366f6d92c564
+  - name: pull-transfer-id
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-endpoint
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-auth-type
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: transfer-auth-authorization
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_BACKEND_URL
+    value: https://consumer-backend-edc-connector.apps.bst2.paas.psnc.pl
+  - name: PROVIDER_IDENTITY_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_IDENTITY_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: FEDERATED_CATALOG_IDENTITY_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: DATA_SPACE_HUB_URL
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: FEDERATED_CATALOG_URL
+    value: https://federated-catalog-edc-connector.apps.bst2.paas.psnc.pl
+  - name: child_ids
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: child_idx
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: vc-to-delete
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: FC_IH_BASE64
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: PROVIDER_IH_BASE64
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: CONSUMER_IH_BASE64
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: DSH_REGISTRATION_BODY
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
+    value: https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl/management
+  - name: transferr-process-id
+    value: "{{ENTER_VALUE_HERE}}"
+  - name: policy-id
+    value: test-policy
+  - name: asset-id
+    value: geo-spatial-asset-01
+  - name: contract-definition-id
+    value: cdef-test

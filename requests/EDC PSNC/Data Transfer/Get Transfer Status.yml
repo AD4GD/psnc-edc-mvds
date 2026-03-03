@@ -1,0 +1,20 @@
+info:
+  name: Get Transfer Status
+  type: http
+  seq: 6
+
+http:
+  method: get
+  url: "{{CONSUMER_URL}}/management/v3/transferprocesses/{{transfer-process-id}}/state"
+  auth: inherit
+
+runtime:
+  variables:
+    - name: transfer-process-id
+      value: "{{ENTER_VALUE_HERE}}"
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

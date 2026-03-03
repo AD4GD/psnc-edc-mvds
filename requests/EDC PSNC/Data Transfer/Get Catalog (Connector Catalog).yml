@@ -1,0 +1,26 @@
+info:
+  name: Get Catalog (Connector Catalog)
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{PROVIDER_URL}}/management/v3/catalog/request"
+  body:
+    type: json
+    data: |-
+      {
+          "@context": {
+              "edc": "https://w3id.org/edc/v0.0.1/ns/"
+          },
+          "@type": "CatalogRequest",
+          "counterPartyAddress": "{{PROVIDER_URL}}/protocol",
+          "protocol": "dataspace-protocol-http"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
