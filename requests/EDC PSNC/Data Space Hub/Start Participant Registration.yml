@@ -1,0 +1,32 @@
+info:
+  name: Start Participant Registration
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{DATA_SPACE_HUB_URL}}/api/v1/registration/request"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Dan",
+        "full_name": "Dan P",
+        "VAT_number": "SomeVatNum",
+        "email": "data.space.test.503039@gmail.com",
+        "location": {
+          "country": "st",
+          "city": "string",
+          "postal_code": "string",
+          "street": "string",
+          "building_number": "string"
+        },
+        "data_space_components": {{DSH_REGISTRATION_BODY}}
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
