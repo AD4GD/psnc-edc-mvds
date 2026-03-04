@@ -13,7 +13,8 @@ PROVIDER_MANAGEMENT="http://provider-connector:19193/management"
 CONSUMER_API="http://consumer-connector:29191/api"
 CONSUMER_MANAGEMENT="http://consumer-connector:29193/management"
 FEDERATED_CATALOG_URL="http://federated-catalog:8181/catalog"
-MINIO_ADDRESS="http://minio:9001/minio/webrpc"
+S3_ENDPOINT_URL="${S3_ENDPOINT_URL:-http://storage:9000}"
+S3_BUCKET="${S3_BUCKET:-test}"
 CONSUMER_BACKEND_EDR="http://consumer-backend:4000/edr-endpoint"
 PROVIDER_PROTOCOL_INTERNAL="http://provider-connector:19194/protocol"
 DATA_SOURCE_ADDRESS="http://data-source:5000"
@@ -234,26 +235,18 @@ if [[ -z "$AGREEMENT_ID" ]]; then
 	exit 1
 fi
 
-# Get MinIO credentials
-log "=== Get MinIO credentials ==="
-MINIO_LOGIN_PAYLOAD=$(jq -n \
-	--arg minio_user $MINIO_ACCESS_KEY \
-	--arg minio_password $MINIO_SECRET_KEY \
-	'{
-		"id": 1,
-		"jsonrpc": "2.0",
-		"method": "Web.Login",
-		"params": {
-			"username": $minio_user,
-			"password": $minio_password
-		}
-	}')
-MINIO_CREDENTIALS=$(curl -s \
-  -H "Content-Type: application/json" \
-  -H "User-Agent: Mozilla/5.0" \
-  $MINIO_ADDRESS -d "$MINIO_LOGIN_PAYLOAD")
-MINIO_TOKEN=$(echo $MINIO_CREDENTIALS | jq -r '.result.token')
-log "MINIO-TOKEN: $MINIO_TOKEN"
+log "=== Configure S3 client (aws-cli) ==="
+if [[ -z "$AWS_ACCESS_KEY_ID" && -n "$MINIO_ACCESS_KEY" ]]; then
+	export AWS_ACCESS_KEY_ID="$MINIO_ACCESS_KEY"
+fi
+if [[ -z "$AWS_SECRET_ACCESS_KEY" && -n "$MINIO_SECRET_KEY" ]]; then
+	export AWS_SECRET_ACCESS_KEY="$MINIO_SECRET_KEY"
+fi
+export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+export AWS_EC2_METADATA_DISABLED="${AWS_EC2_METADATA_DISABLED:-true}"
+
+log "S3_ENDPOINT_URL: $S3_ENDPOINT_URL"
+log "S3_BUCKET: $S3_BUCKET"
 
 # Transfer asset
 log "=== Transfer asset ==="
@@ -313,46 +306,26 @@ for url in "${urls_to_download[@]}"; do
 	fi
 done
 
-MINIO_BUCKET_NAME=$(curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -H "User-Agent: Mozilla/5.0" \
-  -H "Authorization: Bearer $MINIO_TOKEN" \
-  $MINIO_ADDRESS -d '{
-  	"id": 1,
-	"jsonrpc": "2.0",
-	"params": { },
-	"method": "Web.ListBuckets"
-  }' | jq -r '.result.buckets[0].name')
-log "MINIO-BUCKET-NAME: $MINIO_BUCKET_NAME"
+OBJECTS_JSON=$(aws --endpoint-url "$S3_ENDPOINT_URL" s3api list-objects-v2 \
+  --bucket "$S3_BUCKET" \
+  --prefix "data/" \
+  --output json)
 
-MINIO_BUCKET_PAYLOAD=$(jq -n \
-	--arg bucket_name $MINIO_BUCKET_NAME \
-	'{
-		"id": 1,
-		"jsonrpc": "2.0",
-		"method": "Web.ListObjects",
-		"params": {
-			"bucketName": $bucket_name,
-			"prefix": "data/"
-		}
-	}')
+S3_SIZES=($(echo "$OBJECTS_JSON" | jq -r '.Contents | sort_by(.LastModified) | .[]?.Size'))
+log "S3-SIZES: ${S3_SIZES[@]}"
 
-MINIO_ITEMS=$(curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -H "User-Agent: Mozilla/5.0" \
-  -H "Authorization: Bearer $MINIO_TOKEN" \
-  $MINIO_ADDRESS -d "$MINIO_BUCKET_PAYLOAD" | jq -r '.result.objects')
-
-MINIO_SIZES=($(echo "$MINIO_ITEMS" | jq '.[] | .size' | awk '{printf "%s ", $1}'))
-log "MINIO-SIZES: ${MINIO_SIZES[@]}"
+if [[ ${#S3_SIZES[@]} -lt ${#urls_to_download[@]} ]]; then
+	log "[ERROR] Expected at least ${#urls_to_download[@]} objects under data/, got ${#S3_SIZES[@]}"
+	exit 1
+fi
 
 for index_url in "${!urls_to_download[@]}"; do
 	DS_SIZE=$(curl -s $RETURN_SIZE "$DATA_SOURCE_ADDRESS/${urls_to_download[$index_url]}")
-	if [[ $DS_SIZE -ne ${MINIO_SIZES[$index_url]} ]]; then
-		log "[ERROR] Invalid size for ${MINIO_SIZES[$index_url]}: ${MINIO_SIZES[$index_url]} vs $DS_SIZE"
+	if [[ $DS_SIZE -ne ${S3_SIZES[$index_url]} ]]; then
+		log "[ERROR] Invalid size for ${S3_SIZES[$index_url]}: ${S3_SIZES[$index_url]} vs $DS_SIZE"
 		exit 1
 	else
-		log "Valid size for ${MINIO_SIZES[$index_url]}: $DS_SIZE"
+		log "Valid size for ${S3_SIZES[$index_url]}: $DS_SIZE"
 	fi	
 done
 
