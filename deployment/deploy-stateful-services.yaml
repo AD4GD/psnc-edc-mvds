@@ -69,7 +69,7 @@
                 containers:
                   - name: "minio"
                     image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/minio:{{ stateful_services_image_tag }}"
-                    command: ["/usr/bin/minio", "server", "/data"]
+                    args: ["server", "/data"]
                     imagePullPolicy: Always
                     resources: "{{ minio_resources }}"
                     securityContext:
@@ -95,6 +95,18 @@
                           secretKeyRef:
                             name: "{{ application }}-minio"
                             key: MINIO_SECRET_KEY
+                      - name: RUSTFS_ACCESS_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-minio"
+                            key: MINIO_ACCESS_KEY
+                      - name: RUSTFS_SECRET_KEY
+                        valueFrom:
+                          secretKeyRef:
+                            name: "{{ application }}-minio"
+                            key: MINIO_SECRET_KEY
+                      - name: RUSTFS_CONSOLE_ENABLE
+                        value: "true"
                     volumeMounts:
                       - name: "minio-data"
                         mountPath: "/data"
