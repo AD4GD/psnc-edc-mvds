@@ -186,7 +186,31 @@ services:
     volumes:
       - 'data-space-hub-keycloak-postgres:/bitnami/postgresql'
 
+  consumer-backend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
+    ports:
+      - "4000:4000"
+    environment:
+      STORAGE_ENDPOINT: "storage:9000"
+      STORAGE_ACCESS_KEY: rustfs-admin
+      STORAGE_SECRET_KEY: rustfs
+    depends_on:
+      - storage
 
+  storage:
+    image: rustfs/rustfs:1.0.0-alpha.85 # ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/storage:${IMAGE_TAG}
+    environment:
+      - HOSTNAME=storage
+      - RUSTFS_ACCESS_KEY=rustfs-admin
+      - RUSTFS_SECRET_KEY=rustfs
+      - RUSTFS_CONSOLE_ENABLE=true
+      # - RUSTFS_VOLUMES=/data/vol1 /data/vol2 /data/vol3 /data/vol4
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+    volumes:
+      - storage-data:/data
 volumes:
   data-space-hub-postgres:
     driver: local
@@ -199,4 +223,6 @@ volumes:
   fc-ih-vault:
     driver: local
   data-space-hub-keycloak-postgres:
+    driver: local
+  storage-data:
     driver: local
