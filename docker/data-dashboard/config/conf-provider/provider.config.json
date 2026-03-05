@@ -5,5 +5,6 @@
   "deploymentMode": "local",
   "backendUrl": "http://consumer-backend:4000/edr-endpoint",
   "oauthIssuer": "http://localhost:48083/realms/Organizations",
-  "oauthClientId": "data-space-users"
+  "oauthClientId": "data-space-users",
+  "connectorId": "provider"
 }
