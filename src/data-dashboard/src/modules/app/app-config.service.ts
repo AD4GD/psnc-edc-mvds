@@ -17,6 +17,8 @@ export interface AppConfig {
   // present if api key is required by backend, and 
   // the website is protected by reverse-proxy with OAuth handling
   edcApiKey?: string;
+  // connector identifier for this dashboard instance (e.g., 'consumer', 'provider')
+  connectorId?: string;
 }
 
 @Injectable({

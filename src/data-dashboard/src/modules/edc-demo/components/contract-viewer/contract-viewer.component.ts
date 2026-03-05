@@ -15,7 +15,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { Router } from "@angular/router";
 import { TransferProcessStates } from "../../models/transfer-process-states";
 import { AppConfigService } from '../../../app/app-config.service';
-import { DATASET_CONTEXT, METADATA_CONTEXT, MINIO_STORAGE_TYPE } from 'src/modules/app/variables';
+import { DATASET_CONTEXT, METADATA_CONTEXT, STORAGE_TYPE } from 'src/modules/app/variables';
 import { EdrService } from 'src/modules/mgmt-api-client/api/edr.service';
 import { PublicService } from 'src/modules/mgmt-api-client/api/public.service';
 import { EdcConnectorClientContext } from '@think-it-labs/edc-connector-client';
@@ -246,13 +246,13 @@ export class ContractViewerComponent implements OnInit, OnDestroy {
 
       const callbackAddresses = [];
 
-      if (storageTypeId == MINIO_STORAGE_TYPE) {
+      if (storageTypeId == STORAGE_TYPE) {
         callbackAddresses.push(
           {
             "events": [
               "transfer.process.started"
             ],
-            "uri": this.getUrlWithQueryParams(backendUrl!, proxyDataAddressOptions)
+            "uri": this.getCallbackUrl(backendUrl!, proxyDataAddressOptions)
           }
         )
       }
@@ -360,7 +360,7 @@ export class ContractViewerComponent implements OnInit, OnDestroy {
     console.log(transfer);
     console.log(storageType);
 
-    if (storageType == MINIO_STORAGE_TYPE) {
+    if (storageType == STORAGE_TYPE) {
       this.completeTransfer(transfer);
       return;
     }
@@ -391,8 +391,8 @@ export class ContractViewerComponent implements OnInit, OnDestroy {
       const data: Response = await this.publicService.getTransferredData(authCode, context).toPromise();
       console.log(data);
 
-      this.saveFileToDownloads(data, transfer);
       this.completeTransfer(transfer);
+      this.saveFileToDownloads(data, transfer, publicEndpoint);
     } catch (e: any) {
       const message = (e as Error).message;
       console.log(e);
@@ -400,21 +400,63 @@ export class ContractViewerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private saveFileToDownloads = async (data: Response, transfer: TransferProcess) => {
-    const contentType = data.headers.get('Content-Type') || 'application/octet-stream';
-    const blob = await data.blob();
-  
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+  private getFileExtensionFromUrl(urlString: string): string | null {
+    try {
+      const url = new URL(urlString);
+      const pathname = url.pathname;
+      const lastDot = pathname.lastIndexOf('.');
+      if (lastDot > 0) {
+        return pathname.substring(lastDot);
+      }
+    } catch (e) {
+      console.log('[Download] Failed to parse URL for extension:', e);
+    }
+    return null;
+  }
+
+  private determineFileExtension(contentType: string | null, endpointUrl?: string): string {
+    // Priority 1: Check MIME_TO_EXTENSION mapping (excluding application/octet-stream)
+    if (contentType && contentType !== 'application/octet-stream' && MIME_TO_EXTENSION[contentType]) {
+      console.log('[Download] Using extension from Content-Type:', contentType);
+      return MIME_TO_EXTENSION[contentType];
+    }
+
+    // Priority 2: Try to extract extension from endpoint URL
+    if (endpointUrl) {
+      const urlExtension = this.getFileExtensionFromUrl(endpointUrl);
+      if (urlExtension) {
+        console.log('[Download] Using extension from endpoint URL:', urlExtension);
+        return urlExtension;
+      }
+    }
+
+    // Priority 3: Fallback to .json as default
+    console.log('[Download] Using default .json extension');
+    return '.json';
+  }
+
+  private saveFileToDownloads = async (data: Response, transfer: TransferProcess, endpointUrl?: string) => {
+    try {
+      const contentType = data.headers.get('Content-Type');
+      console.log('[Download] Content-Type:', contentType);
+      console.log('[Download] Endpoint URL:', endpointUrl);
+
+      const blob = await data.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      const extension = this.determineFileExtension(contentType, endpointUrl);
+      a.download = `${transfer.assetId}${extension}`;
     
-    const extension = MIME_TO_EXTENSION[contentType] || '';
-    a.download = `${transfer.assetId}${extension}`;
-  
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('[Download] Error:', err);
+      this.notificationService.showError('Download failed');
+    }
   };
   
   // Function uses the deploymentMode from app config to adjust the URL if needed
@@ -462,6 +504,13 @@ export class ContractViewerComponent implements OnInit, OnDestroy {
     }
 
     return result;
+  }
+
+  private getCallbackUrl(url: string, proxyDataAddressOptions: any) {
+    const callbackUrl = new URL(this.getUrlWithQueryParams(url, proxyDataAddressOptions));
+    const connectorId = this.appConfigService.getConfig()?.connectorId || 'consumer';
+    callbackUrl.searchParams.set('requester', connectorId);
+    return callbackUrl.toString();
   }
 
   onSelect(offer: ContractOffer) {
