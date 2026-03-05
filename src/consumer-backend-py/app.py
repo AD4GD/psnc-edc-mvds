@@ -4,15 +4,17 @@ import logging
 import mimetypes
 import os
 import posixpath
+import re
 from typing import List, Optional
+from urllib.parse import urlencode
 
 import boto3
+import filetype
 import httpx
-import magic
 import uvicorn
 from botocore.client import Config
 from botocore.exceptions import ClientError
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -23,6 +25,14 @@ app = FastAPI()
 
 IP = "0.0.0.0"  # nosec
 PORT = 4000  # nosec
+
+INTERNAL_QUERY_PARAM_KEYS = {
+    "requester",
+    "requesterparticipant",
+    "requestedby",
+    "participant",
+    "folder",
+}
 
 
 class DataAddressProperties(BaseModel):
@@ -94,9 +104,10 @@ def get_s3_config():
     access_key = os.environ.get("S3_ACCESS_KEY") or os.environ.get("STORAGE_ACCESS_KEY")
     secret_key = os.environ.get("S3_SECRET_KEY") or os.environ.get("STORAGE_SECRET_KEY")
 
-    bucket = os.environ.get("S3_BUCKET") or os.environ.get("STORAGE_BUCKET") or "test"
+    bucket = os.environ.get("S3_BUCKET") or os.environ.get("STORAGE_BUCKET") or "downloads"
     region = os.environ.get("AWS_DEFAULT_REGION") or os.environ.get("S3_REGION") or "us-east-1"
-    prefix = os.environ.get("S3_PREFIX") or "data"
+    prefix = os.environ.get("S3_PREFIX") or ""
+    default_folder = os.environ.get("S3_DEFAULT_FOLDER") or os.environ.get("STORAGE_DEFAULT_FOLDER") or "default"
 
     return {
         "endpoint_url": endpoint_url,
@@ -105,7 +116,48 @@ def get_s3_config():
         "bucket": bucket,
         "region": region,
         "prefix": prefix,
+        "default_folder": default_folder,
     }
+
+
+def _sanitize_path_segment(value: str) -> str:
+    normalized = (value or "").strip().lower()
+    normalized = re.sub(r"[^a-z0-9._-]", "-", normalized)
+    normalized = normalized.strip(".-_")
+    return normalized or "default"
+
+
+def _extract_requester_hint(request: Request) -> Optional[str]:
+    for key in ["requester", "requesterParticipant", "requestedBy", "participant", "folder"]:
+        value = request.query_params.get(key)
+        if value:
+            return value
+
+    for header in ["x-requester-participant", "x-requester", "x-participant-id"]:
+        value = request.headers.get(header)
+        if value:
+            return value
+
+    return None
+
+
+def _filter_proxy_query_params(request: Request) -> List[tuple[str, str]]:
+    return [
+        (key, value)
+        for key, value in request.query_params.multi_items()
+        if key.lower() not in INTERNAL_QUERY_PARAM_KEYS
+    ]
+
+
+def _resolve_requester_folder(
+    transfer_process: TransferProcessStarted,
+    s3_config: dict,
+    requester_hint: Optional[str] = None,
+) -> str:
+    if requester_hint:
+        return _sanitize_path_segment(requester_hint)
+
+    return _sanitize_path_segment(s3_config.get("default_folder") or "default")
 
 
 @app.post("/edr-endpoint/{proxy_path:path}")
@@ -118,7 +170,8 @@ async def edr_endpoint(
     logger.info(proxy_path)
     logger.info("Entering edr endpoint")
 
-    proxy_query_params = request.query_params
+    proxy_query_params = _filter_proxy_query_params(request)
+    requester_hint = _extract_requester_hint(request)
 
     logger.info(proxy_query_params)
 
@@ -151,58 +204,93 @@ async def edr_endpoint(
 
     asset_id = transfer_process.payload.asset_id
 
-    print("Start uploading...")
-    upload_asset_to_storage(s3_client, s3_config, response, asset_id)
+    requester_folder = _resolve_requester_folder(transfer_process, s3_config, requester_hint)
+    upload_asset_to_storage(s3_client, s3_config, response, asset_id, requester_folder)
 
     return JSONResponse(content={"status": "success"}, status_code=200)
 
 
-async def get_asset_from_provider(request, proxy_path, proxy_query_params):
-    properties = request.payload.data_address.properties
+async def get_asset_from_provider(transfer_process: TransferProcessStarted, proxy_path: str, proxy_query_params: List[tuple]):
+    properties = transfer_process.payload.data_address.properties
     endpoint = properties.endpoint
-    authKey = properties.auth_type
-    authCode = properties.authorization
+    auth_type = properties.auth_type
+    auth_code = properties.authorization
 
-    if not endpoint or not authKey or not authCode:
+    if not endpoint or not auth_type or not auth_code``:
+        logger.error(f"Missing endpoint, auth_type or auth_code. endpoint={endpoint}, auth_type={auth_type}, auth_code={auth_code}")
         return JSONResponse(content={"error": "Missing or invalid endpoint, authKey or authCode parameters."}, status_code=400)
 
     if proxy_path is not None and proxy_path:
         endpoint = f"{endpoint}/{proxy_path}"
 
-    if proxy_query_params is not None and proxy_query_params and len(proxy_query_params.items()) > 0:
-        endpoint = f"{endpoint}?{proxy_query_params}"
+    if proxy_query_params:
+        endpoint = f"{endpoint}?{urlencode(proxy_query_params, doseq=True)}"
 
-    headers = {"Authorization": authCode}
-    logger.info(headers)
+    logger.info(f"Fetching asset from provider: {endpoint}")
+    headers = {"Authorization": auth_code}
+    logger.info(f"Headers: {headers}")
 
     async with httpx.AsyncClient() as client:
         response = await client.get(endpoint, headers=headers)
+        logger.info(f"Response status: {response.status_code}, Content-Type: {response.headers.get('content-type')}")
         return response
 
 
-def upload_asset_to_storage(s3_client, s3_config, response, asset_id):
+def upload_asset_to_storage(s3_client, s3_config, response: Response, asset_id: str, requester_folder: str):
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
-    _mime = magic.from_buffer(response.content, mime=True)
-    _ext = mimetypes.guess_extension(_mime)
-    print(_mime, _ext)
+    # Priority 1: Use Content-Type header from response (excluding application/octet-stream)
+    content_type_header = response.headers.get("content-type")
+    content_type = content_type_header if (content_type_header and content_type_header != "application/octet-stream") else None
+    
+    # Priority 2: Try file type detection
+    if not content_type:
+        kind = filetype.guess(response.content)
+        content_type = kind.mime if kind else None
+    
+    # Priority 3: Fallback to application/json
+    if not content_type:
+        content_type = "application/json"
+    
+    # Get file extension from mime type
+    _ext = mimetypes.guess_extension(content_type)
+    if not _ext:
+        # Fallback extension based on content type
+        if "json" in content_type:
+            _ext = ".json"
+        elif "csv" in content_type:
+            _ext = ".csv"
+        elif "pdf" in content_type:
+            _ext = ".pdf"
+        elif "text" in content_type:
+            _ext = ".txt"
+        else:
+            _ext = ".bin"
 
-    prefix = (s3_config.get("prefix") or "data").strip("/")
-    filename = f"{asset_id}-{timestamp}{_ext}" if _ext else f"{asset_id}-{timestamp}.bin"
-    object_key = posixpath.join(prefix, filename)
+    logger.info(f"Content-Type: {content_type}, Extension: {_ext}")
+
+    root_prefix = (s3_config.get("prefix") or "").strip("/")
+    participant_folder = _sanitize_path_segment(requester_folder)
+    filename = f"{asset_id}-{timestamp}{_ext}"
+    object_key = posixpath.join(participant_folder, filename)
+    if root_prefix:
+        object_key = posixpath.join(root_prefix, object_key)
+
+    logger.info(f"Uploading to S3: bucket={s3_config['bucket']}, key={object_key}, content_type={content_type}")
 
     writable_content = io.BytesIO(response.content)
 
     bucket = s3_config["bucket"]
     ensure_bucket_exists(s3_client, bucket)
 
-    content_type = response.headers.get("content-type") or _mime
     s3_client.put_object(
         Bucket=bucket,
         Key=object_key,
         Body=writable_content.getvalue(),
         ContentType=content_type,
     )
+    
+    logger.info(f"Successfully uploaded {filename} to S3")
 
 
 def ensure_bucket_exists(client, bucket_name: str) -> None:
@@ -227,4 +315,4 @@ def ensure_bucket_exists(client, bucket_name: str) -> None:
 if __name__ == "__main__":
     if not os.path.exists("data"):
         os.makedirs("data")
-    uvicorn.run(app, host=IP, port=PORT)
+    uvicorn.run("app:app", host=IP, port=PORT, reload=True)
