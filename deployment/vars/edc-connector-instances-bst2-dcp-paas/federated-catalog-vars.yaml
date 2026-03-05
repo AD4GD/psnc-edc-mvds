@@ -31,15 +31,11 @@ federatedcatalog_configmap__05_defaults:
   # CONTROL plane AUTH (tokenbased, delegated, composite, none)
   WEB_HTTP_AUTH_TYPE: composite
   WEB_HTTP_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
-  # Move to secrets
-  #WEB_HTTP_AUTH_KEY: TODO
   WEB_HTTP_AUTH_DAC_KEY_URL: https://federated-catalog-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
   WEB_HTTP_AUTH_DAC_AUDIENCE: account
 
   WEB_HTTP_CATALOG_AUTH_TYPE: composite
   WEB_HTTP_CATALOG_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
-  # Move to secrets
-  #WEB_HTTP_CATALOG_AUTH_KEY: TODO
   WEB_HTTP_CATALOG_AUTH_DAC_KEY_URL: https://federated-catalog-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
   WEB_HTTP_CATALOG_AUTH_DAC_AUDIENCE: account
   # for some reason is required for _CATALOG context
@@ -60,13 +56,7 @@ federatedcatalog_configmap__05_defaults:
   EDC_SQL_SCHEMA_AUTOCREATE: true
   EDC_SQL_STORE_TARGETNODEDIRECTORY_DATASOURCE: default
   EDC_SQL_STORE_FEDERATEDCATALOG_DATASOURCE: default
-  # Move to secrets
-  #EDC_DATASOURCE_DEFAULT_URL: jdbc:postgresql://federated-catalog-postgres:5432/edc
-  #EDC_DATASOURCE_DEFAULT_USER: edc
-  #EDC_DATASOURCE_DEFAULT_PASSWORD: TODO
   EDC_VAULT_HASHICORP_URL: https://federated-catalog-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl
   EDC_VAULT_HASHICORP_TOKEN_TTL: 0
   EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
   JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
-  # Move to secrets
-  #EDC_VAULT_HASHICORP_TOKEN: TODO

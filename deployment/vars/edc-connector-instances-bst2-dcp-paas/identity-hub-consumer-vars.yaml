@@ -16,19 +16,11 @@ identityhubconsumer_configmap__05_defaults:
   EDC_IAM_STS_PUBLICKEY_ID: did:web:consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:alice#key-1
   EDC_IH_IAM_PUBLICKEY_PATH: /certs/consumer_public.pem
   EDC_IH_IAM_ID: did:web:consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:alice
-  # Move to secrets
-  #EDC_IH_API_SUPERUSER_KEY: TODO
   EDC_MVD_CREDENTIALS_PATH: app
 
   # persistence
   EDC_SQL_SCHEMA_AUTOCREATE: true
-  # Move to secrets
-  #EDC_DATASOURCE_DEFAULT_URL: jdbc:postgresql://consumer-ih-postgres:5432/edc
-  #EDC_DATASOURCE_DEFAULT_USER: edc
-  #EDC_DATASOURCE_DEFAULT_PASSWORD: TODO
   EDC_VAULT_HASHICORP_URL: https://consumer-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl
-  # Move to secrets
-  #EDC_VAULT_HASHICORP_TOKEN: TODO
   EDC_VAULT_HASHICORP_TOKEN_TTL: 0
   EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
   JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false

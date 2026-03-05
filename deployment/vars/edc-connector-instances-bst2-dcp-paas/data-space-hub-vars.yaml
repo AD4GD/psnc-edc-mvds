@@ -9,13 +9,6 @@ dataspacehub_configmap__05_defaults:
   SERVICE_NAME: "Data Space HUB - PCSS bst2 dcp"
   FRONTEND_URL: https://localhost:5173
 
-  # postgres (in secrets)
-  #POSTGRESQL_USERNAME: edc
-  #POSTGRESQL_PASSWORD: TODO
-  #POSTGRESQL_HOST: data-space-hub-postgres
-  #POSTGRESQL_PORT: 5432
-  #POSTGRESQL_DB: edc
-
   # keycloak (not integrated yet)
   KEYCLOAK_SERVER_URL: TODO
   KEYCLOAK_REALM: master
@@ -32,17 +25,9 @@ dataspacehub_configmap__05_defaults:
   VAULT_KEY_AUTO_ROTATE_DAYS: 90
   VAULT_NAMESPACE: admin
   KEY_NAME: test_private_key
-  # kv token (in secrets)
-  # VAULT_TOKEN: TODO
 
   # digital_wallet
   NODE_CONNECTION_ENDPOINT: some_endpoint
-
-  # email (in secrets)
-  #EMAIL_USER: user@man.poznan.pl
-  #EMAIL_PASSWORD: password
-  #EMAIL_SERVICE_SEND_EMAIL_ENDPOINT: https://data-space-hub-email-service-dcp-data-space.apps.bst2.paas.psnc.pl/email
-  #EMAIL_SERVICE_API_KEY: edc
 
   # federated catalog
   FEDERATED_CATALOG_DID: did:web:federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:piotr
@@ -52,8 +37,3 @@ dataspacehub_configmap__05_defaults:
   FEDERATED_CATALOG_IDENTITY_HUB_CREDENTIALS_URL: https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api/credentials
   FEDERATED_CATALOG_STS_PUBLIC_KEY_PEM: -----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1l0Lof0a1yBc8KXhesAnoBvxZw5r\noYnkAXuqCYfNK3ex+hMWFuiXGUxHlzShAehR6wvwzV23bbC0tcFcVgW//A==\n-----END PUBLIC KEY-----\n
   FEDERATED_CATALOG_TARGETS_URL: https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl/api/targets
-
-  # FC api key (in secrets)
-  #FEDERATED_CATALOG_API_KEY: password
-  # FC IH api key (in secrets)
-  #FEDERATED_CATALOG_IDENTITY_HUB_API_KEY: TODO

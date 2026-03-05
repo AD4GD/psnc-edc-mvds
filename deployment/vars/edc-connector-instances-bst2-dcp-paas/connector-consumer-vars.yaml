@@ -26,22 +26,16 @@ connectorconsumer_configmap__05_defaults:
   # control plane AUTH (tokenbased, delegated, composite, none)
   WEB_HTTP_AUTH_TYPE: composite
   WEB_HTTP_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
-  # Move to secrets
-  #WEB_HTTP_AUTH_KEY: TODO
   WEB_HTTP_AUTH_DAC_KEY_URL: https://consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
   WEB_HTTP_AUTH_DAC_AUDIENCE: account
 
   WEB_HTTP_MANAGEMENT_AUTH_TYPE: composite
   WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
   
-  # Move to secrets
-  #WEB_HTTP_MANAGEMENT_AUTH_KEY: TODO
   WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: https://consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
   WEB_HTTP_MANAGEMENT_AUTH_DAC_AUDIENCE: account
 
   WEB_HTTP_CONTROL_AUTH_TYPE: tokenbased
-  # Move to secrets
-  #WEB_HTTP_CONTROL_AUTH_KEY: TODO
 
   # dataplane specific config
   EDC_DATAPLANE_API_PUBLIC_BASEURL: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/public"
@@ -57,13 +51,7 @@ connectorconsumer_configmap__05_defaults:
 
   # persistence
   EDC_SQL_SCHEMA_AUTOCREATE: true
-  # Move to secrets
-  #EDC_DATASOURCE_DEFAULT_URL: jdbc:postgresql://consumer-postgres:5432/edc
-  #EDC_DATASOURCE_DEFAULT_USER: edc
-  #EDC_DATASOURCE_DEFAULT_PASSWORD: TODO
   EDC_VAULT_HASHICORP_URL: https://consumer-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl
-  # Move to secrets
-  #EDC_VAULT_HASHICORP_TOKEN: TODO
   EDC_VAULT_HASHICORP_TOKEN_TTL: 0
   EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
   JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
