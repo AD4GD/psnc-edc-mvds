@@ -1,0 +1,34 @@
+identityhubfederatedcatalog_configmap__05_defaults:
+  WEB_HTTP_PORT: 7080
+  WEB_HTTP_PATH: /api
+  WEB_HTTP_CREDENTIALS_PORT: 7081
+  WEB_HTTP_CREDENTIALS_PATH: /api/credentials
+  WEB_HTTP_IDENTITY_PORT: 7082
+  WEB_HTTP_IDENTITY_PATH: /api/identity
+  WEB_HTTP_DID_PORT: 7083
+  WEB_HTTP_DID_PATH: /
+  WEB_HTTP_VERSION_PORT: 7085
+  WEB_HTTP_VERSION_PATH: /api/version
+  WEB_HTTP_STS_PORT: 7086
+  WEB_HTTP_STS_PATH: /api/sts
+  EDC_IAM_DID_WEB_USE_HTTPS: true
+  EDC_IAM_STS_PRIVATEKEY_ALIAS: key-1
+  EDC_IAM_STS_PUBLICKEY_ID: did:web:federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:piotr#key-1
+  EDC_IH_IAM_PUBLICKEY_PATH: /certs/fc_public.pem
+  EDC_IH_IAM_ID: did:web:federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:piotr
+  # Move to secrets
+  #EDC_IH_API_SUPERUSER_KEY: TODO
+  EDC_MVD_CREDENTIALS_PATH: app
+
+  # persistence
+  EDC_SQL_SCHEMA_AUTOCREATE: true
+  # Move to secrets
+  #EDC_DATASOURCE_DEFAULT_URL: jdbc:postgresql://federated-catalog-ih-postgres:5432/edc
+  #EDC_DATASOURCE_DEFAULT_USER: edc
+  #EDC_DATASOURCE_DEFAULT_PASSWORD: TODO
+  EDC_VAULT_HASHICORP_URL: https://federated-catalog-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl
+  # Move to secrets
+  #EDC_VAULT_HASHICORP_TOKEN: TODO
+  EDC_VAULT_HASHICORP_TOKEN_TTL: 0
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
+  JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
