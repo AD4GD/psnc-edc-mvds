@@ -15,6 +15,7 @@
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
         replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: "{{ initial_replicas }}"
         strategy:
           type: RollingUpdate
         selector:
@@ -51,7 +52,7 @@
                 protocol: "TCP"
             containers:
               - name: "identityhubconsumer"
-                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/connector:{{ stateless_services_image_tag }}"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-hub:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
                   readOnlyRootFilesystem: false

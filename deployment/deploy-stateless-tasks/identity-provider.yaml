@@ -1,95 +1,92 @@
-- name: "deploy deployment/{{ application }}-consback"
+- name: "deploy deployment/{{ application }}-identityprovider"
   tags:
-    - consback
+    - identityprovider
     - deployment
   k8s:
     definition:
       apiVersion: v1
       kind: Deployment
       metadata:
-        name: "{{ application }}-consback"
+        name: "{{ application }}-identityprovider"
         labels:
-          component: consback
+          component: identityprovider
           application: "{{ application }}"
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
         replicas: "{{ initial_replicas }}"
-        revisionHistoryLimit: "{{ initial_replicas }}"
         strategy:
           type: RollingUpdate
         selector:
           matchLabels:
-            component: consback
+            component: identityprovider
             application: "{{ application }}"
         template:
           metadata:
             labels:
-              component: consback
+              component: identityprovider
               application: "{{ application }}"
               image_tag: "{{ stateless_services_image_tag }}"
-              parameters_digest: "{{ (consback_configmap_digest + consback_secret_digest)|hash('sha1') }}"
+              parameters_digest: "{{ (identityprovider_configmap_digest + identityprovider_secret_digest)|hash('sha1') }}"
           spec:
             serviceAccountName: "run-any-uid"
             ports:
-              - name: "receiver"
-                containerPort: 4000
+              - name: "keycloak-https"
+                containerPort: 8443
                 protocol: "TCP"
+              - name: "keycloak-http"
+                containerPort: 8080
+                protocol: "TCP"
+
             containers:
-              - name: "consback"
-                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/consumer-backend:{{ stateless_services_image_tag }}"
+              - name: "identityprovider"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-provider:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
                   runAsUser: 1000
-                resources: "{{ consback_resources }}"
+                resources: "{{ identityprovider_resources }}"
                 envFrom:
                   - configMapRef:
-                      name: "{{ application }}-consback"
+                      name: "{{ application }}-identityprovider"
                       optional: true
                   - secretRef:
-                      name: "{{ application }}-consback"
+                      name: "{{ application }}-identityprovider"
                       optional: true
                 volumeMounts:
-                  - name: "consback-tmp"
+                  - name: "identityprovider-tmp"
                     mountPath: "/tmp"
             volumes:
-              - name: "consback-tmp"
+              - name: "identityprovider-tmp"
                 emptyDir:
                   medium: "Memory"
 
-- name: "deploy service/{{ application }}-consback"
+- name: "deploy service/{{ application }}-identityprovider"
   tags:
-    - consback
+    - identityprovider
     - service
   k8s:
     definition:
       apiVersion: v1
       kind: Service
       metadata:
-        name: "{{ application }}-consback"
+        name: "{{ application }}-identityprovider"
         labels:
           application: "{{ application }}"
-          component: consback
+          component: identityprovider
       spec:
         ports:
-          - name: "receiver"
-            port: 4000
+          - name: "keycloak-https"
+            port: 8443
+          - name: "keycloak-http"
+            port: 8080
         selector:
           application: "{{ application }}"
-          component: consback
+          component: identityprovider
       envFrom:
         - configMapRef:
-            name: "{{ application }}-consback"
+            name: "{{ application }}-identityprovider"
             optional: true
-      env:
-        - name: S3_STORAGE_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: "{{ application }}-minio"
-              key: MINIO_ACCESS_KEY
-        - name: S3_STORAGE_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: "{{ application }}-minio"
-              key: MINIO_SECRET_KEY
+        - secretRef:
+            name: "{{ application }}-identityprovider"
+            optional: true

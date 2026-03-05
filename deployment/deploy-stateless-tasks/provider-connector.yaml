@@ -1,19 +1,3 @@
-- name: "deploy secret/{{ application }}-connectorprovider"
-  tags:
-    - connector
-    - connectorprovider
-    - secret
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: "{{ application }}-connectorprovider-jks"
-        labels:
-          application: "{{ application }}"
-          component: connectorprovider
-      data:
-        provider-daps.jks: "{{ lookup('file', 'certs/provider-daps.jks') | b64encode }}"
 
 - name: "deploy deployment/{{ application }}-connectorprovider"
   tags:
@@ -32,7 +16,7 @@
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
         replicas: "{{ initial_replicas }}"
-        revisionHistoryLimit: 0
+        revisionHistoryLimit: "{{ initial_replicas }}"
         strategy:
           type: RollingUpdate
         selector:
@@ -50,22 +34,28 @@
             serviceAccountName: "run-any-uid"
             ports:
               - name: "api"
-                containerPort: 19191
+                containerPort: 8080
                 protocol: "TCP"
               - name: "management"
-                containerPort: 19193
+                containerPort: 8081
                 protocol: "TCP"
-              - name: "protocol"
-                containerPort: 19194
-                protocol: "TCP"
-              - name: "catalogproxy"
-                containerPort: 19195
-                protocol: "TCP"
-              - name: "public"
-                containerPort: 19291
+              - name: "dsp"
+                containerPort: 8082
                 protocol: "TCP"
               - name: "control"
-                containerPort: 19192
+                containerPort: 8083
+                protocol: "TCP"
+              - name: "catalog"
+                containerPort: 8084
+                protocol: "TCP"
+              - name: "version"
+                containerPort: 8085
+                protocol: "TCP"
+              - name: "catalogproxy"
+                containerPort: 8086
+                protocol: "TCP"
+              - name: "public"
+                containerPort: 11001
                 protocol: "TCP"
             containers:
               - name: "connectorprovider"
@@ -86,18 +76,10 @@
                 volumeMounts:
                   - name: "connectorprovider-tmp"
                     mountPath: "/tmp"
-                  - name: "jks-volume"
-                    mountPath: "/certs"
             volumes:
               - name: "connectorprovider-tmp"
                 emptyDir:
                   medium: "Memory"
-              - name: "jks-volume"
-                secret:
-                  secretName: "{{ application }}-connectorprovider-jks"
-                  items:
-                    - key: "provider-daps.jks"
-                      path: "provider-daps.jks"
 
 - name: "deploy service/{{ application }}-connectorprovider"
   tags:
@@ -116,17 +98,21 @@
       spec:
         ports:
           - name: "api"
-            port: 19191
+            port: 8080
           - name: "management"
-            port: 19193
-          - name: "protocol"
-            port: 19194
-          - name: "catalogproxy"
-            port: 19195
-          - name: "public"
-            port: 19291
+            port: 8081
+          - name: "dsp"
+            port: 8082
           - name: "control"
-            port: 19192
+            port: 8083
+          - name: "catalog"
+            port: 8084
+          - name: "version"
+            port: 8085
+          - name: "catalogproxy"
+            port: 8086
+          - name: "public"
+            port: 11001
         selector:
           application: "{{ application }}"
           component: connectorprovider

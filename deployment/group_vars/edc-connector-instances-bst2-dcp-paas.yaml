@@ -231,6 +231,7 @@ consumer_dashboard_address: "https://consumer-dashboard-dcp-data-space.apps.bst2
 consumer_dashboard_address_shorten: "consumer-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_identity_provider_address: "https://consumer-identity-provider-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_keyvault_address: "https://consumer-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_keycloak_address: "https://consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_backend_address: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl"
 minio_address: "https://consumer-minio-dcp-data-space.apps.bst2.paas.psnc.pl"
 
@@ -240,6 +241,7 @@ provider_dashboard_address: "https://provider-dashboard-dcp-data-space.apps.bst2
 provider_dashboard_address_shorten: "provider-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_identity_provider_address: "https://provider-identity-provider-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_keyvault_address: "https://provider-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
+provider_keycloak_address: "https://provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 
 federated_catalog_address: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl"
 federated_catalog_identity_hub_address: "https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
@@ -315,6 +317,12 @@ routes:
     path: "/api/version"
     service: "{{ application }}-connectorconsumer"
     target_port: version
+
+  - name: consumer-connector-catalogproxy
+    host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/catalog-proxy"
+    service: "{{ application }}-connectorconsumer"
+    target_port: catalogproxy
 
   - name: consumer-connector-public
     host: "{{ consumer_connector_address | regex_replace('^https?://', '') }}"
@@ -424,6 +432,12 @@ routes:
     path: "/api/version"
     service: "{{ application }}-connectorprovider"
     target_port: version
+
+  - name: provider-connector-catalogproxy
+    host: "{{ provider_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/catalog-proxy"
+    service: "{{ application }}-connectorprovider"
+    target_port: catalogproxy
 
   - name: provider-connector-public
     host: "{{ provider_connector_address | regex_replace('^https?://', '') }}"
