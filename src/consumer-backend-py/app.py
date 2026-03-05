@@ -6,7 +6,7 @@ import os
 import posixpath
 import re
 from typing import List, Optional
-from urllib.parse import urlencode
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 import boto3
 import filetype
@@ -106,7 +106,7 @@ def get_s3_config():
 
     bucket = os.environ.get("S3_BUCKET") or os.environ.get("STORAGE_BUCKET") or "downloads"
     region = os.environ.get("AWS_DEFAULT_REGION") or os.environ.get("S3_REGION") or "us-east-1"
-    prefix = os.environ.get("S3_PREFIX") or ""
+    prefix = os.environ.get("S3_DEFAULT_PREFIX") or os.environ.get("S3_PREFIX") or "default"
     default_folder = os.environ.get("S3_DEFAULT_FOLDER") or os.environ.get("STORAGE_DEFAULT_FOLDER") or "default"
 
     return {
@@ -120,15 +120,28 @@ def get_s3_config():
     }
 
 
-def _sanitize_path_segment(value: str) -> str:
-    normalized = (value or "").strip().lower()
-    normalized = re.sub(r"[^a-z0-9._-]", "-", normalized)
-    normalized = normalized.strip(".-_")
-    return normalized or "default"
+def _sanitize_path_segment(value: str, fallback: str = "default") -> str:
+    def normalize_segment(segment: str) -> str:
+        segment = segment.strip().lower()
+        segment = re.sub(r"[^a-z0-9._-]", "-", segment)
+        return segment.strip(".-_")
+    
+    normalized = normalize_segment(value)
+    if normalized:
+        return normalized
+    
+    normalized_fallback = normalize_segment(fallback)
+    return normalized_fallback or "default"
 
 
-def _extract_requester_hint(request: Request) -> Optional[str]:
-    for key in ["requester", "requesterParticipant", "requestedBy", "participant", "folder"]:
+def _extract_requester_hint(
+    request: Request,
+    transfer_process: Optional[TransferProcessStarted] = None,
+) -> Optional[str]:
+    requester_keys = ["requester", "requesterParticipant", "requestedBy", "participant"]
+
+    # Priority 1: requester-like query params from incoming callback request
+    for key in requester_keys:
         value = request.query_params.get(key)
         if value:
             return value
@@ -137,6 +150,24 @@ def _extract_requester_hint(request: Request) -> Optional[str]:
         value = request.headers.get(header)
         if value:
             return value
+
+    # Priority 2: requester from callback uri embedded in transfer payload
+    # (some connector setups may not forward original query params to request)
+    if transfer_process:
+        for callback in transfer_process.payload.callback_addresses:
+            if not callback.uri:
+                continue
+
+            callback_query = dict(parse_qsl(urlparse(callback.uri).query))
+            for key in requester_keys:
+                value = callback_query.get(key)
+                if value:
+                    return value
+
+    # Priority 3: explicit folder override
+    folder_override = request.query_params.get("folder")
+    if folder_override:
+        return folder_override
 
     return None
 
@@ -154,10 +185,12 @@ def _resolve_requester_folder(
     s3_config: dict,
     requester_hint: Optional[str] = None,
 ) -> str:
-    if requester_hint:
-        return _sanitize_path_segment(requester_hint)
+    configured_default_folder = s3_config.get("default_folder") or "default"
 
-    return _sanitize_path_segment(s3_config.get("default_folder") or "default")
+    if requester_hint:
+        return _sanitize_path_segment(requester_hint, fallback=configured_default_folder)
+
+    return _sanitize_path_segment(configured_default_folder, fallback="default")
 
 
 @app.post("/edr-endpoint/{proxy_path:path}")
@@ -171,7 +204,6 @@ async def edr_endpoint(
     logger.info("Entering edr endpoint")
 
     proxy_query_params = _filter_proxy_query_params(request)
-    requester_hint = _extract_requester_hint(request)
 
     logger.info(proxy_query_params)
 
@@ -183,6 +215,8 @@ async def edr_endpoint(
     except Exception as e:
         logger.error("Error parsing request body: %s", str(e))
         raise HTTPException(status_code=422, detail="Invalid request body")
+
+    requester_hint = _extract_requester_hint(request, transfer_process)
 
     s3_config = get_s3_config()
     logger.info({k: ("***" if "key" in k else v) for k, v in s3_config.items()})
@@ -236,7 +270,7 @@ async def get_asset_from_provider(transfer_process: TransferProcessStarted, prox
         return response
 
 
-def upload_asset_to_storage(s3_client, s3_config, response: Response, asset_id: str, requester_folder: str):
+def upload_asset_to_storage(s3_client, s3_config : dict, response: Response, asset_id: str, requester_folder: str):
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
     # Priority 1: Use Content-Type header from response (excluding application/octet-stream)
@@ -262,6 +296,10 @@ def upload_asset_to_storage(s3_client, s3_config, response: Response, asset_id: 
             _ext = ".csv"
         elif "pdf" in content_type:
             _ext = ".pdf"
+        elif "html" in content_type:
+            _ext = ".html"
+        elif "xml" in content_type:
+            _ext = ".xml"
         elif "text" in content_type:
             _ext = ".txt"
         else:
@@ -269,12 +307,12 @@ def upload_asset_to_storage(s3_client, s3_config, response: Response, asset_id: 
 
     logger.info(f"Content-Type: {content_type}, Extension: {_ext}")
 
-    root_prefix = (s3_config.get("prefix") or "").strip("/")
-    participant_folder = _sanitize_path_segment(requester_folder)
+    participant_folder = _sanitize_path_segment(
+        requester_folder,
+        fallback=s3_config.get("default_folder") or "default",
+    )
     filename = f"{asset_id}-{timestamp}{_ext}"
     object_key = posixpath.join(participant_folder, filename)
-    if root_prefix:
-        object_key = posixpath.join(root_prefix, object_key)
 
     logger.info(f"Uploading to S3: bucket={s3_config['bucket']}, key={object_key}, content_type={content_type}")
 
