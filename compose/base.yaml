@@ -47,7 +47,7 @@ services:
       - fc-ih-vault
   
   federated-catalog-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -59,7 +59,7 @@ services:
       - 'federated-catalog-postgresql:/bitnami/postgresql'
 
   federated-catalog-ih-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -92,7 +92,7 @@ services:
     entrypoint: "./entrypoint.sh" 
 
   data-space-hub-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc

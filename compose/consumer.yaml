@@ -87,7 +87,7 @@ services:
       - 'consumer-keycloak-postgresql:/bitnami/postgresql'
 
   consumer-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -99,7 +99,7 @@ services:
       - 'consumer-postgresql:/bitnami/postgresql'
 
   consumer-ih-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
