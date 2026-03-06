@@ -1,14 +1,14 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
-# available types: daps, no-daps
-ARG LAUNCHER_TYPE="daps"
+# available types: dcp
+ARG LAUNCHER_TYPE="dcp"
 ARG JVM_ARGS=""
 
-# available values: "database", "in-memory"
-ENV PERSISTENCE_MODE="database"
 ENV PROJECT_PATH="src/federated-catalog"
 ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
+
+ENV ORG_GRADLE_PROJECT_persistence=true
 
 # Install required tools
 RUN apt update \
@@ -43,16 +43,13 @@ RUN chmod +x /app/gradlew
 RUN ./gradlew launchers:$LAUNCHER_TYPE:build --no-daemon
 
 # Define the path to the built JAR
-ENV APP_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/fc.jar
+ENV APP_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/federated-catalog.jar
 
 # Copy the built JAR
 RUN cp $APP_BUILD_PATH /app/app.jar
 
 # Create directories and copy configurations
-RUN touch /app/empty-vault.properties \
-    && mkdir /app/config /app/certs
 COPY ./docker/federated-catalog/config/* /app/config/
-COPY ./docker/federated-catalog/certs/* /app/certs/
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 

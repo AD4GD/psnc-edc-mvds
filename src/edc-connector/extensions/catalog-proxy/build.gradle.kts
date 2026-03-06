@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.edc.core.spi)
-    implementation(libs.edc.control.plane.spi)
-    implementation(libs.edc.catalog.spi)
-    implementation(libs.edc.web.spi)
+    implementation(libs.edc.spi.core)
+    implementation(libs.edc.spi.control.plane)
+    implementation(libs.edc.spi.catalog)
+    implementation(libs.edc.spi.web)
     implementation(libs.jakarta.rsApi)
 
     // Using SPIs usually sufficient.

@@ -1,4 +1,6 @@
 ---
+deployment_profile: dcw1-daps
+
 application: edc-connector
 ansible_connection: local
 registry_project: demeter

@@ -1,28 +1,6 @@
 - name: Set app.config.json with auth
   set_fact:
-    app_config_json: |
-      {
-        "managementApiUrl": "{{ provider_connector_address }}/management",
-        "catalogUrl": "{{ provider_dashboard_address }}/catalog-proxy/catalog/request",
-        "theme": "theme-3",
-        "deploymentMode": "production",
-        "backendUrl": "{{ consumer_backend_address }}/edr-endpoint",
-        "oauthIssuer": "{{ provider_keycloak_address }}/realms/Organizations",
-        "oauthClientId": "data-space-users"
-      }
-  when: is_auth
-
-- name: Set app.config.json without auth
-  set_fact:
-    app_config_json: |
-      {
-        "managementApiUrl": "{{ provider_connector_address }}/management",
-        "catalogUrl": "{{ provider_dashboard_address }}/catalog-proxy/catalog/request",
-        "theme": "theme-3",
-        "deploymentMode": "production",
-        "backendUrl": "{{ consumer_backend_address }}/edr-endpoint"
-      }
-  when: not is_auth
+    app_config_json: "{{ provider_dashboard_app_config_obj | to_nice_json }}"
 
 - name: "deploy configmap/{{ application }}-providerdashboard"
   tags:
@@ -37,7 +15,17 @@
         labels:
           application: "{{ application }}"
       data:
-        app.config.json: "{{ app_config_json | to_nice_json }}"
+        app.config.json: |-
+          {
+            "backendUrl": "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint",
+            "catalogUrl": "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request",
+            "deploymentMode": "production",
+            "managementApiUrl": "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management",
+            "theme": "theme-4",
+            "oauthIssuer": "https://provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations",
+            "oauthClientId": "data-space-users"
+          }
+
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
@@ -53,20 +41,20 @@
                 try_files $uri $uri/ /index.html;
               }
               location /management {
-                proxy_pass {{ provider_connector_address }}/management;
+                proxy_pass {{ provider_connector_address }}/api/management;
               }
               location /catalog-proxy/ {
-                proxy_pass {{ provider_connector_address }}/catalog-proxy/;
+                proxy_pass {{ provider_connector_address }}/api/catalog-proxy/;
               }
               location /catalog {
-                proxy_pass {{ provider_connector_address }}/catalog-proxy/catalog/request;
+                proxy_pass {{ provider_connector_address }}/api/catalog-proxy/catalog/request;
               }
             }
           }
 
 - name: "deploy deployment/{{ application }}-providerdashboard"
   tags:
-    - providerdashboard
+    -providerdashboard
     - deployment
   k8s:
     definition:
@@ -80,7 +68,7 @@
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
         replicas: "{{ initial_replicas }}"
-        revisionHistoryLimit: 0
+        revisionHistoryLimit: "{{ initial_replicas }}"
         strategy:
           type: RollingUpdate
         selector:
@@ -107,7 +95,7 @@
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
-                # runAsUser: 1000
+                  runAsUser: 1000
                 resources: "{{ providerdashboard_resources }}"
                 envFrom:
                   - secretRef:

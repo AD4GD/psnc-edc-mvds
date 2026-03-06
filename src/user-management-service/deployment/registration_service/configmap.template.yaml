@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registration-service-config
+  namespace: pipelines-registration-service-service
+data:
+  # api
+  API_CONTAINER_NAME: ${API_CONTAINER_NAME}
+  API_PORT: "${API_PORT}"
+
+  # postgres
+  POSTGRES_CONTAINER_NAME: ${POSTGRES_CONTAINER_NAME}
+  POSTGRES_INITDB_ROOT_USERNAME: ${POSTGRES_INITDB_ROOT_USERNAME}
+  POSTGRES_INITDB_ROOT_PASSWORD: ${POSTGRES_INITDB_ROOT_PASSWORD}
+  POSTGRES_HOST: ${POSTGRES_HOST}
+  POSTGRES_PORT: "${POSTGRES_PORT}"
+  POSTGRES_DB: ${POSTGRES_DB}

@@ -1,6 +1,6 @@
 {
-  "managementApiUrl": "http://localhost:18080/management",
-  "catalogUrl": "http://localhost:18080/catalog-proxy/catalog/request",
+  "managementApiUrl": "http://localhost:8081/api/management",
+  "catalogUrl": "http://localhost:8081/api/catalog-proxy/catalog/request",
   "theme": "theme-2",
   "deploymentMode": "production",
   "backendUrl": "",

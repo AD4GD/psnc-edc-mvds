@@ -159,15 +159,16 @@ export class CatalogBrowserService {
     return headers;
   }
 
-  requestDatasetById(counterPartyAddress: string, datasetId: string): Observable<any> {
+  requestDatasetById(counterPartyAddress: string, counterPartyId: string, datasetId: string): Observable<any> {
     const baseUrl = this.managementApiUrl.replace(/\/$/, "");
     const url = `${baseUrl}/v3/catalog/dataset/request`;
     const body = {
       "@context": {
         "edc": "https://w3id.org/edc/v0.0.1/ns/"
       },
-      "@type": "CatalogRequest",
+      "@type": "DatasetRequest",
       counterPartyAddress: counterPartyAddress,
+      counterPartyId: counterPartyId,
       "@id": datasetId,
       protocol: "dataspace-protocol-http"
     };
@@ -178,7 +179,7 @@ export class CatalogBrowserService {
   }
 
   requestDatasetOfferById(counterPartyAddress: string, datasetId: string, participantId: string): Observable<ContractOffer> {
-    return this.requestDatasetById(counterPartyAddress, datasetId)
+    return this.requestDatasetById(counterPartyAddress, participantId, datasetId)
       .pipe(
         map(payload => this.buildContractOfferFromDataset(payload, datasetId, counterPartyAddress, participantId))
       );

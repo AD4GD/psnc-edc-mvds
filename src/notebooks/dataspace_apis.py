@@ -131,9 +131,7 @@ def create_policy(policy_id: str, management_url: str, default_headers: dict, pe
     )
 
 
-def create_contract_definition(
-    contract_definition_id: str, management_url: str, asset_id: str, policy_id: str, default_headers: dict
-):
+def create_contract_definition(contract_definition_id: str, management_url: str, asset_id: str, policy_id: str, default_headers: dict):
     return requests.post(
         headers=default_headers,
         data=json.dumps(
@@ -142,9 +140,7 @@ def create_contract_definition(
                 "@id": contract_definition_id,
                 "accessPolicyId": policy_id,
                 "contractPolicyId": policy_id,
-                "assetsSelector": [
-                    {"operandLeft": "https://w3id.org/edc/v0.0.1/ns/id", "operator": "in", "operandRight": [asset_id]}
-                ],
+                "assetsSelector": [{"operandLeft": "https://w3id.org/edc/v0.0.1/ns/id", "operator": "in", "operandRight": [asset_id]}],
             }
         ),
         url=f"{management_url}/v3/contractdefinitions",
@@ -196,9 +192,7 @@ def negotiate_contract(
 
 
 def get_contract_agreement_id(contract_negotiation_id: str, management_url: str, default_headers: dict):
-    return requests.get(
-        headers=default_headers, url=f"{management_url}/v2/contractnegotiations/{contract_negotiation_id}"
-    )
+    return requests.get(headers=default_headers, url=f"{management_url}/v2/contractnegotiations/{contract_negotiation_id}")
 
 
 def request_consumer_pull_transfer(
@@ -259,9 +253,7 @@ def request_consumer_push_transfer(
 
 
 def get_transfer_state(consumer_management_url: str, pull_transfer_id: str, default_headers: dict):
-    return requests.get(
-        f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers
-    ).json()
+    return requests.get(f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers).json()
 
 
 def get_transfer_data_credentials(consumer_management_url: str, pull_transfer_id: str, default_headers: dict):

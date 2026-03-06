@@ -1,12 +1,14 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
-# available types: daps, no-daps
-ARG LAUNCHER_TYPE="daps"
+# available types: dcp
+ARG LAUNCHER_TYPE="dcp"
 ARG JVM_ARGS=""
 
 ENV PROJECT_PATH="src/edc-connector"
 ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
+
+ENV ORG_GRADLE_PROJECT_persistence=true
 
 # Install required tools
 RUN apt update \
@@ -47,10 +49,7 @@ ENV APP_BUILD_PATH=/app/launchers/$LAUNCHER_TYPE/build/libs/connector.jar
 RUN cp $APP_BUILD_PATH /app/app.jar
 
 # Create directories and copy configurations
-RUN touch /app/empty-vault.properties \
-    && mkdir /app/config /app/certs
 COPY ./docker/connector/config/* /app/config/
-COPY ./docker/connector/certs/* /app/certs/
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 

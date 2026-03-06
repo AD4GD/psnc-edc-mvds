@@ -1,0 +1,107 @@
+- name: "deploy deployment/{{ application }}-identityhubfederatedcatalog"
+  tags:
+    - identityhub
+    - identityhubfederatedcatalog
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-identityhubfederatedcatalog"
+        labels:
+          component: identityhubfederatedcatalog
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: identityhubfederatedcatalog
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: identityhubfederatedcatalog
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (identityhubfederatedcatalog_configmap_digest + identityhubfederatedcatalog_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "api"
+                containerPort: 7080
+                protocol: "TCP"
+              - name: "credentials"
+                containerPort: 7081
+                protocol: "TCP"
+              - name: "identity"
+                containerPort: 7082
+                protocol: "TCP"
+              - name: "did"
+                containerPort: 7083
+                protocol: "TCP"
+              - name: "version"
+                containerPort: 7085
+                protocol: "TCP"
+              - name: "sts"
+                containerPort: 7086
+                protocol: "TCP"
+            containers:
+              - name: "identityhubfederatedcatalog"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-hub:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ identityhubfederatedcatalog_resources }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-identityhubfederatedcatalog"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-identityhubfederatedcatalog"
+                      optional: true
+                volumeMounts:
+                  - name: "identityhubfederatedcatalog-tmp"
+                    mountPath: "/tmp"
+            volumes:
+              - name: "identityhubfederatedcatalog-tmp"
+                emptyDir:
+                  medium: "Memory"
+
+- name: "deploy service/{{ application }}-identityhubfederatedcatalog"
+  tags:
+    - identity-hub
+    - identityhubfederatedcatalog
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-identityhubfederatedcatalog"
+        labels:
+          application: "{{ application }}"
+          component: identityhubfederatedcatalog
+      spec:
+        ports:
+          - name: "api"
+            port: 7080
+          - name: "credentials"
+            port: 7081
+          - name: "identity"
+            port: 7082
+          - name: "did"
+            port: 7083
+          - name: "version"
+            port: 7085
+          - name: "sts"
+            port: 7086
+        selector:
+          application: "{{ application }}"
+          component: identityhubfederatedcatalog

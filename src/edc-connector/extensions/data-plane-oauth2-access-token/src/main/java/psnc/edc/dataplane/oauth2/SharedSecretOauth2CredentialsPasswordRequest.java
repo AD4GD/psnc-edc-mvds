@@ -15,22 +15,22 @@ public class SharedSecretOauth2CredentialsPasswordRequest extends Oauth2Credenti
 
     @NotNull
     public String getClientId() {
-        return params.get(CLIENT_ID);
+        return Objects.requireNonNull((String) params.get(CLIENT_ID), CLIENT_ID);
     }
 
     @NotNull
     public String getClientSecret() {
-        return params.get(CLIENT_SECRET);
+        return Objects.requireNonNull((String) params.get(CLIENT_SECRET), CLIENT_SECRET);
     }
 
     @NotNull
     public String getUser() {
-        return params.get(USERNAME);
+        return Objects.requireNonNull((String) params.get(USERNAME), USERNAME);
     }
 
     @NotNull
     public String getPassword() {
-        return params.get(PASSWORD);
+        return Objects.requireNonNull((String) params.get(PASSWORD), PASSWORD);
     }
 
     public static class Builder<B extends SharedSecretOauth2CredentialsPasswordRequest.Builder<B>> extends Oauth2CredentialsRequest.Builder<SharedSecretOauth2CredentialsPasswordRequest, SharedSecretOauth2CredentialsPasswordRequest.Builder<B>> {
