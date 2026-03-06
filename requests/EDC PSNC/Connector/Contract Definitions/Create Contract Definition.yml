@@ -9,19 +9,22 @@ http:
   body:
     type: json
     data: |-
-      "@context": {
-        "edc": "https://w3id.org/edc/v0.0.1/ns/"
-      },
-      "@id": {{contract-agreement-id}},
-      "accessPolicyId": {{policy-id}},
-      "contractPolicyId": {{policy-id}},
-      "assetsSelector": [
-        {
-          "operandLeft": "https://w3id.org/edc/v0.0.1/ns/id",
-          "operator": "in",
-          "operandRight": [ {{asset-id}} ]
-        }
-      ]
+      {
+        "@context": {
+          "edc": "https://w3id.org/edc/v0.0.1/ns/"
+        },
+        "@id": "{{contract-agreement-id}}",
+        "accessPolicyId": "{{policy-id}}",
+        "contractPolicyId": "{{policy-id}}",
+        "assetsSelector": [
+          {
+            "operandLeft": "https://w3id.org/edc/v0.0.1/ns/id",
+            "operator": "in",
+            "operandRight": [ {{asset-id}}
+            ]
+          }
+        ]
+      }
   auth: inherit
 
 settings:

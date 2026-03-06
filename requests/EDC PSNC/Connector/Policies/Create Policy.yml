@@ -6,20 +6,25 @@ info:
 http:
   method: POST
   url: "{{PROVIDER_CONNECTOR_MANAGEMENT_URL}}/v3/policydefinitions"
+  headers:
+    - name: Content-Type
+      value: application/json
   body:
     type: json
     data: |-
-      "@context": {
-        "edc": "https://w3id.org/edc/v0.0.1/ns/",
-        "odrl": "http://www.w3.org/ns/odrl/2/"
-      },
-      "@id": {{policy-id}},
-      "policy": {
-        "@context": "http://www.w3.org/ns/odrl.jsonld",
-        "@type": "Set",
-        "odrl:permission": [] if permissions is None else permissions,
-        "odrl:prohibition": [],
-        "odrl:obligation": [],
+      {
+        "@context": {
+          "edc": "https://w3id.org/edc/v0.0.1/ns/",
+          "odrl": "http://www.w3.org/ns/odrl/2/"
+        },
+        "@id": "{{policy-id}}",
+        "policy": {
+          "@context": "http://www.w3.org/ns/odrl.jsonld",
+          "@type": "Set",
+          "odrl:permission": [],
+          "odrl:prohibition": [],
+          "odrl:obligation": []
+        }
       }
   auth: inherit
 
