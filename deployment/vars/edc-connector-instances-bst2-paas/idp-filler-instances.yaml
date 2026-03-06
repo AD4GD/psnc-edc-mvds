@@ -1,0 +1,4 @@
+idpfiller_configmap__05_defaults:
+  WEB_HTTP_IDP_URI: "{{ identity_provider_address }}"
+  WEB_HTTP_RS_URI: "{{ registration_service_backend_address }}"
+  RUN_SCRIPT: 1 # 1 if need to execute, 0 if db already filled

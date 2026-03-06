@@ -15,6 +15,7 @@
 
   # deployed_parameters_packs is defining wheter a given service is deployed or not, it is located in group_vars/edc-connector-instances-<cluster>.yaml
   tasks:
+    #consumer
     - include_tasks: deploy-stateless-tasks/data-space-keycloak.yaml
       when: "'dataspacekeycloak' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/consumer-keycloak.yaml
@@ -25,19 +26,37 @@
       when: "'consumerdashboard' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/consumer-connector.yaml
       when: "'connectorconsumer' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/consumer-identity-hub.yaml
+      when: "'identityhubconsumer' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/consumer-identity-provider.yaml
+      when: "'identityproviderconsumer' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/consumer-backend.yaml
+      when: "'consback' in (deployed_parameters_packs | from_yaml)"
+    #provider
     - include_tasks: deploy-stateless-tasks/provider-dashboard.yaml
       when: "'providerdashboard' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/provider-connector.yaml
       when: "'connectorprovider' in (deployed_parameters_packs | from_yaml)"
-    - include_tasks: deploy-stateless-tasks/sage-dashboard.yaml
-      when: "'sagedashboard' in (deployed_parameters_packs | from_yaml)"
-    - include_tasks: deploy-stateless-tasks/sage-connector.yaml
-      when: "'connectorsage' in (deployed_parameters_packs | from_yaml)"
-    - include_tasks: deploy-stateless-tasks/consumer-backend.yaml
-      when: "'consback' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/provider-identity-hub.yaml
+      when: "'identityhubprovider' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/provider-identity-provider.yaml
+      when: "'identityproviderprovider' in (deployed_parameters_packs | from_yaml)"
+    #authority
     - include_tasks: deploy-stateless-tasks/federated-catalog.yaml
       when: "'federatedcatalog' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/federated-catalog-identity-hub.yaml
+      when: "'identityhubfederatedcatalog' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/data-space-hub.yaml
+      when: "'dataspacehub' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/data-space-portal.yaml
+      when: "'dataspaceportal' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/mail-service.yaml
+      when: "'mailservice' in (deployed_parameters_packs | from_yaml)"
+
+    #used in daps
     - include_tasks: deploy-stateless-tasks/registration-service-backend.yaml
       when: "'registrationservicebackend' in (deployed_parameters_packs | from_yaml)"
     - include_tasks: deploy-stateless-tasks/registration-service-frontend.yaml
       when: "'registrationservicefrontend' in (deployed_parameters_packs | from_yaml)"
+    - include_tasks: deploy-stateless-tasks/identity-provider.yaml
+      when: "'identityprovider' in (deployed_parameters_packs | from_yaml)"

@@ -15,19 +15,23 @@ build-base: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=almalinux:9
 
 build-postgres: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=postgres:11
 
-build-connector: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/bellsoft/liberica-openjdk-debian:17-cds
+build-connector: BUILDER_IMAGE=bellsoft/liberica-openjdk-debian:17
 build-connector: CONTEXT_PATH=../
 
 build-base build-postgres: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
 build-connector: BASE_IMAGE=$(BUILDER_IMAGE)
 
-build-federated-catalog: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/bellsoft/liberica-openjdk-debian:17-cds
+build-federated-catalog: BUILDER_IMAGE=bellsoft/liberica-openjdk-debian:17
 build-federated-catalog: CONTEXT_PATH=../
 build-federated-catalog: BASE_IMAGE=$(BUILDER_IMAGE)
 
-build-registration-service-backend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/bellsoft/liberica-openjdk-debian:17-cds
-build-registration-service-backend: CONTEXT_PATH=../
-build-registration-service-backend: BASE_IMAGE=$(BUILDER_IMAGE)
+build-data-space-hub: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
+build-data-space-hub: CONTEXT_PATH=../
+build-data-space-hub: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-user-management-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
+build-user-management-service: CONTEXT_PATH=../
+build-user-management-service: BASE_IMAGE=$(BUILDER_IMAGE)
 
 build-registration-service-frontend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
 build-registration-service-frontend: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
@@ -45,3 +49,19 @@ build-data-source: CONTEXT_PATH=../
 
 build-minio: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=minio/minio:RELEASE.2025-09-07T16-13-09Z
 build-minio: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
+
+build-identity-hub: BUILDER_IMAGE=bellsoft/liberica-openjdk-debian:17
+build-identity-hub: CONTEXT_PATH=../
+build-identity-hub: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-mail-service: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-alpine
+build-mail-service: CONTEXT_PATH=../
+build-mail-service: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-identity-provider: BUILDER_IMAGE=maven:3-eclipse-temurin-17
+build-identity-provider: CONTEXT_PATH=../
+build-identity-provider: BASE_IMAGE=$(BUILDER_IMAGE)
+
+build-data-space-portal: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
+build-data-space-portal: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
+build-data-space-portal: CONTEXT_PATH=../

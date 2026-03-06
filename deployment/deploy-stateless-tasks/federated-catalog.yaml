@@ -18,21 +18,6 @@
           application: "{{ application }}"
       data:
         participants.json: "{{ participants_json_obj | to_nice_json }}"
-- name: "deploy secret/{{ application }}-federatedcatalog"
-  tags:
-    - federatedcatalog
-    - secret
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: "{{ application }}-federatedcatalog-jks"
-        labels:
-          application: "{{ application }}"
-          component: federatedcatalog
-      data:
-        federated-catalog-daps.jks: "{{ lookup('file', 'certs/federated-catalog-daps.jks') | b64encode }}"
 
 - name: "deploy deployment/{{ application }}-federatedcatalog"
   tags:
@@ -50,7 +35,7 @@
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
         replicas: "{{ initial_replicas }}"
-        revisionHistoryLimit: 0
+        revisionHistoryLimit: "{{ initial_replicas }}"
         strategy:
           type: RollingUpdate
         selector:
@@ -68,10 +53,28 @@
             serviceAccountName: "run-any-uid"
             ports:
               - name: "api"
-                containerPort: 8080
+                containerPort: 8290
+                protocol: "TCP"
+              - name: "management"
+                containerPort: 8291
+                protocol: "TCP"
+              - name: "dsp"
+                containerPort: 8292
+                protocol: "TCP"
+              - name: "control"
+                containerPort: 8293
                 protocol: "TCP"
               - name: "catalog"
-                containerPort: 8181
+                containerPort: 8294
+                protocol: "TCP"
+              - name: "version"
+                containerPort: 8295
+                protocol: "TCP"
+              - name: "targets"
+                containerPort: 8296
+                protocol: "TCP"
+              - name: "public"
+                containerPort: 13001
                 protocol: "TCP"
             containers:
               - name: "federatedcatalog"
@@ -81,19 +84,6 @@
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
                   runAsUser: 1000
-                livenessProbe:
-                  httpGet:
-                    path: /api/check/health
-                    port: 8080
-                    scheme: HTTP
-                    httpHeaders:
-                      - name: x-api-key
-                        value: edc
-                  initialDelaySeconds: 60
-                  timeoutSeconds: 2
-                  periodSeconds: 30
-                  successThreshold: 1
-                  failureThreshold: 3
                 resources: "{{ federatedcatalog_resources }}"
                 envFrom:
                   - configMapRef:
@@ -115,13 +105,7 @@
               - name: "federatedcatalog-participants-config"
                 configMap:
                   name: "{{ application }}-federatedcatalog"
-              - name: "jks-volume"
-                secret:
-                  secretName: "{{ application }}-federatedcatalog-jks"
-                  items:
-                    - key: "federated-catalog-daps.jks"
-                      path: "federated-catalog-daps.jks"
-
+                  
 - name: "deploy service/{{ application }}-federatedcatalog"
   tags:
     - federatedcatalog
@@ -138,9 +122,21 @@
       spec:
         ports:
           - name: "api"
-            port: 8080
+            port: 8290
+          - name: "management"
+            port: 8291
+          - name: "dsp"
+            port: 8292
+          - name: "control"
+            port: 8293
           - name: "catalog"
-            port: 8181
+            port: 8294
+          - name: "version"
+            port: 8295
+          - name: "targets"
+            port: 8296
+          - name: "public"
+            port: 13001
         selector:
           application: "{{ application }}"
           component: federatedcatalog

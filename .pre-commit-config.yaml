@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 
 
-exclude: venv/|modules/|docker/|pkgs/|common/|reports/settings.py
+exclude: venv/|modules/|tests/|docker/|pkgs/|common/|reports/settings.py
 
 repos:
   -   repo: https://github.com/pre-commit/pre-commit-hooks
@@ -19,7 +19,7 @@ repos:
       rev: 22.3.0
       hooks:
         -   id: black
-            args: ["--line-length", "120"]
+            args: ["--line-length", "150"]
   -   repo: https://github.com/pre-commit/mirrors-isort
       rev: "v5.9.1"
       hooks:

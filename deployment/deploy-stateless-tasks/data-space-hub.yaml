@@ -1,0 +1,84 @@
+- name: "deploy deployment/{{ application }}-dataspacehub"
+  tags:
+    - dataspacehub
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-dataspacehub"
+        labels:
+          component: dataspacehub
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: dataspacehub
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: dataspacehub
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (dataspacehub_configmap_digest + dataspacehub_secret_digest)|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "receiver"
+                containerPort: 8000
+                protocol: "TCP"
+            containers:
+              - name: "dataspacehub"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-space-hub:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ dataspacehub_resources }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-dataspacehub"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-dataspacehub"
+                      optional: true
+                volumeMounts:
+                  - name: "dataspacehub-tmp"
+                    mountPath: "/tmp"
+            volumes:
+              - name: "dataspacehub-tmp"
+                emptyDir:
+                  medium: "Memory"
+
+- name: "deploy service/{{ application }}-dataspacehub"
+  tags:
+    - dataspacehub
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-dataspacehub"
+        labels:
+          application: "{{ application }}"
+          component: dataspacehub
+      spec:
+        ports:
+          - name: "receiver"
+            port: 8000
+        selector:
+          application: "{{ application }}"
+          component: dataspacehub
+      envFrom:
+        - configMapRef:
+            name: "{{ application }}-dataspacehub"
+            optional: true

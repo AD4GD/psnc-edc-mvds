@@ -1,4 +1,6 @@
 ---
+deployment_profile: bst2-daps
+
 application: edc-connector
 ansible_connection: local
 registry_project: demeter
@@ -36,7 +38,23 @@ connectorconsumer_resources:
     cpu: "1"
     memory: "2000Mi"
 
+identityhubconsumer_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
 connectorprovider_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+identityhubprovider_resources:
   requests:
     cpu: "100m"
     memory: "1000Mi"

@@ -1,0 +1,46 @@
+[metadata]
+format.version = "1.1"
+
+[versions]
+awaitility = "4.3.0"
+edc = "0.14.0"
+edc-build = "1.0.0"
+jackson = "2.18.2"
+jakarta-json = "2.1.3"
+parsson = "1.1.6"
+postgres = "42.7.3"
+restAssured = "5.5.6"
+shared-extensions = "1.0.0"
+
+[libraries]
+# PSNC libs
+psnc-auth-composite = { module = "com.psnc.mvds:auth-composite", version.ref = "shared-extensions" }
+psnc-vault-keys-seeder = { module = "com.psnc.mvds:vault-keys-seeder", version.ref = "shared-extensions" }
+
+# EDC libs
+# standard
+edc-configuration-filesystem = { module = "org.eclipse.edc:configuration-filesystem", version.ref = "edc" }
+
+# issuer SPI modules
+edc-issuance-spi = { module = "org.eclipse.edc:issuerservice-issuance-spi", version.ref = "edc" }
+edc-ih-spi-credentials = { module = "org.eclipse.edc:verifiable-credential-spi", version.ref = "edc" }
+edc-ih-spi = { module = "org.eclipse.edc:identity-hub-spi", version.ref = "edc" }
+# BOM modules
+edc-bom-issuerservice = { module = "org.eclipse.edc:issuerservice-bom", version.ref = "edc" }
+edc-bom-issuerservice-sql = { module = "org.eclipse.edc:issuerservice-feature-sql-bom", version.ref = "edc" }
+
+# participants management
+edc-ih-api-did = { module = "org.eclipse.edc:did-api", version.ref = "edc" }
+edc-ih-api-participants = { module = "org.eclipse.edc:participant-context-api", version.ref = "edc" }
+
+# did-example-resolver
+edc-did-core = { module = "org.eclipse.edc:identity-did-core", version.ref = "edc" }
+
+# persistence
+edc-bom-identityhub-sql = { module = "org.eclipse.edc:identityhub-feature-sql-bom", version.ref = "edc" }
+edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
+
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
+edc-build = { id = "org.eclipse.edc.edc-build", version.ref = "edc-build" }

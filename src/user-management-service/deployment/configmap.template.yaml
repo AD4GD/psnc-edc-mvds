@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registration-service-service-config
+  namespace: pipelines-registration-service-service
+data:
+  COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+
+  # registry
+  REGISTRY_DOMAIN: ${REGISTRY_DOMAIN}
+  REGISTRY_PROJECT: ${REGISTRY_PROJECT}
+  REGISTRY_APPLICATION: ${REGISTRY_APPLICATION}
+  BUILD_TAG: ${BUILD_TAG}
+
+  # Project Name service
+  PROJECT_NAME_API_CONTAINER_NAME: ${PROJECT_NAME_API_CONTAINER_NAME}
+  PROJECT_NAME_API_PORT: "${PROJECT_NAME_API_PORT}"

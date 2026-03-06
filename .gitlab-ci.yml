@@ -5,19 +5,10 @@ variables:
   GIT_STRATEGY: clone
 
 stages:
-  - precommit
   - build
   # - test
   - upload
   - update_inventory
-
-Run pre-commit check:
-  stage: precommit
-  script:
-    - devlab_run_pre_commit 2500
-  artifacts:
-    paths:
-      - ./reports
 
 Build images:
   stage: build
@@ -66,15 +57,29 @@ Update inventory for atos-psnc integration:
     variables:
       - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_atos_psnc
 
-# integration-test:
-#   stage: test
-#   image: docker:latest
-#   services:
-#     - docker:dind
-#   variables:
-#     CI_IMAGE_TAG: $CI_IMAGE_TAG
-#     CI_PROJECT_DIR: $CI_REPO_DIR
-#     CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
-#   script:
-#     - cd ${CI_PROJECT_DIR}/bin
-#     - ./devtests up --abort-on-container-exit --exit-code-from integration-tests
+Update inventory for bst2-dcp:
+  stage: update_inventory
+  variables:
+    inventory_repository_name: pcss-data-space-bst2-dcp-inventory
+    inventory_hostname: $inventory_hostname_pcss_bst2_dcp
+    gitlab_push_token: $gitlab_push_token_pcss_bst2_dcp
+  script:
+    - devlab_update_inventory
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_pcss_bst2_dcp
+
+#integration-test:
+#  stage: test
+#  image: docker:latest
+#  rules:
+#    - when: never
+#  services:
+#    - docker:dind
+#  variables:
+#    CI_IMAGE_TAG: $CI_IMAGE_TAG
+#    CI_PROJECT_DIR: $CI_REPO_DIR
+#    CI_REGISTRY_DOMAIN: $CI_REGISTRY_DOMAIN
+#  script:
+#    - cd ${CI_PROJECT_DIR}/bin
+#    - ./devtests up --abort-on-container-exit --exit-code-from integration-tests

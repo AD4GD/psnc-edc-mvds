@@ -133,3 +133,23 @@
             selector:
               application: "{{ application }}"
               component: "minio"
+
+    - include_tasks: deploy-stateful-tasks/hashicorp-key-vault.yaml
+      when: "'keyvaultprovider' in (deployed_parameters_packs | from_yaml)"
+      vars:
+        vault_instance: "keyvaultprovider"
+
+    - include_tasks: deploy-stateful-tasks/hashicorp-key-vault.yaml
+      when: "'keyvaultconsumer' in (deployed_parameters_packs | from_yaml)"
+      vars:
+        vault_instance: "keyvaultconsumer"
+
+    - include_tasks: deploy-stateful-tasks/hashicorp-key-vault.yaml
+      when: "'keyvaultfederatedcatalog' in (deployed_parameters_packs | from_yaml)"
+      vars:
+        vault_instance: "keyvaultfederatedcatalog"
+
+    - include_tasks: deploy-stateful-tasks/hashicorp-key-vault.yaml
+      when: "'keyvaultdataspacehub' in (deployed_parameters_packs | from_yaml)"
+      vars:
+        vault_instance: "keyvaultdataspacehub"

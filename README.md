@@ -15,7 +15,7 @@ The project is based on PSNC skeletons, and has the following structure:
 - data-dashboard (compatible with EDC v0.10.1)
 - federated-catalog (based on EDC v0.10.1)
 - consumer-backend
-- registration-service-backend (under development)
+- registration-service (under development)
 - registration-service-frontend (under development)
 
 ## Build & Run locally
