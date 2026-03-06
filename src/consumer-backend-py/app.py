@@ -250,7 +250,7 @@ async def get_asset_from_provider(transfer_process: TransferProcessStarted, prox
     auth_type = properties.auth_type
     auth_code = properties.authorization
 
-    if not endpoint or not auth_type or not auth_code``:
+    if not endpoint or not auth_type or not auth_code:
         logger.error(f"Missing endpoint, auth_type or auth_code. endpoint={endpoint}, auth_type={auth_type}, auth_code={auth_code}")
         return JSONResponse(content={"error": "Missing or invalid endpoint, authKey or authCode parameters."}, status_code=400)
 
