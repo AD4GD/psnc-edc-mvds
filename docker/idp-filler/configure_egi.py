@@ -122,11 +122,11 @@ def configure_egi_idp(
         existing_idp = kc.get_idp(idp_alias)
         print(f"✓ IdP '{idp_alias}' exists. Removing and recreating...")
         kc.delete_idp(idp_alias)
+    except Exception as e:
+        pass # Assume not found and create new
+    finally:
         kc.create_idp(idp_payload)
         print(f"✓ IdP '{idp_alias}' created...")
-    except Exception as e:
-        print(f"✓ Creating IdP '{idp_alias}'...")
-        kc.create_idp(idp_payload)
     
     print(f"✓ IdP '{idp_alias}' configured successfully")
     
