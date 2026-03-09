@@ -19,7 +19,7 @@ REALM = "Organizations"
 KC_USER = "admin"
 KC_PASS = "edc"
 
-EGI_DISCOVERY_ENDPOINT = "https://aai-dev.egi.eu/auth/realms/egi/.well-known/openid-configuration"
+EGI_DISCOVERY_ENDPOINT = "https://aai-dev.egi.eu/auth/realms/id/.well-known/openid-configuration"
 EGI_IDP_ALIAS = "EGI-Check-in"
 EGI_IDP_DISPLAY_NAME = "EGI Check-in"
 EGI_CLIENT_ID = "<client_id>"  # Replace with actual value
