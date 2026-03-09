@@ -10,9 +10,6 @@ import requests
 import keycloak_utils as ku
 from keycloak import KeycloakAdmin
 
-# TODO right now there is no support for PKCE
-# TODO now llogout is on front-channel, but we should consider back-channel for better security and reliability (requires additional configuration on EGI side)
-
 # Configuration - customize these for your deployment
 KC_BASE = "http://localhost:8083"
 REALM = "Organizations"
