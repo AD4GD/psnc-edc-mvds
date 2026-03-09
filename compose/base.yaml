@@ -213,6 +213,7 @@ services:
     restart: unless-stopped
     volumes:
       - storage-data:/data
+
 volumes:
   data-space-hub-postgres:
     driver: local
