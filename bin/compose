@@ -1,6 +1,16 @@
 #!/bin/bash
 
-source compose.defaults
+source "compose.defaults"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -f "$SCRIPT_DIR/.env.secrets" ]]
+then
+  set -a
+  source "$SCRIPT_DIR/.env.secrets"
+  set +a
+fi
+
+"$SCRIPT_DIR/render-secrets-config"
 
 export COMPOSE_HTTP_TIMEOUT=3000
 
