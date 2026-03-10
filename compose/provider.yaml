@@ -11,7 +11,7 @@ services:
       - "8196:8196"
       - "12001:12001"
     volumes:
-      - ../docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
+      - ./.generated/docker/connector/config/configuration-provider.properties:/app/configuration.properties:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -55,7 +55,7 @@ services:
       - "7095:7095"
       - "7096:7096"
     volumes:
-      - ../docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
+      - ./.generated/docker/identity-hub/config/configuration-provider.properties:/app/configuration.properties:ro
       - ../docker/identity-hub/credentials/provider:/app/credentials/provider:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties

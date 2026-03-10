@@ -23,7 +23,7 @@ services:
       - "8086:8086"
       - "11001:11001"
     volumes:
-      - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ./.generated/docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -42,7 +42,7 @@ services:
       - "7085:7085"
       - "7086:7086"
     volumes:
-      - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ./.generated/docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
       - ../docker/identity-hub/credentials/consumer:/app/credentials/consumer:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
