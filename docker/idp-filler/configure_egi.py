@@ -11,16 +11,16 @@ import keycloak_utils as ku
 from keycloak import KeycloakAdmin
 
 # Configuration - customize these for your deployment
-KC_BASE = "http://localhost:8083"
+KC_BASE = "https://provider-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
 REALM = "Organizations"
-KC_USER = "admin"
-KC_PASS = "edc"
+KC_USER = "psahdyqbwdoa"
+KC_PASS = "h4FCGiuh9IftAbHy"
 
 EGI_DISCOVERY_ENDPOINT = "https://aai-dev.egi.eu/auth/realms/id/.well-known/openid-configuration"
 EGI_IDP_ALIAS = "EGI-Check-in"
 EGI_IDP_DISPLAY_NAME = "EGI Check-in"
-EGI_CLIENT_ID = "<client_id>"  # Replace with actual value
-EGI_CLIENT_SECRET = "<client_secret>"  # Replace with actual value
+EGI_CLIENT_ID = "psnc_sage_codesprint"  # Replace with actual value
+EGI_CLIENT_SECRET = "7x58SVIx44FIU8twe6BUw5grjDabqlYA"  # Replace with actual value
 EGI_SCOPES = "openid voperson_id email profile aarc offline_access"
 
 
