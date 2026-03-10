@@ -11,9 +11,10 @@ http:
     data: |-
       {
         "@context": {
+          "edc": "https://w3id.org/edc/v0.0.1/ns/",
           "@vocab": "http://www.w3.org/ns/dcat#",
           "dcat": "http://www.w3.org/ns/dcat#",
-          "dct": "http://purl.org/dc/terms/",
+      //     "dct": "http://purl.org/dc/terms/",
           "foaf": "http://xmlns.com/foaf/0.1/",
           "adms": "http://www.w3.org/ns/adms#",
           "prov": "http://www.w3.org/ns/prov#",
@@ -24,7 +25,7 @@ http:
           "stac": "https://stacspec.org/terms/",
           "federation": "https://api.openeo.org/extensions/federation/"
         },
-        "@id": "geo-spatial-asset-01",
+        "@id": "{{asset-id}}",
         "dataAddress": {
           "baseUrl": "https://jsonplaceholder.typicode.com/posts",
           "contentType": "application/json",
@@ -78,7 +79,7 @@ http:
               "@id": "https://sdi.iia.cnr.it/gos4mcat/srv/api/records/98e38fdd-7aa5-4bb6-943d-85eb4ccf76ab/attachments/pass_goma.png"
             }
           },
-          "name": "geo-spatial-asset-01",
+          "name": "{{asset-id}}",
           "proxyPath": "true",
           "proxyQueryParams": "true",
           "version": ""

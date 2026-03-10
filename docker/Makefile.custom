@@ -41,14 +41,13 @@ build-data-dashboard: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/node:lts
 build-data-dashboard: BASE_IMAGE=$(REGISTRY_DOMAIN)/base/nginxinc/nginx-unprivileged
 build-data-dashboard: CONTEXT_PATH=../
 
-build-consumer-backend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.9-slim
+build-consumer-backend: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-slim
 build-consumer-backend: CONTEXT_PATH=../
 
-build-data-source: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.9-slim
+build-data-source: BUILDER_IMAGE=$(REGISTRY_DOMAIN)/base/python:3.13-slim
 build-data-source: CONTEXT_PATH=../
 
-build-minio: BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX=minio/minio:RELEASE.2025-09-07T16-13-09Z
-build-minio: BASE_IMAGE=$(BASE_IMAGE_REGISTRY_DOMAIN)/$(BASE_IMAGE_REGISTRY_PROJECT)/$(BASE_IMAGE_SUFFIX_REPOSITORY_SUFFIX)
+build-storage: BASE_IMAGE=rustfs/rustfs:1.0.0-alpha.85
 
 build-identity-hub: BUILDER_IMAGE=bellsoft/liberica-openjdk-debian:17
 build-identity-hub: CONTEXT_PATH=../

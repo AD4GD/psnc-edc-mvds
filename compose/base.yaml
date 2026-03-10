@@ -10,7 +10,7 @@ services:
   federated-catalog:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/federated-catalog:${IMAGE_TAG}
     volumes:
-      - ../docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
+      - ./.generated/docker/federated-catalog/config/configuration.properties:/app/configuration.properties:ro
       - ../docker/federated-catalog/config/participants.json:/app/config/participants.json
       - 'federated-catalog-postgresql:/bitnami/postgresql'
     environment:
@@ -38,7 +38,7 @@ services:
       - "7105:7105"
       - "7106:7106"
     volumes:
-      - ../docker/identity-hub/config/configuration-fc.properties:/app/configuration.properties:ro
+      - ./.generated/docker/identity-hub/config/configuration-fc.properties:/app/configuration.properties:ro
       - ../docker/identity-hub/credentials/federated-catalog:/app/credentials/federated-catalog:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
@@ -47,7 +47,7 @@ services:
       - fc-ih-vault
   
   federated-catalog-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -59,7 +59,7 @@ services:
       - 'federated-catalog-postgresql:/bitnami/postgresql'
 
   federated-catalog-ih-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -82,7 +82,7 @@ services:
   data-space-hub:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/data-space-hub:${IMAGE_TAG}
     volumes:
-      - ../docker/data-space-hub/config/config.properties:/app/.env:ro
+      - ./.generated/docker/data-space-hub/config/config.properties:/app/.env:ro
     depends_on:
       - data-space-hub-postgres
       - data-space-hub-vault
@@ -92,7 +92,7 @@ services:
     entrypoint: "./entrypoint.sh" 
 
   data-space-hub-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -143,10 +143,10 @@ services:
       -c "
         echo 'Waiting 3 seconds for Vault to start...';
         sleep 3;
-        vault-unseal unseal --address http://data-space-hub-vault:8200 --shard '5kBJDzxiP5SFzz1wNzUExEPauLcom6HFUfTRYoyGN4U=';
-        vault-unseal unseal --address http://provider-ih-vault:8200 --shard 'Pql6WtanxoUc8sAiJXbso5cxzJOBSMgBhYtewpPd2dI=';
-        vault-unseal unseal --address http://consumer-ih-vault:8200 --shard 'QgGabj1PLjyghIA40XaBWSqN+O1utXXNAZX2XGCLTJI=';
-        vault-unseal unseal --address http://fc-ih-vault:8200 --shard 'dEQMocMK8q/ioCB5LHj6TFCpD9NVqMjzOasNHzouo+o=';
+        vault-unseal unseal --address http://data-space-hub-vault:8200 --shard '${DSH_VAULT_UNSEAL_SHARD:?Missing DSH_VAULT_UNSEAL_SHARD in bin/.env.secrets}';
+        vault-unseal unseal --address http://provider-ih-vault:8200 --shard '${PROVIDER_IH_VAULT_UNSEAL_SHARD:?Missing PROVIDER_IH_VAULT_UNSEAL_SHARD in bin/.env.secrets}';
+        vault-unseal unseal --address http://consumer-ih-vault:8200 --shard '${CONSUMER_IH_VAULT_UNSEAL_SHARD:?Missing CONSUMER_IH_VAULT_UNSEAL_SHARD in bin/.env.secrets}';
+        vault-unseal unseal --address http://fc-ih-vault:8200 --shard '${FC_IH_VAULT_UNSEAL_SHARD:?Missing FC_IH_VAULT_UNSEAL_SHARD in bin/.env.secrets}';
         echo 'Vaults Unsealed';
       "
 
@@ -186,6 +186,33 @@ services:
     volumes:
       - 'data-space-hub-keycloak-postgres:/bitnami/postgresql'
 
+  consumer-backend:
+    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
+    ports:
+      - "4000:4000"
+    environment:
+      S3_ENDPOINT_URL: "http://storage:9000"
+      S3_ACCESS_KEY: rustfs-admin
+      S3_SECRET_KEY: rustfs
+      S3_BUCKET: downloads
+      S3_DEFAULT_PREFIX: edc-transfers
+      S3_DEFAULT_FOLDER: anonymous
+    depends_on:
+      - storage
+
+  storage:
+    image: rustfs/rustfs:1.0.0-alpha.85 # ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/storage:${IMAGE_TAG}
+    environment:
+      - HOSTNAME=storage
+      - RUSTFS_ACCESS_KEY=rustfs-admin
+      - RUSTFS_SECRET_KEY=rustfs
+      - RUSTFS_CONSOLE_ENABLE=true
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+    volumes:
+      - storage-data:/data
 
 volumes:
   data-space-hub-postgres:
@@ -199,4 +226,6 @@ volumes:
   fc-ih-vault:
     driver: local
   data-space-hub-keycloak-postgres:
+    driver: local
+  storage-data:
     driver: local

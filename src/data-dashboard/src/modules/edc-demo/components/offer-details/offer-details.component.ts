@@ -15,7 +15,7 @@ import { MIME_TO_EXTENSION, TransferProcessService } from '../../../mgmt-api-cli
 import { EdrService } from 'src/modules/mgmt-api-client/api/edr.service';
 import { PublicService } from 'src/modules/mgmt-api-client/api/public.service';
 import { AppConfigService } from 'src/modules/app/app-config.service';
-import { DATASET_CONTEXT, METADATA_CONTEXT, MINIO_STORAGE_TYPE } from 'src/modules/app/variables';
+import { DATASET_CONTEXT, METADATA_CONTEXT, STORAGE_TYPE } from 'src/modules/app/variables';
 import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-state.service';
 import { CatalogBrowserTransferDialog } from '../catalog-browser-transfer-dialog/catalog-browser-transfer-dialog.component';
 import { ContractOffer } from '../../models/contract-offer';
@@ -344,13 +344,13 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
 
         const callbackAddresses = [];
 
-        if (storageTypeId == MINIO_STORAGE_TYPE && backendUrl) {
+        if (storageTypeId == STORAGE_TYPE && backendUrl) {
         callbackAddresses.push(
             {
             "events": [
                 "transfer.process.started"
             ],
-            "uri": this.getUrlWithQueryParams(backendUrl, proxyDataAddressOptions)
+            "uri": this.getCallbackUrl(backendUrl, proxyDataAddressOptions)
             }
         );
         }
@@ -442,8 +442,8 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
         console.log('[Transfer] Process started:', transfer);
         console.log('[Transfer] Storage type:', storageType);
 
-        if (storageType == MINIO_STORAGE_TYPE) {
-            console.log(`[Transfer] MinIO transfer completed: ${transfer.id}`);
+        if (storageType == STORAGE_TYPE) {
+            console.log(`[Transfer] Storage transfer completed: ${transfer.id}`);
             this.completeTransfer(transfer);
             return;
         }
@@ -484,7 +484,7 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             this.downloadedSizeMB = 0;
             this.hasContentLength = false;
             this.notificationService.showInfo('Download started, please wait...');
-            this.saveFileToDownloads(data, transfer);
+            this.saveFileToDownloads(data, transfer, publicEndpoint);
         } catch (e: any) {
             const message = (e as Error).message;
             console.log('[Transfer] Error:', e);
@@ -495,9 +495,44 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    private saveFileToDownloads = async (data: Response, transfer: TransferProcess) => {
+    private getFileExtensionFromUrl(urlString: string): string | null {
         try {
-            const contentType = data.headers.get('Content-Type') || 'application/octet-stream';
+            const url = new URL(urlString);
+            const pathname = url.pathname;
+            const lastDot = pathname.lastIndexOf('.');
+            if (lastDot > 0) {
+                return pathname.substring(lastDot);
+            }
+        } catch (e) {
+            console.log('[Download] Failed to parse URL for extension:', e);
+        }
+        return null;
+    }
+
+    private determineFileExtension(contentType: string | null, endpointUrl?: string): string {
+        // Priority 1: Check MIME_TO_EXTENSION mapping (excluding application/octet-stream)
+        if (contentType && contentType !== 'application/octet-stream' && MIME_TO_EXTENSION[contentType]) {
+            console.log('[Download] Using extension from Content-Type:', contentType);
+            return MIME_TO_EXTENSION[contentType];
+        }
+
+        // Priority 2: Try to extract extension from endpoint URL
+        if (endpointUrl) {
+            const urlExtension = this.getFileExtensionFromUrl(endpointUrl);
+            if (urlExtension) {
+                console.log('[Download] Using extension from endpoint URL:', urlExtension);
+                return urlExtension;
+            }
+        }
+
+        // Priority 3: Fallback to .json as default
+        console.log('[Download] Using default .json extension');
+        return '.json';
+    }
+
+    private saveFileToDownloads = async (data: Response, transfer: TransferProcess, endpointUrl?: string) => {
+        try {
+            const contentType = data.headers.get('Content-Type');
             const contentDisposition = data.headers.get('Content-Disposition') || '';
             const contentLength = data.headers.get('Content-Length');
             const totalSize = contentLength ? parseInt(contentLength, 10) : 0;
@@ -506,6 +541,7 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             console.log('[Download] Content-Type:', contentType);
             console.log('[Download] Content-Disposition:', contentDisposition);
             console.log('[Download] Content-Length:', contentLength);
+            console.log('[Download] Endpoint URL:', endpointUrl);
             console.log('[Download] Total size:', totalSize, 'bytes');
             console.log('[Download] All headers:', {
                 'content-type': contentType,
@@ -522,7 +558,7 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             const a = document.createElement('a');
             a.href = url;
 
-            const extension = MIME_TO_EXTENSION[contentType] || '';
+            const extension = this.determineFileExtension(contentType, endpointUrl);
             a.download = `${transfer.assetId}${extension}`;
 
             console.log('[Download] Initiating browser download:', a.download);
@@ -590,7 +626,7 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             offset += chunk.length;
         }
 
-        const contentType = data.headers.get('Content-Type') || 'application/octet-stream';
+        const contentType = data.headers.get('Content-Type') || 'application/json';
         return new Blob([buffer], { type: contentType });
     };
 
@@ -636,6 +672,13 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
         }
 
         return result;
+    }
+
+    private getCallbackUrl(url: string, proxyDataAddressOptions: any) {
+        const callbackUrl = new URL(this.getUrlWithQueryParams(url, proxyDataAddressOptions));
+        const connectorId = this.appConfigService.getConfig()?.connectorId || 'consumer';
+        callbackUrl.searchParams.set('requester', connectorId);
+        return callbackUrl.toString();
     }
 
     private extractMetadata(payload: any, assetId: string): any {

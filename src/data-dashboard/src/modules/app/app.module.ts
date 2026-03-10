@@ -16,7 +16,7 @@ import {EdcDemoModule} from '../edc-demo/edc-demo.module';
 import {MAT_FORM_FIELD_DEFAULT_OPTIONS} from '@angular/material/form-field';
 import {AppConfigService} from "./app-config.service";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
-import {CONNECTOR_CATALOG_API, CONNECTOR_MANAGEMENT_API, LOCAL_STORAGE_TYPE, MINIO_STORAGE_TYPE} from "./variables";
+import {CONNECTOR_CATALOG_API, CONNECTOR_MANAGEMENT_API, LOCAL_STORAGE_TYPE, STORAGE_TYPE} from "./variables";
 import { EdcConnectorClient } from "@think-it-labs/edc-connector-client";
 import { MatChipsModule } from '@angular/material/chips';
 import { CUSTOM_PRESET, LOCATION_PRESET, PURPOSE_PRESET, TIME_INTERVAL_PRESET } from './policy-presets';
@@ -80,7 +80,7 @@ import { UnauthorizedHttpInterceptor } from './auth/unauthorized-http.intercepto
     },
     {
       provide: 'STORAGE_TYPES',
-      useFactory: () => [{id: LOCAL_STORAGE_TYPE, name: "Local"}, {id: MINIO_STORAGE_TYPE, name: "Minio"}],
+      useFactory: () => [{id: LOCAL_STORAGE_TYPE, name: "Local"}, {id: STORAGE_TYPE, name: "Storage"}],
     },
     {
       provide: 'POLICY_PRESETS',

@@ -104,22 +104,31 @@ services:
 
   consumer-backend:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
+    ports:
+      - "4000:4000"
     environment:
-      MINIO_ENDPOINT: "minio:9001"
-      MINIO_ACCESS_KEY: minio-user
-      MINIO_SECRET_KEY: minio-password
+      S3_ENDPOINT_URL: "http://storage:9000"
+      S3_ACCESS_KEY: rustfs-admin
+      S3_SECRET_KEY: rustfs
+      S3_BUCKET: downloads
+      S3_DEFAULT_PREFIX: edc-transfers
+      S3_DEFAULT_FOLDER: anonymous
     depends_on:
-      - minio
+      - storage
 
-  minio:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}
-    command: server /storage --address :9001
+  storage:
+    image: rustfs/rustfs:1.0.0-alpha.85 # ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/storage:${IMAGE_TAG}
     environment:
-      - HOSTNAME=minio
-      - MINIO_ACCESS_KEY=minio-user
-      - MINIO_SECRET_KEY=minio-password
-      - MINIO_IS_SECURE=False
+      - HOSTNAME=storage
+      - RUSTFS_ACCESS_KEY=rustfs-admin
+      - RUSTFS_SECRET_KEY=rustfs
+      - RUSTFS_CONSOLE_ENABLE=true
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     restart: unless-stopped
+    volumes:
+      - storage-data:/data
 
   identity-provider:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/identity-provider:${IMAGE_TAG}
@@ -170,8 +179,14 @@ services:
   integration-tests:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/integration-tests:${IMAGE_TAG}
     environment:
-      - MINIO_ACCESS_KEY=minio-user
-      - MINIO_SECRET_KEY=minio-password
+      - STORAGE_ACCESS_KEY=rustfs-admin
+      - STORAGE_SECRET_KEY=rustfs
+      - AWS_ACCESS_KEY_ID=rustfs-admin
+      - AWS_SECRET_ACCESS_KEY=rustfs
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_EC2_METADATA_DISABLED=true
+      - S3_ENDPOINT_URL=http://storage:9000
+      - S3_BUCKET=test
     depends_on:
       - provider-connector
       - consumer-connector

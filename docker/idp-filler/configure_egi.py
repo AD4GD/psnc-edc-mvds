@@ -10,20 +10,17 @@ import requests
 import keycloak_utils as ku
 from keycloak import KeycloakAdmin
 
-# TODO right now there is no support for PKCE
-# TODO now llogout is on front-channel, but we should consider back-channel for better security and reliability (requires additional configuration on EGI side)
-
 # Configuration - customize these for your deployment
-KC_BASE = "http://localhost:8083"
+KC_BASE = "https://provider-keycloak-edc-connector.apps.bst2.paas.psnc.pl"
 REALM = "Organizations"
-KC_USER = "admin"
-KC_PASS = "edc"
+KC_USER = "psahdyqbwdoa"
+KC_PASS = "h4FCGiuh9IftAbHy"
 
-EGI_DISCOVERY_ENDPOINT = "https://aai-dev.egi.eu/auth/realms/egi/.well-known/openid-configuration"
+EGI_DISCOVERY_ENDPOINT = "https://aai-dev.egi.eu/auth/realms/id/.well-known/openid-configuration"
 EGI_IDP_ALIAS = "EGI-Check-in"
 EGI_IDP_DISPLAY_NAME = "EGI Check-in"
-EGI_CLIENT_ID = "<client_id>"  # Replace with actual value
-EGI_CLIENT_SECRET = "<client_secret>"  # Replace with actual value
+EGI_CLIENT_ID = "psnc_sage_codesprint"  # Replace with actual value
+EGI_CLIENT_SECRET = "7x58SVIx44FIU8twe6BUw5grjDabqlYA"  # Replace with actual value
 EGI_SCOPES = "openid voperson_id email profile aarc offline_access"
 
 
@@ -125,11 +122,11 @@ def configure_egi_idp(
         existing_idp = kc.get_idp(idp_alias)
         print(f"✓ IdP '{idp_alias}' exists. Removing and recreating...")
         kc.delete_idp(idp_alias)
+    except Exception as e:
+        pass # Assume not found and create new
+    finally:
         kc.create_idp(idp_payload)
         print(f"✓ IdP '{idp_alias}' created...")
-    except Exception as e:
-        print(f"✓ Creating IdP '{idp_alias}'...")
-        kc.create_idp(idp_payload)
     
     print(f"✓ IdP '{idp_alias}' configured successfully")
     

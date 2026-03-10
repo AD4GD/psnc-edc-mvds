@@ -23,7 +23,7 @@ services:
       - "8086:8086"
       - "11001:11001"
     volumes:
-      - ../docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ./.generated/docker/connector/config/configuration-consumer.properties:/app/configuration.properties:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
@@ -42,7 +42,7 @@ services:
       - "7085:7085"
       - "7086:7086"
     volumes:
-      - ../docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
+      - ./.generated/docker/identity-hub/config/configuration-consumer.properties:/app/configuration.properties:ro
       - ../docker/identity-hub/credentials/consumer:/app/credentials/consumer:ro
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
@@ -87,7 +87,7 @@ services:
       - 'consumer-keycloak-postgresql:/bitnami/postgresql'
 
   consumer-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -99,7 +99,7 @@ services:
       - 'consumer-postgresql:/bitnami/postgresql'
 
   consumer-ih-postgres:
-    image: docker.io/bitnami/postgresql:11
+    image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
     restart: always
     environment:
       POSTGRESQL_USERNAME: edc
@@ -123,17 +123,6 @@ services:
     command: vault server -config=/vault/config/vault.hcl
     ports:
       - "8202:8200"
-
-  consumer-backend:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/consumer-backend:${IMAGE_TAG}
-    ports:
-      - "4000:4000"
-    environment:
-      MINIO_ENDPOINT: "minio:9001"
-      MINIO_ACCESS_KEY: minio-user
-      MINIO_SECRET_KEY: minio-password
-    depends_on:
-      - minio
 
   minio:
     image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}

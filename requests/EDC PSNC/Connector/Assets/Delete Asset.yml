@@ -5,7 +5,7 @@ info:
 
 http:
   method: DELETE
-  url: "{{PROVIDER_CONNECTOR_MANAGEMENT_URL}}/v3/assets/{{asset_id}}"
+  url: "{{PROVIDER_CONNECTOR_MANAGEMENT_URL}}/v3/assets/{{asset-id}}"
   auth: inherit
 
 settings:

@@ -1,9 +1,9 @@
 name: Local
 variables:
   - name: CONSUMER_URL
-    value: https://consumer-edc-connector.apps.dcw1.paas.psnc.pl
+    value: http://localhost:28080
   - name: PROVIDER_URL
-    value: https://ad4gd-provider-edc.dashboard-siba.store
+    value: http://localhost:18080
   - name: contract-agreement-id
     value: bb80c2cd-ec59-4c7e-ba34-366f6d92c564
   - name: pull-transfer-id
@@ -25,7 +25,7 @@ variables:
   - name: DATA_SPACE_HUB_URL
     value: "{{ENTER_VALUE_HERE}}"
   - name: FEDERATED_CATALOG_URL
-    value: "{{ENTER_VALUE_HERE}}"
+    value: http://localhost:9181
   - name: child_ids
     value: "{{ENTER_VALUE_HERE}}"
   - name: child_idx
@@ -41,10 +41,10 @@ variables:
   - name: PROVIDER_DSP_URL
     value: "{{ENTER_VALUE_HERE}}"
   - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
-    value: "{{ENTER_VALUE_HERE}}"
+    value: http://localhost:19193/management
   - name: policy-id
     value: test-policy
   - name: asset-id
-    value: geo-spatial-asset-01
+    value: test-asset
   - name: contract-definition-id
     value: cdef-test

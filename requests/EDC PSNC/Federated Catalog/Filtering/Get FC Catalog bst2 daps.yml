@@ -17,11 +17,7 @@ http:
           "limit": 1000,
           "offset": 0,
           "sortOrder": "DESC",
-          "filterExpression": [{
-              "operantLeft" : "id",
-              "operator" : "==",
-              "operantRight" : "test-asset"
-          }]
+          "filterExpression": []
       }
   auth: inherit
 
