@@ -180,24 +180,6 @@ expose_http_name_prefix: "{{ application }}"
 expose_http_k8s_entity_kind: "{{ 'Route' if expose_http_kind == 'routes' else 'Ingress' }}"
 expose_http_k8s_entity_api_version: "{{ 'v1' if expose_http_kind == 'routes' else 'extensions/v1beta1' }}"
 
-# Service adresses - modify if some adresses change
-consumer_dashboard_address_shorten: "consumer-dashboard-edc-connector.apps.bst2.paas.psnc.pl"
-provider_dashboard_address_shorten: "provider-dashboard-edc-connector.apps.bst2.paas.psnc.pl"
-data_space_portal_address_shorten: "data-space-portal-edc-connector.apps.bst2.paas.psnc.pl"
-consumer_dashboard_address: "https://{{ consumer_dashboard_address_shorten }}"
-provider_dashboard_address: "https://{{ provider_dashboard_address_shorten }}"
-identity_provider_address: "https://identity-provider-edc-connector.apps.bst2.paas.psnc.pl"
-federated_catalog_address: "https://federated-catalog-edc-connector.apps.bst2.paas.psnc.pl"
-consumer_backend_address: "https://consumer-backend-edc-connector.apps.bst2.paas.psnc.pl"
-consumer_connector_address: "https://consumer-connector-edc-connector.apps.bst2.paas.psnc.pl"
-provider_connector_address: "https://provider-connector-edc-connector.apps.bst2.paas.psnc.pl"
-minio_address: "https://minio-edc-connector.apps.bst2.paas.psnc.pl"
-data_space_portal_address: "https://{{ registration_service_frontend_address_shorten }}"
-data_space_hub_address: "https://data-space-hub-edc-connector.apps.bst2.paas.psnc.pl"
-consumer_identity_hub_address: "https://consumer-identity-hub-edc-connector.apps.bst2.paas.psnc.pl"
-provider_identity_hub_address: "https://provider-identity-hub-edc-connector.apps.bst2.paas.psnc.pl"
-federated_catalog_identity_hub_address: "https://provider-identity-hub-edc-connector.apps.bst2.paas.psnc.pl"
-
 # TODO DV-272 remove KUBECTL_COMMAND
 KUBECTL_COMMAND: kubectl
 kubectl_command: "{{ KUBECTL_COMMAND }}"
@@ -232,6 +214,7 @@ consumer_dashboard_address_shorten: "consumer-dashboard-dcp-data-space.apps.bst2
 consumer_identity_provider_address: "https://consumer-identity-provider-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_keyvault_address: "https://consumer-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_keycloak_address: "https://consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumer_keycloak_hostname: "consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_backend_address: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl"
 minio_address: "https://consumer-minio-dcp-data-space.apps.bst2.paas.psnc.pl"
 
@@ -242,6 +225,7 @@ provider_dashboard_address_shorten: "provider-dashboard-dcp-data-space.apps.bst2
 provider_identity_provider_address: "https://provider-identity-provider-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_keyvault_address: "https://provider-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_keycloak_address: "https://provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
+provider_keycloak_hostname: "provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 
 federated_catalog_address: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl"
 federated_catalog_identity_hub_address: "https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"

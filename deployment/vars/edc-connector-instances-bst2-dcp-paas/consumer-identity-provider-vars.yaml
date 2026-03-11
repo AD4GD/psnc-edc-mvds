@@ -4,7 +4,7 @@ consumer_random_keycloak_pass: "{{ lookup('password', '/dev/null length=16 chars
 identityproviderconsumer_configmap__05_defaults:
   KC_DB: "postgres"
   KC_DB_SCHEMA: "public"
-  KC_HOSTNAME: "{{ consumer_identity_provider_address }}"
+  KC_HOSTNAME: "{{ consumer_keycloak_hostname }}"
   KC_HOSTNAME_STRICT: "false"
   KC_HTTP_ENABLED: "true"
   KC_PROXY_ADDRESS_FORWARDING: "true"
