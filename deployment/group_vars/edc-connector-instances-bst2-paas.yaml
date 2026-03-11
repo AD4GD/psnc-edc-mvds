@@ -1,5 +1,5 @@
 ---
-deployment_profile: bst2-daps
+deployment_target: edc-connector-instances-bst2-paas
 
 application: edc-connector
 ansible_connection: local
