@@ -75,10 +75,10 @@ minio_resources:
 identityproviderconsumer_resources:
   requests:
     cpu: "100m"
-    memory: "200Mi"
+    memory: "400Mi"
   limits:
     cpu: "1"
-    memory: "400Mi"
+    memory: "1Gi"
 
 #provider
 connectorprovider_resources:
@@ -100,10 +100,10 @@ identityhubprovider_resources:
 identityproviderprovider_resources:
   requests:
     cpu: "100m"
-    memory: "200Mi"
+    memory: "400Mi"
   limits:
     cpu: "1"
-    memory: "400Mi"
+    memory: "1Gi"
 
 providerdashboard_resources:
   requests:
