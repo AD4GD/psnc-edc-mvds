@@ -1,0 +1,18 @@
+[ req ]
+default_bits       = 2048
+prompt             = no
+distinguished_name = dn
+req_extensions     = v3_req
+oid_section        = custom_oids
+
+[ custom_oids ]
+organizationIdentifier = 2.5.4.97
+
+[ dn ]
+C  = PL
+O  = PCSS Provider 1
+CN = PCSS Provider 1
+organizationIdentifier = NTRPL-PCSSPROVIDER1
+
+[ v3_req ]
+keyUsage = critical, digitalSignature, nonRepudiation
