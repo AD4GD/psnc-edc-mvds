@@ -16,6 +16,7 @@ shared-extensions = "1.0.0"
 # PSNC libs
 psnc-auth-composite = { module = "com.psnc.mvds:auth-composite", version.ref = "shared-extensions" }
 psnc-vault-keys-seeder = { module = "com.psnc.mvds:vault-keys-seeder", version.ref = "shared-extensions" }
+psnc-ishare-pr = { module = "com.psnc.mvds:ishare-participant-registry", version.ref = "shared-extensions" }
 
 # EDC libs
 # standard

@@ -48,6 +48,7 @@ dependencies {
     }
 
     implementation(libs.psnc.auth.composite)
+    implementation(libs.psnc.ishare.pr)
 }
 
 application {

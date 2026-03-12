@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.edc.configuration.filesystem)
 
     implementation(libs.psnc.auth.composite)
+    implementation(libs.psnc.ishare.pr)
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {
         runtimeOnly(libs.edc.vault.hashicorp)
