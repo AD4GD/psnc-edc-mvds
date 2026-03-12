@@ -1,0 +1,20 @@
+info:
+  name: Get Token
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{CONNECTOR_API}}/ishare/token"
+  auth: inherit
+
+runtime:
+  variables:
+    - name: CONNECTOR_API
+      value: http://localhost:8190/api
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

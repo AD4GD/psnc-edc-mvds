@@ -18,7 +18,7 @@ request:
   auth:
     type: apikey
     key: x-api-key
-    value: edc
+    value: password
     placement: header
 bundled: false
 extensions:
