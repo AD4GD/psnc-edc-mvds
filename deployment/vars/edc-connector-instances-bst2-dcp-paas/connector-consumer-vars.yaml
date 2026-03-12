@@ -64,7 +64,6 @@ connectorconsumer_configmap__05_defaults:
   # tokenbased - api-key, delegated - oauth2/daps
   WEB_HTTP_CATALOGPROXY_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
   WEB_HTTP_CATALOGPROXY_AUTH_CONTEXT: catalogproxy
-  WEB_HTTP_CATALOGPROXY_AUTH_KEY: edc
   WEB_HTTP_CATALOGPROXY_AUTH_DAC_KEY_URL: https://consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
   WEB_HTTP_CATALOGPROXY_AUTH_AUDIENCE: "{{ ['federated-catalog', 'consumer-connector'] | to_json }}"
   WEB_HTTP_CATALOGPROXY_AUTH_ROLES: "{{ ['access-catalog'] | to_json }}"
@@ -74,7 +73,6 @@ connectorconsumer_configmap__05_defaults:
   EDC_CATALOG_PROXY_DSP_PROTOCOL: dataspace-protocol-http
   EDC_CATALOG_PROXY_HTTP_TARGET_URL: https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog/v1alpha/catalog/query
   EDC_CATALOG_PROXY_HTTP_APIKEY_HEADER: x-api-key
-  EDC_CATALOG_PROXY_HTTP_APIKEY: password
 
   #aud
   WEB_HTTP_MANAGEMENT_AUTH_AUDIENCE: consumer-connector

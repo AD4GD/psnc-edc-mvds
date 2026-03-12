@@ -364,7 +364,7 @@ routes:
   - name: consumer-keycloak
     host: "{{ consumer_keycloak_address | regex_replace('^https?://', '') }}"
     service: "{{ application }}-identityproviderconsumer"
-    target_port: keycloak-https
+    target_port: keycloak-http
 
   # consumer minio
   - name: consumer-minio
@@ -479,7 +479,7 @@ routes:
   - name: provider-keycloak
     host: "{{ provider_keycloak_address | regex_replace('^https?://', '') }}"
     service: "{{ application }}-identityproviderprovider"
-    target_port: keycloak-https
+    target_port: keycloak-http
 
   # federated catalog
   - name: federated-catalog-api
