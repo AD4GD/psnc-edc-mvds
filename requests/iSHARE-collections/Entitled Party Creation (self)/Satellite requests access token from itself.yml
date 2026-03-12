@@ -1,0 +1,53 @@
+info:
+  name: Satellite requests access token from itself
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{sat.baseurl}}/connect/token"
+  headers:
+    - name: Content-Type
+      value: application/x-www-form-urlencoded
+  body:
+    type: form-urlencoded
+    data:
+      - name: grant_type
+        value: client_credentials
+      - name: scope
+        value: iSHARE
+      - name: client_assertion_type
+        value: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+      - name: client_assertion
+        value: "{{client_assertion}}"
+        description: Copies Satellite's own client_assertion from pre-request script
+      - name: client_id
+        value: "{{sat.client_id}}"
+        description: Id of party doing the request (Self- EU.EORI.NLTESTPIRSAT1)
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        iss = 'sat.client_id'
+        aud = 'sat.client_id'
+        x5c = 'sat.public_key'
+        privateKey = 'sat.private_key'
+
+        eval(globals.generateJwsToken)(iss, aud, x5c, privateKey);
+    - type: after-response
+      code: |-
+        var soTokenResponse = res.getBody();
+        bru.setGlobalEnvVar("so.accesstoken.testcollection", soTokenResponse.access_token);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Requests an access token from the Scheme Owner, to be used for accessing Scheme Owner services.
+  Contains a pre-request script that creates a client_assertion via the iSHARE Testing function /generate-jws, to be used for testing purposes only.
+  After successfully receiving the access token, it's value is stored as a global variable to be used for all other Scheme Owner services.

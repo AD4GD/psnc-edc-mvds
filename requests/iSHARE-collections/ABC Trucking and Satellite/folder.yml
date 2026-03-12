@@ -1,0 +1,7 @@
+info:
+  name: ABC Trucking and Satellite
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit

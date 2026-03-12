@@ -1,0 +1,183 @@
+info:
+  name: Get All parties data
+  type: http
+  seq: 7
+
+http:
+  method: GET
+  url: "{{sat.baseurl}}/parties"
+  headers:
+    - name: Authorization
+      value: Bearer {{so.accesstoken.testcollection}}
+    - name: Do-Not-Sign
+      value: "true"
+    - name: Content-Type
+      value: "true"
+  params:
+    - name: eori
+      value: EU.EORI.NL000000003
+      type: query
+      description: EORI of the party whose status we want to check (in this case dummy-AR)
+      disabled: true
+    - name: active_only
+      value: "true"
+      type: query
+      disabled: true
+    - name: certified_only
+      value: "true"
+      type: query
+      disabled: true
+    - name: certificate_subject_name
+      value: C=NL, SERIALNUMBER=NL000000004, CN=iSHARE Test Authorization Registry
+      type: query
+      disabled: true
+    - name: subjectName
+      value: SERIALNUMBER=EU.EORI.BUDR0000002,CN=Driver 2
+      type: query
+      disabled: true
+    - name: eori
+      value: ""
+      type: query
+      disabled: true
+    - name: certified_only
+      value: ""
+      type: query
+      disabled: true
+    - name: active_only
+      value: ""
+      type: query
+      disabled: true
+    - name: date_time
+      value: 2022-02-04
+      type: query
+      disabled: true
+    - name: adherenceStatus
+      value: Active
+      type: query
+      disabled: true
+    - name: adherenceStartdate
+      value: ""
+      type: query
+      disabled: true
+    - name: adherenceEnddate
+      value: ""
+      type: query
+      disabled: true
+    - name: registarSatelliteID
+      value: EU.EORI.NLISFSATONE
+      type: query
+      disabled: true
+    - name: webSiteUrl
+      value: www*
+      type: query
+      disabled: true
+    - name: companyEmail
+      value: "*@*"
+      type: query
+      disabled: true
+    - name: companyPhone
+      value: "123456789"
+      type: query
+      disabled: true
+    - name: publiclyPublishable
+      value: "false"
+      type: query
+      disabled: true
+    - name: tags
+      value: "*maritime"
+      type: query
+      disabled: true
+    - name: framework
+      value: iSHARE
+      type: query
+      disabled: true
+    - name: subjectName
+      value: ""
+      type: query
+      disabled: true
+    - name: role
+      value: isharesatellite
+      type: query
+      disabled: true
+    - name: loA
+      value: High
+      type: query
+      disabled: true
+    - name: compliancyVerified
+      value: yes
+      type: query
+      disabled: true
+    - name: legalAdherence
+      value: yes
+      type: query
+      disabled: true
+    - name: authorizationRegistryID
+      value: EU.EORI.NL000000004
+      type: query
+      disabled: true
+    - name: authorizationRegistryName
+      value: iSHARE Test Authorization Registry
+      type: query
+      disabled: true
+    - name: dataSpaceID
+      value: DSP.EU.NL.LOGISTICS
+      type: query
+      disabled: true
+    - name: dataSpaceTitle
+      value: Logistics NL
+      type: query
+      disabled: true
+    - name: countriesOfOperation
+      value: India
+      type: query
+      disabled: true
+    - name: sectorIndustry
+      value: Energy
+      type: query
+      disabled: true
+    - name: page
+      value: "1"
+      type: query
+      disabled: true
+    - name: certificate_subject_name
+      value: CN=PyrolysisPlant,serialNumber=EU.EORI.DE1623002,O=Pyrolysis Plant,C=DE
+      type: query
+      disabled: true
+    - name: certificate_subject_name
+      value: C=DE,CN=PyrolysisPlant,SERIALNUMBER=EU.EORI.DE1623002,O=Pyrolysis Plant
+      type: query
+      disabled: true
+    - name: name
+      value: ABC Tr*
+      type: query
+      disabled: true
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        //to decode the response (output in console) when received as JWT. 
+        //If the response is not JWT this results in error, which can be ignored)
+
+
+        function jwt_decode(a) {
+            var parts = a.split('.'); // header, payload, signature
+            return JSON.parse(atob(parts[1]));
+        }
+        //Get the token
+        var a = res.getBody();
+
+        //call your function to decode it
+        let decodedData = jwt_decode(a);
+
+        //print the decodedData to console to see the structure
+        console.log(decodedData);
+
+        responseBody = decodedData;
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

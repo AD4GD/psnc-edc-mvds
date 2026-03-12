@@ -1,0 +1,270 @@
+opencollection: 1.0.0
+
+info:
+  name: iSHARE Collections
+
+request:
+  auth:
+    type: bearer
+    token: ""
+  scripts:
+    - type: before-request
+      code: |-
+        gl = { 
+            arrayBufferToString: function (buffer){
+                var arr = new Uint8Array(buffer);
+                var str = String.fromCharCode.apply(String, arr);
+                if(/[\u0080-\uffff]/.test(str)){
+                    throw new Error('this string seems to contain (still encoded) multibytes');
+                }
+                return str;
+            },
+            
+            createGenerateJwsRequest: function(iss, aud, x5c, privateKey) {
+                  console.log('Generate assertion for ' + JSON.stringify({
+                      iss: iss,
+                      aud: aud,
+                      x5c: x5c,
+                      privateKey: privateKey
+                  }));
+                  
+                  var request =  {
+                              url: bru.getVar('so') + '/testing/generate-jws',
+                              method: 'POST',
+                              header: {
+                                  'alg': "RS256",
+                                  'typ': "JWT",
+                                  'iss': bru.getVar(iss),
+                                  'aud': bru.getVar(aud),
+                                  'x5c': bru.getVar(x5c)
+                              },
+                              body: {
+                                mode: 'raw',
+                                raw: bru.getVar(privateKey)
+                              }
+                        };
+                 console.log('Request ' + JSON.stringify(request));
+                 return request;
+            },
+            
+            createConnectTokenRequest: function(base, clientId, clientAssertion) {
+                  console.log('Create token request ' + JSON.stringify({
+                      base: base, 
+                      clientId: clientId, 
+                      clientAssertion: clientAssertion
+                  }));
+                        return {
+                              url: bru.getVar(base) + '/connect/token',
+                              method: 'POST',
+        					  header: {
+        						'Accept': 'application/json',
+        						'Content-Type': 'application/x-www-form-urlencoded'
+        					  },
+                              body: {
+                               mode: 'urlencoded',
+        					   urlencoded: [
+        						{key: 'grant_type', value: 'client_credentials'},
+        						{key: 'scope', value: 'iSHARE'},	
+        						{key: 'client_assertion_type', value: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'},							
+        						{key: 'client_assertion', value: clientAssertion },
+        						{key: 'client_id', value: bru.getVar(clientId) },
+        					   ]
+                              }
+                        };
+            },
+            
+            createConnectTokenRequestSpa: function(base, scope, user, password) {
+                  console.log('Create token request ' + JSON.stringify({
+                      base: base, 
+                      user: user,
+                      scope: scope
+                  }));
+                        return {
+                              url: bru.getVar(base) + '/connect/token',
+                              method: 'POST',
+        					  header: {
+        						'Accept': 'application/json',
+        						'Content-Type': 'application/x-www-form-urlencoded'
+        					  },
+                              body: {
+                               mode: 'urlencoded',
+        					   urlencoded: [
+        						{key: 'grant_type', value: 'password'},
+        						{key: 'scope', value: scope},	
+        						{key: 'client_secret', value: 'secret'},	
+        						{key: 'client_id', value: 'spa' },
+        						{key: 'username', value: bru.getVar(user) },
+        						{key: 'password', value: bru.getVar(password) }
+        					   ]
+                              }
+                        };
+            }
+        }
+
+        // pm.setGlobalVariable("getAccessToken", (iss, aud, x5c, privateKey, url, handler) => { 
+        		  
+                   console.log('getAccessToken ' + JSON.stringify({
+                      iss: iss,
+                      aud: aud,
+                      privateKey: privateKey,
+                      x5c: x5c,
+                      url: url,
+                      handler: handler !== 'undefined' ? 'handler is provided' : 'handler is not provided'
+                  }));
+                  
+                  
+        	      await bru.sendRequest(
+                      gl.createGenerateJwsRequest(iss, aud, x5c, privateKey),
+                      async function(err, response) {
+                          if (err === null && response != null && response.status == 200) {
+                              const clientAssertion = gl.arrayBufferToString(response.stream);
+                             
+                              await bru.sendRequest(
+                                  gl.createConnectTokenRequest(url, iss, clientAssertion),
+                                  async function(err, response) {
+                                      if (err === null && response != null && response.statusText == 200) {
+                                          const accessToken = response.data.access_token;
+                                          handler(err, accessToken);
+                                      }
+                                      else {
+                                          console.log('ERR!!! Access Token could not be retrieved. Error: ' + err);
+                                          handler(err, null);
+                                      }
+                                  }
+                              );
+                          } else {
+                              console.log('ERR!!! client_assertion could not be retrieved. Error: ' + err);
+                              handler(err, null);
+                          }
+                      }
+                  );
+
+        });
+
+        // pm.setGlobalVariable("getAccessTokenSpa", (url, scope, user, password, handler) => { 
+        		  
+                   console.log('getAccessTokenSpa ' + JSON.stringify({
+                      url: url,
+                      user: user,
+                      handler: handler !== 'undefined' ? 'handler is provided' : 'handler is not provided'
+                  }));
+                  
+                  
+        	     	await bru.sendRequest(
+                        gl.createConnectTokenRequestSpa(url, scope, user, password),
+                        async function(err, response) {
+                            if (err === null && response != null && response.status == 200) {
+                                const accessToken = response.data.access_token;
+                                handler(err, accessToken);
+                            }
+                            else {
+                                console.log('ERR!!! Access Token could not be retrieved for spa client. Error: ' + err);
+                                handler(err, null);
+                            }
+                        }
+                    );
+
+        });
+
+        // pm.setGlobalVariable("getDelegationEvidence", (delegationMask, iss, aud, x5c, privateKey, handler) => { 
+        		  
+                   console.log('getDelegationEvidence ' + JSON.stringify({
+                      delegationMask: JSON.stringify(delegationMask), 
+                      iss: iss,
+                      aud: aud,
+                      privateKey: privateKey,
+                      x5c: x5c,
+                      handler: handler !== 'undefined' ? 'handler is provided' : 'handler is not provided'
+                  }));
+                  
+                  // get an access token from ar
+                  eval(globals.getAccessToken)(iss, aud, x5c, privateKey, 'ar', function(err, accessToken){
+                      if (err === null) {
+                            const delegationRequest = {
+                              url: bru.getVar('ar') + '/delegation',
+                              method: 'POST',
+        					  headers: {
+        						'Authorization': 'Bearer ' + accessToken,
+        					    'Content-Type': 'application/json'
+        					  },
+                              data: JSON.stringify(delegationMask)
+                            };
+            				await bru.sendRequest(delegationRequest, async function(err, response) {
+                                if (err === null && response != null && response.status == 200) {
+            				        const delegationToken = response.data.delegation_token;
+            				        handler(err, delegationToken);
+            				    } else {
+            				        console.log('ERR!!! delegation_evidence could not be retrieved. Error: ' + err);
+            				        handler(err, null);
+            				    }
+                            });
+                      }
+                  });
+        });
+
+        // pm.setGlobalVariable('authorizeContainers', (delegationMask, iss, aud, x5c, privateKey, url) => {
+            eval(globals.getAccessToken)(iss, aud, x5c, privateKey, url, function(err, accessToken){
+                
+                if (accessToken != null)
+                {
+                    bru.setVar('access_token', accessToken); 
+                    
+                    eval(globals.getDelegationEvidence)(delegationMask, iss, 'ar.client_id', x5c, privateKey, function(err, response){
+                            
+                            var delegationEvidence = response || "no valid delegation evidence";
+                            
+                            bru.setVar('delegation_evidence', delegationEvidence);
+                        }
+                    );
+                }
+            }
+          );
+        });
+
+        // pm.setGlobalVariable('authorize', (iss, aud, x5c, privateKey, url) => {
+            eval(globals.getAccessToken)(iss, aud, x5c, privateKey, url, function(err, accessToken){
+                
+                if (accessToken != null)
+                {
+                    bru.setVar('access_token', accessToken); 
+                }
+            }
+          );
+        });
+
+        // pm.setGlobalVariable('authorizeSpa', (url, scope, user, password) => {
+            eval(globals.getAccessTokenSpa)(url, scope, user, password, function(err, accessToken){
+                
+                if (accessToken != null)
+                {
+                    bru.setVar('access_token', accessToken); 
+                }
+            }
+          );
+        });
+
+        // pm.setGlobalVariable('generateJwsToken', (iss, aud, x5c, privateKey) => {
+            await bru.sendRequest(
+                gl.createGenerateJwsRequest(iss, aud, x5c, privateKey),
+                async function(err, response) {
+                    if (err === null && response != null && response.status == 200) {
+                        const clientAssertion = gl.arrayBufferToString(response.stream);
+                       
+                        bru.setVar('client_assertion', clientAssertion);
+                    } else {
+                        console.log('ERR!!! client_assertion could not be retrieved. Error: ' + err);
+                        handler(err, null);
+                    }
+                }
+            );
+        });
+
+docs:
+  content: "[https://isharesat-mw.pir.test.ishareworks.nl/](https://isharesat.pir.test.ishareworks.nl/)"
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

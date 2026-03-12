@@ -1,0 +1,22 @@
+info:
+  name: Requests trusted list (CAs)
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{sat.baseurl}}/trusted_list"
+  headers:
+    - name: Authorization
+      value: Bearer {{so.accesstoken.testcollection}}
+    - name: Do-Not-Sign
+      value: "true"
+  body:
+    type: form-urlencoded
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

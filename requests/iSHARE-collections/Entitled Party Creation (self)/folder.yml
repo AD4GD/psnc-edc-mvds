@@ -1,0 +1,7 @@
+info:
+  name: Entitled Party Creation (self)
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

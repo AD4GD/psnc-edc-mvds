@@ -1,0 +1,43 @@
+info:
+  name: ABC Trucking requests access token
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{sat.baseurl}}/connect/token"
+  headers:
+    - name: Content-Type
+      value: application/x-www-form-urlencoded
+  body:
+    type: form-urlencoded
+    data:
+      - name: grant_type
+        value: client_credentials
+      - name: scope
+        value: iSHARE
+      - name: client_assertion_type
+        value: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+      - name: client_assertion
+        value: "{{client_assertion}}"
+        description: Copies ABC Trucking client_assertion from pre-request script
+      - name: client_id
+        value: "{{abc.client_id}}"
+        description: Id of party doing the request (ABC Trucking - EU.EORI.NL000000001)
+  auth: inherit
+
+runtime:
+  variables:
+    - name: sat.baseurl
+      value: https://isharesat-mw.pir.test.ishareworks.nl
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Requests an access token from the Scheme Owner, to be used for accessing Scheme Owner services.
+  Contains a pre-request script that creates a client_assertion via the iSHARE Testing function /generate-jws, to be used for testing purposes only.
+  After successfully receiving the access token, it's value is stored as a global variable to be used for all other Scheme Owner services.

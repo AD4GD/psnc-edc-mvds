@@ -1,0 +1,44 @@
+info:
+  name: Request versions
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{sat.baseurl}}/versions"
+  headers:
+    - name: Authorization
+      value: Bearer {{so.accesstoken.testcollection}}
+    - name: Do-Not-Sign
+      value: "true"
+    - name: Content-Type
+      value: "true"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        //to decode the response (output in console) when received as JWT. 
+        //If the response is not JWT this results in error, which can be ignored)
+
+        function jwt_decode(a) {
+            var parts = a.split('.'); // header, payload, signature
+            return JSON.parse(atob(parts[1]));
+        }
+        //Get the token
+        var a=res.getBody();
+
+        //call your function to decode it
+        let decodedData=jwt_decode(a);
+
+        //print the decodedData to console to see the structure
+        console.log(decodedData);
+            
+         responseBody = decodedData;
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
