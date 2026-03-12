@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 include("auth-composite")
 include("vault-keys-seeder")
+include("ishare-participant-registry")

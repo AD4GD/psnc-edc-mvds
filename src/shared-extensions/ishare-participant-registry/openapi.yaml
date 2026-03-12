@@ -1,0 +1,321 @@
+openapi: 3.0.3
+info:
+  title: EDC Extension for iShare Participant Registry API
+  description: |
+    REST API for interacting with iShare Participant Registry, including token management 
+    and resource queries (parties, trusted list, dataspaces, frameworks).
+    
+    This API provides a convenient interface to the iShare Participant Registry endpoints,
+    handling OAuth2 M2M authentication automatically with token caching and validation.
+  version: 1.0.0
+  contact:
+    name: PSNC EDC MVDS
+    
+tags:
+  - name: iShare Participant Registry
+    description: API endpoints for interacting with iShare Participant Registry
+
+paths:
+  /api/ishare/token:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get access token
+      description: |
+        Retrieves the current cached access token or fetches a new one if expired.
+        Use refresh=true to force token refresh.
+      operationId: getToken
+      parameters:
+        - name: refresh
+          in: query
+          description: Force refresh of the token
+          required: false
+          schema:
+            type: boolean
+            default: false
+          example: false
+      responses:
+        '200':
+          description: Successfully retrieved or refreshed token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              example:
+                success: true
+                token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+                hasValidToken: true
+        '500':
+          description: Failed to retrieve token
+          content:
+            application/json:
+              example:
+                success: false
+                error: "Failed to authenticate"
+
+  /api/ishare/token/status:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Check token status
+      description: Returns whether a valid cached token is currently available
+      operationId: getTokenStatus
+      responses:
+        '200':
+          description: Token status retrieved
+          content:
+            application/json:
+              example:
+                hasValidToken: true
+
+  /api/ishare/parties:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get parties
+      description: |
+        Retrieves a list of registered parties (participants) from the Participant Registry.
+        Results can be filtered using query parameters.
+      operationId: getParties
+      parameters:
+        - name: eori_number
+          in: query
+          description: Filter by EORI number
+          required: false
+          schema:
+            type: string
+          example: "EU.EORI.NL000000000"
+        - name: name
+          in: query
+          description: Filter by party name
+          required: false
+          schema:
+            type: string
+          example: "Example Company"
+        - name: certificate_subject_name
+          in: query
+          description: Filter by certificate subject name
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved parties
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to retrieve parties
+
+  /api/ishare/parties/{partyId}:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get party by ID
+      description: Retrieves detailed information about a specific party using its ID (typically EORI number)
+      operationId: getParty
+      parameters:
+        - name: partyId
+          in: path
+          description: The party ID (EORI number)
+          required: true
+          schema:
+            type: string
+          example: "EU.EORI.NL000000000"
+      responses:
+        '200':
+          description: Successfully retrieved party
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Party not found
+        '500':
+          description: Failed to retrieve party
+
+  /api/ishare/trusted_list:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get trusted list
+      description: Retrieves the list of trusted certificate authorities and certificates from the Participant Registry
+      operationId: getTrustedList
+      responses:
+        '200':
+          description: Successfully retrieved trusted list
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to retrieve trusted list
+
+  /api/ishare/dataspaces:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get dataspaces
+      description: |
+        Retrieves a list of registered dataspaces from the Participant Registry.
+        Results can be filtered using query parameters.
+      operationId: getDataspaces
+      parameters:
+        - name: name
+          in: query
+          description: Filter by dataspace name
+          required: false
+          schema:
+            type: string
+          example: "Example Dataspace"
+        - name: dataspace_id
+          in: query
+          description: Filter by dataspace ID
+          required: false
+          schema:
+            type: string
+          example: "DATASPACE123"
+      responses:
+        '200':
+          description: Successfully retrieved dataspaces
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to retrieve dataspaces
+
+  /api/ishare/dataspaces/{dataspaceId}:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get dataspace by ID
+      description: Retrieves detailed information about a specific dataspace using its ID
+      operationId: getDataspace
+      parameters:
+        - name: dataspaceId
+          in: path
+          description: The dataspace ID
+          required: true
+          schema:
+            type: string
+          example: "DATASPACE123"
+      responses:
+        '200':
+          description: Successfully retrieved dataspace
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Dataspace not found
+        '500':
+          description: Failed to retrieve dataspace
+
+  /api/ishare/frameworks:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get frameworks
+      description: Retrieves a list of data sharing frameworks registered in the Participant Registry
+      operationId: getFrameworks
+      responses:
+        '200':
+          description: Successfully retrieved frameworks
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Failed to retrieve frameworks
+
+  /api/ishare/frameworks/{frameworkId}:
+    get:
+      tags:
+        - iShare Participant Registry
+      summary: Get framework by ID
+      description: Retrieves detailed information about a specific data sharing framework using its ID
+      operationId: getFramework
+      parameters:
+        - name: frameworkId
+          in: path
+          description: The framework ID
+          required: true
+          schema:
+            type: string
+          example: "iSHARE"
+      responses:
+        '200':
+          description: Successfully retrieved framework
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Framework not found
+        '500':
+          description: Failed to retrieve framework
+
+components:
+  schemas:
+    TokenResponse:
+      type: object
+      description: Response containing access token information
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation was successful
+          example: true
+        token:
+          type: string
+          description: The access token (JWT)
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+        hasValidToken:
+          type: boolean
+          description: Whether a valid cached token exists
+          example: true
+          
+    IShareTokenResponse:
+      type: object
+      description: OAuth2 token response from iShare Participant Registry
+      properties:
+        access_token:
+          type: string
+          description: The access token (JWT)
+        token_type:
+          type: string
+          description: Token type
+          example: "Bearer"
+        expires_in:
+          type: integer
+          format: int64
+          description: Token validity duration in seconds
+          example: 3600
+        receivedAt:
+          type: integer
+          format: int64
+          description: Timestamp when token was received (milliseconds)
+          example: 1709654400000
+          
+    IShareApiResponse:
+      type: object
+      description: Generic response from iShare Participant Registry API calls
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        body:
+          type: string
+          description: Raw response body
+        jsonBody:
+          type: object
+          description: Parsed JSON response body
+        success:
+          type: boolean
+          description: Whether the API call was successful
+          example: true
+        errorMessage:
+          type: string
+          description: Error message if the call failed
