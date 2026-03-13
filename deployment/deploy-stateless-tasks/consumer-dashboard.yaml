@@ -26,6 +26,22 @@
             "oauthClientId": "data-space-users"
           }
 
+        participants.json: |-
+          {
+            "participants": [
+              {
+                "id": "did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob",
+                "originator": "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp",
+                "label": "Provider"
+              },
+              {
+                "id": "did:web:consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:alice",
+                "originator": "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp",
+                "label": "Consumer"
+              }
+            ]
+          }
+
         nginx.conf: |
           events {}
           pid /tmp/nginx.pid;
@@ -113,6 +129,9 @@
                   - name: "consumerdashboard-app-config"
                     mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
                     subPath: "app.config.json"
+                  - name: consumerdashboard-participants
+                    mountPath: /usr/share/nginx/html/assets/participants.json
+                    subPath: participants.json
             volumes:
               - name: "consumerdashboard-tmp"
                 emptyDir:
@@ -121,6 +140,9 @@
                 configMap:
                   name: "{{ application }}-consumerdashboard-config"
               - name: "consumerdashboard-app-config"
+                configMap:
+                  name: "{{ application }}-consumerdashboard-config"
+              - name: consumerdashboard-participants
                 configMap:
                   name: "{{ application }}-consumerdashboard-config"
 
