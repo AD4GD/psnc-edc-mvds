@@ -124,19 +124,6 @@ services:
     ports:
       - "8202:8200"
 
-  minio:
-    image: ${REGISTRY_DOMAIN}/${REGISTRY_PROJECT}/${REGISTRY_APPLICATION}/minio:${IMAGE_TAG}
-    command: server /storage --address :9001
-    environment:
-      - HOSTNAME=minio
-      - MINIO_ACCESS_KEY=minio-user
-      - MINIO_SECRET_KEY=minio-password
-      - MINIO_IS_SECURE=False
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    restart: unless-stopped
-
 volumes:
   consumer-postgresql:
     driver: local
