@@ -1,8 +1,0 @@
-consback_configmap__05_defaults:
-  MINIO_ENDPOINT: "{{ minio_address}}"
-
-consback_secret__05_defaults:
-  MINIO_ACCESS_KEY:
-    when_missing: "{{ random_minio_user }}"
-  MINIO_SECRET_KEY:
-    when_missing: "{{ random_minio_pass }}"

@@ -1,0 +1,75 @@
+- name: "Set kc_name"
+  set_fact:
+    kc_name: "{{ application }}-{{ component }}"
+
+- name: "deploy deployment/{{ kc_name }}"
+  tags: ["{{ component }}", deployment]
+
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+
+      metadata:
+        name: "{{ kc_name }}"
+        labels:
+          application: "{{ application }}"
+          component: "{{ component }}"
+
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: 0
+
+        strategy:
+          type: RollingUpdate
+
+        selector:
+          matchLabels:
+            application: "{{ application }}"
+            component: "{{ component }}"
+
+        template:
+          metadata:
+            labels:
+              application: "{{ application }}"
+              component: "{{ component }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (vars[component + '_configmap_digest'] + vars[component + '_secret_digest'])|hash('sha1') }}"
+          spec:
+            serviceAccountName: run-any-uid
+
+            containers:
+              - name: "{{ component }}"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/identity-provider:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+
+                resources: "{{ resources }}"
+
+                envFrom:
+                  - configMapRef:
+                      name: "{{ kc_name }}"
+                      optional: true
+                  - secretRef:
+                      name: "{{ kc_name }}"
+                      optional: true
+
+                ports:
+                  - name: keycloak-https
+                    containerPort: 8443
+                  - name: keycloak-http
+                    containerPort: 8080
+
+                volumeMounts:
+                  - name: "{{ kc_tmp_volume }}"
+                    mountPath: /tmp
+
+            volumes:
+              - name: "{{ kc_tmp_volume }}"
+                emptyDir:
+                  medium: Memory
