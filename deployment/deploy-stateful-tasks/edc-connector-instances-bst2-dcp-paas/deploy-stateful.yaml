@@ -9,7 +9,7 @@
       namespace: "{{ k8s_namespace }}"
 
   tasks:
-    - include_tasks: "tasks/fetch-current-image-tag.yaml"
+    - include_tasks: "../tasks/fetch-current-image-tag.yaml"
       name: "fetch image_tag if undefined"
       when: image_tag is undefined or not image_tag
       
