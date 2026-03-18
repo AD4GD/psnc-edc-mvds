@@ -1,8 +1,11 @@
+random_storage_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
+random_storage_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+
 consback_configmap__05_defaults:
   MINIO_ENDPOINT: "{{ storage_address }}"
 
 consback_secret__05_defaults:
   MINIO_ACCESS_KEY:
-    when_missing: "{{ random_minio_user }}"
+    when_missing: "{{ random_storage_user }}"
   MINIO_SECRET_KEY:
-    when_missing: "{{ random_minio_pass }}"
+    when_missing: "{{ random_storage_pass }}"
