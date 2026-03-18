@@ -1,7 +1,5 @@
 ---
 # BASE
-deployment_target: edc-connector-instances-bst2-dcp-paas
-
 application: edc-connector
 ansible_connection: local
 registry_project: demeter
