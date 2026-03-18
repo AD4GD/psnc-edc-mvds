@@ -1,7 +1,7 @@
 - import_playbook: "deploy-info.yaml"
 - import_playbook: "deploy-namespace.yaml"
 - import_playbook: "deploy-parameters.yaml"
-- import_playbook: "deploy-stateful-services/{{ edc_connector_instances_target }}/deploy-stateful.yaml"
+- import_playbook: "deploy-stateful-tasks/{{ edc_connector_instances_target }}/deploy-stateful.yaml"
 - import_playbook: "deploy-stateless-tasks/{{ edc_connector_instances_target }}/deploy-stateless.yaml"
 - import_playbook: "deploy-routes.yaml"
 - import_playbook: "deploy-post-actions.yaml"
