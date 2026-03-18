@@ -1,26 +1,37 @@
-- include_tasks: "tasks/fetch-current-image-tag.yaml"
-  name: "fetch image_tag if undefined"
-  when: image_tag is undefined or not image_tag
-  
-# kv provider
-- include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
-  vars:
-    vault_instance: "keyvaultprovider"
+---
+- name: deploy stateful services
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
+  module_defaults:
+    k8s:
+      wait: true
+      wait_timeout: "{{ k8s_wait_timeout }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
 
-# kv consumer
-- include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
-  vars:
-    vault_instance: "keyvaultconsumer"
+  tasks:
+    - include_tasks: "tasks/fetch-current-image-tag.yaml"
+      name: "fetch image_tag if undefined"
+      when: image_tag is undefined or not image_tag
+      
+    # kv provider
+    - include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+      vars:
+        vault_instance: "keyvaultprovider"
 
-# kv federated catalog
-- include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
-  vars:
-    vault_instance: "keyvaultfederatedcatalog"
+    # kv consumer
+    - include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+      vars:
+        vault_instance: "keyvaultconsumer"
 
-# kv dataspace hub
-- include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
-  vars:
-    vault_instance: "keyvaultdataspacehub"
+    # kv federated catalog
+    - include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+      vars:
+        vault_instance: "keyvaultfederatedcatalog"
 
-# object storage 
-# TODO
+    # kv dataspace hub
+    - include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+      vars:
+        vault_instance: "keyvaultdataspacehub"
+
+    # object storage 
+    # TODO
