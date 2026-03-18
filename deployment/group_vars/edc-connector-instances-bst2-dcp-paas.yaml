@@ -228,6 +228,7 @@ data_space_portal_address_shorten: "data-space-portal-dcp-data-space.apps.bst2.p
 data_space_hub_address: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
 data_space_hub_keyvault_address: "https://data-space-hub-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 mail_service_address: "https://mail-service-dcp-data-space.apps.bst2.paas.psnc.pl"
+storage_address: "https://storage-dcp-data-space.apps.bst2.paas.psnc.pl"
 
 # CONFIG OBJECTS
 consumer_dashboard_app_config_obj:
@@ -354,12 +355,6 @@ routes:
     host: "{{ consumer_keycloak_address | regex_replace('^https?://', '') }}"
     service: "{{ application }}-identityproviderconsumer"
     target_port: keycloak-http
-
-  # consumer minio
-  - name: consumer-minio
-    host: "{{ minio_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-minio"
-    target_port: minio-http
 
   # consumer backend
   - name: consumer-backend

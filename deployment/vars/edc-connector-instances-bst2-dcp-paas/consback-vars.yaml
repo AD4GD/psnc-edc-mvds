@@ -1,5 +1,5 @@
 consback_configmap__05_defaults:
-  MINIO_ENDPOINT: "{{ minio_address}}"
+  MINIO_ENDPOINT: "{{ storage_address }}"
 
 consback_secret__05_defaults:
   MINIO_ACCESS_KEY:
