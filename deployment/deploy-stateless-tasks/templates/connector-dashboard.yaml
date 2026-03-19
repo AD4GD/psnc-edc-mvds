@@ -34,12 +34,14 @@
 - name: "Build configmap data for {{ component }}"
   set_fact:
     _configmap_data:
-      app.config.json: "{{ app_config_json }}"
-      nginx.conf: "{{ nginx_config }}"
+      app.config.json: |-
+        {{ app_config_json }}
+      nginx.conf: |-
+        {{ nginx_config }}
 
 - name: "Add extra config files to configmap"
   set_fact:
-    _configmap_data: "{{ _configmap_data | combine({item.name: vars[item.content_var] | to_nice_json}) }}"
+    _configmap_data: "{{ _configmap_data | combine({ item.name: (vars[item.content_var] | to_nice_json | string) }) }}"
   loop: "{{ extra_config_files | default([]) }}"
 
 - name: "deploy configmap/{{ application }}-{{ component }}"
@@ -65,12 +67,12 @@
         mountPath: "/etc/nginx/nginx.conf"
         subPath: "nginx.conf"
       - name: "{{ component }}-app-config"
-        mountPath: "/usr/share/nginx/html/assets/config/app.config.json"
+        mountPath: "{{ app_config_path | default('/usr/share/nginx/html/assets/config/app.config.json') }}"
         subPath: "app.config.json"
 
 - name: "Add extra config file mounts"
   set_fact:
-    _volume_mounts: "{{ _volume_mounts + [{'name': component ~ '-' ~ item.name, 'mountPath': item.path, 'subPath': item.name}] }}"
+    _volume_mounts: "{{ _volume_mounts + [{'name': component ~ '-' ~ (item.name | replace('.', '-')), 'mountPath': item.path, 'subPath': item.name}] }}"
   loop: "{{ extra_config_files | default([]) }}"
 
 - name: "Build volumes for {{ component }}"
@@ -88,7 +90,7 @@
 
 - name: "Add extra config file volumes"
   set_fact:
-    _volumes: "{{ _volumes + [{'name': component ~ '-' ~ item.name, 'configMap': {'name': application ~ '-' ~ component ~ '-config'}}] }}"
+    _volumes: "{{ _volumes + [{'name': component ~ '-' ~ (item.name | replace('.', '-')), 'configMap': {'name': application ~ '-' ~ component ~ '-config'}}] }}"
   loop: "{{ extra_config_files | default([]) }}"
 
 - name: "deploy deployment/{{ application }}-{{ component }}"
