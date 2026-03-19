@@ -15,7 +15,7 @@
 
 - name: "Build service ports from container ports"
   set_fact:
-    _derived_service_ports: "[]"
+    _derived_service_ports: []
   tags: [always]
 
 - name: "Add port mapping for {{ component }}"
