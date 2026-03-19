@@ -3,7 +3,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: connector
-    component: consumer
+    component: connectorconsumer
     ports:
       - name: api
         containerPort: 8080
@@ -51,7 +51,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: consumer
+    component: identityhubconsumer
     ports:
       - name: api
         containerPort: 7080
@@ -97,14 +97,14 @@
 - name: "Deploy consumer keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
   vars:
-    component: consumerkeycloak
+    component: identityproviderconsumer
     kc_tmp_volume: "consumerkeycloak-tmp"
 
 - name: "Deploy provider edc connector"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: connector
-    component: provider
+    component: connectorprovider
     ports:
       - name: api
         containerPort: 8080
@@ -135,7 +135,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: provider
+    component: identityhubprovider
     ports:
       - name: api
         containerPort: 7080
@@ -216,7 +216,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: federatedcatalogidentityhub
+    component: identityhubfederatedcatalog
     ports:
       - name: api
         containerPort: 7080
