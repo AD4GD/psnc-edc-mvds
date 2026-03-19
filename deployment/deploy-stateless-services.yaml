@@ -1,0 +1,18 @@
+---
+- name: deploy stateless services
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
+
+  vars:
+    horizontal_pod_autoscalers_state: "{{ 'present' if with_stateless_services_horizontal_pod_autoscalers else 'absent' }}"
+    horizontal_pod_autoscalers_task_heading: "{{ 'deploy' if with_stateless_services_horizontal_pod_autoscalers else 'purge' }}"
+
+  module_defaults:
+    k8s:
+      wait: true
+      wait_timeout: "{{ k8s_wait_timeout }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    - import_tasks: deploy-stateless-tasks/{{ lookup('env', 'edc_connector_instances_target') }}/deploy-stateless.yml
+

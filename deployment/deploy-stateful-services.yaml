@@ -1,0 +1,12 @@
+---
+- name: deploy stateful services
+  hosts: "{{ lookup('env', 'edc_connector_instances_target') }}"
+  module_defaults:
+    k8s:
+      wait: true
+      wait_timeout: "{{ k8s_wait_timeout }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    - import_tasks: deploy-stateful-tasks/{{ lookup('env', 'edc_connector_instances_target') }}/deploy-stateful.yml
