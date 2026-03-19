@@ -34,10 +34,8 @@
 - name: "Build configmap data for {{ component }}"
   set_fact:
     _configmap_data:
-      app.config.json: |-
-        {{ app_config_json }}
-      nginx.conf: |-
-        {{ nginx_config }}
+      app.config.json: "{{ app_config_json | string }}"
+      nginx.conf: "{{ nginx_config }}"
 
 - name: "Add extra config files to configmap"
   set_fact:
