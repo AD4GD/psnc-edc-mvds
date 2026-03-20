@@ -34,6 +34,7 @@ public class IShareTokenService {
     
     private static final String GRANT_TYPE = "client_credentials";
     private static final String CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+    private static final String ISHARE_DID_PREFIX = "did:ishare:";
     private static final int TOKEN_VALIDITY_SECONDS = 30;
     
     private final String participantRegistryUrl;
@@ -151,11 +152,12 @@ public class IShareTokenService {
             String clientAssertion = clientAssertionResult.getContent();
             
             // Build request body
+                String ishareClientId = getClientId();
             FormBody requestBody = new FormBody.Builder()
                     .add("grant_type", GRANT_TYPE)
                     .add("client_assertion_type", CLIENT_ASSERTION_TYPE)
                     .add("client_assertion", clientAssertion)
-                    .add("client_id", clientId)
+                    .add("client_id", ishareClientId)
                     .add("scope", "iSHARE")
                     .build();
             
@@ -211,22 +213,22 @@ public class IShareTokenService {
                 return Result.failure(certResult.getFailureMessages());
             }
             List<com.nimbusds.jose.util.Base64> x5cChain = certResult.getContent();
+                String ishareClientId = getClientId();
             
             // Build JWT claims — iss/sub = orgID (client_id), aud = PR's DID/EORI
             long now = System.currentTimeMillis() / 1000;
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                    .issuer(clientId)
-                    .subject(clientId)
+                    .issuer(ishareClientId)
+                    .subject(ishareClientId)
                     .audience(prId)
                     .jwtID(UUID.randomUUID().toString())
                     .issueTime(new Date(now * 1000))
                     .expirationTime(new Date((now + TOKEN_VALIDITY_SECONDS) * 1000))
                     .build();
             
-            // Build JWT header — kid = clientId (iShare convention)
+                // Build JWT header
             var headerBuilder = new JWSHeader.Builder(JWSAlgorithm.RS256)
-                    .type(JOSEObjectType.JWT)
-                    .keyID(clientId);
+                    .type(JOSEObjectType.JWT);
 
                 // iShare requirement: include full certificate chain in x5c
                 headerBuilder.x509CertChain(x5cChain);
@@ -266,7 +268,10 @@ public class IShareTokenService {
      * Returns client identifier used in token request and JWT iss/sub.
      */
     public String getClientId() {
-        return clientId;
+        if (clientId == null || clientId.isBlank()) {
+            return clientId;
+        }
+        return clientId.startsWith(ISHARE_DID_PREFIX) ? clientId : ISHARE_DID_PREFIX + clientId;
     }
 
     private static String normalizeBaseUrl(String url) {
