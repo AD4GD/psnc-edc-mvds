@@ -30,7 +30,13 @@ public class IShareParticipantRegistryExtension implements ServiceExtension {
     @Setting(value = "Base URL of the iShare Participant Registry", required = true)
     public static final String ISHARE_PR_URL = "ishare.pr.url";
     
-    @Setting(value = "Organization identifier (EORI) of this participant — used as iss and sub in JWT client assertions", required = true)
+    @Setting(value = "DID type prefix for iShare client identifier (e.g., 'did:ishare')", required = true)
+    public static final String ISHARE_DID_TYPE = "ishare.did.type";
+    
+    @Setting(value = "Region code for iShare client identifier (e.g., 'EU.PL')", required = true)
+    public static final String ISHARE_CLIENT_REGION = "ishare.client.region";
+    
+    @Setting(value = "Organization identifier (EORI) of this participant — combined with DID type and region for client assertions", required = true)
     public static final String ISHARE_CLIENT_ID = "ishare.client.id";
     
     @Setting(value = "DID or EORI of the iShare Participant Registry — used as aud in JWT client assertions", required = true)
@@ -65,6 +71,8 @@ public class IShareParticipantRegistryExtension implements ServiceExtension {
         
         // Get configuration
         String prUrl = context.getSetting(ISHARE_PR_URL, null);
+        String didType = context.getSetting(ISHARE_DID_TYPE, null);
+        String clientRegion = context.getSetting(ISHARE_CLIENT_REGION, null);
         String clientId = context.getSetting(ISHARE_CLIENT_ID, null);
         String prId = context.getSetting(ISHARE_PR_ID, null);
         String vaultKeySecret = context.getSetting(ISHARE_VAULT_KEY_SECRET, null);
@@ -72,10 +80,12 @@ public class IShareParticipantRegistryExtension implements ServiceExtension {
         boolean autoInit = Boolean.parseBoolean(context.getSetting(ISHARE_AUTO_INIT, "false"));
         
         // Validate configuration
-        if (prUrl == null || clientId == null || prId == null || vaultKeySecret == null || vaultCertSecret == null) {
+        if (prUrl == null || didType == null || clientRegion == null || clientId == null || prId == null || 
+            vaultKeySecret == null || vaultCertSecret == null) {
             monitor.warning("iShare Participant Registry is not configured. Extension will not be initialized.");
-            monitor.warning("Required settings: " + ISHARE_PR_URL + ", " + ISHARE_CLIENT_ID + ", " +
-                ISHARE_PR_ID + ", " + ISHARE_VAULT_KEY_SECRET + ", " + ISHARE_VAULT_CERT_SECRET);
+            monitor.warning("Required settings: " + ISHARE_PR_URL + ", " + ISHARE_DID_TYPE + ", " + 
+                ISHARE_CLIENT_REGION + ", " + ISHARE_CLIENT_ID + ", " + ISHARE_PR_ID + ", " + 
+                ISHARE_VAULT_KEY_SECRET + ", " + ISHARE_VAULT_CERT_SECRET);
             return;
         }
         
@@ -91,6 +101,8 @@ public class IShareParticipantRegistryExtension implements ServiceExtension {
         // Initialize token service — reads keys from Hashicorp Vault at runtime
         tokenService = new IShareTokenService(
                 prUrl,
+                didType,
+                clientRegion,
                 clientId,
                 prId,
                 vaultKeySecret,

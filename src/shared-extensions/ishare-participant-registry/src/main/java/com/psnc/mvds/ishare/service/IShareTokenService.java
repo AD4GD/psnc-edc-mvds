@@ -34,10 +34,11 @@ public class IShareTokenService {
     
     private static final String GRANT_TYPE = "client_credentials";
     private static final String CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
-    private static final String ISHARE_DID_PREFIX = "did:ishare:";
     private static final int TOKEN_VALIDITY_SECONDS = 30;
     
     private final String participantRegistryUrl;
+    private final String didType;
+    private final String clientRegion;
     private final String clientId;
     private final String prId;
     private final String vaultKeySecretName;
@@ -52,6 +53,8 @@ public class IShareTokenService {
     
     public IShareTokenService(
             String participantRegistryUrl,
+            String didType,
+            String clientRegion,
             String clientId,
             String prId,
             String vaultKeySecretName,
@@ -62,6 +65,8 @@ public class IShareTokenService {
             ObjectMapper objectMapper) {
         
         this.participantRegistryUrl = normalizeBaseUrl(participantRegistryUrl);
+        this.didType = didType;
+        this.clientRegion = clientRegion;
         this.clientId = clientId;
         this.prId = prId;
         this.vaultKeySecretName = vaultKeySecretName;
@@ -144,15 +149,16 @@ public class IShareTokenService {
      */
     private Result<IShareTokenResponse> fetchNewToken() {
         try {
+            String ishareClientId = getClientId();
+
             // Create client assertion JWT
-            var clientAssertionResult = createClientAssertion();
+            var clientAssertionResult = createClientAssertion(ishareClientId);
             if (clientAssertionResult.failed()) {
                 return Result.failure(clientAssertionResult.getFailureMessages());
             }
             String clientAssertion = clientAssertionResult.getContent();
             
             // Build request body
-                String ishareClientId = getClientId();
             FormBody requestBody = new FormBody.Builder()
                     .add("grant_type", GRANT_TYPE)
                     .add("client_assertion_type", CLIENT_ASSERTION_TYPE)
@@ -198,7 +204,7 @@ public class IShareTokenService {
      * Create a client assertion JWT as per iShare specification
      * JWT header includes x5c certificate chain for signature verification
      */
-    private Result<String> createClientAssertion() {
+    private Result<String> createClientAssertion(String ishareClientId) {
         try {
             // Load private key from keystore
             var keyResult = loadPrivateKey();
@@ -213,7 +219,6 @@ public class IShareTokenService {
                 return Result.failure(certResult.getFailureMessages());
             }
             List<com.nimbusds.jose.util.Base64> x5cChain = certResult.getContent();
-                String ishareClientId = getClientId();
             
             // Build JWT claims — iss/sub = orgID (client_id), aud = PR's DID/EORI
             long now = System.currentTimeMillis() / 1000;
@@ -254,7 +259,8 @@ public class IShareTokenService {
      * Debug helper for manual testing in tools like Bruno/Postman.
      */
     public Result<String> createClientAssertionForDebug() {
-        return createClientAssertion();
+        String ishareClientId = getClientId();
+        return createClientAssertion(ishareClientId);
     }
 
     /**
@@ -266,12 +272,14 @@ public class IShareTokenService {
 
     /**
      * Returns client identifier used in token request and JWT iss/sub.
+     * Constructed as: <didType>:<clientRegion>.<clientId>
      */
     public String getClientId() {
-        if (clientId == null || clientId.isBlank()) {
-            return clientId;
+        if (didType == null || didType.isBlank() || clientRegion == null || clientRegion.isBlank() || 
+            clientId == null || clientId.isBlank()) {
+            throw new IllegalStateException("iShare client identifier components are not properly configured");
         }
-        return clientId.startsWith(ISHARE_DID_PREFIX) ? clientId : ISHARE_DID_PREFIX + clientId;
+        return String.format("%s:%s.%s", didType, clientRegion, clientId);
     }
 
     private static String normalizeBaseUrl(String url) {
