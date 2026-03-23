@@ -1,15 +1,15 @@
-- name: "deploy deployment/{{ application }}-dataspacehub"
+- name: "deploy deployment/{{ application }}-{{ component }}"
   tags:
-    - dataspacehub
+    - "{{ component }}"
     - deployment
   k8s:
     definition:
       apiVersion: v1
       kind: Deployment
       metadata:
-        name: "{{ application }}-dataspacehub"
+        name: "{{ application }}-{{ component }}"
         labels:
-          component: dataspacehub
+          component: "{{ component }}"
           application: "{{ application }}"
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -19,15 +19,15 @@
           type: RollingUpdate
         selector:
           matchLabels:
-            component: dataspacehub
+            component: "{{ component }}"
             application: "{{ application }}"
         template:
           metadata:
             labels:
-              component: dataspacehub
+              component: "{{ component }}"
               application: "{{ application }}"
               image_tag: "{{ stateless_services_image_tag }}"
-              parameters_digest: "{{ (dataspacehub_configmap_digest + dataspacehub_secret_digest)|hash('sha1') }}"
+              parameters_digest: "{{ (vars[component + '_configmap_digest'] + vars[component + '_secret_digest'])|hash('sha1') }}"
           spec:
             serviceAccountName: "run-any-uid"
             ports:
@@ -35,50 +35,50 @@
                 containerPort: 8000
                 protocol: "TCP"
             containers:
-              - name: "dataspacehub"
+              - name: "{{ component }}"
                 image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-space-hub:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
                   runAsUser: 1000
-                resources: "{{ dataspacehub_resources }}"
+                resources: "{{ vars[component + '_resources'] }}"
                 envFrom:
                   - configMapRef:
-                      name: "{{ application }}-dataspacehub"
+                      name: "{{ application }}-{{ component }}"
                       optional: true
                   - secretRef:
-                      name: "{{ application }}-dataspacehub"
+                      name: "{{ application }}-{{ component }}"
                       optional: true
                 volumeMounts:
-                  - name: "dataspacehub-tmp"
+                  - name: "{{ component }}-tmp"
                     mountPath: "/tmp"
             volumes:
-              - name: "dataspacehub-tmp"
+              - name: "{{ component }}-tmp"
                 emptyDir:
                   medium: "Memory"
 
-- name: "deploy service/{{ application }}-dataspacehub"
+- name: "deploy service/{{ application }}-{{ component }}"
   tags:
-    - dataspacehub
+    - "{{ component }}"
     - service
   k8s:
     definition:
       apiVersion: v1
       kind: Service
       metadata:
-        name: "{{ application }}-dataspacehub"
+        name: "{{ application }}-{{ component }}"
         labels:
           application: "{{ application }}"
-          component: dataspacehub
+          component: "{{ component }}"
       spec:
         ports:
           - name: "receiver"
             port: 8000
         selector:
           application: "{{ application }}"
-          component: dataspacehub
+          component: "{{ component }}"
       envFrom:
         - configMapRef:
-            name: "{{ application }}-dataspacehub"
+            name: "{{ application }}-{{ component }}"
             optional: true

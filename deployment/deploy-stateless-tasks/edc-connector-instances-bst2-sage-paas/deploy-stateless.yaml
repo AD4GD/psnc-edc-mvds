@@ -1,9 +1,9 @@
 ---
-- name: "Deploy consumer edc connector"
+- name: "Deploy sage-public edc connector"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: connector
-    component: connectorconsumer
+    component: sage-public-connector
     ports:
       - name: api
         containerPort: 8080
@@ -47,11 +47,11 @@
       - name: public
         port: 11001
 
-- name: "Deploy consumer edc identity hub"
+- name: "Deploy sage-public edc identity hub"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: identityhubconsumer
+    component: sage-public-identity-hub
     ports:
       - name: api
         containerPort: 7080
@@ -72,41 +72,41 @@
         containerPort: 7086
         protocol: TCP
 
-- name: "Deploy consumer backend"
+- name: "Deploy sage-public backend"
   include_tasks: deploy-stateless-tasks/templates/consumer-backend.yaml
   vars:
-    component: consback
+    component: sage-public-backend
 
-- name: "Deploy consumer dashboard"
+- name: "Deploy sage-public dashboard"
   include_tasks: deploy-stateless-tasks/templates/connector-dashboard.yaml
   vars:
-    component: consumerdashboard
+    component: sage-public-dashboard
     image_name: data-dashboard
     app_config_path: /usr/share/nginx/html/assets/config/app.config.json
-    app_config_var: consumer_dashboard_app_config_obj
+    app_config_var: sage-public-dashboard_app_config_obj
     nginx_locations:
       - path: /management
-        target: "{{ consumer_connector_address }}/api/management"
+        target: "{{ sage_public_connector_address }}/api/management"
       - path: /catalog-proxy/
-        target: "{{ consumer_connector_address }}/api/catalog-proxy/"
+        target: "{{ sage_public_connector_address }}/api/catalog-proxy/"
       - path: /catalog
-        target: "{{ consumer_connector_address }}/api/catalog-proxy/catalog/request"
+        target: "{{ sage_public_connector_address }}/api/catalog-proxy/catalog/request"
     extra_config_files:
       - name: participants.json
         path: /usr/share/nginx/html/assets/participants.json
         content_var: participants_json_obj
 
-- name: "Deploy consumer keycloak"
+- name: "Deploy sage-public keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
   vars:
-    component: identityproviderconsumer
-    kc_tmp_volume: "consumerkeycloak-tmp"
+    component: sage-public-identity-provider
+    kc_tmp_volume: "sage-public-keycloak-tmp"
 
-- name: "Deploy provider edc connector"
+- name: "Deploy edwin edc connector"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: connector
-    component: connectorprovider
+    component: edwin-connector
     ports:
       - name: api
         containerPort: 8080
@@ -133,11 +133,11 @@
         containerPort: 11001
         protocol: TCP
 
-- name: "Deploy provider edc identity hub"
+- name: "Deploy edwin edc identity hub"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: identityhubprovider
+    component: edwin-identity-hub
     ports:
       - name: api
         containerPort: 7080
@@ -158,36 +158,36 @@
         containerPort: 7086
         protocol: TCP
 
-- name: "Deploy provider dashboard"
+- name: "Deploy edwin dashboard"
   include_tasks: deploy-stateless-tasks/templates/connector-dashboard.yaml
   vars:
-    component: providerdashboard
+    component: edwin-dashboard
     image_name: data-dashboard
     app_config_path: /usr/share/nginx/html/assets/config/app.config.json
-    app_config_var: provider_dashboard_app_config_obj
+    app_config_var: edwin-dashboard_app_config_obj
     nginx_locations:
       - path: /management
-        target: "{{ provider_connector_address }}/api/management"
+        target: "{{ edwin_connector_address }}/api/management"
       - path: /catalog-proxy/
-        target: "{{ provider_connector_address }}/api/catalog-proxy/"
+        target: "{{ edwin_connector_address }}/api/catalog-proxy/"
       - path: /catalog
-        target: "{{ provider_connector_address }}/api/catalog-proxy/catalog/request"
+        target: "{{ edwin_connector_address }}/api/catalog-proxy/catalog/request"
     extra_config_files:
       - name: participants.json
         path: /usr/share/nginx/html/assets/participants.json
         content_var: participants_json_obj
 
-- name: "Deploy provider keycloak"
+- name: "Deploy edwin keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
   vars:
-    component: providerkeycloak
-    kc_tmp_volume: "providerkeycloak-tmp"
+    component: edwin-identity-provider
+    kc_tmp_volume: "edwin-keycloak-tmp"
 
 - name: "Deploy edc federated catalog"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: federated-catalog
-    component: federatedcatalog
+    component: federated-catalog
     ports:
       - name: api
         containerPort: 8290
@@ -218,7 +218,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: identityhubfederatedcatalog
+    component: federated-catalog-identity-hub
     ports:
       - name: api
         containerPort: 7080
@@ -243,19 +243,19 @@
 - name: "Deploy data space hub"
   include_tasks: deploy-stateless-tasks/templates/data-space-hub.yaml
   vars:
-    component: dataspacehub
+    component: data-space-hub
 
 # Data Space Portal
 - name: "Deploy data space portal"
   include_tasks: deploy-stateless-tasks/templates/data-space-portal.yaml
   vars:
-    component: dataspaceportal
+    component: data-space-portal
 
 # Mail Service
 - name: "Deploy mail service"
   include_tasks: deploy-stateless-tasks/templates/mail-service.yaml
   vars:
-    component: mailservice
+    component: mail-service
 
 # Data Space Keycloak
 # TODO: not integrated yet

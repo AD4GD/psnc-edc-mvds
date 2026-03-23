@@ -49,7 +49,7 @@
                   runAsNonRoot: true
                   runAsUser: 1000
 
-                resources: "{{ resources }}"
+                resources: "{{ vars[component + '_resources'] }}"
 
                 envFrom:
                   - configMapRef:

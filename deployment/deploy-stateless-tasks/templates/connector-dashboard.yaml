@@ -1,7 +1,3 @@
-- name: "Set app.config.json for {{ component }}"
-  set_fact:
-    app_config_json: "{{ vars[app_config_var] | to_nice_json }}"
-
 - name: "Build nginx locations block"
   set_fact:
     _nginx_locations_block: ""
@@ -34,12 +30,15 @@
 - name: "Build configmap data for {{ component }}"
   set_fact:
     _configmap_data:
-      app.config.json: "{{ app_config_json | string }}"
       nginx.conf: "{{ nginx_config }}"
+
+- name: "Add app config to configmap data"
+  set_fact:
+    _configmap_data: "{{ _configmap_data | combine({'app.config.json': (vars[app_config_var] | to_nice_json)}) }}"
 
 - name: "Add extra config files to configmap"
   set_fact:
-    _configmap_data: "{{ _configmap_data | combine({ item.name: (vars[item.content_var] | to_nice_json | string) }) }}"
+    _configmap_data: "{{ _configmap_data | combine({ item.name: (vars[item.content_var] | to_nice_json) }) }}"
   loop: "{{ extra_config_files | default([]) }}"
 
 - name: "deploy configmap/{{ application }}-{{ component }}"
@@ -123,10 +122,6 @@
               parameters_digest: "{{ (vars[component + '_configmap_digest'] + vars[component + '_secret_digest'])|hash('sha1') }}"
           spec:
             serviceAccountName: "run-any-uid"
-            ports:
-              - name: "www"
-                containerPort: 8080
-                protocol: "TCP"
             containers:
               - name: "{{ component }}"
                 image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/{{ image_name }}:{{ stateless_services_image_tag }}"
@@ -143,6 +138,10 @@
                   - configMapRef:
                       name: "{{ application }}-{{ component }}-config"
                       optional: true
+                ports:
+                  - name: "www"
+                    containerPort: 8080
+                    protocol: "TCP"
                 volumeMounts: "{{ _volume_mounts }}"
             volumes: "{{ _volumes }}"
 

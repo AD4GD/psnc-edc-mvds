@@ -1,15 +1,15 @@
-- name: "deploy deployment/{{ application }}-mailservice"
+- name: "deploy deployment/{{ application }}-{{ component }}"
   tags:
-    - mailservice
+    - "{{ component }}"
     - deployment
   k8s:
     definition:
       apiVersion: v1
       kind: Deployment
       metadata:
-        name: "{{ application }}-mailservice"
+        name: "{{ application }}-{{ component }}"
         labels:
-          component: mailservice
+          component: "{{ component }}"
           application: "{{ application }}"
       spec:
         progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
@@ -19,15 +19,15 @@
           type: RollingUpdate
         selector:
           matchLabels:
-            component: mailservice
+            component: "{{ component }}"
             application: "{{ application }}"
         template:
           metadata:
             labels:
-              component: mailservice
+              component: "{{ component }}"
               application: "{{ application }}"
               image_tag: "{{ stateless_services_image_tag }}"
-              parameters_digest: "{{ (mailservice_configmap_digest + mailservice_secret_digest)|hash('sha1') }}"
+              parameters_digest: "{{ (vars[component + '_configmap_digest'] + vars[component + '_secret_digest'])|hash('sha1') }}"
           spec:
             serviceAccountName: "run-any-uid"
             ports:
@@ -35,50 +35,50 @@
                 containerPort: 5555
                 protocol: "TCP"
             containers:
-              - name: "mailservice"
+              - name: "{{ component }}"
                 image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/mail-service:{{ stateless_services_image_tag }}"
                 imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
                 securityContext:
                   readOnlyRootFilesystem: false
                   runAsNonRoot: true
                   runAsUser: 1000
-                resources: "{{ mailservice_resources }}"
+                resources: "{{ vars[component + '_resources'] }}"
                 envFrom:
                   - configMapRef:
-                      name: "{{ application }}-mailservice"
+                      name: "{{ application }}-{{ component }}"
                       optional: true
                   - secretRef:
-                      name: "{{ application }}-mailservice"
+                      name: "{{ application }}-{{ component }}"
                       optional: true
                 volumeMounts:
-                  - name: "mailservice-tmp"
+                  - name: "{{ component }}-tmp"
                     mountPath: "/tmp"
             volumes:
-              - name: "mailservice-tmp"
+              - name: "{{ component }}-tmp"
                 emptyDir:
                   medium: "Memory"
 
-- name: "deploy service/{{ application }}-mailservice"
+- name: "deploy service/{{ application }}-{{ component }}"
   tags:
-    - mailservice
+    - "{{ component }}"
     - service
   k8s:
     definition:
       apiVersion: v1
       kind: Service
       metadata:
-        name: "{{ application }}-mailservice"
+        name: "{{ application }}-{{ component }}"
         labels:
           application: "{{ application }}"
-          component: mailservice
+          component: "{{ component }}"
       spec:
         ports:
           - name: "receiver"
             port: 5555
         selector:
           application: "{{ application }}"
-          component: mailservice
+          component: "{{ component }}"
       envFrom:
         - configMapRef:
-            name: "{{ application }}-mailservice"
+            name: "{{ application }}-{{ component }}"
             optional: true
