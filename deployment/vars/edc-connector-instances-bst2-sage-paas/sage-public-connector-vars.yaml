@@ -1,4 +1,4 @@
-sage-public-connector_configmap__05_defaults:
+sagepublicconnector_configmap__05_defaults:
   # control plane specific config
   EDC_IAM_ISSUER_ID: did:web:sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:sage-public
   WEB_HTTP_PORT: 8080

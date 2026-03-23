@@ -1,4 +1,4 @@
-federated-catalog_configmap__05_defaults:
+federatedcatalog_configmap__05_defaults:
   # control plane specific config
   EDC_IAM_ISSUER_ID: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority
   WEB_HTTP_PORT: 8290

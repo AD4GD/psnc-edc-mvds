@@ -3,7 +3,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: connector
-    component: sage-public-connector
+    component: sagepublicconnector
     ports:
       - name: api
         containerPort: 8080
@@ -51,7 +51,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: sage-public-identity-hub
+    component: sagepublicidentityhub
     ports:
       - name: api
         containerPort: 7080
@@ -75,15 +75,15 @@
 - name: "Deploy sage-public backend"
   include_tasks: deploy-stateless-tasks/templates/consumer-backend.yaml
   vars:
-    component: sage-public-backend
+    component: sagepublicbackend
 
 - name: "Deploy sage-public dashboard"
   include_tasks: deploy-stateless-tasks/templates/connector-dashboard.yaml
   vars:
-    component: sage-public-dashboard
+    component: sagepublicdashboard
     image_name: data-dashboard
     app_config_path: /usr/share/nginx/html/assets/config/app.config.json
-    app_config_var: sage-public-dashboard_app_config_obj
+    app_config_var: sagepublicdashboard_app_config_obj
     nginx_locations:
       - path: /management
         target: "{{ sage_public_connector_address }}/api/management"
@@ -99,14 +99,14 @@
 - name: "Deploy sage-public keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
   vars:
-    component: sage-public-identity-provider
+    component: sagepublicidentityprovider
     kc_tmp_volume: "sage-public-keycloak-tmp"
 
 - name: "Deploy edwin edc connector"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: connector
-    component: edwin-connector
+    component: edwinconnector
     ports:
       - name: api
         containerPort: 8080
@@ -137,7 +137,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: edwin-identity-hub
+    component: edwinidentityhub
     ports:
       - name: api
         containerPort: 7080
@@ -161,10 +161,10 @@
 - name: "Deploy edwin dashboard"
   include_tasks: deploy-stateless-tasks/templates/connector-dashboard.yaml
   vars:
-    component: edwin-dashboard
+    component: edwindashboard
     image_name: data-dashboard
     app_config_path: /usr/share/nginx/html/assets/config/app.config.json
-    app_config_var: edwin-dashboard_app_config_obj
+    app_config_var: edwindashboard_app_config_obj
     nginx_locations:
       - path: /management
         target: "{{ edwin_connector_address }}/api/management"
@@ -180,14 +180,14 @@
 - name: "Deploy edwin keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
   vars:
-    component: edwin-identity-provider
+    component: edwinidentityprovider
     kc_tmp_volume: "edwin-keycloak-tmp"
 
 - name: "Deploy edc federated catalog"
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: federated-catalog
-    component: federated-catalog
+    component: federatedcatalog
     ports:
       - name: api
         containerPort: 8290
@@ -218,7 +218,7 @@
   include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
   vars:
     image_name: identity-hub
-    component: federated-catalog-identity-hub
+    component: federatedcatalogidentityhub
     ports:
       - name: api
         containerPort: 7080
@@ -243,19 +243,19 @@
 - name: "Deploy data space hub"
   include_tasks: deploy-stateless-tasks/templates/data-space-hub.yaml
   vars:
-    component: data-space-hub
+    component: dataspacehub
 
 # Data Space Portal
 - name: "Deploy data space portal"
   include_tasks: deploy-stateless-tasks/templates/data-space-portal.yaml
   vars:
-    component: data-space-portal
+    component: dataspaceportal
 
 # Mail Service
 - name: "Deploy mail service"
   include_tasks: deploy-stateless-tasks/templates/mail-service.yaml
   vars:
-    component: mail-service
+    component: mailservice
 
 # Data Space Keycloak
 # TODO: not integrated yet

@@ -1,4 +1,4 @@
-data-space-hub_configmap__05_defaults:
+dataspacehub_configmap__05_defaults:
   # API
   APP_URL: https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl
   ISSUER_DID: did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl

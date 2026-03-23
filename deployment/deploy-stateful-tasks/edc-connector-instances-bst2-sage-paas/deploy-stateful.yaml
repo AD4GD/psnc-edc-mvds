@@ -7,25 +7,25 @@
 - name: "deploy sage-public hashicorp vault"
   include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
   vars:
-    vault_instance: "keyvault-sage-public"
+    vault_instance: "keyvaultsagepublic"
 
 # kv edwin
 - name: "deploy edwin hashicorp vault"
   include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
   vars:
-    vault_instance: "keyvault-edwin"
+    vault_instance: "keyvaultedwin"
 
 # kv federated catalog
 - name: "deploy federated catalog hashicorp vault"
   include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
   vars:
-    vault_instance: "keyvault-federated-catalog"
+    vault_instance: "keyvaultfederatedcatalog"
 
 # kv data space hub
 - name: "deploy data space hub hashicorp vault"
   include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
   vars:
-    vault_instance: "keyvault-data-space-hub"
+    vault_instance: "keyvaultdataspacehub"
 
 # object storage
 # TODO

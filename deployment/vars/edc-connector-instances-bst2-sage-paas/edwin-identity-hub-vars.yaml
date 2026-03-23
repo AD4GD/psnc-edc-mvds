@@ -1,4 +1,4 @@
-edwin-identity-hub_configmap__05_defaults:
+edwinidentityhub_configmap__05_defaults:
   WEB_HTTP_PORT: 7080
   WEB_HTTP_PATH: /api
   WEB_HTTP_CREDENTIALS_PORT: 7081
