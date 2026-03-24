@@ -16,6 +16,13 @@ Build images:
     ULIMIT_NOFILE: "16384:16384"
   script:
     - devlab_build_images
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_sage_bst2_dcp'
+      variables:
+        REGISTRY_PROJECT: "sage"
+    - when: on_success
+      variables:
+        REGISTRY_PROJECT: "demeter"
 
 Upload images:
   stage: upload
