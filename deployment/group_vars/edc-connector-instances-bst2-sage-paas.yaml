@@ -2,7 +2,7 @@
 # BASE
 application: edc-connector
 ansible_connection: local
-registry_project: sage
+registry_project: demeter
 registry_application: edc-connector
 initial_replicas: 1
 progress_deadline_seconds: 300
