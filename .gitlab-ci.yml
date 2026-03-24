@@ -39,6 +39,12 @@ Upload images to public DockerHub:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
     - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_sage_bst2_dcp'
+      variables:
+        REGISTRY_PROJECT: "sage"
+    - when: on_success
+      variables:
+        REGISTRY_PROJECT: "demeter"
 
 Update inventory for main project:
   stage: update_inventory
