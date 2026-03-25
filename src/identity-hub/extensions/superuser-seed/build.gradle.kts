@@ -19,4 +19,6 @@ plugins {
 dependencies {
     implementation(libs.edc.ih.spi.credentials)
     implementation(libs.edc.ih.spi)
+    implementation(libs.edc.spi.web)
+    implementation(libs.jakarta.rsApi)
 }

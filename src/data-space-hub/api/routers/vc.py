@@ -27,11 +27,16 @@ def test_endpoint():
     return SimpleMessageResponse(message="Test endpoint reached successfully")
 
 @router.post(
-    "/test",
+    "/issue",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Test save",
+    summary="Issue VCs for a participant and register in federated catalog",
 )
-async def save_vc(body: Annotated[InsertVcRequest, Body()]):
-    result = await vc_saver_service.create_participant_and_save_vc(body)
+async def issue_vc(body: Annotated[InsertVcRequest, Body()]):
+    """
+    Issue Verifiable Credentials for a participant and add them as a target
+    node in the Federated Catalog. Identity Hub participant context creation
+    and STS secret storage are handled externally by the init-dataspace script.
+    """
+    await vc_saver_service.issue_and_store_vcs(body)
     await federated_catalog_service.create_target_node(body.connector_did, body.connector_dsp_url)
-    return result
+    return None

@@ -19,15 +19,9 @@ class ConnectorRequest(BaseModel):
 
 class InsertVcRequest(BaseModel):
     connector_did: str = Field(..., description="DID of participant owning the connector")
-    identity_hub_identity_url: str = Field(..., description="")
-    identity_hub_api_key: str = Field(..., description="")
-    # if we also create participant context and generate STS secrets
-    # potentially optional fields
-    connector_dsp_url: str = Field(..., description="")
-    connector_management_url: str = Field(..., description="")
-    connector_api_key: str = Field(..., description="")
-    identity_hub_credentials_url: str = Field(..., description="")
-    sts_public_key_pem: str = Field(..., description="")
+    connector_dsp_url: str = Field(..., description="Connector DSP protocol URL (for FC target node registration)")
+    identity_hub_identity_url: str = Field(..., description="Identity Hub identity API URL")
+    identity_hub_api_key: str = Field(..., description="Identity Hub super-user API key")
 
 class ParticipantCreateRequest(BaseModel):
     """Request model for creating a new participant."""

@@ -151,7 +151,7 @@ class RegistrationService:
         from api.services.app.vc_saver_service import vc_saver_service
         from api.services.clients.federated_catalog_service import federated_catalog_service
 
-        result = await vc_saver_service.create_participant_and_save_vc(insert_vc_request)
+        await vc_saver_service.issue_and_store_vcs(insert_vc_request)
         await federated_catalog_service.create_target_node(insert_vc_request.connector_did, insert_vc_request.connector_dsp_url)
 
     @classmethod

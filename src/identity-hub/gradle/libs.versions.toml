@@ -7,6 +7,7 @@ edc = "0.14.0"
 edc-build = "1.0.0"
 jackson = "2.18.2"
 jakarta-json = "2.1.3"
+jakartaRs = "3.1.0"
 parsson = "1.1.6"
 postgres = "42.7.3"
 restAssured = "5.5.6"
@@ -27,6 +28,8 @@ edc-ih-spi-credentials = { module = "org.eclipse.edc:verifiable-credential-spi",
 edc-ih-spi = { module = "org.eclipse.edc:identity-hub-spi", version.ref = "edc" }
 
 edc-spi-identity-did = { module = "org.eclipse.edc:identity-did-spi", version.ref = "edc" }
+edc-spi-web = { module = "org.eclipse.edc:web-spi", version.ref = "edc" }
+jakarta-rsApi = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "jakartaRs" }
 
 # BOM modules
 edc-bom-identityhub = { module = "org.eclipse.edc:identityhub-bom", version.ref = "edc" }
