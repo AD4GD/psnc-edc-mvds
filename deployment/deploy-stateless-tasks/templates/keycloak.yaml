@@ -1,3 +1,11 @@
+- name: "Build service ports from Keycloak container ports"
+  set_fact:
+    _derived_service_ports:
+      - name: keycloak-https
+        port: 8443
+      - name: keycloak-http
+        port: 8080
+
 - name: "Set kc_name"
   set_fact:
     kc_name: "{{ application }}-{{ component }}"
@@ -73,3 +81,23 @@
               - name: "{{ kc_tmp_volume }}"
                 emptyDir:
                   medium: Memory
+
+- name: "deploy service/{{ kc_name }}"
+  tags: ["{{ component }}", service]
+
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+
+      metadata:
+        name: "{{ kc_name }}"
+        labels:
+          application: "{{ application }}"
+          component: "{{ component }}"
+
+      spec:
+        ports: "{{ _derived_service_ports }}"
+        selector:
+          application: "{{ application }}"
+          component: "{{ component }}"
