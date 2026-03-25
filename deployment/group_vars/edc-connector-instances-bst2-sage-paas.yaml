@@ -232,23 +232,23 @@ dataspaceportal_address_shorten: "data-space-portal-sage-data-space.apps.bst2.pa
 
 # CONFIG OBJECTS
 sagepublicdashboard_app_config_obj:
-  managementApiUrl: "{{ sage_public_connector_address }}/api/management"
-  catalogUrl: "{{ federated_catalog_address }}/api/catalog"
+  managementApiUrl: "https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/management"
+  catalogUrl: "https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl/api/catalog"
   theme: "theme-4"
   deploymentMode: "production"
-  backendUrl: "{{ sage_public_backend_address }}/edr-endpoint"
+  backendUrl: "https://sage-public-backend-sage-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
   edcApiKey: "edc"
 
 edwindashboard_app_config_obj:
-  managementApiUrl: "{{ edwin_connector_address }}/api/management"
-  catalogUrl: "{{ federated_catalog_address }}/api/catalog"
+  managementApiUrl: "https://edwin-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/management"
+  catalogUrl: "https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl/api/catalog"
   theme: "theme-3"
   deploymentMode: "production"
-  backendUrl: "{{ sage_public_backend_address }}/edr-endpoint"
+  backendUrl: "https://sage-public-backend-sage-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
   edcApiKey: "edc"
 
 dataspaceportal_app_config_obj:
-  apiBaseUrl: "{{ data_space_hub_address }}/api"
+  apiBaseUrl: "https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl/api"
   isProduction: true
 
 participants_json_obj:

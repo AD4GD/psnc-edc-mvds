@@ -34,11 +34,11 @@
 
 - name: "Add app config to configmap data"
   set_fact:
-    _configmap_data: "{{ _configmap_data | combine({'app.config.json': ((vars[app_config_var] | to_nice_json) | template)}) }}"
+    _configmap_data: "{{ _configmap_data | combine({'app.config.json': (vars[app_config_var] | to_nice_json)}) }}"
 
 - name: "Add extra config files to configmap"
   set_fact:
-    _configmap_data: "{{ _configmap_data | combine({ item.name: ((vars[item.content_var] | to_nice_json) | template) }) }}"
+    _configmap_data: "{{ _configmap_data | combine({ item.name: (vars[item.content_var] | to_nice_json) }) }}"
   loop: "{{ extra_config_files | default([]) }}"
 
 - name: "deploy configmap/{{ application }}-{{ component }}"
