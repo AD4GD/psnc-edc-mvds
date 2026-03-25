@@ -237,7 +237,8 @@ sagepublicdashboard_app_config_obj:
   theme: "theme-4"
   deploymentMode: "production"
   backendUrl: "https://sage-public-backend-sage-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
-  edcApiKey: "edc"
+  oauthIssuer: "https://sage-public-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations"
+  oauthClientId: "data-space-users"
 
 edwindashboard_app_config_obj:
   managementApiUrl: "https://edwin-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/management"
@@ -245,7 +246,8 @@ edwindashboard_app_config_obj:
   theme: "theme-3"
   deploymentMode: "production"
   backendUrl: "https://sage-public-backend-sage-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
-  edcApiKey: "edc"
+  oauthIssuer: "https://edwin-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations"
+  oauthClientId: "data-space-users"
 
 dataspaceportal_app_config_obj:
   apiBaseUrl: "https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl/api"
