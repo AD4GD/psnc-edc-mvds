@@ -60,3 +60,6 @@ federatedcatalog_configmap__05_defaults:
   EDC_VAULT_HASHICORP_TOKEN_TTL: 0
   EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
   JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
+
+  # trusted issuers (JSON array of DIDs)
+  EDC_TRUSTED_ISSUERS: "{{ ['did:web:data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl'] | to_json }}"

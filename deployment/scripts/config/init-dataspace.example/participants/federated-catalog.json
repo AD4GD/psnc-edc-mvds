@@ -1,0 +1,16 @@
+{
+  "did": "did:web:fc-ih%3A7103:piotr",
+  "identity_hub": {
+    "base_url": "http://localhost:7100",
+    "identity_api_url": "http://localhost:7102/api/identity",
+    "credentials_api_url": "http://localhost:7101/api/credentials",
+    "api_key": "c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=",
+    "vault_address": "http://localhost:8201",
+    "public_key_pem_path": "certs/fc_public.pem"
+  },
+  "connector": {
+    "management_api_url": "http://localhost:8291/api/management",
+    "api_key": "password",
+    "dsp_url": "http://federated-catalog:8292/api/dsp"
+  }
+}

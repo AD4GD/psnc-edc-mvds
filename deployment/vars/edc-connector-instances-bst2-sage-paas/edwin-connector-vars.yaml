@@ -76,3 +76,6 @@ edwinconnector_configmap__05_defaults:
   #aud
   WEB_HTTP_MANAGEMENT_AUTH_AUDIENCE: edwin-connector
   WEB_HTTP_MANAGEMENT_AUTH_DAC_AUDIENCE: edwin-connector
+
+  # trusted issuers (JSON array of DIDs)
+  EDC_TRUSTED_ISSUERS: "{{ ['did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'] | to_json }}"
