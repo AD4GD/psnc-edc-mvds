@@ -233,7 +233,7 @@ storage_address: "https://storage-dcp-data-space.apps.bst2.paas.psnc.pl"
 # CONFIG OBJECTS
 consumer_dashboard_app_config_obj:
   managementApiUrl: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management"
-  catalogUrl: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog"
+  catalogUrl: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
   theme: "theme-4"
   deploymentMode: "production"
   backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
@@ -241,7 +241,7 @@ consumer_dashboard_app_config_obj:
 
 provider_dashboard_app_config_obj:
   managementApiUrl: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management"
-  catalogUrl: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog"
+  catalogUrl: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
   theme: "theme-3"
   deploymentMode: "production"
   backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
