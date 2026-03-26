@@ -11,6 +11,7 @@
 #   ./init-dataspace --config <config-dir>
 #   ./init-dataspace --config <config-dir> --skip-vc
 #   ./init-dataspace --config <config-dir> --participant consumer
+#   ./init-dataspace --config config/sage-init-dataspace
 #
 # Config directory must contain:
 #   dataspace.json      - global settings (data-space-hub URL, timeouts)
@@ -89,14 +90,19 @@ fail() { echo "[init-dataspace] $(date +%H:%M:%S) FAIL: $*" >&2; exit 1; }
 wait_for_url() {
     local name="$1" url="$2" elapsed=0
     log "Waiting for ${name} (${url})..."
-    while ! curl -sf --max-time 3 "${url}" > /dev/null 2>&1; do
+    while true; do
+        local http_code
+        http_code=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 3 "${url}" 2>/dev/null) || true
+        if [ -n "$http_code" ] && [ "$http_code" != "000" ]; then
+            ok "${name} is ready (HTTP ${http_code})"
+            return 0
+        fi
         elapsed=$((elapsed + POLL_INTERVAL))
         if [ "$elapsed" -ge "$MAX_WAIT_SECONDS" ]; then
             fail "${name} did not become ready within ${MAX_WAIT_SECONDS}s"
         fi
         sleep "$POLL_INTERVAL"
     done
-    ok "${name} is ready"
 }
 
 wait_for_vault_unsealed() {
@@ -104,15 +110,18 @@ wait_for_vault_unsealed() {
     log "Waiting for ${name} to be initialized and unsealed..."
     while true; do
         local health
-        health=$(curl -sf --max-time 3 "${vault_addr}/v1/sys/health" 2>/dev/null) || true
+        health=$(curl -sk --max-time 3 "${vault_addr}/v1/sys/health" 2>/dev/null) || true
         if [ -n "$health" ]; then
             local initialized sealed
-            initialized=$(echo "$health" | jq -r '.initialized // false')
-            sealed=$(echo "$health" | jq -r '.sealed // true')
+            initialized=$(echo "$health" | jq -r 'if .initialized == null then "false" else (.initialized | tostring) end')
+            sealed=$(echo "$health" | jq -r 'if .sealed == null then "true" else (.sealed | tostring) end')
+            log "  ${name}: initialized=${initialized}, sealed=${sealed}"
             if [ "$initialized" = "true" ] && [ "$sealed" = "false" ]; then
                 ok "${name} is initialized and unsealed"
                 return 0
             fi
+        else
+            log "  ${name}: no response (retrying...)"
         fi
         elapsed=$((elapsed + POLL_INTERVAL))
         if [ "$elapsed" -ge "$MAX_WAIT_SECONDS" ]; then
@@ -135,15 +144,33 @@ read_pem() {
 }
 
 # ---------------------------------------------------------------------------
+# Resolve participant config files respecting --participant filter
+# ---------------------------------------------------------------------------
+
+participant_config_files() {
+    if [ -n "$SINGLE_PARTICIPANT" ]; then
+        local f="$CONFIG_DIR/participants/${SINGLE_PARTICIPANT}.json"
+        if [ ! -f "$f" ]; then
+            fail "Participant config not found: $f"
+        fi
+        echo "$f"
+    else
+        for f in "$CONFIG_DIR"/participants/*.json; do
+            [ -f "$f" ] && echo "$f"
+        done
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # Phase 1: Wait for Vaults
 # ---------------------------------------------------------------------------
 
 phase_wait_for_vaults() {
     log "=== Phase 1: Waiting for Vaults ==="
 
-    # Collect unique vault addresses from all participant configs
+    # Collect unique vault addresses from selected participant configs
     local vault_addresses
-    vault_addresses=$(jq -r '.identity_hub.vault_address // empty' "$CONFIG_DIR"/participants/*.json 2>/dev/null | sort -u)
+    vault_addresses=$(participant_config_files | xargs jq -r '.identity_hub.vault_address // empty' 2>/dev/null | sort -u)
 
     for addr in $vault_addresses; do
         wait_for_vault_unsealed "Vault at ${addr}" "$addr"
@@ -159,19 +186,19 @@ phase_wait_for_vaults() {
 phase_bootstrap_identity_hubs() {
     log "=== Phase 2: Bootstrapping Identity Hubs (super-user creation) ==="
 
-    # Collect unique IH bootstrap URLs from all participant configs
+    # Collect unique IH bootstrap URLs from selected participant configs
     local ih_configs
-    ih_configs=$(jq -r '.identity_hub.base_url // empty' "$CONFIG_DIR"/participants/*.json 2>/dev/null | sort -u)
+    ih_configs=$(participant_config_files | xargs jq -r '.identity_hub.base_url // empty' 2>/dev/null | sort -u)
 
     for base_url in $ih_configs; do
         local bootstrap_url="${base_url}/api/bootstrap"
-        local health_url="${base_url}/api/version"
+        local health_url="${base_url}/health"
 
         wait_for_url "Identity Hub at ${base_url}" "${health_url}" || true
 
         log "Calling bootstrap endpoint: ${bootstrap_url}..."
         local response status_code
-        response=$(curl -s -w "\n%{http_code}" \
+        response=$(curl -sk -w "\n%{http_code}" \
             -X POST "${bootstrap_url}" \
             -H "Content-Type: application/json")
         status_code=$(echo "$response" | tail -1)
@@ -225,6 +252,14 @@ process_participant() {
     connector_dsp_url=$(jq -r '.connector.dsp_url' "$config_file")
     public_key_pem_path=$(jq -r '.identity_hub.public_key_pem_path' "$config_file")
 
+    # Read optional short secret alias (avoids vault URL length issues in K8s)
+    # Falls back to the EDC default: <did>-sts-client-secret
+    local sts_client_secret_alias
+    sts_client_secret_alias=$(jq -r '.sts_client_secret_alias // empty' "$config_file")
+    if [ -z "$sts_client_secret_alias" ]; then
+        sts_client_secret_alias="${did}-sts-client-secret"
+    fi
+
     # Resolve relative PEM paths against config dir
     if [[ "$public_key_pem_path" != /* ]]; then
         public_key_pem_path="${CONFIG_DIR}/${public_key_pem_path}"
@@ -252,6 +287,7 @@ process_participant() {
         --arg cred_endpoint "$credential_service_endpoint" \
         --arg dsp_url "$connector_dsp_url" \
         --arg pem "$pem_escaped" \
+        --arg secret_alias "$sts_client_secret_alias" \
         '{
             "roles": [],
             "serviceEndpoints": [
@@ -273,11 +309,14 @@ process_participant() {
                 "keyId": ($did + "#key-1"),
                 "privateKeyAlias": "key-1",
                 "publicKeyPem": $pem
+            },
+            "additionalProperties": {
+                "clientSecret": $secret_alias
             }
         }')
 
     local response status_code response_body
-    response=$(curl -s -w "\n%{http_code}" \
+    response=$(curl -sk -w "\n%{http_code}" \
         -X POST "${ih_identity_url}/v1alpha/participants" \
         -H "Content-Type: application/json" \
         -H "x-api-key: ${ih_api_key}" \
@@ -298,21 +337,21 @@ process_participant() {
 
     # Store client secret in connector's vault
     if [ -n "$client_secret" ]; then
-        log "Storing client secret for ${name} in connector..."
+        log "Storing client secret for ${name} in connector (alias: ${sts_client_secret_alias})..."
 
         local secret_body
         secret_body=$(jq -n \
-            --arg did "$did" \
+            --arg alias "$sts_client_secret_alias" \
             --arg secret "$client_secret" \
             '{
                 "@context": { "edc": "https://w3id.org/edc/v0.0.1/ns/" },
                 "@type": "https://w3id.org/edc/v0.0.1/ns/Secret",
-                "@id": ($did + "-sts-client-secret"),
+                "@id": $alias,
                 "https://w3id.org/edc/v0.0.1/ns/value": $secret
             }')
 
         local secret_response secret_status
-        secret_response=$(curl -s -w "\n%{http_code}" \
+        secret_response=$(curl -sk -w "\n%{http_code}" \
             -X POST "${connector_mgmt_url}/v3/secrets" \
             -H "Content-Type: application/json" \
             -H "x-api-key: ${connector_api_key}" \
@@ -332,18 +371,15 @@ process_participant() {
 phase_create_participants() {
     log "=== Phase 3: Creating participant contexts ==="
 
-    if [ -n "$SINGLE_PARTICIPANT" ]; then
-        local config_file="$CONFIG_DIR/participants/${SINGLE_PARTICIPANT}.json"
-        if [ ! -f "$config_file" ]; then
-            fail "Participant config not found: $config_file"
-        fi
-        process_participant "$config_file"
-    else
-        for config_file in "$CONFIG_DIR"/participants/*.json; do
-            [ -f "$config_file" ] || continue
-            process_participant "$config_file"
-        done
+    local files
+    files=$(participant_config_files)
+    if [ -z "$files" ]; then
+        fail "No participant config files found${SINGLE_PARTICIPANT:+ for '$SINGLE_PARTICIPANT'}"
     fi
+
+    while IFS= read -r config_file; do
+        process_participant "$config_file"
+    done <<< "$files"
 
     ok "All participant contexts created"
 }
@@ -403,7 +439,7 @@ issue_vc_for_participant() {
         }')
 
     local response status_code
-    response=$(curl -s -w "\n%{http_code}" \
+    response=$(curl -sk -w "\n%{http_code}" \
         -X POST "${DSH_URL}/api/v1/verifiable-credentials/issue" \
         -H "Content-Type: application/json" \
         -d "$body")
@@ -431,15 +467,15 @@ phase_issue_vcs() {
 
     wait_for_url "Data Space Hub" "${DSH_URL}/docs"
 
-    if [ -n "$SINGLE_PARTICIPANT" ]; then
-        local config_file="$CONFIG_DIR/participants/${SINGLE_PARTICIPANT}.json"
-        issue_vc_for_participant "$config_file"
-    else
-        for config_file in "$CONFIG_DIR"/participants/*.json; do
-            [ -f "$config_file" ] || continue
-            issue_vc_for_participant "$config_file"
-        done
+    local files
+    files=$(participant_config_files)
+    if [ -z "$files" ]; then
+        fail "No participant config files found${SINGLE_PARTICIPANT:+ for '$SINGLE_PARTICIPANT'}"
     fi
+
+    while IFS= read -r config_file; do
+        issue_vc_for_participant "$config_file"
+    done <<< "$files"
 
     ok "VC issuance complete"
 }

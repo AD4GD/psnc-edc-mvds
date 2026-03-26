@@ -19,7 +19,7 @@ edwinconnector_configmap__05_defaults:
   EDC_DSP_CALLBACK_ADDRESS: https://edwin-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/dsp
   EDC_PARTICIPANT_ID: did:web:edwin-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:edwin
   EDC_MANAGEMENT_CONTEXT_ENABLED: true
-  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: did:web:edwin-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:edwin-sts-client-secret
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: edwin-sts-secret
   EDC_IAM_STS_OAUTH_CLIENT_ID: did:web:edwin-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:edwin
   EDC_IAM_STS_OAUTH_TOKEN_URL: https://edwin-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl/api/sts/token
 
