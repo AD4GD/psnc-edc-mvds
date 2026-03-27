@@ -1,0 +1,5 @@
+mailservice_configmap__05_defaults:
+  # PORT - default is 587
+  MAIL_PORT: 587
+  MAIL_SERVER: smtp.gmail.com
+  MAIL_FROM_NAME: CEADS Data Space

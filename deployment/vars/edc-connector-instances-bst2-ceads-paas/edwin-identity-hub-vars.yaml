@@ -1,0 +1,26 @@
+edwinidentityhub_configmap__05_defaults:
+  WEB_HTTP_PORT: 7080
+  WEB_HTTP_PATH: /api
+  WEB_HTTP_CREDENTIALS_PORT: 7081
+  WEB_HTTP_CREDENTIALS_PATH: /api/credentials
+  WEB_HTTP_IDENTITY_PORT: 7082
+  WEB_HTTP_IDENTITY_PATH: /api/identity
+  WEB_HTTP_DID_PORT: 7083
+  WEB_HTTP_DID_PATH: /
+  WEB_HTTP_VERSION_PORT: 7085
+  WEB_HTTP_VERSION_PATH: /api/version
+  WEB_HTTP_STS_PORT: 7086
+  WEB_HTTP_STS_PATH: /api/sts
+  EDC_IAM_DID_WEB_USE_HTTPS: true
+  EDC_IAM_STS_PRIVATEKEY_ALIAS: key-1
+  EDC_IAM_STS_PUBLICKEY_ID: did:web:edwin-identity-hub-ceads-data-space.apps.bst2.paas.psnc.pl:edwin#key-1
+  EDC_IH_IAM_PUBLICKEY_PATH: /certs/edwin_public.pem
+  EDC_IH_IAM_ID: did:web:edwin-identity-hub-ceads-data-space.apps.bst2.paas.psnc.pl:edwin
+  EDC_MVD_CREDENTIALS_PATH: app
+
+  # persistence
+  EDC_SQL_SCHEMA_AUTOCREATE: true
+  EDC_VAULT_HASHICORP_URL: https://edwin-keyvault-ceads-data-space.apps.bst2.paas.psnc.pl
+  EDC_VAULT_HASHICORP_TOKEN_TTL: 0
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
+  JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
