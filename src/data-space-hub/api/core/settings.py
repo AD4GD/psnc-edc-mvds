@@ -11,6 +11,7 @@ class ProjectSettings(BaseSettings):
     frontend_url: str = Field("http://localhost", alias="FRONTEND_URL")
     app_url: str = Field("http://localhost:8000", alias="APP_URL")
     is_skip_init: bool = Field(False, alias="IS_SKIP_INIT")
+    dsh_api_key: str = Field(..., alias="DSH_API_KEY")
 
     model_config = {
         "env_file": ".env",

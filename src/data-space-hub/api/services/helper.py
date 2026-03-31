@@ -1,8 +1,10 @@
 import base64
 import hashlib
+import hmac
 from typing import Optional
 from uuid import uuid4
 
+from api.core.settings import ProjectSettings
 from api.exceptions.registration_service_exceptions import UnauthorizedException
 from api.services.clients import keycloak_service
 from fastapi import Depends, Header
@@ -17,6 +19,19 @@ def get_bearer_token(authorization: Optional[str] = Header(None)) -> str:
     if len(parts) != 2 or parts[0].lower() != "bearer":
         raise UnauthorizedException(message="Missing Authorization header", action="access protected resource")
     return parts[1]
+
+
+def require_dsh_api_key(x_api_key: Optional[str] = Header(None)) -> str:
+    """Validate the x-api-key header against the configured DSH_API_KEY."""
+    if not x_api_key:
+        raise UnauthorizedException(
+            message="Missing x-api-key header", action="access protected resource"
+        )
+    if not hmac.compare_digest(x_api_key, ProjectSettings.dsh_api_key):
+        raise UnauthorizedException(
+            message="Invalid API key", action="access protected resource"
+        )
+    return x_api_key
 
 
 async def require_admin_token(token: str = Depends(get_bearer_token)):
