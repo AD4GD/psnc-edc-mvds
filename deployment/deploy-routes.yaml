@@ -24,6 +24,8 @@
             labels:
               application: "{{ application }}"
               app.kubernetes.io/part-of: "{{ application }}"
+            annotations:
+              haproxy.router.openshift.io/ip_whitelist: ""
           spec:
             host: "{{ item.host }}"
             path: "{{ item.path | default(omit) }}"

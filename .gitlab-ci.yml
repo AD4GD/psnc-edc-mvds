@@ -16,11 +16,19 @@ Build images:
     ULIMIT_NOFILE: "16384:16384"
   script:
     - devlab_build_images
+  rules:
+    - when: on_success
+      variables:
+        REGISTRY_PROJECT: "demeter"
 
 Upload images:
   stage: upload
   script:
     - devlab_push_images
+  rules:
+    - when: on_success
+      variables:
+        REGISTRY_PROJECT: "demeter"
 
 Upload images to public DockerHub:
   stage: upload
@@ -57,7 +65,7 @@ Update inventory for atos-psnc integration:
     variables:
       - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_atos_psnc
 
-Update inventory for bst2-dcp:
+Update inventory for pcss-bst2-dcp:
   stage: update_inventory
   variables:
     inventory_repository_name: pcss-data-space-bst2-dcp-inventory
@@ -68,6 +76,30 @@ Update inventory for bst2-dcp:
   only:
     variables:
       - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_pcss_bst2_dcp
+
+Update inventory for sage-bst2-dcp:
+  stage: update_inventory
+  variables:
+    inventory_repository_name: sage-data-space-bst2-dcp-inventory
+    inventory_hostname: $inventory_hostname_sage_bst2_dcp
+    gitlab_push_token: $gitlab_push_token_sage_bst2_dcp
+  script:
+    - devlab_update_inventory
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_sage_bst2_dcp
+
+Update inventory for ceads-bst2-dcp:
+  stage: update_inventory
+  variables:
+    inventory_repository_name: ceads-data-space-bst2-dcp-inventory
+    inventory_hostname: $inventory_hostname_ceads_bst2_dcp
+    gitlab_push_token: $gitlab_push_token_ceads_bst2_dcp
+  script:
+    - devlab_update_inventory
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $branch_allowed_to_update_inventory_ceads_bst2_dcp
 
 #integration-test:
 #  stage: test

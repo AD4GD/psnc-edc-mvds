@@ -1,0 +1,9 @@
+{
+  "data_space_hub": {
+    "url": "http://localhost:8000"
+  },
+  "timeouts": {
+    "max_wait_seconds": 120,
+    "poll_interval_seconds": 3
+  }
+}

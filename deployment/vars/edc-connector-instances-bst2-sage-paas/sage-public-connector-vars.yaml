@@ -1,0 +1,82 @@
+sagepublicconnector_configmap__05_defaults:
+  # control plane specific config
+  EDC_IAM_ISSUER_ID: did:web:sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:sage-public
+  WEB_HTTP_PORT: 8080
+  WEB_HTTP_PATH: /api
+  WEB_HTTP_MANAGEMENT_PORT: 8081
+  WEB_HTTP_MANAGEMENT_PATH: /api/management
+  WEB_HTTP_PROTOCOL_PORT: 8082
+  WEB_HTTP_PROTOCOL_PATH: /api/dsp
+  WEB_HTTP_CONTROL_PORT: 8083
+  WEB_HTTP_CONTROL_PATH: /api/control
+  WEB_HTTP_CATALOG_PORT: 8084
+  WEB_HTTP_CATALOG_PATH: /api/catalog
+  WEB_HTTP_VERSION_PORT: 8085
+  WEB_HTTP_VERSION_PATH: /api/version
+  EDC_IAM_DID_WEB_USE_HTTPS: true
+  EDC_IAM_STS_PRIVATEKEY_ALIAS: key-1
+  EDC_IAM_STS_PUBLICKEY_ID: did:web:sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:sage-public#key-1
+  EDC_DSP_CALLBACK_ADDRESS: https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/dsp
+  EDC_PARTICIPANT_ID: did:web:sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:sage-public
+  EDC_MANAGEMENT_CONTEXT_ENABLED: true
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: sage-public-sts-secret
+  EDC_IAM_STS_OAUTH_CLIENT_ID: did:web:sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:sage-public
+  EDC_IAM_STS_OAUTH_TOKEN_URL: https://sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl/api/sts/token
+
+  # control plane AUTH (tokenbased, delegated, composite, none)
+  WEB_HTTP_AUTH_TYPE: composite
+  WEB_HTTP_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
+  WEB_HTTP_AUTH_DAC_KEY_URL: https://sage-public-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+
+  WEB_HTTP_MANAGEMENT_AUTH_TYPE: composite
+  WEB_HTTP_MANAGEMENT_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
+
+  WEB_HTTP_MANAGEMENT_AUTH_DAC_KEY_URL: https://sage-public-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+
+  WEB_HTTP_CONTROL_AUTH_TYPE: tokenbased
+
+  # dataplane specific config
+  EDC_DATAPLANE_API_PUBLIC_BASEURL: "https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/public"
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: did:web:sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:sage-public#key-1
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: key-1
+  EDC_DPF_SELECTOR_URL: https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/control/v1/dataplanes
+  WEB_HTTP_PUBLIC_PORT: 11001
+  WEB_HTTP_PUBLIC_PATH: /api/public
+
+  # CORS
+  EDC_WEB_REST_CORS_ENABLED: true
+  EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
+
+  # persistence
+  EDC_SQL_SCHEMA_AUTOCREATE: true
+  EDC_VAULT_HASHICORP_URL: https://sage-public-keyvault-sage-data-space.apps.bst2.paas.psnc.pl
+  EDC_VAULT_HASHICORP_TOKEN_TTL: 0
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
+  JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
+
+  # catalog proxy
+  EDC_CATALOG_PROXY_DSP_ENABLED: false
+  # Catalog proxy API (separate web context)
+  WEB_HTTP_CATALOGPROXY_PORT: 8086
+  WEB_HTTP_CATALOGPROXY_PATH: /api/catalog-proxy
+  # Authentication for catalog-proxy API (same mechanism as management)
+  WEB_HTTP_CATALOGPROXY_AUTH_TYPE: composite
+  # tokenbased - api-key, delegated - oauth2/daps
+  WEB_HTTP_CATALOGPROXY_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
+  WEB_HTTP_CATALOGPROXY_AUTH_CONTEXT: catalogproxy
+  WEB_HTTP_CATALOGPROXY_AUTH_DAC_KEY_URL: https://sage-public-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+  WEB_HTTP_CATALOGPROXY_AUTH_AUDIENCE: "{{ [] | to_json }}"
+  WEB_HTTP_CATALOGPROXY_AUTH_ROLES: "{{ [] | to_json }}"
+
+  EDC_CATALOG_PROXY_DSP_COUNTERPARTY_ADDRESS: https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl/api/catalog
+  EDC_CATALOG_PROXY_DSP_COUNTERPARTY_ID: federated-catalog
+  EDC_CATALOG_PROXY_DSP_PROTOCOL: dataspace-protocol-http
+  EDC_CATALOG_PROXY_HTTP_TARGET_URL: https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl/api/catalog/v1alpha/catalog/query
+  EDC_CATALOG_PROXY_HTTP_APIKEY_HEADER: x-api-key
+
+  #aud
+  WEB_HTTP_MANAGEMENT_AUTH_AUDIENCE: federated-catalog
+  WEB_HTTP_MANAGEMENT_AUTH_DAC_AUDIENCE: federated-catalog
+
+  # trusted issuers (JSON array of DIDs)
+  EDC_TRUSTED_ISSUERS: "{{ ['did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'] | to_json }}"

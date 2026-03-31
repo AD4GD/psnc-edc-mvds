@@ -1,0 +1,167 @@
+- name: "Build nginx locations block"
+  set_fact:
+    _nginx_locations_block: ""
+
+- name: "Add nginx location blocks"
+  set_fact:
+    _nginx_locations_block: "{{ _nginx_locations_block }}\n          location {{ item.path }} {\n            proxy_pass {{ item.target }};\n          }"
+  loop: "{{ nginx_locations | default([]) }}"
+
+- name: "Build nginx config for {{ component }}"
+  set_fact:
+    nginx_config: |
+      events {}
+      pid /tmp/nginx.pid;
+      http {
+        include /etc/nginx/mime.types;
+        server {
+          listen 8080;
+          server_name {{ vars[component + '_address_shorten'] }};
+          root /usr/share/nginx/html;
+          index index.html;
+          access_log off;
+          location / {
+            try_files $uri $uri/ /index.html;
+          }
+          {{ _nginx_locations_block }}
+        }
+      }
+
+- name: "Build configmap data for {{ component }}"
+  set_fact:
+    _configmap_data:
+      nginx.conf: "{{ nginx_config }}"
+
+- name: "Add app config to configmap data"
+  set_fact:
+    _configmap_data: "{{ _configmap_data | combine({'app.config.json': (vars[app_config_var] | to_nice_json)}) }}"
+
+- name: "Add extra config files to configmap"
+  set_fact:
+    _configmap_data: "{{ _configmap_data | combine({ item.name: (vars[item.content_var] | to_nice_json) }) }}"
+  loop: "{{ extra_config_files | default([]) }}"
+
+- name: "deploy configmap/{{ application }}-{{ component }}"
+  tags:
+    - "{{ component }}"
+    - configmap
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application }}-{{ component }}-config"
+        labels:
+          application: "{{ application }}"
+      data: "{{ _configmap_data }}"
+
+- name: "Build volumeMounts for {{ component }}"
+  set_fact:
+    _volume_mounts:
+      - name: "{{ component }}-tmp"
+        mountPath: "/tmp"
+      - name: "{{ component }}-nginx-config"
+        mountPath: "/etc/nginx/nginx.conf"
+        subPath: "nginx.conf"
+      - name: "{{ component }}-app-config"
+        mountPath: "{{ app_config_path | default('/usr/share/nginx/html/assets/config/app.config.json') }}"
+        subPath: "app.config.json"
+
+- name: "Add extra config file mounts"
+  set_fact:
+    _volume_mounts: "{{ _volume_mounts + [{'name': component ~ '-' ~ (item.name | replace('.', '-')), 'mountPath': item.path, 'subPath': item.name}] }}"
+  loop: "{{ extra_config_files | default([]) }}"
+
+- name: "Build volumes for {{ component }}"
+  set_fact:
+    _volumes:
+      - name: "{{ component }}-tmp"
+        emptyDir:
+          medium: "Memory"
+      - name: "{{ component }}-nginx-config"
+        configMap:
+          name: "{{ application }}-{{ component }}-config"
+      - name: "{{ component }}-app-config"
+        configMap:
+          name: "{{ application }}-{{ component }}-config"
+
+- name: "Add extra config file volumes"
+  set_fact:
+    _volumes: "{{ _volumes + [{'name': component ~ '-' ~ (item.name | replace('.', '-')), 'configMap': {'name': application ~ '-' ~ component ~ '-config'}}] }}"
+  loop: "{{ extra_config_files | default([]) }}"
+
+- name: "deploy deployment/{{ application }}-{{ component }}"
+  tags:
+    - "{{ component }}"
+    - deployment
+  k8s:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-{{ component }}"
+        labels:
+          component: "{{ component }}"
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: "{{ component }}"
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: "{{ component }}"
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (vars[component + '_configmap_digest'] + vars[component + '_secret_digest'])|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            containers:
+              - name: "{{ component }}"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/{{ image_name }}:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ vars[component + '_resources'] }}"
+                envFrom:
+                  - secretRef:
+                      name: "{{ application }}-{{ component }}"
+                      optional: true
+                  - configMapRef:
+                      name: "{{ application }}-{{ component }}-config"
+                      optional: true
+                ports:
+                  - name: "www"
+                    containerPort: 8080
+                    protocol: "TCP"
+                volumeMounts: "{{ _volume_mounts }}"
+            volumes: "{{ _volumes }}"
+
+- name: "deploy service/{{ application }}-{{ component }}"
+  tags:
+    - "{{ component }}"
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-{{ component }}"
+        labels:
+          application: "{{ application }}"
+          component: "{{ component }}"
+      spec:
+        ports:
+          - name: "www"
+            port: 8080
+        selector:
+          application: "{{ application }}"
+          component: "{{ component }}"

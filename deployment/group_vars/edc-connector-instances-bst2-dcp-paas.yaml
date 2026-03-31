@@ -1,6 +1,5 @@
 ---
-deployment_target: edc-connector-instances-bst2-dcp-paas
-
+# BASE
 application: edc-connector
 ansible_connection: local
 registry_project: demeter
@@ -20,6 +19,7 @@ base_image_registry_project: "base"
 connectorconsumer_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine:3.8"
 connectorprovider_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine:3.8"
 minio_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine:3.8"
+vault_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/library/busybox:1.36"
 
 readiness_probe_initial_delay: 3
 readiness_probe_period: 15
@@ -31,6 +31,55 @@ liveness_probe_timeout: 60
 
 with_stateless_services_horizontal_pod_autoscalers: true
 
+image_pull_secret: "regcred"
+create_run_any_uid_service_account: true
+
+MAIN_DOMAIN: "{{ inventory_hostname|regex_replace('-edc-connector-instance$', '') }}"
+
+expose_http_kind: "routes"
+expose_http_host: "{{ MAIN_DOMAIN }}"
+# possible values: wildcard, static, acme, disabled
+expose_http_tls_mode: 'wildcard'
+expose_http_tls_redirect: true
+expose_http_tls_allow_also_non_encrypted: false
+expose_http_ip_whitelist: ""
+expose_http_tls_secret_name: "{{ application }}-tls-secret"
+expose_http_annotations: {}
+expose_http_ingress_annotations: {}
+expose_http_routes_annotations: {}
+expose_http_name_prefix: "{{ application }}"
+expose_http_k8s_entity_kind: "{{ 'Route' if expose_http_kind == 'routes' else 'Ingress' }}"
+expose_http_k8s_entity_api_version: "{{ 'v1' if expose_http_kind == 'routes' else 'extensions/v1beta1' }}"
+
+# TODO DV-272 remove KUBECTL_COMMAND
+KUBECTL_COMMAND: kubectl
+kubectl_command: "{{ KUBECTL_COMMAND }}"
+
+# TODO DV-272 remove IMAGE_TAG
+image_tag: "{{ application_version }}"
+stateless_services_image_tag: "{{ image_tag }}"
+
+# TODO DV-276: this should be a fixed value
+stateful_services_image_tag: "{{ image_tag }}"
+use_backup_velero_io_backup_volumes_annotation: false
+use_minio_backup_velero_io_backup_volumes_annotation: false
+
+stateless_services_image_pull_policy: "{{ 'IfNotPresent' if stateless_services_image_tag.startswith('commit-') else 'Always' }}"
+
+ingress_scheme: "{{ 'https' if expose_http_tls_mode != 'disabled' else 'http' }}"
+
+# TODO DV-272 remove ENVIRONMENT_INGRESS_ADDRESS
+environment_ingress_address: "{{ ENVIRONMENT_INGRESS_ADDRESS|default('') }}"
+ingress_address: "{{ environment_ingress_address if use_environment_ingress_address else MAIN_DOMAIN }}"
+
+SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
+
+SECRET_KEY:
+  when_missing: "{{ random_django_secret_key }}"
+
+deployed_parameters_packs: "{{ ['connectorconsumer', 'identityhubconsumer', 'consumerdashboard', 'identityproviderconsumer', 'connectorprovider', 'identityhubprovider', 'providerdashboard', 'identityproviderprovider', 'consback', 'federatedcatalog', 'dataspacehub', 'dataspaceportal', 'identityhubfederatedcatalog', 'keyvaultconsumer', 'keyvaultprovider', 'keyvaultdataspacehub', 'keyvaultfederatedcatalog', 'mailservice'] }}"
+
+# RESOURCES
 #consumer
 connectorconsumer_resources:
   requests:
@@ -154,76 +203,23 @@ identityhubfederatedcatalog_resources:
     cpu: "1"
     memory: "2000Mi"
 
-deploy_minio: true
-is_auth: true
-
-minio_pvc_storage_size: "2Gi"
-minio_pvc_storage_class_name: ""
-
-image_pull_secret: "regcred"
-create_run_any_uid_service_account: true
-
-MAIN_DOMAIN: "{{ inventory_hostname|regex_replace('-edc-connector-instance$', '') }}"
-
-expose_http_kind: "routes"
-expose_http_host: "{{ MAIN_DOMAIN }}"
-# possible values: wildcard, static, acme, disabled
-expose_http_tls_mode: 'wildcard'
-expose_http_tls_redirect: true
-expose_http_tls_allow_also_non_encrypted: false
-expose_http_ip_whitelist: ""
-expose_http_tls_secret_name: "{{ application }}-tls-secret"
-expose_http_annotations: {}
-expose_http_ingress_annotations: {}
-expose_http_routes_annotations: {}
-expose_http_name_prefix: "{{ application }}"
-expose_http_k8s_entity_kind: "{{ 'Route' if expose_http_kind == 'routes' else 'Ingress' }}"
-expose_http_k8s_entity_api_version: "{{ 'v1' if expose_http_kind == 'routes' else 'extensions/v1beta1' }}"
-
-# TODO DV-272 remove KUBECTL_COMMAND
-KUBECTL_COMMAND: kubectl
-kubectl_command: "{{ KUBECTL_COMMAND }}"
-
-# TODO DV-272 remove IMAGE_TAG
-image_tag: "{{ application_version }}"
-stateless_services_image_tag: "{{ image_tag }}"
-
-# TODO DV-276: this should be a fixed value
-stateful_services_image_tag: "{{ image_tag }}"
-use_backup_velero_io_backup_volumes_annotation: false
-use_minio_backup_velero_io_backup_volumes_annotation: false
-
-stateless_services_image_pull_policy: "{{ 'IfNotPresent' if stateless_services_image_tag.startswith('commit-') else 'Always' }}"
-
-ingress_scheme: "{{ 'https' if expose_http_tls_mode != 'disabled' else 'http' }}"
-
-# TODO DV-272 remove ENVIRONMENT_INGRESS_ADDRESS
-environment_ingress_address: "{{ ENVIRONMENT_INGRESS_ADDRESS|default('') }}"
-ingress_address: "{{ environment_ingress_address if use_environment_ingress_address else MAIN_DOMAIN }}"
-
-SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
-
-SECRET_KEY:
-  when_missing: "{{ random_django_secret_key }}"
-
-# Service adresses
+# ADDRESSES
 consumer_connector_address: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_identity_hub_address: "https://consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_dashboard_address: "https://consumer-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
-consumer_dashboard_address_shorten: "consumer-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_keyvault_address: "https://consumer-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_keycloak_address: "https://consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_keycloak_hostname: "consumer-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_backend_address: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl"
-minio_address: "https://consumer-minio-dcp-data-space.apps.bst2.paas.psnc.pl"
+consumerdashboard_address_shorten: "consumer-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
 
 provider_connector_address: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_identity_hub_address: "https://provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_dashboard_address: "https://provider-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
-provider_dashboard_address_shorten: "provider-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_keyvault_address: "https://provider-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_keycloak_address: "https://provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 provider_keycloak_hostname: "provider-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
+providerdashboard_address_shorten: "provider-dashboard-dcp-data-space.apps.bst2.paas.psnc.pl"
 
 federated_catalog_address: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl"
 federated_catalog_identity_hub_address: "https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
@@ -233,35 +229,39 @@ data_space_portal_address_shorten: "data-space-portal-dcp-data-space.apps.bst2.p
 data_space_hub_address: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
 data_space_hub_keyvault_address: "https://data-space-hub-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 mail_service_address: "https://mail-service-dcp-data-space.apps.bst2.paas.psnc.pl"
+storage_address: "https://storage-dcp-data-space.apps.bst2.paas.psnc.pl"
 
+# CONFIG OBJECTS
 consumer_dashboard_app_config_obj:
-  managementApiUrl: "{{ consumer_connector_address }}/api/management"
-  catalogUrl: "{{ federated_catalog_address }}/api/catalog"
+  managementApiUrl: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management"
+  catalogUrl: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
   theme: "theme-4"
   deploymentMode: "production"
-  backendUrl: "{{ consumer_backend_address }}/edr-endpoint"
+  backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
   edcApiKey: "edc"
 
 provider_dashboard_app_config_obj:
-  managementApiUrl: "{{ provider_connector_address }}/api/management"
-  catalogUrl: "{{ federated_catalog_address }}/api/catalog"
+  managementApiUrl: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management"
+  catalogUrl: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
   theme: "theme-3"
   deploymentMode: "production"
-  backendUrl: "{{ consumer_backend_address }}/edr-endpoint"
+  backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
   edcApiKey: "edc"
 
 dataspaceportal_app_config_obj:
-  apiBaseUrl: "{{ data_space_hub_address }}/api"
+  apiBaseUrl: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api"
   isProduction: true
 
-# DO NOT CHANGE DEFINITIONS BELOW
-
-deployed_parameters_packs: "{{ ['connectorconsumer', 'identityhubconsumer', 'consumerdashboard', 'identityproviderconsumer', 'connectorprovider', 'identityhubprovider', 'providerdashboard', 'identityproviderprovider', 'consback', 'federatedcatalog', 'dataspacehub', 'dataspaceportal', 'identityhubfederatedcatalog', 'keyvaultconsumer', 'keyvaultprovider', 'keyvaultdataspacehub', 'keyvaultfederatedcatalog', 'mailservice'] }}"
-
-# definitions below are helper definitions - do not change this
-
-# DO NOT CHANGE DEFINITIONS ABOVE
-
+participants_json_obj:
+  participants:
+    - id: "did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob"
+      originator: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp"
+      label: "Provider"
+    - id: "did:web:consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:alice"
+      originator: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp"
+      label: "Consumer"
+      
+# ROUTES
 routes:
   # consumer connector
   - name: consumer-connector-api
@@ -365,12 +365,6 @@ routes:
     host: "{{ consumer_keycloak_address | regex_replace('^https?://', '') }}"
     service: "{{ application }}-identityproviderconsumer"
     target_port: keycloak-http
-
-  # consumer minio
-  - name: consumer-minio
-    host: "{{ minio_address | regex_replace('^https?://', '') }}"
-    service: "{{ application }}-minio"
-    target_port: minio-http
 
   # consumer backend
   - name: consumer-backend

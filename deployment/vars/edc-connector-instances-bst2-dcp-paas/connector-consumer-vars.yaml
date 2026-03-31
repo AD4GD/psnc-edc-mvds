@@ -77,3 +77,6 @@ connectorconsumer_configmap__05_defaults:
   #aud
   WEB_HTTP_MANAGEMENT_AUTH_AUDIENCE: consumer-connector
   WEB_HTTP_MANAGEMENT_AUTH_DAC_AUDIENCE: consumer-connector
+
+  # trusted issuers (JSON array of DIDs)
+  EDC_TRUSTED_ISSUERS: "{{ ['did:web:data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl'] | to_json }}"

@@ -1,0 +1,16 @@
+{
+  "did": "did:web:consumer-ih%3A7083:alice",
+  "identity_hub": {
+    "base_url": "http://localhost:7080",
+    "identity_api_url": "http://localhost:7082/api/identity",
+    "credentials_api_url": "http://localhost:7081/api/credentials",
+    "api_key": "c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=",
+    "vault_address": "http://localhost:8202",
+    "public_key_pem_path": "certs/consumer_public.pem"
+  },
+  "connector": {
+    "management_api_url": "http://localhost:8081/api/management",
+    "api_key": "password",
+    "dsp_url": "http://consumer-connector:8082/api/dsp"
+  }
+}

@@ -1,0 +1,84 @@
+- name: "deploy deployment/{{ application }}-{{ component }}"
+  tags:
+    - "{{ component }}"
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-{{ component }}"
+        labels:
+          component: "{{ component }}"
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: "{{ component }}"
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: "{{ component }}"
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (vars[component + '_configmap_digest'] + vars[component + '_secret_digest'])|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports:
+              - name: "receiver"
+                containerPort: 8000
+                protocol: "TCP"
+            containers:
+              - name: "{{ component }}"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/data-space-hub:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ vars[component + '_resources'] }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-{{ component }}"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-{{ component }}"
+                      optional: true
+                volumeMounts:
+                  - name: "{{ component }}-tmp"
+                    mountPath: "/tmp"
+            volumes:
+              - name: "{{ component }}-tmp"
+                emptyDir:
+                  medium: "Memory"
+
+- name: "deploy service/{{ application }}-{{ component }}"
+  tags:
+    - "{{ component }}"
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-{{ component }}"
+        labels:
+          application: "{{ application }}"
+          component: "{{ component }}"
+      spec:
+        ports:
+          - name: "receiver"
+            port: 8000
+        selector:
+          application: "{{ application }}"
+          component: "{{ component }}"
+      envFrom:
+        - configMapRef:
+            name: "{{ application }}-{{ component }}"
+            optional: true

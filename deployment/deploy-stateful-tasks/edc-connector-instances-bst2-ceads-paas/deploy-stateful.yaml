@@ -1,0 +1,31 @@
+---
+- include_tasks: "../tasks/fetch-current-image-tag.yaml"
+  name: "fetch image_tag if undefined"
+  when: image_tag is undefined or not image_tag
+
+# kv ceads-public
+- name: "deploy ceads-public hashicorp vault"
+  include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+  vars:
+    vault_instance: "keyvaultceadspublic"
+
+# kv edwin
+- name: "deploy edwin hashicorp vault"
+  include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+  vars:
+    vault_instance: "keyvaultedwin"
+
+# kv federated catalog
+- name: "deploy federated catalog hashicorp vault"
+  include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+  vars:
+    vault_instance: "keyvaultfederatedcatalog"
+
+# kv data space hub
+- name: "deploy data space hub hashicorp vault"
+  include_tasks: deploy-stateful-tasks/templates/hashicorp-key-vault.yaml
+  vars:
+    vault_instance: "keyvaultdataspacehub"
+
+# object storage
+# TODO

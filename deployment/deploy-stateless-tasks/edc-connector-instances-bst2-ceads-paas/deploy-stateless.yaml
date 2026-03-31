@@ -1,0 +1,261 @@
+---
+- name: "Deploy ceads-public edc connector"
+  include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
+  vars:
+    image_name: connector
+    component: ceadspublicconnector
+    ports:
+      - name: api
+        containerPort: 8080
+        protocol: TCP
+      - name: management
+        containerPort: 8081
+        protocol: TCP
+      - name: dsp
+        containerPort: 8082
+        protocol: TCP
+      - name: control
+        containerPort: 8083
+        protocol: TCP
+      - name: catalog
+        containerPort: 8084
+        protocol: TCP
+      - name: version
+        containerPort: 8085
+        protocol: TCP
+      - name: catalogproxy
+        containerPort: 8086
+        protocol: TCP
+      - name: public
+        containerPort: 11001
+        protocol: TCP
+    service_ports:
+      - name: api
+        port: 8080
+      - name: management
+        port: 8081
+      - name: dsp
+        port: 8082
+      - name: control
+        port: 8083
+      - name: catalog
+        port: 8084
+      - name: version
+        port: 8085
+      - name: catalogproxy
+        port: 8086
+      - name: public
+        port: 11001
+
+- name: "Deploy ceads-public edc identity hub"
+  include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
+  vars:
+    image_name: identity-hub
+    component: ceadspublicidentityhub
+    ports:
+      - name: api
+        containerPort: 7080
+        protocol: TCP
+      - name: credentials
+        containerPort: 7081
+        protocol: TCP
+      - name: identity
+        containerPort: 7082
+        protocol: TCP
+      - name: did
+        containerPort: 7083
+        protocol: TCP
+      - name: version
+        containerPort: 7085
+        protocol: TCP
+      - name: sts
+        containerPort: 7086
+        protocol: TCP
+
+- name: "Deploy ceads-public backend"
+  include_tasks: deploy-stateless-tasks/templates/consumer-backend.yaml
+  vars:
+    component: ceadspublicbackend
+
+- name: "Deploy ceads-public dashboard"
+  include_tasks: deploy-stateless-tasks/templates/connector-dashboard.yaml
+  vars:
+    component: ceadspublicdashboard
+    image_name: data-dashboard
+    app_config_path: /usr/share/nginx/html/assets/config/app.config.json
+    app_config_var: ceadspublicdashboard_app_config_obj
+    nginx_locations:
+      - path: /management
+        target: "{{ ceads_public_connector_address }}/api/management"
+      - path: /catalog-proxy/
+        target: "{{ ceads_public_connector_address }}/api/catalog-proxy/"
+      - path: /catalog
+        target: "{{ ceads_public_connector_address }}/api/catalog-proxy/catalog/request"
+    extra_config_files:
+      - name: participants.json
+        path: /usr/share/nginx/html/assets/participants.json
+        content_var: participants_json_obj
+
+- name: "Deploy ceads-public keycloak"
+  include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
+  vars:
+    component: ceadspublicidentityprovider
+    kc_tmp_volume: "ceads-public-keycloak-tmp"
+
+- name: "Deploy edwin edc connector"
+  include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
+  vars:
+    image_name: connector
+    component: edwinconnector
+    ports:
+      - name: api
+        containerPort: 8080
+        protocol: TCP
+      - name: management
+        containerPort: 8081
+        protocol: TCP
+      - name: dsp
+        containerPort: 8082
+        protocol: TCP
+      - name: control
+        containerPort: 8083
+        protocol: TCP
+      - name: catalog
+        containerPort: 8084
+        protocol: TCP
+      - name: version
+        containerPort: 8085
+        protocol: TCP
+      - name: catalogproxy
+        containerPort: 8086
+        protocol: TCP
+      - name: public
+        containerPort: 11001
+        protocol: TCP
+
+- name: "Deploy edwin edc identity hub"
+  include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
+  vars:
+    image_name: identity-hub
+    component: edwinidentityhub
+    ports:
+      - name: api
+        containerPort: 7080
+        protocol: TCP
+      - name: credentials
+        containerPort: 7081
+        protocol: TCP
+      - name: identity
+        containerPort: 7082
+        protocol: TCP
+      - name: did
+        containerPort: 7083
+        protocol: TCP
+      - name: version
+        containerPort: 7085
+        protocol: TCP
+      - name: sts
+        containerPort: 7086
+        protocol: TCP
+
+- name: "Deploy edwin dashboard"
+  include_tasks: deploy-stateless-tasks/templates/connector-dashboard.yaml
+  vars:
+    component: edwindashboard
+    image_name: data-dashboard
+    app_config_path: /usr/share/nginx/html/assets/config/app.config.json
+    app_config_var: edwindashboard_app_config_obj
+    nginx_locations:
+      - path: /management
+        target: "{{ edwin_connector_address }}/api/management"
+      - path: /catalog-proxy/
+        target: "{{ edwin_connector_address }}/api/catalog-proxy/"
+      - path: /catalog
+        target: "{{ edwin_connector_address }}/api/catalog-proxy/catalog/request"
+    extra_config_files:
+      - name: participants.json
+        path: /usr/share/nginx/html/assets/participants.json
+        content_var: participants_json_obj
+
+- name: "Deploy edwin keycloak"
+  include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
+  vars:
+    component: edwinidentityprovider
+    kc_tmp_volume: "edwin-keycloak-tmp"
+
+- name: "Deploy edc federated catalog"
+  include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
+  vars:
+    image_name: federated-catalog
+    component: federatedcatalog
+    ports:
+      - name: api
+        containerPort: 8290
+        protocol: TCP
+      - name: management
+        containerPort: 8291
+        protocol: TCP
+      - name: dsp
+        containerPort: 8292
+        protocol: TCP
+      - name: control
+        containerPort: 8293
+        protocol: TCP
+      - name: catalog
+        containerPort: 8294
+        protocol: TCP
+      - name: version
+        containerPort: 8295
+        protocol: TCP
+      - name: targets
+        containerPort: 8296
+        protocol: TCP
+      - name: public
+        containerPort: 13001
+        protocol: TCP
+
+- name: "Deploy edc federated catalog identity hub"
+  include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
+  vars:
+    image_name: identity-hub
+    component: federatedcatalogidentityhub
+    ports:
+      - name: api
+        containerPort: 7080
+        protocol: TCP
+      - name: credentials
+        containerPort: 7081
+        protocol: TCP
+      - name: identity
+        containerPort: 7082
+        protocol: TCP
+      - name: did
+        containerPort: 7083
+        protocol: TCP
+      - name: version
+        containerPort: 7085
+        protocol: TCP
+      - name: sts
+        containerPort: 7086
+        protocol: TCP
+
+# Data Space Hub
+- name: "Deploy data space hub"
+  include_tasks: deploy-stateless-tasks/templates/data-space-hub.yaml
+  vars:
+    component: dataspacehub
+
+# Data Space Portal
+- name: "Deploy data space portal"
+  include_tasks: deploy-stateless-tasks/templates/data-space-portal.yaml
+  vars:
+    component: dataspaceportal
+
+# Mail Service
+- name: "Deploy mail service"
+  include_tasks: deploy-stateless-tasks/templates/mail-service.yaml
+  vars:
+    component: mailservice
+
+# Data Space Keycloak
+# TODO: not integrated yet

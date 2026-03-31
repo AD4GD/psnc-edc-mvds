@@ -21,7 +21,7 @@ plugins {
 dependencies {
     // control plane part
     runtimeOnly(project(":extensions:did-example-resolver"))
-    runtimeOnly(project(":extensions:dcp-impl")) // some patches/impls for DCP
+    runtimeOnly(libs.psnc.dcp.impl) // some patches/impls for DCP
     runtimeOnly(libs.edc.bom.controlplane)
     runtimeOnly(libs.edc.api.secrets)
     runtimeOnly(project(":extensions:data-plane-oauth2-access-token"))

@@ -1,0 +1,591 @@
+---
+# BASE
+application: edc-connector
+ansible_connection: local
+registry_project: demeter
+registry_application: edc-connector
+initial_replicas: 1
+progress_deadline_seconds: 300
+with_async_workers: true
+use_environment_ingress_address: false
+k8s_wait_timeout: 600
+
+project_name: SAGE
+repository_name: edc-connector
+
+# docker registry
+base_image_registry_domain: "{{ registry_domain }}"
+base_image_registry_project: "base"
+sagepublicconnector_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine:3.8"
+edwinconnector_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine:3.8"
+minio_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/alpine:3.8"
+vault_init_containers_base_image: "{{ base_image_registry_domain }}/{{ base_image_registry_project }}/library/busybox:1.36"
+
+readiness_probe_initial_delay: 3
+readiness_probe_period: 15
+readiness_probe_timeout: 10
+
+liveness_probe_initial_delay: 30
+liveness_probe_period: 30
+liveness_probe_timeout: 60
+
+with_stateless_services_horizontal_pod_autoscalers: true
+
+image_pull_secret: "regcred"
+create_run_any_uid_service_account: true
+
+MAIN_DOMAIN: "{{ inventory_hostname|regex_replace('-edc-connector-instance$', '') }}"
+
+expose_http_kind: "routes"
+expose_http_host: "{{ MAIN_DOMAIN }}"
+# possible values: wildcard, static, acme, disabled
+expose_http_tls_mode: 'wildcard'
+expose_http_tls_redirect: true
+expose_http_tls_allow_also_non_encrypted: false
+expose_http_ip_whitelist: ""
+expose_http_tls_secret_name: "{{ application }}-tls-secret"
+expose_http_annotations: {}
+expose_http_ingress_annotations: {}
+expose_http_routes_annotations: {}
+expose_http_name_prefix: "{{ application }}"
+expose_http_k8s_entity_kind: "{{ 'Route' if expose_http_kind == 'routes' else 'Ingress' }}"
+expose_http_k8s_entity_api_version: "{{ 'v1' if expose_http_kind == 'routes' else 'extensions/v1beta1' }}"
+
+# TODO DV-272 remove KUBECTL_COMMAND
+KUBECTL_COMMAND: kubectl
+kubectl_command: "{{ KUBECTL_COMMAND }}"
+
+# TODO DV-272 remove IMAGE_TAG
+image_tag: "{{ application_version }}"
+stateless_services_image_tag: "{{ image_tag }}"
+
+# TODO DV-276: this should be a fixed value
+stateful_services_image_tag: "{{ image_tag }}"
+use_backup_velero_io_backup_volumes_annotation: false
+use_minio_backup_velero_io_backup_volumes_annotation: false
+
+stateless_services_image_pull_policy: "{{ 'IfNotPresent' if stateless_services_image_tag.startswith('commit-') else 'Always' }}"
+
+ingress_scheme: "{{ 'https' if expose_http_tls_mode != 'disabled' else 'http' }}"
+
+# TODO DV-272 remove ENVIRONMENT_INGRESS_ADDRESS
+environment_ingress_address: "{{ ENVIRONMENT_INGRESS_ADDRESS|default('') }}"
+ingress_address: "{{ environment_ingress_address if use_environment_ingress_address else MAIN_DOMAIN }}"
+
+SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
+
+SECRET_KEY:
+  when_missing: "{{ random_django_secret_key }}"
+
+deployed_parameters_packs: "{{ ['sagepublicconnector', 'sagepublicidentityhub', 'sagepublicdashboard', 'sagepublicidentityprovider', 'edwinconnector', 'edwinidentityhub', 'edwindashboard', 'edwinidentityprovider', 'sagepublicbackend', 'federatedcatalog', 'dataspacehub', 'dataspaceportal', 'federatedcatalogidentityhub', 'keyvaultsagepublic', 'keyvaultedwin', 'keyvaultdataspacehub', 'keyvaultfederatedcatalog', 'mailservice'] }}"
+
+# RESOURCES
+# sage-public
+sagepublicconnector_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+sagepublicidentityhub_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+sagepublicdashboard_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+sagepublicbackend_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+minio_resources:
+  requests:
+    cpu: "1000m"
+    memory: "300Mi"
+  limits:
+    cpu: "1500m"
+    memory: "1Gi"
+
+sagepublicidentityprovider_resources:
+  requests:
+    cpu: "100m"
+    memory: "400Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+# edwin
+edwinconnector_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+edwinidentityhub_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+edwinidentityprovider_resources:
+  requests:
+    cpu: "100m"
+    memory: "400Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+edwindashboard_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+# authority
+federatedcatalog_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+dataspaceportal_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+dataspacehub_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+mailservice_resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "1"
+    memory: "400Mi"
+
+federatedcatalogidentityhub_resources:
+  requests:
+    cpu: "100m"
+    memory: "1000Mi"
+  limits:
+    cpu: "1"
+    memory: "2000Mi"
+
+# ADDRESSES
+sage_public_connector_address: "https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl"
+sage_public_identity_hub_address: "https://sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl"
+sage_public_dashboard_address: "https://sage-public-dashboard-sage-data-space.apps.bst2.paas.psnc.pl"
+sage_public_keyvault_address: "https://sage-public-keyvault-sage-data-space.apps.bst2.paas.psnc.pl"
+sage_public_keycloak_address: "https://sage-public-keycloak-sage-data-space.apps.bst2.paas.psnc.pl"
+sage_public_keycloak_hostname: "sage-public-keycloak-sage-data-space.apps.bst2.paas.psnc.pl"
+sage_public_backend_address: "https://sage-public-backend-sage-data-space.apps.bst2.paas.psnc.pl"
+sagepublicdashboard_address_shorten: "sage-public-dashboard-sage-data-space.apps.bst2.paas.psnc.pl"
+
+edwin_connector_address: "https://edwin-connector-sage-data-space.apps.bst2.paas.psnc.pl"
+edwin_identity_hub_address: "https://edwin-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl"
+edwin_dashboard_address: "https://edwin-dashboard-sage-data-space.apps.bst2.paas.psnc.pl"
+edwin_keyvault_address: "https://edwin-keyvault-sage-data-space.apps.bst2.paas.psnc.pl"
+edwin_keycloak_address: "https://edwin-keycloak-sage-data-space.apps.bst2.paas.psnc.pl"
+edwin_keycloak_hostname: "edwin-keycloak-sage-data-space.apps.bst2.paas.psnc.pl"
+edwindashboard_address_shorten: "edwin-dashboard-sage-data-space.apps.bst2.paas.psnc.pl"
+
+federated_catalog_address: "https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl"
+federated_catalog_identity_hub_address: "https://federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl"
+federated_catalog_keyvault_address: "https://federated-catalog-keyvault-sage-data-space.apps.bst2.paas.psnc.pl"
+data_space_portal_address: "https://data-space-portal-sage-data-space.apps.bst2.paas.psnc.pl"
+data_space_hub_address: "https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl"
+data_space_hub_keyvault_address: "https://data-space-hub-keyvault-sage-data-space.apps.bst2.paas.psnc.pl"
+mail_service_address: "https://mail-service-sage-data-space.apps.bst2.paas.psnc.pl"
+storage_address: "https://storage-sage-data-space.apps.bst2.paas.psnc.pl"
+dataspaceportal_address_shorten: "data-space-portal-sage-data-space.apps.bst2.paas.psnc.pl"
+
+# CONFIG OBJECTS
+sagepublicdashboard_app_config_obj:
+  managementApiUrl: "https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/management"
+  catalogUrl: "https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
+  theme: "theme-4"
+  deploymentMode: "production"
+  backendUrl: "https://sage-public-backend-sage-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
+  oauthIssuer: "https://sage-public-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations"
+  oauthClientId: "data-space-users"
+
+edwindashboard_app_config_obj:
+  managementApiUrl: "https://edwin-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/management"
+  catalogUrl: "https://edwin-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
+  theme: "theme-3"
+  deploymentMode: "production"
+  backendUrl: "https://sage-public-backend-sage-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
+  oauthIssuer: "https://edwin-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations"
+  oauthClientId: "data-space-users"
+
+dataspaceportal_app_config_obj:
+  apiBaseUrl: "https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl/api"
+  isProduction: true
+
+participants_json_obj:
+  participants:
+    - id: "did:web:edwin-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:edwin"
+      originator: "https://edwin-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/dsp"
+      label: "Edwin"
+    - id: "did:web:sage-public-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:sage-public"
+      originator: "https://sage-public-connector-sage-data-space.apps.bst2.paas.psnc.pl/api/dsp"
+      label: "Sage Public"
+
+# ROUTES
+routes:
+  # sage-public connector
+  - name: sage-public-connector-api
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: api
+
+  - name: sage-public-connector-management
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/management"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: management
+
+  - name: sage-public-connector-dsp
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/dsp"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: dsp
+
+  - name: sage-public-connector-control
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/control"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: control
+
+  - name: sage-public-connector-catalog
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/catalog"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: catalog
+
+  - name: sage-public-connector-version
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/version"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: version
+
+  - name: sage-public-connector-catalogproxy
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/catalog-proxy"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: catalogproxy
+
+  - name: sage-public-connector-public
+    host: "{{ sage_public_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/public"
+    service: "{{ application }}-sagepublicconnector"
+    target_port: public
+
+  # sage-public dashboard
+  - name: sage-public-dashboard
+    host: "{{ sage_public_dashboard_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-sagepublicdashboard"
+    target_port: www
+
+  # sage-public identity hub
+  - name: sage-public-identity-hub-api
+    host: "{{ sage_public_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api"
+    service: "{{ application }}-sagepublicidentityhub"
+    target_port: api
+
+  - name: sage-public-identity-hub-credentials
+    host: "{{ sage_public_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/credentials"
+    service: "{{ application }}-sagepublicidentityhub"
+    target_port: credentials
+
+  - name: sage-public-identity-hub-identity
+    host: "{{ sage_public_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/identity"
+    service: "{{ application }}-sagepublicidentityhub"
+    target_port: identity
+
+  - name: sage-public-identity-hub-did
+    host: "{{ sage_public_identity_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-sagepublicidentityhub"
+    target_port: did
+
+  - name: sage-public-identity-hub-version
+    host: "{{ sage_public_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/version"
+    service: "{{ application }}-sagepublicidentityhub"
+    target_port: version
+
+  - name: sage-public-identity-hub-sts
+    host: "{{ sage_public_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/sts"
+    service: "{{ application }}-sagepublicidentityhub"
+    target_port: sts
+
+  # sage-public keyvault
+  - name: sage-public-keyvault
+    host: "{{ sage_public_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultsagepublic"
+    target_port: vault-http
+
+  # sage-public keycloak
+  - name: sage-public-keycloak
+    host: "{{ sage_public_keycloak_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-sagepublicidentityprovider"
+    target_port: keycloak-http
+
+  # sage-public backend
+  - name: sage-public-backend
+    host: "{{ sage_public_backend_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-sagepublicbackend"
+    target_port: receiver
+
+  # edwin connector
+  - name: edwin-connector-api
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api"
+    service: "{{ application }}-edwinconnector"
+    target_port: api
+
+  - name: edwin-connector-management
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/management"
+    service: "{{ application }}-edwinconnector"
+    target_port: management
+
+  - name: edwin-connector-dsp
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/dsp"
+    service: "{{ application }}-edwinconnector"
+    target_port: dsp
+
+  - name: edwin-connector-control
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/control"
+    service: "{{ application }}-edwinconnector"
+    target_port: control
+
+  - name: edwin-connector-catalog
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/catalog"
+    service: "{{ application }}-edwinconnector"
+    target_port: catalog
+
+  - name: edwin-connector-version
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/version"
+    service: "{{ application }}-edwinconnector"
+    target_port: version
+
+  - name: edwin-connector-catalogproxy
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/catalog-proxy"
+    service: "{{ application }}-edwinconnector"
+    target_port: catalogproxy
+
+  - name: edwin-connector-public
+    host: "{{ edwin_connector_address | regex_replace('^https?://', '') }}"
+    path: "/api/public"
+    service: "{{ application }}-edwinconnector"
+    target_port: public
+
+  # edwin dashboard
+  - name: edwin-dashboard
+    host: "{{ edwin_dashboard_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-edwindashboard"
+    target_port: www
+
+  # edwin identity hub
+  - name: edwin-identity-hub-api
+    host: "{{ edwin_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api"
+    service: "{{ application }}-edwinidentityhub"
+    target_port: api
+
+  - name: edwin-identity-hub-credentials
+    host: "{{ edwin_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/credentials"
+    service: "{{ application }}-edwinidentityhub"
+    target_port: credentials
+
+  - name: edwin-identity-hub-identity
+    host: "{{ edwin_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/identity"
+    service: "{{ application }}-edwinidentityhub"
+    target_port: identity
+
+  - name: edwin-identity-hub-did
+    host: "{{ edwin_identity_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-edwinidentityhub"
+    target_port: did
+
+  - name: edwin-identity-hub-version
+    host: "{{ edwin_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/version"
+    service: "{{ application }}-edwinidentityhub"
+    target_port: version
+
+  - name: edwin-identity-hub-sts
+    host: "{{ edwin_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/sts"
+    service: "{{ application }}-edwinidentityhub"
+    target_port: sts
+
+  # edwin keyvault
+  - name: edwin-keyvault
+    host: "{{ edwin_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultedwin"
+    target_port: vault-http
+
+  # edwin keycloak
+  - name: edwin-keycloak
+    host: "{{ edwin_keycloak_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-edwinidentityprovider"
+    target_port: keycloak-http
+
+  # federated catalog
+  - name: federated-catalog-api
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api"
+    service: "{{ application }}-federatedcatalog"
+    target_port: api
+
+  - name: federated-catalog-management
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api/management"
+    service: "{{ application }}-federatedcatalog"
+    target_port: management
+
+  - name: federated-catalog-dsp
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api/dsp"
+    service: "{{ application }}-federatedcatalog"
+    target_port: dsp
+
+  - name: federated-catalog-control
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api/control"
+    service: "{{ application }}-federatedcatalog"
+    target_port: control
+
+  - name: federated-catalog-catalog
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api/catalog"
+    service: "{{ application }}-federatedcatalog"
+    target_port: catalog
+
+  - name: federated-catalog-version
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api/version"
+    service: "{{ application }}-federatedcatalog"
+    target_port: version
+
+  - name: federated-catalog-targets
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api/targets"
+    service: "{{ application }}-federatedcatalog"
+    target_port: targets
+
+  - name: federated-catalog-public
+    host: "{{ federated_catalog_address | regex_replace('^https?://', '') }}"
+    path: "/api/public"
+    service: "{{ application }}-federatedcatalog"
+    target_port: public
+
+  # federated catalog identity hub
+  - name: federated-catalog-identity-hub-api
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api"
+    service: "{{ application }}-federatedcatalogidentityhub"
+    target_port: api
+
+  - name: federated-catalog-identity-hub-credentials
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/credentials"
+    service: "{{ application }}-federatedcatalogidentityhub"
+    target_port: credentials
+
+  - name: federated-catalog-identity-hub-identity
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/identity"
+    service: "{{ application }}-federatedcatalogidentityhub"
+    target_port: identity
+
+  - name: federated-catalog-identity-hub-did
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-federatedcatalogidentityhub"
+    target_port: did
+
+  - name: federated-catalog-identity-hub-version
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/version"
+    service: "{{ application }}-federatedcatalogidentityhub"
+    target_port: version
+
+  - name: federated-catalog-identity-hub-sts
+    host: "{{ federated_catalog_identity_hub_address | regex_replace('^https?://', '') }}"
+    path: "/api/sts"
+    service: "{{ application }}-federatedcatalogidentityhub"
+    target_port: sts
+
+  # federated catalog keyvault
+  - name: federated-catalog-keyvault
+    host: "{{ federated_catalog_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultfederatedcatalog"
+    target_port: vault-http
+
+  - name: data-space-hub
+    host: "{{ data_space_hub_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-dataspacehub"
+    target_port: receiver
+
+  # data space hub keyvault
+  - name: data-space-hub-keyvault
+    host: "{{ data_space_hub_keyvault_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-keyvaultdataspacehub"
+    target_port: vault-http
+
+  - name: data-space-portal
+    host: "{{ data_space_portal_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-dataspaceportal"
+    target_port: www
+
+  # mail service
+  - name: mail-service
+    host: "{{ mail_service_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-mailservice"
+    target_port: receiver

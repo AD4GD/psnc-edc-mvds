@@ -1,0 +1,103 @@
+# Generic EDC Service deployment template (Connector, Identity Hub, Federated Catalog, etc.)
+# Called with different 'component' and 'image_name' variables
+#
+# Example: include_tasks: deploy-stateless-tasks/templates/edc-service.yaml
+#   vars:
+#     component: connectorconsumer
+#     image_name: connector
+#     ports:
+#       - name: api
+#         containerPort: 8080
+#         protocol: TCP
+#       - name: management
+#         containerPort: 8081
+#         protocol: TCP
+
+- name: "Build service ports from container ports"
+  set_fact:
+    _derived_service_ports: []
+  tags: [always]
+
+- name: "Add port mapping for {{ component }}"
+  set_fact:
+    _derived_service_ports: "{{ _derived_service_ports + [{'name': item.name, 'port': item.containerPort}] }}"
+  loop: "{{ ports }}"
+  tags: [always]
+
+- name: "deploy deployment/{{ application }}-{{ component }}"
+  tags:
+    - "{{ image_name }}"
+    - "{{ component }}"
+    - deployment
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: "{{ application }}-{{ component }}"
+        labels:
+          component: "{{ component }}"
+          application: "{{ application }}"
+      spec:
+        progressDeadlineSeconds: "{{ progress_deadline_seconds }}"
+        replicas: "{{ initial_replicas }}"
+        revisionHistoryLimit: "{{ initial_replicas }}"
+        strategy:
+          type: RollingUpdate
+        selector:
+          matchLabels:
+            component: "{{ component }}"
+            application: "{{ application }}"
+        template:
+          metadata:
+            labels:
+              component: "{{ component }}"
+              application: "{{ application }}"
+              image_tag: "{{ stateless_services_image_tag }}"
+              parameters_digest: "{{ (vars[component + '_configmap_digest'] + vars[component + '_secret_digest'])|hash('sha1') }}"
+          spec:
+            serviceAccountName: "run-any-uid"
+            ports: "{{ ports }}"
+            containers:
+              - name: "{{ component }}"
+                image: "{{ registry_domain }}/{{ registry_project }}/{{ registry_application }}/{{ image_name }}:{{ stateless_services_image_tag }}"
+                imagePullPolicy: "{{ stateless_services_image_pull_policy }}"
+                securityContext:
+                  readOnlyRootFilesystem: false
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                resources: "{{ vars[component + '_resources'] }}"
+                envFrom:
+                  - configMapRef:
+                      name: "{{ application }}-{{ component }}"
+                      optional: true
+                  - secretRef:
+                      name: "{{ application }}-{{ component }}"
+                      optional: true
+                volumeMounts:
+                  - name: "{{ component }}-tmp"
+                    mountPath: "/tmp"
+            volumes:
+              - name: "{{ component }}-tmp"
+                emptyDir:
+                  medium: "Memory"
+
+- name: "deploy service/{{ application }}-{{ component }}"
+  tags:
+    - "{{ image_name }}"
+    - "{{ component }}"
+    - service
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ application }}-{{ component }}"
+        labels:
+          application: "{{ application }}"
+          component: "{{ component }}"
+      spec:
+        ports: "{{ _derived_service_ports }}"
+        selector:
+          application: "{{ application }}"
+          component: "{{ component }}"

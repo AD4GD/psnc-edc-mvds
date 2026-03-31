@@ -1,0 +1,2 @@
+org.eclipse.edc.demo.dcp.core.DcpPatchExtension
+org.eclipse.edc.demo.dcp.policy.PolicyEvaluationExtension

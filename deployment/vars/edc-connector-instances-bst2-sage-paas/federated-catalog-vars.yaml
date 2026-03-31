@@ -1,0 +1,65 @@
+federatedcatalog_configmap__05_defaults:
+  # control plane specific config
+  EDC_IAM_ISSUER_ID: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority
+  WEB_HTTP_PORT: 8290
+  WEB_HTTP_PATH: /api
+  WEB_HTTP_MANAGEMENT_PORT: 8291
+  WEB_HTTP_MANAGEMENT_PATH: /api/management
+  WEB_HTTP_PROTOCOL_PORT: 8292
+  WEB_HTTP_PROTOCOL_PATH: /api/dsp
+  WEB_HTTP_CONTROL_PORT: 8293
+  WEB_HTTP_CONTROL_PATH: /api/control
+  WEB_HTTP_CATALOG_PORT: 8294
+  WEB_HTTP_CATALOG_PATH: /api/catalog
+  WEB_HTTP_VERSION_PORT: 8295
+  WEB_HTTP_VERSION_PATH: /api/version
+  WEB_HTTP_TARGETS_PORT: 8296
+  WEB_HTTP_TARGETS_PATH: /api/targets
+  EDC_IAM_DID_WEB_USE_HTTPS: true
+  EDC_IAM_STS_PRIVATEKEY_ALIAS: key-1
+  EDC_IAM_STS_PUBLICKEY_ID: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority#key-1
+  EDC_DSP_CALLBACK_ADDRESS: https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl/api/dsp
+  EDC_PARTICIPANT_ID: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority
+  EDC_CATALOG_CACHE_EXECUTION_DELAY_SECONDS: 20
+  EDC_CATALOG_CACHE_EXECUTION_PERIOD_SECONDS: 60
+  EDC_MVD_PARTICIPANTS_LIST_FILE: config/participants.json
+  EDC_MANAGEMENT_CONTEXT_ENABLED: true
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: fc-sts-client-secret
+  EDC_IAM_STS_OAUTH_CLIENT_ID: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority
+  EDC_IAM_STS_OAUTH_TOKEN_URL: https://federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl/api/sts/token
+
+  # CONTROL plane AUTH (tokenbased, delegated, composite, none)
+  WEB_HTTP_AUTH_TYPE: composite
+  WEB_HTTP_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
+  WEB_HTTP_AUTH_DAC_KEY_URL: https://federated-catalog-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+  WEB_HTTP_AUTH_DAC_AUDIENCE: account
+
+  WEB_HTTP_CATALOG_AUTH_TYPE: composite
+  WEB_HTTP_CATALOG_AUTH_INCLUDES: "{{ ['tokenbased', 'delegated'] | to_json }}"
+  WEB_HTTP_CATALOG_AUTH_DAC_KEY_URL: https://federated-catalog-keycloak-sage-data-space.apps.bst2.paas.psnc.pl/realms/Organizations/protocol/openid-connect/certs
+  WEB_HTTP_CATALOG_AUTH_DAC_AUDIENCE: account
+  # for some reason is required for _CATALOG context
+  WEB_HTTP_MANAGEMENT_AUTH_DAC_AUDIENCE: account
+
+  # dataplane specific config
+  EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority#key-1
+  EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority-alias
+  EDC_DPF_SELECTOR_URL: https://federated-catalog-sage-data-space.apps.bst2.paas.psnc.pl/api/control/v1/dataplanes
+  WEB_HTTP_PUBLIC_PORT: 13001
+  WEB_HTTP_PUBLIC_PATH: /api/public
+
+  # CORS
+  EDC_WEB_REST_CORS_ENABLED: true
+  EDC_WEB_REST_CORS_HEADERS: origin,content-type,accept,authorization,x-api-key
+
+  # persistence
+  EDC_SQL_SCHEMA_AUTOCREATE: true
+  EDC_SQL_STORE_TARGETNODEDIRECTORY_DATASOURCE: default
+  EDC_SQL_STORE_FEDERATEDCATALOG_DATASOURCE: default
+  EDC_VAULT_HASHICORP_URL: https://federated-catalog-keyvault-sage-data-space.apps.bst2.paas.psnc.pl
+  EDC_VAULT_HASHICORP_TOKEN_TTL: 0
+  EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: false
+  JAVA_TOOL_OPTIONS: -Dedc.vault.hashicorp.token.scheduled-renew-enabled=false
+
+  # trusted issuers (JSON array of DIDs)
+  EDC_TRUSTED_ISSUERS: "{{ ['did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl'] | to_json }}"

@@ -1,8 +1,0 @@
-{
-    "registrationServiceApiUrl": "http://localhost:38182",
-    "federatedCatalogApiUrl": "http://localhost:9181/catalog",
-    "environment": "development",
-    "isUseFakeBackend": false,
-    "oauthIssuer": "http://localhost:8081/realms/Organizations",
-    "oauthClientId": "data-space-users"
-}
