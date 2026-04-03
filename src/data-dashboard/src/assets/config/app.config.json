@@ -1,7 +1,7 @@
 {
   "managementApiUrl": "http://localhost:8081/api/management",
   "catalogUrl": "http://localhost:8081/api/catalog-proxy/catalog/request",
-  "federatedCatalogUrl": "http://localhost:8085",
+  "federatedCatalogUrl": "http://localhost:8296",
   "theme": "theme-2",
   "deploymentMode": "local",
   "backendUrl": "http://consumer-backend:4000/edr-endpoint",
