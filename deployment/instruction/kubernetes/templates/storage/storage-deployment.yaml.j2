@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ application }}-storage"
+  labels:
+    app: "{{ application }}"
+    component: storage
+spec:
+  serviceName: "{{ application }}-storage"
+  replicas: {{ storage_replicas }}
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: storage
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: storage
+    spec:
+      containers:
+        - name: storage
+          image: "{{ storage_image }}"
+          imagePullPolicy: "{{ image_pull_policy }}"
+          resources:
+{{ storage_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+          ports:
+            - name: s3
+              containerPort: 9000
+              protocol: "TCP"
+            - name: console
+              containerPort: 9001
+              protocol: "TCP"
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-storage"
+                optional: true
+            - secretRef:
+                name: "storage-secret"
+                optional: true
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{ storage_pvc_size }}"

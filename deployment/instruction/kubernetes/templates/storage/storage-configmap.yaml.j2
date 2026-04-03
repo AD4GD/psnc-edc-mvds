@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ application }}-storage"
+  labels:
+    app: "{{ application }}"
+    component: storage
+data:
+  # RustFS configuration (non-sensitive)
+  HOSTNAME: "storage"
+  RUSTFS_CONSOLE_ENABLE: "{{ storage_console_enable }}"

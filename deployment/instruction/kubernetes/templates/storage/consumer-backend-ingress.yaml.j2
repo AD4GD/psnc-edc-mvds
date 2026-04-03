@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ application }}-consumer-backend"
+  labels:
+    app: "{{ application }}"
+    component: consumer-backend
+spec:
+{% if ingress_class_name %}
+  ingressClassName: "{{ ingress_class_name }}"
+{% endif %}
+  rules:
+    - host: "{{ consumer_backend_host }}"
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-consumer-backend"
+                port:
+                  name: api
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-consumer-backend"
+                port:
+                  name: api
+{% if ingress_tls_enabled %}
+  tls:
+    - hosts:
+        - "{{ consumer_backend_host }}"
+      secretName: "{{ ingress_tls_secret_name }}"
+{% endif %}

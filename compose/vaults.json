@@ -1,0 +1,36 @@
+{
+    "vaults": [
+        {
+            "name": "DSH",
+            "addressEnv": "DSH_VAULT_ADDR",
+            "defaultAddr": "http://localhost:8200",
+            "envFile": "secrets/data-space-hub.env",
+            "tokenEnv": "DSH_VAULT_TOKEN",
+            "shardEnv": "DSH_VAULT_UNSEAL_SHARD"
+        },
+        {
+            "name": "PROVIDER",
+            "addressEnv": "PROVIDER_VAULT_ADDR",
+            "defaultAddr": "http://localhost:8203",
+            "envFile": "secrets/provider-ih.env",
+            "tokenEnv": "PROVIDER_VAULT_TOKEN",
+            "shardEnv": "PROVIDER_VAULT_UNSEAL_SHARD"
+        },
+        {
+            "name": "CONSUMER",
+            "addressEnv": "CONSUMER_VAULT_ADDR",
+            "defaultAddr": "http://localhost:8202",
+            "envFile": "secrets/consumer-ih.env",
+            "tokenEnv": "CONSUMER_VAULT_TOKEN",
+            "shardEnv": "CONSUMER_VAULT_UNSEAL_SHARD"
+        },
+        {
+            "name": "FC",
+            "addressEnv": "FC_VAULT_ADDR",
+            "defaultAddr": "http://localhost:8201",
+            "envFile": "secrets/fc-ih.env",
+            "tokenEnv": "FC_VAULT_TOKEN",
+            "shardEnv": "FC_VAULT_UNSEAL_SHARD"
+        }
+    ]
+}

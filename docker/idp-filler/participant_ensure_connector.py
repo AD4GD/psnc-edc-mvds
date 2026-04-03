@@ -23,7 +23,7 @@ USER_CLIENT_ID = "data-space-users"
 TEST_USER = f"psnc"
 TEST_PASS = "edc"
 
-KC_BASE = "http://localhost:8083"
+KC_BASE = "http://localhost:48083"
 KC_USER = "admin"
 KC_PASS = "edc"
 REALM = "Organizations"

@@ -33,13 +33,13 @@ variables:
   - name: vc-to-delete
     value: "{{ENTER_VALUE_HERE}}"
   - name: CONSUMER_DID
-    value: "{{ENTER_VALUE_HERE}}"
+    value: did:web:consumer-ih%3A7083:alice
   - name: CONSUMER_DSP_URL
-    value: "{{ENTER_VALUE_HERE}}"
+    value: http://consumer-connector:8082/api/dsp
   - name: PROVIDER_DID
-    value: "{{ENTER_VALUE_HERE}}"
+    value: did:web:provider-ih%3A7093:bob
   - name: PROVIDER_DSP_URL
-    value: "{{ENTER_VALUE_HERE}}"
+    value: http://provider-connector:8192/api/dsp
   - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
     value: http://localhost:19193/management
   - name: policy-id
@@ -48,3 +48,5 @@ variables:
     value: test-asset
   - name: contract-definition-id
     value: cdef-test
+  - name: FEDERATED_CATALOG_TARGETS_URL
+    value: http://localhost:8296

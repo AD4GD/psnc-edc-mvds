@@ -1,0 +1,169 @@
+{% set vault_name = application ~ '-vault-' ~ identity_hub_vault_instance %}
+{% set vault_headless_service = vault_name ~ '-internal' %}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ vault_name }}-config"
+  labels:
+    app: "{{ application }}"
+    component: vault
+    vault_instance: "{{ identity_hub_vault_instance }}"
+data:
+  vault.hcl: |
+    ui = true
+    disable_mlock = true
+
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      cluster_address = "0.0.0.0:8201"
+      tls_disable = 1
+    }
+
+    storage "raft" {
+      path = "/vault/data"
+{% if (vault_replicas | int) > 1 %}
+{% for i in range(vault_replicas | int) %}
+      retry_join {
+        leader_api_addr = "http://{{ vault_name }}-{{ i }}.{{ vault_headless_service }}.{{ k8s_namespace }}.svc.cluster.local:8200"
+      }
+{% endfor %}
+{% endif %}
+    }
+
+    api_addr = "http://{{ vault_name }}.{{ k8s_namespace }}.svc.cluster.local:8200"
+    cluster_addr = "http://$(POD_NAME).{{ vault_headless_service }}.{{ k8s_namespace }}.svc.cluster.local:8201"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ vault_headless_service }}"
+  labels:
+    app: "{{ application }}"
+    component: vault
+    vault_instance: "{{ identity_hub_vault_instance }}"
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: "{{ application }}"
+    component: vault
+    vault_instance: "{{ identity_hub_vault_instance }}"
+  ports:
+    - name: vault-http
+      port: 8200
+      targetPort: vault-http
+    - name: vault-cluster
+      port: 8201
+      targetPort: vault-cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ vault_name }}"
+  labels:
+    app: "{{ application }}"
+    component: vault
+    vault_instance: "{{ identity_hub_vault_instance }}"
+spec:
+  selector:
+    app: "{{ application }}"
+    component: vault
+    vault_instance: "{{ identity_hub_vault_instance }}"
+  ports:
+    - name: vault-http
+      port: 8200
+      targetPort: vault-http
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ vault_name }}"
+  labels:
+    app: "{{ application }}"
+    component: vault
+    vault_instance: "{{ identity_hub_vault_instance }}"
+spec:
+  serviceName: "{{ vault_headless_service }}"
+  replicas: {{ vault_replicas }}
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: vault
+      vault_instance: "{{ identity_hub_vault_instance }}"
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: vault
+        vault_instance: "{{ identity_hub_vault_instance }}"
+    spec:
+      serviceAccountName: "{{ vault_service_account_name }}"
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: vault
+          image: "{{ vault_image }}"
+          imagePullPolicy: "{{ image_pull_policy }}"
+          args:
+            - server
+            - -config=/etc/vault/vault.hcl
+          ports:
+            - name: vault-http
+              containerPort: 8200
+              protocol: TCP
+            - name: vault-cluster
+              containerPort: 8201
+              protocol: TCP
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: VAULT_ADDR
+              value: http://127.0.0.1:8200
+            - name: SKIP_SETCAP
+              value: "true"
+          resources:
+{{ vault_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+          securityContext:
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 100
+          volumeMounts:
+            - name: vault-config
+              mountPath: /etc/vault
+              readOnly: true
+            - name: vault-data
+              mountPath: /vault/data
+          readinessProbe:
+            tcpSocket:
+              port: vault-http
+            initialDelaySeconds: 15
+            periodSeconds: {{ readiness_probe_period }}
+          livenessProbe:
+            tcpSocket:
+              port: vault-http
+            initialDelaySeconds: 30
+            periodSeconds: {{ liveness_probe_period }}
+      volumes:
+        - name: vault-config
+          configMap:
+            name: "{{ vault_name }}-config"
+            items:
+              - key: vault.hcl
+                path: vault.hcl
+  volumeClaimTemplates:
+    - metadata:
+        name: vault-data
+        labels:
+          app: "{{ application }}"
+          component: vault
+          vault_instance: "{{ identity_hub_vault_instance }}"
+      spec:
+        accessModes:
+          - ReadWriteOnce
+{% if vault_storage_class_name | length > 0 %}
+        storageClassName: "{{ vault_storage_class_name }}"
+{% endif %}
+        resources:
+          requests:
+            storage: "{{ vault_pvc_storage_size }}"

@@ -16,9 +16,12 @@ services:
       EDC_FS_CONFIG: /app/configuration.properties
     user: "root"
     depends_on:
-      - provider-postgres
-      - provider-keycloak
-      - vault-unseal
+      provider-postgres:
+        condition: service_healthy
+      provider-keycloak:
+        condition: service_started
+      vault-unseal:
+        condition: service_completed_successfully
 
   provider-postgres:
     image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
@@ -27,6 +30,13 @@ services:
       POSTGRESQL_USERNAME: edc
       POSTGRESQL_PASSWORD: edc
       POSTGRESQL_DATABASE: edc
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRESQL_USERNAME" -d "$$POSTGRESQL_DATABASE"
+      interval: 10s
+      timeout: 5s
+      retries: 10
     ports:
       - '5440:5432'
     volumes:
@@ -60,9 +70,12 @@ services:
     environment:
       EDC_FS_CONFIG: /app/configuration.properties
     depends_on:
-      - provider-connector
-      - provider-ih-postgres
-      - provider-ih-vault
+      provider-connector:
+        condition: service_started
+      provider-ih-postgres:
+        condition: service_healthy
+      provider-ih-vault:
+        condition: service_healthy
 
   provider-ih-postgres:
     image: registry.paas.psnc.pl/bitnami/postgresql:17.6.0
@@ -71,6 +84,13 @@ services:
       POSTGRESQL_USERNAME: edc
       POSTGRESQL_PASSWORD: edc
       POSTGRESQL_DATABASE: edc
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRESQL_USERNAME" -d "$$POSTGRESQL_DATABASE"
+      interval: 10s
+      timeout: 5s
+      retries: 10
     ports:
       - '5442:5432'
     volumes:
@@ -96,7 +116,8 @@ services:
       KEYCLOAK_FRONTEND_URL: http://provider-keycloak:8080
       KC_CACHE: local
     depends_on:
-      - provider-keycloak-postgres
+      provider-keycloak-postgres:
+        condition: service_healthy
     ports:
       - "48083:8080"
 
@@ -107,6 +128,13 @@ services:
       POSTGRESQL_USERNAME: keycloak
       POSTGRESQL_PASSWORD: edc
       POSTGRESQL_DATABASE: keycloak
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRESQL_USERNAME" -d "$$POSTGRESQL_DATABASE"
+      interval: 10s
+      timeout: 5s
+      retries: 10
     ports:
       - '5441:5432'
     volumes:
@@ -123,6 +151,14 @@ services:
       - provider-ih-vault:/vault/file
       - ../docker/identity-hub/kv/vault.hcl:/vault/config/vault.hcl:ro
     command: vault server -config=/vault/config/vault.hcl
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - vault status -address=http://127.0.0.1:8200 2>/dev/null | grep -Eq 'Initialized[[:space:]]+true' && vault status -address=http://127.0.0.1:8200 2>/dev/null | grep -Eq 'Sealed[[:space:]]+false'
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
     ports:
       - "8203:8200"
 

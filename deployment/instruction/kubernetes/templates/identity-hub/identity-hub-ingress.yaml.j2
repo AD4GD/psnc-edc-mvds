@@ -1,0 +1,56 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ application }}-identity-hub"
+  labels:
+    app: "{{ application }}"
+    component: identity-hub
+spec:
+{% if ingress_class_name %}
+  ingressClassName: "{{ ingress_class_name }}"
+{% endif %}
+  rules:
+    - host: "{{ identity_hub_host }}"
+      http:
+        paths:
+          - path: /api/credentials
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-identity-hub"
+                port:
+                  name: credentials
+          - path: /api/identity
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-identity-hub"
+                port:
+                  name: identity
+          - path: /api/version
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-identity-hub"
+                port:
+                  name: version
+          - path: /api/sts
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-identity-hub"
+                port:
+                  name: sts
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-identity-hub"
+                port:
+                  name: api
+{% if ingress_tls_enabled %}
+  tls:
+    - hosts:
+        - "{{ identity_hub_host }}"
+      secretName: "{{ ingress_tls_secret_name }}"
+{% endif %}

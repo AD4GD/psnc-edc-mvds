@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ application }}-keycloak"
+  labels:
+    app: "{{ application }}"
+    component: keycloak
+spec:
+  replicas: {{ keycloak_replicas }}
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: keycloak
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: "{{ keycloak_image }}"
+          imagePullPolicy: "{{ image_pull_policy }}"
+          resources:
+{{ keycloak_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+          ports:
+            - name: keycloak-http
+              containerPort: 8080
+              protocol: "TCP"
+            - name: keycloak-https
+              containerPort: 8443
+              protocol: "TCP"
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-keycloak"
+                optional: true
+            - secretRef:
+                name: "keycloak-secret"
+                optional: true
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: "Memory"

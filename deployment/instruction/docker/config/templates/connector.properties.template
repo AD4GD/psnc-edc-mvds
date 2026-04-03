@@ -1,0 +1,86 @@
+# Rendered from config/templates/connector.properties.template
+# DO NOT put ${...} placeholders here. Use scripts/render-config.sh.
+
+# control plane specific config
+edc.iam.issuer.id=__PARTICIPANT_ID__
+edc.hostname=__CONNECTOR_HOST__
+web.http.port=8080
+web.http.path=/api
+web.http.management.port=8081
+web.http.management.path=/api/management/
+web.http.protocol.port=8082
+web.http.protocol.path=/api/dsp
+web.http.control.port=8083
+web.http.control.path=/api/control
+web.http.catalog.port=8084
+web.http.catalog.path=/api/catalog
+web.http.version.port=8085
+web.http.version.path=/api/version
+web.http.catalogproxy.port=8086
+web.http.catalogproxy.path=/api/catalog-proxy
+web.http.public.port=11001
+web.http.public.path=/api/public
+edc.iam.did.web.use.https=true
+edc.https.enforce=true
+edc.iam.sts.privatekey.alias=key-1
+edc.iam.sts.publickey.id=__CONNECTOR_PUBLIC_KEY_ID__
+
+edc.dsp.callback.address=__PUBLIC_SCHEME__://__CONNECTOR_HOST__/api/dsp
+edc.participant.id=__PARTICIPANT_ID__
+edc.management.context.enabled=true
+edc.iam.sts.oauth.client.secret.alias=__CONNECTOR_STS_CLIENT_SECRET_ALIAS__
+edc.iam.sts.oauth.client.id=__PARTICIPANT_ID__
+edc.iam.sts.oauth.token.url=__IDENTITY_HUB_ADDRESS__/api/sts/token
+
+web.http.catalogproxy.auth.type=composite
+web.http.catalogproxy.auth.includes=["tokenbased", "delegated"]
+web.http.catalogproxy.auth.context=catalogproxy
+web.http.catalogproxy.auth.key=__CONNECTOR_API_KEY__
+web.http.catalogproxy.auth.dac.key.url=__KEYCLOAK_ADDRESS__/realms/Organizations/protocol/openid-connect/certs
+web.http.catalogproxy.auth.audience=["federated-catalog", "__CONNECTOR_ID__"]
+# web.http.catalogproxy.auth.roles=["access-catalog"]
+
+edc.catalog.proxy.dsp.enabled=false
+edc.catalog.proxy.dsp.counterparty.address=__FEDERATED_CATALOG_ADDRESS__/api/catalog
+edc.catalog.proxy.dsp.counterparty.id=__CATALOG_DSP_ID__
+edc.catalog.proxy.dsp.protocol=dataspace-protocol-http
+edc.catalog.proxy.http.target.url=__FEDERATED_CATALOG_ADDRESS__/api/catalog/v1alpha/catalog/query
+edc.catalog.proxy.http.apikey.header=x-api-key
+edc.catalog.proxy.http.apikey=__CATALOG_API_KEY__
+
+web.http.auth.type=composite
+web.http.auth.includes=["tokenbased", "delegated"]
+web.http.auth.key=__CONNECTOR_API_KEY__
+web.http.auth.dac.key.url=__KEYCLOAK_ADDRESS__/realms/Organizations/protocol/openid-connect/certs
+
+web.http.management.auth.type=composite
+web.http.management.auth.includes=["tokenbased", "delegated"]
+web.http.management.auth.key=__CONNECTOR_API_KEY__
+web.http.management.auth.dac.key.url=__KEYCLOAK_ADDRESS__/realms/Organizations/protocol/openid-connect/certs
+web.http.management.auth.audience=__CONNECTOR_ID__
+web.http.management.auth.dac.audience=__CONNECTOR_ID__
+
+web.http.control.auth.type=tokenbased
+web.http.control.auth.key=__CONNECTOR_API_KEY__
+
+# dataplane specific config
+edc.dataplane.api.public.baseurl=__PUBLIC_SCHEME__://__CONNECTOR_HOST__/api/public
+edc.transfer.proxy.token.verifier.publickey.alias=__CONNECTOR_PUBLIC_KEY_ID__
+edc.transfer.proxy.token.signer.privatekey.alias=key-1
+edc.dpf.selector.url=__PUBLIC_SCHEME__://__CONNECTOR_HOST__/api/control/v1/dataplanes
+
+# CORS
+edc.web.rest.cors.enabled=true
+edc.web.rest.cors.headers=origin,content-type,accept,authorization,x-api-key
+
+# persistence
+edc.sql.schema.autocreate=true
+edc.datasource.default.url=jdbc:postgresql://connector-db:5432/__CONNECTOR_DB_NAME__
+edc.datasource.default.user=__CONNECTOR_DB_USER__
+edc.datasource.default.password=__CONNECTOR_DB_PASSWORD__
+edc.vault.hashicorp.url=http://key-vault:8200
+edc.vault.hashicorp.token=__VAULT_SERVICE_TOKEN__
+edc.vault.hashicorp.token.ttl=0
+edc.vault.hashicorp.token.scheduled-renew-enabled=false
+
+edc.trusted.issuers=["__ISSUER_DID__"]

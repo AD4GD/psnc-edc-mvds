@@ -1,0 +1,8 @@
+{
+  "managementApiUrl": "${PUBLIC_SCHEME}://${CONNECTOR_HOST}/management",
+  "catalogUrl": "${PUBLIC_SCHEME}://${CONNECTOR_HOST}/catalog-proxy/catalog/request",
+  "theme": "theme-3",
+  "deploymentMode": "production",
+  "oauthIssuer": "${PUBLIC_SCHEME}://${KEYCLOAK_HOST}/realms/Organizations",
+  "oauthClientId": "data-space-users"
+}

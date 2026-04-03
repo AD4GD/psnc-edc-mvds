@@ -1,0 +1,101 @@
+---
+- name: Deploy stateless services
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - vars/shared_vars.yaml
+
+  module_defaults:
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig_path }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    # Required section: connector + dashboard
+    - name: Deploy connector configmap
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/connector/connector-configmap.yaml.j2') | from_yaml }}"
+
+    - name: Deploy connector deployment
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/connector/connector-deployment.yaml.j2') | from_yaml }}"
+
+    - name: Deploy connector service
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/connector/connector-service.yaml.j2') | from_yaml }}"
+
+    - name: Deploy dashboard configmap
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/dashboard/dashboard-configmap.yaml.j2') | from_yaml }}"
+
+    - name: Deploy dashboard deployment
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/dashboard/dashboard-deployment.yaml.j2') | from_yaml }}"
+
+    - name: Deploy dashboard service
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/dashboard/dashboard-service.yaml.j2') | from_yaml }}"
+
+    # Optional section: identity-hub = identity-hub + vault + identity-hub DB
+    - name: Deploy identity-hub configmap
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-configmap.yaml.j2') | from_yaml }}"
+      when: enable_identity_hub | bool
+
+    - name: Deploy identity-hub deployment
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-deployment.yaml.j2') | from_yaml }}"
+      when: enable_identity_hub | bool
+
+    - name: Deploy identity-hub service
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-service.yaml.j2') | from_yaml }}"
+      when: enable_identity_hub | bool
+
+    # Optional section: identity-provider = keycloak + keycloak DB
+    - name: Deploy keycloak configmap
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/keycloak/keycloak-configmap.yaml.j2') | from_yaml }}"
+      when: enable_identity_provider | bool
+
+    - name: Deploy keycloak deployment
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/keycloak/keycloak-deployment.yaml.j2') | from_yaml }}"
+      when: enable_identity_provider | bool
+
+    - name: Deploy keycloak service
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/keycloak/keycloak-service.yaml.j2') | from_yaml }}"
+      when: enable_identity_provider | bool
+
+    # Optional section: storage = storage + consumer-backend
+    - name: Deploy storage configmap
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/storage/storage-configmap.yaml.j2') | from_yaml }}"
+      when: enable_storage | bool
+
+    - name: Deploy storage deployment
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/storage/storage-deployment.yaml.j2') | from_yaml }}"
+      when: enable_storage | bool
+
+    - name: Deploy storage service
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/storage/storage-service.yaml.j2') | from_yaml }}"
+      when: enable_storage | bool
+
+    - name: Deploy consumer-backend configmap
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/storage/consumer-backend-configmap.yaml.j2') | from_yaml }}"
+      when: enable_storage | bool
+
+    - name: Deploy consumer-backend deployment
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/storage/consumer-backend-deployment.yaml.j2') | from_yaml }}"
+      when: enable_storage | bool
+
+    - name: Deploy consumer-backend service
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/storage/consumer-backend-service.yaml.j2') | from_yaml }}"
+      when: enable_storage | bool

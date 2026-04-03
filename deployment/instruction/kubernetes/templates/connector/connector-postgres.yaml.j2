@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ connector_db_service }}"
+  labels:
+    app: "{{ application }}"
+    component: connector-db
+spec:
+  clusterIP: None
+  selector:
+    app: "{{ application }}"
+    component: connector-db
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ connector_db_service }}"
+  labels:
+    app: "{{ application }}"
+    component: connector-db
+spec:
+  serviceName: "{{ connector_db_service }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: connector-db
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: connector-db
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ postgres_image }}"
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: "connector-db-secret"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{ connector_db_storage_size }}"

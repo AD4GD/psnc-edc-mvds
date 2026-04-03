@@ -1,0 +1,35 @@
+---
+- name: Deploy Postgres databases
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - vars/shared_vars.yaml
+
+  module_defaults:
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig_path }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    # Required section: connector + connector DB + dashboard
+    - name: Deploy connector database
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/connector/connector-postgres.yaml.j2') | from_yaml_all | list }}"
+
+    # Optional section: identity-provider = keycloak + keycloak DB
+    - name: Deploy keycloak database
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/keycloak/keycloak-postgres.yaml.j2') | from_yaml_all | list }}"
+      when: enable_identity_provider | bool
+
+    # Optional section: identity-hub = identity-hub + vault + identity-hub DB
+    - name: Deploy identity-hub vault
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-vault.yaml.j2') | from_yaml_all | list }}"
+      when: enable_identity_hub | bool
+
+    - name: Deploy identity-hub database
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-postgres.yaml.j2') | from_yaml_all | list }}"
+      when: enable_identity_hub | bool

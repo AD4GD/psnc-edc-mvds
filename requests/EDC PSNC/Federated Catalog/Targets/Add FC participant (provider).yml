@@ -1,0 +1,23 @@
+info:
+  name: Add FC participant (provider)
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{FEDERATED_CATALOG_TARGETS_URL}}/api/targets/v1/targets"
+  body:
+    type: json
+    data: |-
+      {
+          "participantId": "{{PROVIDER_DID}}",
+          "url": "{{PROVIDER_DSP_URL}}",
+          "supportedProtocols": ["dataspace-protocol-http"]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

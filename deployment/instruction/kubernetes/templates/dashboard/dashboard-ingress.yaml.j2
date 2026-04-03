@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ application }}-dashboard"
+  labels:
+    app: "{{ application }}"
+    component: dashboard
+spec:
+{% if ingress_class_name %}
+  ingressClassName: "{{ ingress_class_name }}"
+{% endif %}
+  rules:
+    - host: "{{ dashboard_host }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-dashboard"
+                port:
+                  name: www
+          - path: /catalog
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-dashboard"
+                port:
+                  name: www
+          - path: /catalog-proxy
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ application }}-dashboard"
+                port:
+                  name: www
+{% if ingress_tls_enabled %}
+  tls:
+    - hosts:
+        - "{{ dashboard_host }}"
+      secretName: "{{ ingress_tls_secret_name }}"
+{% endif %}

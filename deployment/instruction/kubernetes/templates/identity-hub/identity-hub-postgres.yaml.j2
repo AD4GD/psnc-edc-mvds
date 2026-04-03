@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ identity_hub_db_service }}"
+  labels:
+    app: "{{ application }}"
+    component: identity-hub-db
+spec:
+  clusterIP: None
+  selector:
+    app: "{{ application }}"
+    component: identity-hub-db
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ identity_hub_db_service }}"
+  labels:
+    app: "{{ application }}"
+    component: identity-hub-db
+spec:
+  serviceName: "{{ identity_hub_db_service }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: identity-hub-db
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: identity-hub-db
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ postgres_image }}"
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: "identity-hub-db-secret"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{ identity_hub_db_storage_size }}"

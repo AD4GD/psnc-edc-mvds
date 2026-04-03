@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ application }}-consumer-backend"
+  labels:
+    app: "{{ application }}"
+    component: consumer-backend
+data:
+  # S3 / storage endpoint (non-sensitive)
+  S3_ENDPOINT_URL: "http://{{ application }}-storage:9000"
+  S3_BUCKET: "{{ storage_bucket }}"
+  S3_DEFAULT_PREFIX: "{{ consumer_backend_s3_default_prefix }}"
+  S3_DEFAULT_FOLDER: "{{ consumer_backend_s3_default_folder }}"
