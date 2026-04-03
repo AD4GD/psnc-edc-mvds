@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ application }}-dashboard-config"
+  labels:
+    app: "{{ application }}"
+    component: dashboard
+data:
+  # Data Dashboard app configuration
+  app.config.json: |
+    {
+      "managementApiUrl": "{{ public_scheme }}://{{ connector_host }}/api/management",
+      "catalogUrl": "{{ public_scheme }}://{{ connector_host }}/api/catalog-proxy/catalog/request",
+      "theme": "{{ dashboard_theme }}",
+      "deploymentMode": "production",
+      "backendUrl": "{{ dashboard_backend_url }}",
+      "oauthIssuer": "{{ public_scheme }}://{{ keycloak_host }}/realms/Organizations",
+      "oauthClientId": "{{ dashboard_oauth_client_id }}",
+      "connectorId": "{{ connector_id }}"
+    }
+  # NGINX proxy configuration
+  nginx.conf: |
+    events {}
+    pid /tmp/nginx.pid;
+    http {
+      include /etc/nginx/mime.types;
+      server {
+        listen 8080;
+        server_name {{ dashboard_host }};
+        root /usr/share/nginx/html;
+        index index.html;
+        access_log off;
+        location / {
+          try_files $uri $uri/ /index.html;
+        }
+        location /management {
+          proxy_pass {{ public_scheme }}://{{ connector_host }}/api/management;
+        }
+        location /catalog-proxy/ {
+          proxy_pass {{ public_scheme }}://{{ connector_host }}/api/catalog-proxy/;
+        }
+        location /catalog {
+          proxy_pass {{ public_scheme }}://{{ connector_host }}/api/catalog-proxy/catalog/request;
+        }
+      }
+    }

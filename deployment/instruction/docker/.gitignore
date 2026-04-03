@@ -1,0 +1,14 @@
+# Runtime env files (local copies)
+.env
+.env.secrets
+
+# Generated rendered configs
+.generated/
+
+# Backup files
+*.bak
+*.backup
+
+# Vault secrets snapshots
+secrets/*.env
+!secrets/vault.env.example

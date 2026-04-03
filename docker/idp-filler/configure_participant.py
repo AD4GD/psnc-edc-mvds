@@ -12,12 +12,12 @@ import sys
 import keycloak_utils as ku
 
 def main():
-    KC_BASE = ku.env("KC_BASE", "http://localhost:8082")
+    KC_BASE = ku.env("KC_BASE", "http://localhost:48083")
     KC_USER = ku.env("KC_USER", "admin")
     KC_PASS = ku.env("KC_PASS", "edc")
     REALM = ku.env("REALM_NAME", "Organizations")
     
-    TEST_USER = ku.env("USER_NAME", "test")
+    TEST_USER = ku.env("USER_NAME", "psnc")
     TEST_PASS = ku.env("USER_PASS", "edc")
 
     FC_ROLE = "access-catalog"

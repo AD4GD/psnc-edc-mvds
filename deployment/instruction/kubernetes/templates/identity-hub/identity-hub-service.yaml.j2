@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ application }}-identity-hub"
+  labels:
+    app: "{{ application }}"
+    component: identity-hub
+spec:
+  selector:
+    app: "{{ application }}"
+    component: identity-hub
+  ports:
+    - name: api
+      port: 7080
+      targetPort: api
+    - name: credentials
+      port: 7081
+      targetPort: credentials
+    - name: identity
+      port: 7082
+      targetPort: identity
+    - name: did
+      port: 7083
+      targetPort: did
+    - name: version
+      port: 7085
+      targetPort: version
+    - name: sts
+      port: 7086
+      targetPort: sts

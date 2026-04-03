@@ -9,5 +9,5 @@ src/**/bin/
 **/.DS_Store
 *.class
 .gradle/
-/bin/.env.secrets
+/bin/secrets/*.env
 compose/.generated/

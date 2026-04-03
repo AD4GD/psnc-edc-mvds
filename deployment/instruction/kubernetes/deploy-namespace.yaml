@@ -1,0 +1,17 @@
+---
+- name: Create namespace
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - vars/shared_vars.yaml
+
+  tasks:
+    - name: Ensure namespace exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig_path }}"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ k8s_namespace }}"

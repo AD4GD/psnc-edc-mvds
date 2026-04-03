@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ application }}-consumer-backend"
+  labels:
+    app: "{{ application }}"
+    component: consumer-backend
+spec:
+  replicas: {{ consumer_backend_replicas }}
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: consumer-backend
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: consumer-backend
+    spec:
+      containers:
+        - name: consumer-backend
+          image: "{{ consumer_backend_image }}"
+          imagePullPolicy: "{{ image_pull_policy }}"
+          resources:
+{{ consumer_backend_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+          ports:
+            - name: api
+              containerPort: 4000
+              protocol: "TCP"
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-consumer-backend"
+                optional: true
+            - secretRef:
+                name: "consumer-backend-secret"
+                optional: true

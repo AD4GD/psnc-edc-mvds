@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ application }}-connector"
+  labels:
+    app: "{{ application }}"
+    component: connector
+spec:
+  replicas: {{ connector_replicas }}
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: connector
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      containers:
+        - name: connector
+          image: "{{ connector_image }}"
+          imagePullPolicy: "{{ image_pull_policy }}"
+          resources:
+{{ connector_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+          ports:
+            - name: api
+              containerPort: 8080
+              protocol: "TCP"
+            - name: management
+              containerPort: 8081
+              protocol: "TCP"
+            - name: protocol
+              containerPort: 8082
+              protocol: "TCP"
+            - name: control
+              containerPort: 8083
+              protocol: "TCP"
+            - name: catalog
+              containerPort: 8084
+              protocol: "TCP"
+            - name: version
+              containerPort: 8085
+              protocol: "TCP"
+            - name: catalogproxy
+              containerPort: 8086
+              protocol: "TCP"
+            - name: public
+              containerPort: 11001
+              protocol: "TCP"
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-connector"
+                optional: true
+            - secretRef:
+                name: "connector-secret"
+                optional: true
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

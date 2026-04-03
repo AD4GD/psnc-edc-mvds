@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ application }}-identity-hub"
+  labels:
+    app: "{{ application }}"
+    component: identity-hub
+spec:
+  replicas: {{ identity_hub_replicas }}
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: "{{ application }}"
+      component: identity-hub
+  template:
+    metadata:
+      labels:
+        app: "{{ application }}"
+        component: identity-hub
+    spec:
+      containers:
+        - name: identity-hub
+          image: "{{ identity_hub_image }}"
+          imagePullPolicy: "{{ image_pull_policy }}"
+          resources:
+{{ identity_hub_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+          ports:
+            - name: api
+              containerPort: 7080
+              protocol: "TCP"
+            - name: credentials
+              containerPort: 7081
+              protocol: "TCP"
+            - name: identity
+              containerPort: 7082
+              protocol: "TCP"
+            - name: did
+              containerPort: 7083
+              protocol: "TCP"
+            - name: version
+              containerPort: 7085
+              protocol: "TCP"
+            - name: sts
+              containerPort: 7086
+              protocol: "TCP"
+          envFrom:
+            - configMapRef:
+                name: "{{ application }}-identity-hub"
+                optional: true
+            - secretRef:
+                name: "identity-hub-secret"
+                optional: true
+            - secretRef:
+                name: "identity-hub-db-secret"
+                optional: true
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: "Memory"

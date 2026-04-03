@@ -1,0 +1,526 @@
+#!/bin/bash
+
+#
+# Dataspace Bootstrap Script
+#
+# Initializes a DCP-based EDC dataspace by orchestrating all first-run setup
+# in the correct order. Designed to be shared with partners and used in
+# production deployments — all service addresses and DIDs are parameterized.
+#
+# Usage:
+#   ./init-dataspace --config <config-dir>
+#   ./init-dataspace --config <config-dir> --skip-vc
+#   ./init-dataspace --config <config-dir> --participant consumer
+#   ./init-dataspace --config config/sage-init-dataspace
+#
+# Config directory must contain:
+#   dataspace.json      - global settings (data-space-hub URL, timeouts)
+#   participants/*.json - one file per participant (consumer.json, provider.json, etc.)
+#
+# See config/init-dataspace.example/ for reference.
+#
+
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+
+CONFIG_DIR=""
+SKIP_VC=false
+SINGLE_PARTICIPANT=""
+BOOTSTRAP_KEYS_FILE="$(mktemp -t ih-bootstrap-keys.XXXXXX)"
+
+cleanup() {
+    rm -f "$BOOTSTRAP_KEYS_FILE"
+}
+trap cleanup EXIT
+
+usage() {
+    echo "Usage: $0 --config <config-dir> [--skip-vc] [--participant <name>]"
+    echo ""
+    echo "Options:"
+    echo "  --config <dir>          Path to config directory (required)"
+    echo "  --skip-vc               Skip VC issuance step"
+    echo "  --participant <name>    Only bootstrap a single participant (matches filename without .json)"
+    echo ""
+    echo "Config directory structure:"
+    echo "  dataspace.json          Global settings"
+    echo "  participants/*.json     One file per participant"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --config)
+            CONFIG_DIR="$2"; shift 2 ;;
+        --skip-vc)
+            SKIP_VC=true; shift ;;
+        --participant)
+            SINGLE_PARTICIPANT="$2"; shift 2 ;;
+        -h|--help)
+            usage ;;
+        *)
+            echo "Unknown option: $1"; usage ;;
+    esac
+done
+
+if [ -z "$CONFIG_DIR" ]; then
+    echo "Error: --config is required"
+    usage
+fi
+
+if [ ! -f "$CONFIG_DIR/dataspace.json" ]; then
+    echo "Error: $CONFIG_DIR/dataspace.json not found"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Read global config
+# ---------------------------------------------------------------------------
+
+DATASPACE_CONFIG="$CONFIG_DIR/dataspace.json"
+
+DSH_URL=$(jq -r '.data_space_hub.url' "$DATASPACE_CONFIG")
+MAX_WAIT_SECONDS=$(jq -r '.timeouts.max_wait_seconds // 120' "$DATASPACE_CONFIG")
+POLL_INTERVAL=$(jq -r '.timeouts.poll_interval_seconds // 3' "$DATASPACE_CONFIG")
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+log()  { echo "[init-dataspace] $(date +%H:%M:%S) $*"; }
+ok()   { echo "[init-dataspace] $(date +%H:%M:%S) OK: $*"; }
+fail() { echo "[init-dataspace] $(date +%H:%M:%S) FAIL: $*" >&2; exit 1; }
+
+wait_for_url() {
+    local name="$1" url="$2" elapsed=0
+    log "Waiting for ${name} (${url})..."
+    while true; do
+        local http_code
+        http_code=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 3 "${url}" 2>/dev/null) || true
+        if [ -n "$http_code" ] && [ "$http_code" != "000" ]; then
+            ok "${name} is ready (HTTP ${http_code})"
+            return 0
+        fi
+        elapsed=$((elapsed + POLL_INTERVAL))
+        if [ "$elapsed" -ge "$MAX_WAIT_SECONDS" ]; then
+            fail "${name} did not become ready within ${MAX_WAIT_SECONDS}s"
+        fi
+        sleep "$POLL_INTERVAL"
+    done
+}
+
+wait_for_vault_unsealed() {
+    local name="$1" vault_addr="$2" elapsed=0
+    log "Waiting for ${name} to be initialized and unsealed..."
+    while true; do
+        local health
+        health=$(curl -sk --max-time 3 "${vault_addr}/v1/sys/health" 2>/dev/null) || true
+        if [ -n "$health" ]; then
+            local initialized sealed
+            initialized=$(echo "$health" | jq -r 'if .initialized == null then "false" else (.initialized | tostring) end')
+            sealed=$(echo "$health" | jq -r 'if .sealed == null then "true" else (.sealed | tostring) end')
+            log "  ${name}: initialized=${initialized}, sealed=${sealed}"
+            if [ "$initialized" = "true" ] && [ "$sealed" = "false" ]; then
+                ok "${name} is initialized and unsealed"
+                return 0
+            fi
+        else
+            log "  ${name}: no response (retrying...)"
+        fi
+        elapsed=$((elapsed + POLL_INTERVAL))
+        if [ "$elapsed" -ge "$MAX_WAIT_SECONDS" ]; then
+            fail "${name} not ready within ${MAX_WAIT_SECONDS}s (initialized=${initialized:-?}, sealed=${sealed:-?})"
+        fi
+        sleep "$POLL_INTERVAL"
+    done
+}
+
+base64_encode() {
+    echo -n "$1" | base64 | tr -d '\n'
+}
+
+read_pem() {
+    local pem_file="$1"
+    if [ ! -f "$pem_file" ]; then
+        fail "PEM file not found: $pem_file"
+    fi
+    cat "$pem_file"
+}
+
+# ---------------------------------------------------------------------------
+# Resolve participant config files respecting --participant filter
+# ---------------------------------------------------------------------------
+
+participant_config_files() {
+    if [ -n "$SINGLE_PARTICIPANT" ]; then
+        local f="$CONFIG_DIR/participants/${SINGLE_PARTICIPANT}.json"
+        if [ ! -f "$f" ]; then
+            fail "Participant config not found: $f"
+        fi
+        echo "$f"
+    else
+        for f in "$CONFIG_DIR"/participants/*.json; do
+            [ -f "$f" ] && echo "$f"
+        done
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Phase 1: Wait for Vaults
+# ---------------------------------------------------------------------------
+
+phase_wait_for_vaults() {
+    log "=== Phase 1: Waiting for Vaults ==="
+
+    # Collect unique vault addresses from selected participant configs
+    local vault_addresses
+    vault_addresses=$(participant_config_files | xargs jq -r '.identity_hub.vault_address // empty' 2>/dev/null | sort -u)
+
+    for addr in $vault_addresses; do
+        wait_for_vault_unsealed "Vault at ${addr}" "$addr"
+    done
+
+    ok "All Vaults are ready"
+}
+
+# ---------------------------------------------------------------------------
+# Phase 2: Bootstrap Identity Hubs (create super-users)
+# ---------------------------------------------------------------------------
+
+phase_bootstrap_identity_hubs() {
+    log "=== Phase 2: Bootstrapping Identity Hubs (super-user creation) ==="
+
+    # Collect unique IH bootstrap URLs from selected participant configs
+    local ih_configs
+    ih_configs=$(participant_config_files | xargs jq -r '.identity_hub.base_url // empty' 2>/dev/null | sort -u)
+
+    for base_url in $ih_configs; do
+        local bootstrap_url="${base_url}/api/bootstrap"
+        local health_url="${base_url}/api/check/health"
+
+        wait_for_url "Identity Hub at ${base_url}" "${health_url}" || true
+
+        log "Calling bootstrap endpoint: ${bootstrap_url}..."
+        local response status_code
+        response=$(curl -sk -w "\n%{http_code}" \
+            -X POST "${bootstrap_url}" \
+            -H "Content-Type: application/json")
+        status_code=$(echo "$response" | tail -1)
+        local response_body
+        response_body=$(echo "$response" | sed '$d')
+
+        if [ "$status_code" = "200" ]; then
+            local status
+            status=$(echo "$response_body" | jq -r '.status // "unknown"')
+            if [ "$status" = "created" ]; then
+                local api_key
+                api_key=$(echo "$response_body" | jq -r '.apiKey // empty')
+                log "API key for ${base_url}: ${api_key}"
+                if [ -n "$api_key" ]; then
+                    printf "%s|%s\n" "$base_url" "$api_key" >> "$BOOTSTRAP_KEYS_FILE"
+                fi
+                ok "Super-user created at ${base_url} (API key: ${api_key})"
+            elif [ "$status" = "already_exists" ]; then
+                ok "Super-user already exists at ${base_url}"
+            else
+                ok "Bootstrap responded OK at ${base_url}: ${response_body}"
+            fi
+        elif [ "$status_code" = "503" ]; then
+            fail "Vault not ready for IH at ${base_url}. Response: ${response_body}"
+        else
+            fail "Bootstrap failed at ${base_url}: HTTP ${status_code} - ${response_body}"
+        fi
+    done
+
+    ok "All Identity Hubs bootstrapped"
+}
+
+# ---------------------------------------------------------------------------
+# Phase 3: Create participant contexts
+# ---------------------------------------------------------------------------
+
+process_participant() {
+    local config_file="$1"
+    local name
+    name=$(basename "$config_file" .json)
+
+    log "--- Processing participant: ${name} ---"
+
+    # Read participant config
+    local did ih_base_url ih_identity_url ih_credentials_url ih_api_key
+    local connector_mgmt_url connector_api_key connector_dsp_url
+    local public_key_pem_path
+
+    did=$(jq -r '.did' "$config_file")
+    ih_base_url=$(jq -r '.identity_hub.base_url // empty' "$config_file")
+    ih_identity_url=$(jq -r '.identity_hub.identity_api_url' "$config_file")
+    ih_credentials_url=$(jq -r '.identity_hub.credentials_api_url' "$config_file")
+    ih_api_key=$(jq -r '.identity_hub.api_key' "$config_file")
+    connector_mgmt_url=$(jq -r '.connector.management_api_url' "$config_file")
+    connector_api_key=$(jq -r '.connector.api_key' "$config_file")
+    connector_dsp_url=$(jq -r '.connector.dsp_url' "$config_file")
+    public_key_pem_path=$(jq -r '.identity_hub.public_key_pem_path' "$config_file")
+
+    # If bootstrap generated a fresh API key in this run, prefer it over static config.
+    if [ -n "$ih_base_url" ] && [ -f "$BOOTSTRAP_KEYS_FILE" ]; then
+        local runtime_api_key
+        runtime_api_key=$(awk -F'|' -v base="$ih_base_url" '$1 == base {k=$2} END {print k}' "$BOOTSTRAP_KEYS_FILE")
+        if [ -n "$runtime_api_key" ]; then
+            ih_api_key="$runtime_api_key"
+        fi
+    fi
+
+    # Read optional short secret alias (avoids vault URL length issues in K8s)
+    # Falls back to the EDC default: <did>-sts-client-secret
+    local sts_client_secret_alias
+    sts_client_secret_alias=$(jq -r '.sts_client_secret_alias // empty' "$config_file")
+    if [ -z "$sts_client_secret_alias" ]; then
+        sts_client_secret_alias="${did}-sts-client-secret"
+    fi
+
+    # Resolve relative PEM paths against config dir
+    if [[ "$public_key_pem_path" != /* ]]; then
+        public_key_pem_path="${CONFIG_DIR}/${public_key_pem_path}"
+    fi
+
+    # Wait for connector management API
+    wait_for_url "${name} connector" "${connector_mgmt_url}/v3/secrets" || true
+
+    # Create participant context in Identity Hub
+    log "Creating participant context for ${name} (${did})..."
+
+    local pem_value
+    pem_value=$(read_pem "$public_key_pem_path")
+    local pem_escaped
+    pem_escaped=$(printf '%s' "$pem_value" | awk 'BEGIN{first=1} {sub(/\r$/, ""); if (!first) printf "\\n"; printf "%s", $0; first=0}')
+
+    local participant_context_id_base64
+    participant_context_id_base64=$(base64_encode "$did")
+
+    local credential_service_endpoint="${ih_credentials_url}/v1/participants/${participant_context_id_base64}"
+
+    local body
+    body=$(jq -n \
+        --arg did "$did" \
+        --arg cred_endpoint "$credential_service_endpoint" \
+        --arg dsp_url "$connector_dsp_url" \
+        --arg pem "$pem_escaped" \
+        --arg secret_alias "$sts_client_secret_alias" \
+        '{
+            "roles": [],
+            "serviceEndpoints": [
+                {
+                    "type": "CredentialService",
+                    "serviceEndpoint": $cred_endpoint,
+                    "id": "credentialservice-1"
+                },
+                {
+                    "type": "ProtocolEndpoint",
+                    "serviceEndpoint": $dsp_url,
+                    "id": "dsp"
+                }
+            ],
+            "active": true,
+            "participantId": $did,
+            "did": $did,
+            "key": {
+                "keyId": ($did + "#key-1"),
+                "privateKeyAlias": "key-1",
+                "publicKeyPem": $pem
+            },
+            "additionalProperties": {
+                "clientSecret": $secret_alias
+            }
+        }')
+
+    local response status_code response_body
+    response=$(curl -sk -w "\n%{http_code}" \
+        -X POST "${ih_identity_url}/v1alpha/participants" \
+        -H "Content-Type: application/json" \
+        -H "x-api-key: ${ih_api_key}" \
+        -d "$body")
+    status_code=$(echo "$response" | tail -1)
+    response_body=$(echo "$response" | sed '$d')
+
+    local client_secret=""
+
+    if [ "$status_code" = "200" ] || [ "$status_code" = "201" ]; then
+        client_secret=$(echo "$response_body" | jq -r '.clientSecret // empty')
+        ok "Created participant ${name}"
+    elif [ "$status_code" = "409" ]; then
+        log "Participant ${name} already exists (409), skipping"
+    else
+        fail "Failed to create participant ${name}: HTTP ${status_code} - ${response_body}"
+    fi
+
+    # Store client secret in connector's vault
+    if [ -n "$client_secret" ]; then
+        log "Storing client secret for ${name} in connector (alias: ${sts_client_secret_alias})..."
+
+        local secret_body
+        secret_body=$(jq -n \
+            --arg alias "$sts_client_secret_alias" \
+            --arg secret "$client_secret" \
+            '{
+                "@context": { "edc": "https://w3id.org/edc/v0.0.1/ns/" },
+                "@type": "https://w3id.org/edc/v0.0.1/ns/Secret",
+                "@id": $alias,
+                "https://w3id.org/edc/v0.0.1/ns/value": $secret
+            }')
+
+        local secret_response secret_status
+        secret_response=$(curl -sk -w "\n%{http_code}" \
+            -X POST "${connector_mgmt_url}/v3/secrets" \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: ${connector_api_key}" \
+            -d "$secret_body")
+        secret_status=$(echo "$secret_response" | tail -1)
+
+        if [ "$secret_status" = "200" ] || [ "$secret_status" = "201" ] || [ "$secret_status" = "204" ] || [ "$secret_status" = "409" ]; then
+            ok "Stored client secret for ${name}"
+        else
+            local secret_response_body
+            secret_response_body=$(echo "$secret_response" | sed '$d')
+            fail "Failed to store secret for ${name}: HTTP ${secret_status} - ${secret_response_body}"
+        fi
+    fi
+}
+
+phase_create_participants() {
+    log "=== Phase 3: Creating participant contexts ==="
+
+    local files
+    files=$(participant_config_files)
+    if [ -z "$files" ]; then
+        fail "No participant config files found${SINGLE_PARTICIPANT:+ for '$SINGLE_PARTICIPANT'}"
+    fi
+
+    while IFS= read -r config_file; do
+        process_participant "$config_file"
+    done <<< "$files"
+
+    ok "All participant contexts created"
+}
+
+# ---------------------------------------------------------------------------
+# Phase 4: Issue VCs via data-space-hub
+# ---------------------------------------------------------------------------
+
+issue_vc_for_participant() {
+    local config_file="$1"
+    local name
+    name=$(basename "$config_file" .json)
+
+    local did ih_identity_url ih_credentials_url ih_api_key
+    local connector_dsp_url connector_mgmt_url connector_api_key
+    local public_key_pem_path
+
+    did=$(jq -r '.did' "$config_file")
+    ih_identity_url=$(jq -r '.identity_hub.identity_api_url' "$config_file")
+    ih_credentials_url=$(jq -r '.identity_hub.credentials_api_url' "$config_file")
+    ih_api_key=$(jq -r '.identity_hub.api_key' "$config_file")
+    connector_dsp_url=$(jq -r '.connector.dsp_url' "$config_file")
+    connector_mgmt_url=$(jq -r '.connector.management_api_url' "$config_file")
+    connector_api_key=$(jq -r '.connector.api_key' "$config_file")
+    public_key_pem_path=$(jq -r '.identity_hub.public_key_pem_path' "$config_file")
+
+    if [[ "$public_key_pem_path" != /* ]]; then
+        public_key_pem_path="${CONFIG_DIR}/${public_key_pem_path}"
+    fi
+
+    log "Issuing VCs for ${name}..."
+
+    local pem_value
+    pem_value=$(read_pem "$public_key_pem_path")
+
+    local body
+    body=$(jq -n \
+        --arg did "$did" \
+        --arg dsp_url "$connector_dsp_url" \
+        --arg mgmt_url "$connector_mgmt_url" \
+        --arg mgmt_key "$connector_api_key" \
+        --arg ih_identity "$ih_identity_url" \
+        --arg ih_credentials "$ih_credentials_url" \
+        --arg ih_key "$ih_api_key" \
+        --arg pem "$pem_value" \
+        '{
+            "connector_did": $did,
+            "connector_dsp_url": $dsp_url,
+            "connector_management_url": $mgmt_url,
+            "connector_api_key": $mgmt_key,
+            "identity_hub_identity_url": $ih_identity,
+            "identity_hub_credentials_url": $ih_credentials,
+            "identity_hub_api_key": $ih_key,
+            "sts_public_key_pem": $pem,
+            "vc_format": "VC1_0_JWT",
+            "credential_type": "MembershipCredential"
+        }')
+
+    local response status_code
+    response=$(curl -sk -w "\n%{http_code}" \
+        -X POST "${DSH_URL}/api/v1/verifiable-credentials/issue" \
+        -H "Content-Type: application/json" \
+        -d "$body")
+    status_code=$(echo "$response" | tail -1)
+
+    if [ "$status_code" = "200" ] || [ "$status_code" = "201" ] || [ "$status_code" = "204" ]; then
+        ok "VCs issued for ${name}"
+    elif [ "$status_code" = "409" ]; then
+        log "VCs for ${name} already exist (409), skipping"
+    else
+        local response_body
+        response_body=$(echo "$response" | sed '$d')
+        log "WARNING: VC issuance for ${name} returned HTTP ${status_code}: ${response_body}"
+        log "You may need to issue VCs manually via data-space-hub API"
+    fi
+}
+
+phase_issue_vcs() {
+    if [ "$SKIP_VC" = true ]; then
+        log "=== Phase 4: Skipping VC issuance (--skip-vc) ==="
+        return 0
+    fi
+
+    log "=== Phase 4: Issuing Verifiable Credentials via data-space-hub ==="
+
+    wait_for_url "Data Space Hub" "${DSH_URL}/docs"
+
+    local files
+    files=$(participant_config_files)
+    if [ -z "$files" ]; then
+        fail "No participant config files found${SINGLE_PARTICIPANT:+ for '$SINGLE_PARTICIPANT'}"
+    fi
+
+    while IFS= read -r config_file; do
+        issue_vc_for_participant "$config_file"
+    done <<< "$files"
+
+    ok "VC issuance complete"
+}
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+main() {
+    log "=========================================="
+    log "  Dataspace Bootstrap"
+    log "  Config: ${CONFIG_DIR}"
+    if [ -n "$SINGLE_PARTICIPANT" ]; then
+        log "  Participant: ${SINGLE_PARTICIPANT}"
+    fi
+    log "=========================================="
+
+    phase_wait_for_vaults
+    phase_bootstrap_identity_hubs
+    phase_create_participants
+    phase_issue_vcs
+
+    log "=========================================="
+    log "  Dataspace initialization complete!"
+    log "=========================================="
+}
+
+main "$@"

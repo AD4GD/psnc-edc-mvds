@@ -3,11 +3,29 @@
 source "compose.defaults"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+load_env_file() {
+  local file="$1"
+  if [[ -f "$file" ]]; then
+    set -a
+    # shellcheck source=/dev/null
+    source "$file"
+    set +a
+  fi
+}
+
 if [[ -f "$SCRIPT_DIR/.env.secrets" ]]
 then
-  set -a
-  source "$SCRIPT_DIR/.env.secrets"
-  set +a
+  load_env_file "$SCRIPT_DIR/.env.secrets"
+fi
+
+if [[ -d "$SCRIPT_DIR/secrets" ]]
+then
+  shopt -s nullglob
+  for env_file in "$SCRIPT_DIR"/secrets/*.env
+  do
+    load_env_file "$env_file"
+  done
+  shopt -u nullglob
 fi
 
 "$SCRIPT_DIR/render-secrets-config"

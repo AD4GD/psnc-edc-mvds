@@ -15,14 +15,13 @@ IMAGES=(
   "data-dashboard"
   "federated-catalog"
   "identity-provider"
+  "identity-hub"
 )
 
 # Version tag
 TAG=$(curl -s "https://gitlab.pcss.pl/api/v4/projects/daisd-public%2Fdpi-pipelines%2Fpsnc-edc-mvds%2Fpsnc-edc-mvds/repository/tags" \
   | jq -r '.[].name' \
-  | sed 's/^v//' \
-  | sort -V \
-  | tail -n1 )
+  | head -n1 )
 
 echo "Latest tag: ${TAG}"
 

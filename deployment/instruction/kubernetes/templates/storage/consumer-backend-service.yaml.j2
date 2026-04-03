@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ application }}-consumer-backend"
+  labels:
+    app: "{{ application }}"
+    component: consumer-backend
+spec:
+  selector:
+    app: "{{ application }}"
+    component: consumer-backend
+  ports:
+    - name: api
+      port: 4000
+      targetPort: api

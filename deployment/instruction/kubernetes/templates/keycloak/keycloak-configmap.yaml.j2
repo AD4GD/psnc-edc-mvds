@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ application }}-keycloak"
+  labels:
+    app: "{{ application }}"
+    component: keycloak
+data:
+  KC_DB: postgres
+  KC_HOSTNAME: "{{ keycloak_host }}"
+  KC_HOSTNAME_ADMIN: "{{ keycloak_host }}"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
+  KC_HTTP_ENABLED: "true"
+  KEYCLOAK_FRONTEND_URL: "{{ public_scheme }}://{{ keycloak_host }}"
+  KC_CACHE: local

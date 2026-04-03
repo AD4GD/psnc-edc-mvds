@@ -52,3 +52,13 @@ variables:
     value: geo-spatial-asset-01
   - name: contract-definition-id
     value: cdef-test
+  - name: FEDERATED_CATALOG_TARGETS_URL
+    value: https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl
+  - name: PROVIDER_DID
+    value: ""
+  - name: PROVIDER_DSP_URL
+    value: ""
+  - name: CONSUMER_DID
+    value: ""
+  - name: CONSUMER_DSP_URL
+    value: ""

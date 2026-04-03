@@ -1,0 +1,422 @@
+services:
+  traefik:
+    image: traefik:v2.11
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json
+    networks:
+      - edge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_BASIC_AUTH}"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=600"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+  connector-db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${CONNECTOR_DB_USER}
+      POSTGRES_PASSWORD: ${CONNECTOR_DB_PASSWORD}
+      POSTGRES_DB: ${CONNECTOR_DB_NAME}
+    volumes:
+      - connector-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CONNECTOR_DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  connector:
+    image: ${IMAGE_REGISTRY}/connector:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    volumes:
+      - ./.generated/config/connector.properties:/app/configuration.properties:ro
+    depends_on:
+      connector-db:
+        condition: service_healthy
+    networks:
+      - edge
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/check/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.connector-api.rule=Host(`${CONNECTOR_HOST}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.connector-api.entrypoints=websecure"
+      - "traefik.http.routers.connector-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-api.service=connector-api"
+      - "traefik.http.routers.connector-api.middlewares=cors"
+      - "traefik.http.routers.connector-api.priority=10"
+      - "traefik.http.services.connector-api.loadbalancer.server.port=8080"
+
+      - "traefik.http.routers.connector-mgmt.rule=Host(`${CONNECTOR_HOST}`) && PathPrefix(`/api/management`)"
+      - "traefik.http.routers.connector-mgmt.entrypoints=websecure"
+      - "traefik.http.routers.connector-mgmt.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-mgmt.service=connector-mgmt"
+      - "traefik.http.routers.connector-mgmt.middlewares=cors"
+      - "traefik.http.routers.connector-mgmt.priority=100"
+      - "traefik.http.services.connector-mgmt.loadbalancer.server.port=8081"
+
+      - "traefik.http.routers.connector-protocol.rule=Host(`${CONNECTOR_HOST}`) && PathPrefix(`/api/dsp`)"
+      - "traefik.http.routers.connector-protocol.entrypoints=websecure"
+      - "traefik.http.routers.connector-protocol.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-protocol.service=connector-protocol"
+      - "traefik.http.routers.connector-protocol.middlewares=cors"
+      - "traefik.http.routers.connector-protocol.priority=100"
+      - "traefik.http.services.connector-protocol.loadbalancer.server.port=8082"
+
+      - "traefik.http.routers.connector-control.rule=Host(`${CONNECTOR_HOST}`) && PathPrefix(`/api/control`)"
+      - "traefik.http.routers.connector-control.entrypoints=websecure"
+      - "traefik.http.routers.connector-control.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-control.service=connector-control"
+      - "traefik.http.routers.connector-control.middlewares=cors"
+      - "traefik.http.routers.connector-control.priority=100"
+      - "traefik.http.services.connector-control.loadbalancer.server.port=8083"
+
+      - "traefik.http.routers.connector-catalog.rule=Host(`${CONNECTOR_HOST}`) && (Path(`/api/catalog`) || PathPrefix(`/api/catalog/`))"
+      - "traefik.http.routers.connector-catalog.entrypoints=websecure"
+      - "traefik.http.routers.connector-catalog.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-catalog.service=connector-catalog"
+      - "traefik.http.routers.connector-catalog.middlewares=cors"
+      - "traefik.http.routers.connector-catalog.priority=100"
+      - "traefik.http.services.connector-catalog.loadbalancer.server.port=8084"
+
+      - "traefik.http.routers.connector-version.rule=Host(`${CONNECTOR_HOST}`) && PathPrefix(`/api/version`)"
+      - "traefik.http.routers.connector-version.entrypoints=websecure"
+      - "traefik.http.routers.connector-version.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-version.service=connector-version"
+      - "traefik.http.routers.connector-version.middlewares=cors"
+      - "traefik.http.routers.connector-version.priority=100"
+      - "traefik.http.services.connector-version.loadbalancer.server.port=8085"
+
+      - "traefik.http.routers.connector-catalogproxy.rule=Host(`${CONNECTOR_HOST}`) && PathPrefix(`/api/catalog-proxy`)"
+      - "traefik.http.routers.connector-catalogproxy.entrypoints=websecure"
+      - "traefik.http.routers.connector-catalogproxy.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-catalogproxy.service=connector-catalogproxy"
+      - "traefik.http.routers.connector-catalogproxy.middlewares=cors"
+      - "traefik.http.routers.connector-catalogproxy.priority=110"
+      - "traefik.http.services.connector-catalogproxy.loadbalancer.server.port=8086"
+
+      - "traefik.http.routers.connector-public.rule=Host(`${CONNECTOR_HOST}`) && PathPrefix(`/api/public`)"
+      - "traefik.http.routers.connector-public.entrypoints=websecure"
+      - "traefik.http.routers.connector-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-public.service=connector-public"
+      - "traefik.http.routers.connector-public.middlewares=cors"
+      - "traefik.http.routers.connector-public.priority=100"
+      - "traefik.http.services.connector-public.loadbalancer.server.port=11001"
+
+      - "traefik.http.routers.connector-fallback.rule=Host(`${CONNECTOR_HOST}`)"
+      - "traefik.http.routers.connector-fallback.entrypoints=websecure"
+      - "traefik.http.routers.connector-fallback.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.connector-fallback.service=connector-api"
+      - "traefik.http.routers.connector-fallback.middlewares=cors"
+      - "traefik.http.routers.connector-fallback.priority=1"
+
+  dashboard:
+    image: ${IMAGE_REGISTRY}/data-dashboard:${IMAGE_TAG}
+    restart: unless-stopped
+    volumes:
+      - ./.generated/config/dashboard/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./.generated/config/dashboard/app.config.json:/usr/share/nginx/html/assets/config/app.config.json:ro
+      - ./config/templates/participants.json:/usr/share/nginx/html/assets/participants.json
+    depends_on:
+      - connector
+    networks:
+      - edge
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.dashboard.rule=Host(`${DASHBOARD_HOST}`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=cors"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=80"
+
+  keycloak-db:
+    profiles: ["keycloak"]
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME}
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  keycloak:
+    profiles: ["keycloak"]
+    image: ${IMAGE_REGISTRY}/identity-provider:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME}
+      KC_DB_SCHEMA: public
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HOSTNAME: https://${KEYCLOAK_HOST}
+      KC_HOSTNAME_ADMIN: https://${KEYCLOAK_HOST}
+      KC_PROXY: edge
+      KC_HTTP_ENABLED: 'true'
+      KC_HEALTH_ENABLED: 'true'
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_CACHE: local
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    networks:
+      - edge
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.keycloak.rule=Host(`${KEYCLOAK_HOST}`)"
+      - "traefik.http.routers.keycloak.entrypoints=websecure"
+      - "traefik.http.routers.keycloak.tls.certresolver=letsencrypt"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+
+  identity-hub-db:
+    profiles: ["identity"]
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${IDENTITY_HUB_DB_USER}
+      POSTGRES_PASSWORD: ${IDENTITY_HUB_DB_PASSWORD}
+      POSTGRES_DB: ${IDENTITY_HUB_DB_NAME}
+    volumes:
+      - identity-hub-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${IDENTITY_HUB_DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  key-vault:
+    profiles: ["identity"]
+    image: hashicorp/vault:1.16
+    restart: unless-stopped
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+      VAULT_API_ADDR: http://127.0.0.1:8200
+    volumes:
+      - key-vault-data:/vault/file
+      - ./config/kv/vault.hcl:/vault/config/vault.hcl:ro
+    command: vault server -config=/vault/config/vault.hcl
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "status_json=\"$$(vault status -format=json 2>/dev/null || true)\"; echo \"$$status_json\" | tr -d '[:space:]' | grep -q '\"initialized\":true' && echo \"$$status_json\" | tr -d '[:space:]' | grep -q '\"sealed\":false'",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - edge
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.key-vault-api.rule=Host(`${VAULT_HOST}`) && PathPrefix(`/v1`)"
+      - "traefik.http.routers.key-vault-api.entrypoints=websecure"
+      - "traefik.http.routers.key-vault-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.key-vault-api.service=key-vault"
+      - "traefik.http.routers.key-vault-api.priority=100"
+      - "traefik.http.services.key-vault.loadbalancer.server.port=8200"
+
+      - "traefik.http.routers.key-vault-fallback.rule=Host(`${VAULT_HOST}`)"
+      - "traefik.http.routers.key-vault-fallback.entrypoints=websecure"
+      - "traefik.http.routers.key-vault-fallback.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.key-vault-fallback.service=key-vault"
+      - "traefik.http.routers.key-vault-fallback.priority=1"
+
+  identity-hub:
+    profiles: ["identity"]
+    image: ${IMAGE_REGISTRY}/identity-hub:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      EDC_FS_CONFIG: /app/configuration.properties
+    volumes:
+      - ./.generated/config/identity-hub.properties:/app/configuration.properties:ro
+    depends_on:
+      identity-hub-db:
+        condition: service_healthy
+      key-vault:
+        condition: service_healthy
+    networks:
+      - edge
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:7080/api/check/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.identity-hub-api.rule=Host(`${IDENTITY_HUB_HOST}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.identity-hub-api.entrypoints=websecure"
+      - "traefik.http.routers.identity-hub-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.identity-hub-api.service=identity-hub-api"
+      - "traefik.http.routers.identity-hub-api.middlewares=cors"
+      - "traefik.http.services.identity-hub-api.loadbalancer.server.port=7080"
+      - "traefik.http.routers.identity-hub-api.priority=10"
+
+      - "traefik.http.routers.identity-hub-credentials.rule=Host(`${IDENTITY_HUB_HOST}`) && PathPrefix(`/api/credentials`)"
+      - "traefik.http.routers.identity-hub-credentials.entrypoints=websecure"
+      - "traefik.http.routers.identity-hub-credentials.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.identity-hub-credentials.service=identity-hub-credentials"
+      - "traefik.http.routers.identity-hub-credentials.middlewares=cors"
+      - "traefik.http.routers.identity-hub-credentials.priority=100"
+      - "traefik.http.services.identity-hub-credentials.loadbalancer.server.port=7081"
+
+      - "traefik.http.routers.identity-hub-identity.rule=Host(`${IDENTITY_HUB_HOST}`) && PathPrefix(`/api/identity`)"
+      - "traefik.http.routers.identity-hub-identity.entrypoints=websecure"
+      - "traefik.http.routers.identity-hub-identity.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.identity-hub-identity.service=identity-hub-identity"
+      - "traefik.http.routers.identity-hub-identity.middlewares=cors"
+      - "traefik.http.routers.identity-hub-identity.priority=100"
+      - "traefik.http.services.identity-hub-identity.loadbalancer.server.port=7082"
+
+      - "traefik.http.routers.identity-hub-did.rule=Host(`${IDENTITY_HUB_HOST}`)"
+      - "traefik.http.routers.identity-hub-did.entrypoints=websecure"
+      - "traefik.http.routers.identity-hub-did.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.identity-hub-did.service=identity-hub-did"
+      - "traefik.http.routers.identity-hub-did.middlewares=cors"
+      - "traefik.http.routers.identity-hub-did.priority=1"
+      - "traefik.http.services.identity-hub-did.loadbalancer.server.port=7083"
+
+      - "traefik.http.routers.identity-hub-version.rule=Host(`${IDENTITY_HUB_HOST}`) && PathPrefix(`/api/version`)"
+      - "traefik.http.routers.identity-hub-version.entrypoints=websecure"
+      - "traefik.http.routers.identity-hub-version.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.identity-hub-version.service=identity-hub-version"
+      - "traefik.http.routers.identity-hub-version.middlewares=cors"
+      - "traefik.http.routers.identity-hub-version.priority=100"
+      - "traefik.http.services.identity-hub-version.loadbalancer.server.port=7085"
+
+      - "traefik.http.routers.identity-hub-sts.rule=Host(`${IDENTITY_HUB_HOST}`) && PathPrefix(`/api/sts`)"
+      - "traefik.http.routers.identity-hub-sts.entrypoints=websecure"
+      - "traefik.http.routers.identity-hub-sts.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.identity-hub-sts.service=identity-hub-sts"
+      - "traefik.http.routers.identity-hub-sts.middlewares=cors"
+      - "traefik.http.routers.identity-hub-sts.priority=100"
+      - "traefik.http.services.identity-hub-sts.loadbalancer.server.port=7086"
+
+  storage:
+    profiles: ["storage"]
+    image: rustfs/rustfs:1.0.0-alpha.85
+    restart: unless-stopped
+    environment:
+      - HOSTNAME=storage
+      - RUSTFS_ACCESS_KEY=${STORAGE_ACCESS_KEY}
+      - RUSTFS_SECRET_KEY=${STORAGE_SECRET_KEY}
+      - RUSTFS_CONSOLE_ENABLE=true
+    volumes:
+      - storage-data:/data
+    networks:
+      - internal
+      - edge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.storage-api.rule=Host(`${STORAGE_HOST}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.storage-api.entrypoints=websecure"
+      - "traefik.http.routers.storage-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.storage-api.service=storage-api"
+      - "traefik.http.routers.storage-api.priority=10"
+      - "traefik.http.services.storage-api.loadbalancer.server.port=9000"
+
+      - "traefik.http.routers.storage-ui.rule=Host(`${STORAGE_HOST}`)"
+      - "traefik.http.routers.storage-ui.entrypoints=websecure"
+      - "traefik.http.routers.storage-ui.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.storage-ui.service=storage-ui"
+      - "traefik.http.routers.storage-ui.priority=1"
+      - "traefik.http.services.storage-ui.loadbalancer.server.port=9001"
+
+  consumer-backend:
+    profiles: ["storage"]
+    image: ${IMAGE_REGISTRY}/consumer-backend:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      S3_ENDPOINT_URL: http://storage:9000
+      S3_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      S3_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      S3_BUCKET: ${STORAGE_BUCKET}
+      S3_DEFAULT_PREFIX: ${STORAGE_DEFAULT_PREFIX}
+      S3_DEFAULT_FOLDER: ${STORAGE_DEFAULT_FOLDER}
+    depends_on:
+      - storage
+    networks:
+      - internal
+      - edge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge"
+      - "traefik.http.routers.consumer-backend.rule=Host(`${CONSUMER_BACKEND_HOST}`)"
+      - "traefik.http.routers.consumer-backend.entrypoints=websecure"
+      - "traefik.http.routers.consumer-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.consumer-backend.loadbalancer.server.port=4000"
+
+volumes:
+  connector-db-data:
+  keycloak-db-data:
+  identity-hub-db-data:
+  key-vault-data:
+  storage-data:
+
+networks:
+  edge:
+    name: edge
+  internal:
+    name: internal
+    internal: true
