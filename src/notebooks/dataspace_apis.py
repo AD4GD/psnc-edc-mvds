@@ -127,7 +127,7 @@ def create_policy(policy_id: str, management_url: str, default_headers: dict, pe
                 },
             }
         ),
-        url=f"{management_url}/v2/policydefinitions",
+        url=f"{management_url}/v3/policydefinitions",
     )
 
 
@@ -168,6 +168,8 @@ def negotiate_contract(
     provider_protocol_internal: str,
     permissions: list,
     default_headers: dict,
+    asset_id: str,
+    provider_id: str
 ):
     return requests.post(
         headers=default_headers,
@@ -181,8 +183,8 @@ def negotiate_contract(
                     "@context": "http://www.w3.org/ns/odrl.jsonld",
                     "@id": f"{offer_id}",
                     "@type": "Offer",
-                    "assigner": "provider",
-                    "target": "assetId",
+                    "assigner": provider_id,
+                    "target": {"@id": asset_id},
                     "permission": permissions,
                 },
             }
@@ -192,7 +194,7 @@ def negotiate_contract(
 
 
 def get_contract_agreement_id(contract_negotiation_id: str, management_url: str, default_headers: dict):
-    return requests.get(headers=default_headers, url=f"{management_url}/v2/contractnegotiations/{contract_negotiation_id}")
+    return requests.get(headers=default_headers, url=f"{management_url}/v3/contractnegotiations/{contract_negotiation_id}")
 
 
 def request_consumer_pull_transfer(
@@ -202,6 +204,7 @@ def request_consumer_pull_transfer(
     counter_party_address_internal: str,
     contract_agreement_id: str,
     default_headers: dict,
+    asset_id: str = "",
 ):
 
     return requests.post(
@@ -212,7 +215,7 @@ def request_consumer_pull_transfer(
                 "connectorId": provider_connector_id,
                 "counterPartyAddress": f"{counter_party_address_internal}",
                 "contractId": f"{contract_agreement_id}",
-                "assetId": "assetId",
+                "assetId": asset_id,
                 "protocol": "dataspace-protocol-http",
                 "transferType": "HttpData-PULL",
                 "dataDestination": {
@@ -221,7 +224,7 @@ def request_consumer_pull_transfer(
                 "callbackAddresses": [{"events": ["transfer.process.started"], "uri": consumer_callback_backend_url}],
             }
         ),
-        url=f"{consumer_connector_management_url}/v2/transferprocesses",
+        url=f"{consumer_connector_management_url}/v3/transferprocesses",
     )
 
 
@@ -232,6 +235,7 @@ def request_consumer_push_transfer(
     counter_party_address_internal: str,
     contract_agreement_id: str,
     default_headers: dict,
+    asset_id: str = "",
 ):
     return requests.post(
         headers=default_headers,
@@ -242,18 +246,18 @@ def request_consumer_push_transfer(
                 "connectorId": provider_connector_id,
                 "connectorAddress": f"{counter_party_address_internal}",
                 "contractId": f"{contract_agreement_id}",
-                "assetId": "assetId",
+                "assetId": asset_id,
                 "protocol": "dataspace-protocol-http",
                 "transferType": "HttpData-PUSH",
                 "dataDestination": {"type": "HttpData", "baseUrl": f"{data_destination_endpoint}"},
             }
         ),
-        url=f"{consumer_connector_management_url}/v2/transferprocesses",
+        url=f"{consumer_connector_management_url}/v3/transferprocesses",
     )
 
 
 def get_transfer_state(consumer_management_url: str, pull_transfer_id: str, default_headers: dict):
-    return requests.get(f"{consumer_management_url}/v2/transferprocesses/{pull_transfer_id}/state", headers=default_headers).json()
+    return requests.get(f"{consumer_management_url}/v3/transferprocesses/{pull_transfer_id}/state", headers=default_headers).json()
 
 
 def get_transfer_data_credentials(consumer_management_url: str, pull_transfer_id: str, default_headers: dict):
