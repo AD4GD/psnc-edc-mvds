@@ -6,7 +6,6 @@ import { AuthConfig } from 'angular-oauth2-oidc';
 export interface AppConfig {
   managementApiUrl: string;
   catalogUrl: string;
-  federatedCatalogUrl?: string;
   storageAccount: string;
   storageExplorerLinkTemplate: string;
   theme: string;

@@ -6,7 +6,6 @@ services:
     volumes:
       - ../docker/data-dashboard/config/conf-consumer/consumer.nginx.conf:/etc/nginx/nginx.conf
       - ../docker/data-dashboard/config/conf-consumer/consumer.config.json:/usr/share/nginx/html/assets/config/app.config.json
-      - ../docker/data-dashboard/config/participants.json:/usr/share/nginx/html/assets/participants.json
     user: "root"
     depends_on:
       - consumer-connector
