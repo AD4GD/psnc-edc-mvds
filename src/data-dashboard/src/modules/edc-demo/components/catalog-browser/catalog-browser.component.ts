@@ -138,7 +138,8 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
   onOfferClicked(contractOffer: ContractOffer): void {
     this.router.navigate(['/offer', contractOffer.assetId], {
       queryParams: {
-        participantId: contractOffer.participantId
+        participantId: contractOffer.participantId,
+        originator: contractOffer.originator
       }
     });
   }

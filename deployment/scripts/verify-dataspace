@@ -94,6 +94,12 @@ verify_participant() {
     connector_mgmt_url=$(jq -r '.connector.management_api_url' "$config_file")
     connector_api_key=$(jq -r '.connector.api_key' "$config_file")
 
+    # For this DSH request only: when using HTTP, force localhost as the host.
+    local ih_identity_url_for_request="$ih_identity_url"
+    if [[ "$ih_identity_url_for_request" =~ ^http://[^/:]+(:[0-9]+)?(.*)$ ]]; then
+        ih_identity_url_for_request="http://localhost${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+    fi
+
     # Read optional short secret alias (must match init-dataspace and Ansible vars)
     local sts_client_secret_alias
     sts_client_secret_alias=$(jq -r '.sts_client_secret_alias // empty' "$config_file")
@@ -108,7 +114,7 @@ verify_participant() {
     local vc_response vc_status vc_body
     vc_response=$(curl -sk -w "\n%{http_code}" \
         --max-time 10 \
-        "${ih_identity_url}/v1alpha/participants/${did}/credentials" \
+        "${ih_identity_url_for_request}/v1alpha/participants/${did}/credentials" \
         -H "x-api-key: ${ih_api_key}" 2>/dev/null) || true
     vc_status=$(echo "$vc_response" | tail -1)
     vc_body=$(echo "$vc_response" | sed '$d')

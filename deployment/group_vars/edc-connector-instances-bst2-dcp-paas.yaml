@@ -252,15 +252,6 @@ dataspaceportal_app_config_obj:
   apiBaseUrl: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api"
   isProduction: true
 
-participants_json_obj:
-  participants:
-    - id: "did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob"
-      originator: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp"
-      label: "Provider"
-    - id: "did:web:consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:alice"
-      originator: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp"
-      label: "Consumer"
-      
 # ROUTES
 routes:
   # consumer connector

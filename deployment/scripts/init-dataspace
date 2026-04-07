@@ -29,6 +29,12 @@ set -euo pipefail
 CONFIG_DIR=""
 SKIP_VC=false
 SINGLE_PARTICIPANT=""
+BOOTSTRAP_KEYS_FILE="$(mktemp -t ih-bootstrap-keys.XXXXXX)"
+
+cleanup() {
+    rm -f "$BOOTSTRAP_KEYS_FILE"
+}
+trap cleanup EXIT
 
 usage() {
     echo "Usage: $0 --config <config-dir> [--skip-vc] [--participant <name>]"
@@ -192,7 +198,7 @@ phase_bootstrap_identity_hubs() {
 
     for base_url in $ih_configs; do
         local bootstrap_url="${base_url}/api/bootstrap"
-        local health_url="${base_url}/health"
+        local health_url="${base_url}/api/check/health"
 
         wait_for_url "Identity Hub at ${base_url}" "${health_url}" || true
 
@@ -211,6 +217,10 @@ phase_bootstrap_identity_hubs() {
             if [ "$status" = "created" ]; then
                 local api_key
                 api_key=$(echo "$response_body" | jq -r '.apiKey // empty')
+                log "API key for ${base_url}: ${api_key}"
+                if [ -n "$api_key" ]; then
+                    printf "%s|%s\n" "$base_url" "$api_key" >> "$BOOTSTRAP_KEYS_FILE"
+                fi
                 ok "Super-user created at ${base_url} (API key: ${api_key})"
             elif [ "$status" = "already_exists" ]; then
                 ok "Super-user already exists at ${base_url}"
@@ -239,11 +249,12 @@ process_participant() {
     log "--- Processing participant: ${name} ---"
 
     # Read participant config
-    local did ih_identity_url ih_credentials_url ih_api_key
+    local did ih_base_url ih_identity_url ih_credentials_url ih_api_key
     local connector_mgmt_url connector_api_key connector_dsp_url
     local public_key_pem_path
 
     did=$(jq -r '.did' "$config_file")
+    ih_base_url=$(jq -r '.identity_hub.base_url // empty' "$config_file")
     ih_identity_url=$(jq -r '.identity_hub.identity_api_url' "$config_file")
     ih_credentials_url=$(jq -r '.identity_hub.credentials_api_url' "$config_file")
     ih_api_key=$(jq -r '.identity_hub.api_key' "$config_file")
@@ -251,6 +262,15 @@ process_participant() {
     connector_api_key=$(jq -r '.connector.api_key' "$config_file")
     connector_dsp_url=$(jq -r '.connector.dsp_url' "$config_file")
     public_key_pem_path=$(jq -r '.identity_hub.public_key_pem_path' "$config_file")
+
+    # If bootstrap generated a fresh API key in this run, prefer it over static config.
+    if [ -n "$ih_base_url" ] && [ -f "$BOOTSTRAP_KEYS_FILE" ]; then
+        local runtime_api_key
+        runtime_api_key=$(awk -F'|' -v base="$ih_base_url" '$1 == base {k=$2} END {print k}' "$BOOTSTRAP_KEYS_FILE")
+        if [ -n "$runtime_api_key" ]; then
+            ih_api_key="$runtime_api_key"
+        fi
+    fi
 
     # Read optional short secret alias (avoids vault URL length issues in K8s)
     # Falls back to the EDC default: <did>-sts-client-secret
@@ -274,12 +294,19 @@ process_participant() {
     local pem_value
     pem_value=$(read_pem "$public_key_pem_path")
     local pem_escaped
-    pem_escaped=$(echo "$pem_value" | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')
+    pem_escaped=$(printf '%s' "$pem_value" | awk 'BEGIN{first=1} {sub(/\r$/, ""); if (!first) printf "\\n"; printf "%s", $0; first=0}')
 
     local participant_context_id_base64
     participant_context_id_base64=$(base64_encode "$did")
 
     local credential_service_endpoint="${ih_credentials_url}/v1/participants/${participant_context_id_base64}"
+
+    # For this DSH request only: when using HTTP, force localhost as the host.
+    local ih_identity_url_for_request="$ih_identity_url"
+    if [[ "$ih_identity_url_for_request" =~ ^http://[^/:]+(:[0-9]+)?(.*)$ ]]; then
+        ih_identity_url_for_request="http://localhost${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+    fi
+
 
     local body
     body=$(jq -n \
@@ -317,7 +344,7 @@ process_participant() {
 
     local response status_code response_body
     response=$(curl -sk -w "\n%{http_code}" \
-        -X POST "${ih_identity_url}/v1alpha/participants" \
+        -X POST "${ih_identity_url_for_request}/v1alpha/participants" \
         -H "Content-Type: application/json" \
         -H "x-api-key: ${ih_api_key}" \
         -d "$body")

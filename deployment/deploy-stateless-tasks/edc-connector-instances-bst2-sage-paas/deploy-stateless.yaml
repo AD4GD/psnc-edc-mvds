@@ -91,10 +91,6 @@
         target: "{{ sage_public_connector_address }}/api/catalog-proxy/"
       - path: /catalog
         target: "{{ sage_public_connector_address }}/api/catalog-proxy/catalog/request"
-    extra_config_files:
-      - name: participants.json
-        path: /usr/share/nginx/html/assets/participants.json
-        content_var: participants_json_obj
 
 - name: "Deploy sage-public keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
@@ -172,10 +168,6 @@
         target: "{{ edwin_connector_address }}/api/catalog-proxy/"
       - path: /catalog
         target: "{{ edwin_connector_address }}/api/catalog-proxy/catalog/request"
-    extra_config_files:
-      - name: participants.json
-        path: /usr/share/nginx/html/assets/participants.json
-        content_var: participants_json_obj
 
 - name: "Deploy edwin keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml

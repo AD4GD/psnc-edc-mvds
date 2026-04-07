@@ -1,10 +1,10 @@
 {
   "managementApiUrl": "http://localhost:8081/api/management",
-  "catalogUrl": "http://localhost:8081/api/catalog-proxy/catalog/request",
+  "catalogUrl": "http://localhost:8086/api/catalog-proxy/catalog/request",
   "theme": "theme-2",
   "deploymentMode": "local",
   "backendUrl": "http://consumer-backend:4000/edr-endpoint",
-  "oauthIssuer": "http://localhost:8083/realms/Organizations",
+  "oauthIssuer": "http://localhost:48082/realms/Organizations",
   "oauthClientId": "data-space-users",
   "connectorId": "provider"
 }

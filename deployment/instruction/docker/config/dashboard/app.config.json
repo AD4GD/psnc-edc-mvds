@@ -3,6 +3,8 @@
   "catalogUrl": "${PUBLIC_SCHEME}://${CONNECTOR_HOST}/catalog-proxy/catalog/request",
   "theme": "theme-3",
   "deploymentMode": "production",
+  "backendUrl": "${CONSUMER_BACKEND_URL}",
   "oauthIssuer": "${PUBLIC_SCHEME}://${KEYCLOAK_HOST}/realms/Organizations",
-  "oauthClientId": "data-space-users"
+  "oauthClientId": "data-space-users",
+  "connectorId": "${CONNECTOR_ID}"
 }
