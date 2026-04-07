@@ -90,6 +90,7 @@
       - path: /catalog-proxy/
         target: "{{ consumer_connector_address }}/api/catalog-proxy/"
       - path: /catalog
+        target: "{{ consumer_connector_address }}/api/catalog-proxy/catalog/request"
 
 - name: "Deploy consumer keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
