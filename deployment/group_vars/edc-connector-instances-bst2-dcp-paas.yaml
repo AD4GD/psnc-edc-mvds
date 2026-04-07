@@ -235,6 +235,7 @@ storage_address: "https://storage-dcp-data-space.apps.bst2.paas.psnc.pl"
 consumer_dashboard_app_config_obj:
   managementApiUrl: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management"
   catalogUrl: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
+  federatedCatalogUrl: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl"
   theme: "theme-4"
   deploymentMode: "production"
   backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
@@ -243,6 +244,7 @@ consumer_dashboard_app_config_obj:
 provider_dashboard_app_config_obj:
   managementApiUrl: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management"
   catalogUrl: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
+  federatedCatalogUrl: "https://federated-catalog-dcp-data-space.apps.bst2.paas.psnc.pl"
   theme: "theme-3"
   deploymentMode: "production"
   backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
@@ -252,15 +254,6 @@ dataspaceportal_app_config_obj:
   apiBaseUrl: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api"
   isProduction: true
 
-participants_json_obj:
-  participants:
-    - id: "did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob"
-      originator: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp"
-      label: "Provider"
-    - id: "did:web:consumer-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:alice"
-      originator: "https://consumer-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp"
-      label: "Consumer"
-      
 # ROUTES
 routes:
   # consumer connector

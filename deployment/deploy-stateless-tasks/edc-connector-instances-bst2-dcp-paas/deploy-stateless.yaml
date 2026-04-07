@@ -90,11 +90,6 @@
       - path: /catalog-proxy/
         target: "{{ consumer_connector_address }}/api/catalog-proxy/"
       - path: /catalog
-        target: "{{ consumer_connector_address }}/api/catalog-proxy/catalog/request"
-    extra_config_files:
-      - name: participants.json
-        path: /usr/share/nginx/html/assets/participants.json
-        content_var: participants_json_obj
 
 - name: "Deploy consumer keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
@@ -172,10 +167,6 @@
         target: "{{ provider_connector_address }}/api/catalog-proxy/"
       - path: /catalog
         target: "{{ provider_connector_address }}/api/catalog-proxy/catalog/request"
-    extra_config_files:
-      - name: participants.json
-        path: /usr/share/nginx/html/assets/participants.json
-        content_var: participants_json_obj
 
 - name: "Deploy provider keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
