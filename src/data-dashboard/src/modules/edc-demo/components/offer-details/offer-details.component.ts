@@ -20,7 +20,7 @@ import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-stat
 import { CatalogBrowserTransferDialog } from '../catalog-browser-transfer-dialog/catalog-browser-transfer-dialog.component';
 import { ContractOffer } from '../../models/contract-offer';
 import { TransferProcessStates } from '../../models/transfer-process-states';
-import { CatalogBrowserService, NotificationService, ParticipantsRegistryService, UtilService } from '../../services';
+import { CatalogBrowserService, NotificationService, UtilService } from '../../services';
 
 interface RunningTransferProcess {
     processId: string;
@@ -39,6 +39,7 @@ interface RunningTransferProcess {
 export class OfferDetailsComponent implements OnInit, OnDestroy {
     offerId = '';
     participantId = '';
+    originator = '';
     offer?: ContractOffer;
     metadata: any = {};
     isUnauthorized = false;
@@ -66,7 +67,6 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
         private readonly transferService: TransferProcessService,
         private readonly edrService: EdrService,
         private readonly publicService: PublicService,
-        private readonly participantsRegistry: ParticipantsRegistryService,
         private readonly notificationService: NotificationService,
         private readonly appConfigService: AppConfigService,
         private readonly unauthorizedState: UnauthorizedStateService,
@@ -89,6 +89,7 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
 
         this.offerId = this.route.snapshot.paramMap.get('id') ?? '';
         this.participantId = this.route.snapshot.queryParamMap.get('participantId') ?? '';
+        this.originator = this.route.snapshot.queryParamMap.get('originator') ?? '';
         this.loadOffer();
     }
 
@@ -116,25 +117,15 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (!this.originator) {
+            this.loadError = 'Missing originator. Open this offer from the catalog.';
+            this.isLoading = false;
+            return;
+        }
+
         this.isLoading = true;
 
-        this.participantsRegistry.getOriginator(this.participantId)
-        .pipe(first())
-        .subscribe({
-            next: originator => {
-                if (!originator) {
-                    this.loadError = `Participant ${this.participantId} not found in registry.`;
-                    this.isLoading = false;
-                    return;
-                }
-                this.requestDataset(originator, this.participantId);
-            },
-            error: err => {
-                console.error(err);
-                this.loadError = 'Failed to load participant registry.';
-                this.isLoading = false;
-            }
-        });
+        this.requestDataset(this.originator, this.participantId);
     }
 
     private requestDataset(originator: string, participantId: string): void {
