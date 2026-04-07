@@ -154,7 +154,6 @@ services:
     volumes:
       - ./.generated/config/dashboard/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./.generated/config/dashboard/app.config.json:/usr/share/nginx/html/assets/config/app.config.json:ro
-      - ./config/templates/participants.json:/usr/share/nginx/html/assets/participants.json
     depends_on:
       - connector
     networks:
