@@ -279,32 +279,6 @@ Useful checks:
 - Dashboard: `https://<DASHBOARD_HOST>`
 - Vault health: `${VAULT_ADDRESS}/v1/sys/health`
 
-## Participants list for Dashboard
-
-Dashboard participant cards are currently loaded from:
-
-- `config/templates/participants.json`
-
-This file is mounted into dashboard container as `assets/participants.json`.
-
-Each participant entry must include:
-
-- `id` (participant DID, e.g. `did:web:...`)
-- `originator` (connector DSP endpoint, e.g. `https://.../api/dsp`)
-- `label` (human-friendly name shown in UI)
-
-Example entry:
-
-```json
-{
-  "id": "did:web:identity-hub.example.com:provider-connector",
-  "originator": "https://provider-connector.example.com/api/dsp",
-  "label": "Provider Connector"
-}
-```
-
-Current approach is static and temporary. In future this file should be replaced by querying Federated Catalog API for available participants.
-
 ## 10. Stop or clean up
 
 Stop services:
