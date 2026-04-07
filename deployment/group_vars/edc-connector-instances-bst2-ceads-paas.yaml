@@ -235,7 +235,6 @@ dataspaceportal_address_shorten: "data-space-portal-ceads-data-space.apps.bst2.p
 ceadspublicdashboard_app_config_obj:
   managementApiUrl: "https://ceads-public-connector-ceads-data-space.apps.bst2.paas.psnc.pl/api/management"
   catalogUrl: "https://ceads-public-connector-ceads-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
-  federatedCatalogUrl: "https://federated-catalog-ceads-data-space.apps.bst2.paas.psnc.pl"
   theme: "theme-4"
   deploymentMode: "production"
   backendUrl: "https://ceads-public-backend-ceads-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
@@ -245,7 +244,6 @@ ceadspublicdashboard_app_config_obj:
 edwindashboard_app_config_obj:
   managementApiUrl: "https://edwin-connector-ceads-data-space.apps.bst2.paas.psnc.pl/api/management"
   catalogUrl: "https://edwin-connector-ceads-data-space.apps.bst2.paas.psnc.pl/api/catalog-proxy/catalog/request"
-  federatedCatalogUrl: "https://federated-catalog-ceads-data-space.apps.bst2.paas.psnc.pl"
   theme: "theme-3"
   deploymentMode: "production"
   backendUrl: "https://ceads-public-backend-ceads-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
