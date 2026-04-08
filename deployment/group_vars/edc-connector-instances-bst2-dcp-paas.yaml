@@ -225,11 +225,12 @@ federated_catalog_address: "https://federated-catalog-dcp-data-space.apps.bst2.p
 federated_catalog_identity_hub_address: "https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
 federated_catalog_keyvault_address: "https://federated-catalog-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 data_space_portal_address: "https://data-space-portal-dcp-data-space.apps.bst2.paas.psnc.pl"
-data_space_portal_address_shorten: "data-space-portal-dcp-data-space.apps.bst2.paas.psnc.pl"
 data_space_hub_address: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl"
 data_space_hub_keyvault_address: "https://data-space-hub-keyvault-dcp-data-space.apps.bst2.paas.psnc.pl"
 mail_service_address: "https://mail-service-dcp-data-space.apps.bst2.paas.psnc.pl"
 storage_address: "https://storage-dcp-data-space.apps.bst2.paas.psnc.pl"
+dataspaceportal_address_shorten: "data-space-portal-dcp-data-space.apps.bst2.paas.psnc.pl"
+data_space_portal_address_shorten: "data-space-portal-dcp-data-space.apps.bst2.paas.psnc.pl"
 
 # CONFIG OBJECTS
 consumer_dashboard_app_config_obj:
@@ -238,7 +239,8 @@ consumer_dashboard_app_config_obj:
   theme: "theme-4"
   deploymentMode: "production"
   backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
-  edcApiKey: "edc"
+  oauthIssuer: "https://consumer-keycloak-ceads-data-space.apps.bst2.paas.psnc.pl/realms/Organizations"
+  oauthClientId: "data-space-users"
 
 provider_dashboard_app_config_obj:
   managementApiUrl: "https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/management"
@@ -246,11 +248,15 @@ provider_dashboard_app_config_obj:
   theme: "theme-3"
   deploymentMode: "production"
   backendUrl: "https://consumer-backend-dcp-data-space.apps.bst2.paas.psnc.pl/edr-endpoint"
-  edcApiKey: "edc"
+  oauthIssuer: "https://provider-keycloak-ceads-data-space.apps.bst2.paas.psnc.pl/realms/Organizations"
+  oauthClientId: "data-space-users"
 
 dataspaceportal_app_config_obj:
   apiBaseUrl: "https://data-space-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api"
   isProduction: true
+  keycloakUrl: "https://data-space-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
+  keycloakRealm: "dataspace"
+  keycloakClientId: "data-space-users"
 
 # ROUTES
 routes:
