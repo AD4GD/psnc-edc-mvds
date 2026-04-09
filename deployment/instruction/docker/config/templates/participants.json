@@ -1,0 +1,19 @@
+{
+    "participants": [
+        {
+            "id": "did:web:ceads-public-identity-hub-ceads-data-space.apps.bst2.paas.psnc.pl:ceads-public",
+            "originator": "https://ceads-public-connector-ceads-data-space.apps.bst2.paas.psnc.pl/api/dsp",
+            "label": "Ceads Public"
+        },
+        {
+            "id": "did:web:edwin-identity-hub-ceads-data-space.apps.bst2.paas.psnc.pl:edwin",
+            "originator": "https://edwin-connector-ceads-data-space.apps.bst2.paas.psnc.pl/api/dsp",
+            "label": "Edwin"
+        },
+        {
+            "id": "did:web:identity-hub.62.3.175.232.nip.io:test-connector",
+            "originator": "https://connector.62.3.175.232.nip.io/api/dsp",
+            "label": "Test Connector"
+        }
+    ]
+}

@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v2.11
+    image: ${TRAEFIK_IMAGE}
     restart: unless-stopped
     command:
       - "--api.dashboard=true"
@@ -40,7 +40,7 @@ services:
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 
   connector-db:
-    image: postgres:16
+    image: ${POSTGRES_IMAGE}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${CONNECTOR_DB_USER}
@@ -170,7 +170,7 @@ services:
 
   keycloak-db:
     profiles: ["keycloak"]
-    image: postgres:16
+    image: ${POSTGRES_IMAGE}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${KEYCLOAK_DB_USER}
@@ -221,7 +221,7 @@ services:
 
   identity-hub-db:
     profiles: ["identity"]
-    image: postgres:16
+    image: ${POSTGRES_IMAGE}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${IDENTITY_HUB_DB_USER}
@@ -239,7 +239,7 @@ services:
 
   key-vault:
     profiles: ["identity"]
-    image: hashicorp/vault:1.16
+    image: ${VAULT_IMAGE}
     restart: unless-stopped
     cap_add:
       - IPC_LOCK
@@ -353,7 +353,7 @@ services:
 
   storage:
     profiles: ["storage"]
-    image: rustfs/rustfs:1.0.0-alpha.85
+    image: ${STORAGE_IMAGE}
     restart: unless-stopped
     environment:
       - HOSTNAME=storage
