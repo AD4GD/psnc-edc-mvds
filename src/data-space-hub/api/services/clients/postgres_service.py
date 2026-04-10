@@ -193,6 +193,23 @@ class AsyncPostgresService:
         async with self.session_factory() as session:
             return await session.get(RegistrationRequest, reg_id)
 
+    async def get_registration_request_by_participant_id(self, participant_id: str) -> Optional[RegistrationRequest]:
+        """Find the most recent registration request whose request_form email matches the given participant.
+        Since participant_id is not stored directly on registration_request, we join via the participant table."""
+        async with self.session_factory() as session:
+            # Look up the participant to get their email, then find the matching registration
+            participant = await session.get(Participant, participant_id)
+            if not participant:
+                return None
+            stmt = (
+                select(RegistrationRequest)
+                .where(RegistrationRequest.request_form["email"].as_string() == participant.email)
+                .order_by(RegistrationRequest.created_at.desc())
+                .limit(1)
+            )
+            result = await session.execute(stmt)
+            return result.scalar_one_or_none()
+
     async def list_registration_requests(self, offset: int = 0, limit: int | None = None) -> List[RegistrationRequest]:
         """List registration requests, optional filter by participant."""
         async with self.session_factory() as session:

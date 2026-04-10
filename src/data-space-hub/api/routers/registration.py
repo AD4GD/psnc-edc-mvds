@@ -1,14 +1,13 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 from uuid import UUID
 
 from api.core.logging_config import setup_logging
-from api.models.dto.requests import ParticipantCreateRequest
+from api.models.dto.requests import RegistrationCreateRequest
 from api.models.dto.responses import RegistrationRequestResponse, SimpleMessageResponse
 from api.services.app import registration_service
 from api.models.db.registration_request import RegistrationStatus
-
-# from api.services.helper import get_bearer_token, require_admin_token
-from fastapi import APIRouter, Body, Path, Query, Response, status  # , Depends
+from api.services.helper import require_admin_token
+from fastapi import APIRouter, Body, Depends, Path, Query, Response, status
 from fastapi.responses import JSONResponse
 
 logger = setup_logging()
@@ -34,17 +33,17 @@ async def test_registration():
     status_code=status.HTTP_200_OK,
     summary="Start participant registration",
 )
-async def start_registration(req: Annotated[ParticipantCreateRequest, Body()]):
+async def start_registration(req: Annotated[RegistrationCreateRequest, Body()]):
     """
-    1. Participant creates infrastructure and run all required services.
-    2. Participant's admin send request and waits for Data Space Hub's admin for accept
+    Public endpoint. Company employee submits registration with company info.
+    An email confirmation link is sent.
     """
     return await registration_service.start_participant_registration(req)
 
 
 @router.get("/count", response_model=int, status_code=status.HTTP_200_OK, summary="Get registration request count")
-async def get_participants_count():  # token: str = Depends(get_bearer_token))
-    return await registration_service.get_registration_request_count("token")
+async def get_participants_count(token: str = Depends(require_admin_token)):
+    return await registration_service.get_registration_request_count(token)
 
 
 @router.get(
@@ -54,10 +53,9 @@ async def get_participants_count():  # token: str = Depends(get_bearer_token))
     summary="Get all registration requests",
     responses={status.HTTP_204_NO_CONTENT: {"message": "No data to display"}},
 )
-# Middleware for checking token and a role
-async def get_all_registrations(response: Response, offset: int = 0, limit: int | None = None):  # , token: str = Depends(require_admin_token)):
-    """Accept participant registration"""
-    return await registration_service.get_all_regitrations_requests("token", response, offset, limit)
+async def get_all_registrations(response: Response, offset: int = 0, limit: int | None = None, token: str = Depends(require_admin_token)):
+    """List all registration requests. Admin only."""
+    return await registration_service.get_all_regitrations_requests(token, response, offset, limit)
 
 
 @router.get(
@@ -67,10 +65,9 @@ async def get_all_registrations(response: Response, offset: int = 0, limit: int 
     summary="Get registration request",
     responses={status.HTTP_204_NO_CONTENT: {"message": "No data to display"}},
 )
-# Middleware for checking token and a role
-async def get_registration(response: Response, request_id: UUID):  # , token: str = Depends(require_admin_token)):
-    """Get registration request"""
-    return await registration_service.get_registration_request("token", response, request_id)
+async def get_registration(response: Response, request_id: UUID, token: str = Depends(require_admin_token)):
+    """Get registration request. Admin only."""
+    return await registration_service.get_registration_request(token, response, request_id)
 
 @router.get(
     "/{request_id}/email-confirm",
@@ -95,13 +92,10 @@ async def confirm_email(
     "/{request_id}/approve",
     response_model=SimpleMessageResponse,
     status_code=status.HTTP_202_ACCEPTED,
-    summary="Accept participant registrattion",
+    summary="Accept participant registration",
 )
-async def accept_registration(request_id: UUID):
-    # should be protected via JWT-signed token
-    # auth-related logic
-    # token: str = Depends(require_admin_token))
-
+async def accept_registration(request_id: UUID, token: str = Depends(require_admin_token)):
+    """Approve a registration request. Admin only. Creates Keycloak user and participant."""
     return await registration_service.update_registration_status(request_id, RegistrationStatus.APPROVED)
 
 @router.put(
@@ -110,12 +104,23 @@ async def accept_registration(request_id: UUID):
     status_code=status.HTTP_202_ACCEPTED,
     summary="Reject participant registration",
 )
-async def reject_registration(request_id: UUID):
-    # should be protected via JWT-signed token
-    # auth-related logic
-    # token: str = Depends(require_admin_token))
+async def reject_registration(
+    request_id: UUID,
+    reason: Optional[str] = Body(None, embed=True),
+    token: str = Depends(require_admin_token),
+):
+    """Reject a registration request. Admin only. Optionally provide a reason."""
+    return await registration_service.update_registration_status(request_id, RegistrationStatus.REJECTED, reject_reason=reason or "")
 
-    return await registration_service.update_registration_status(request_id, RegistrationStatus.REJECTED)
+@router.put(
+    "/{request_id}/retry",
+    response_model=SimpleMessageResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Retry failed onboarding",
+)
+async def retry_onboarding(request_id: UUID, token: str = Depends(require_admin_token)):
+    """Retry onboarding for a registration that previously failed (e.g. Keycloak error). Admin only."""
+    return await registration_service.retry_onboarding(request_id)
 
 @router.delete(
     "/{request_id}",
@@ -123,6 +128,6 @@ async def reject_registration(request_id: UUID):
     status_code=status.HTTP_200_OK,
     summary="Delete participant",
 )
-async def delete_registration(request_id: UUID):  # , token: str = Depends(require_admin_token)):
-    """Delete participant registration"""
-    return await registration_service.delete_registration_request("token", request_id)
+async def delete_registration(request_id: UUID, token: str = Depends(require_admin_token)):
+    """Delete participant registration. Admin only."""
+    return await registration_service.delete_registration_request(token, request_id)

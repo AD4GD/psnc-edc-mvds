@@ -23,6 +23,16 @@ class InsertVcRequest(BaseModel):
     identity_hub_identity_url: str = Field(..., description="Identity Hub identity API URL")
     identity_hub_api_key: str = Field(..., description="Identity Hub super-user API key")
 
+
+class RegistrationCreateRequest(BaseModel):
+    """Request model for public self-registration (company info only, no infra details)."""
+    name: str = Field(..., description="Company short name")
+    full_name: str = Field(..., description="Company full legal name")
+    VAT_number: str = Field(..., description="Company VAT number")
+    email: EmailStr = Field(..., description="Contact email for the registering employee")
+    location: LocationRequest = Field(..., description="Company address")
+
+
 class ParticipantCreateRequest(BaseModel):
     """Request model for creating a new participant."""
     name: str = Field(..., description="Participant name")

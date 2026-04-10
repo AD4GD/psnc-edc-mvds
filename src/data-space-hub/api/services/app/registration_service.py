@@ -4,11 +4,17 @@ from api.core.logging_config import setup_logging
 from api.core.settings import ProjectSettings
 from api.exceptions.registration_service_exceptions import RecordNotFoundException
 from api.models.db.registration_request import RegistrationStatus
-from api.models.dto.requests import ParticipantCreateRequest, InsertVcRequest
+from api.models.dto.requests import RegistrationCreateRequest, InsertVcRequest
 from api.models.dto.responses import SimpleMessageResponse
-from api.services.clients import EmailService, async_postgres_service
+from api.services.clients import EmailService, async_postgres_service, keycloak_service
 from api.services.infrastructure import registration_token_service
-from api.templates.email import participant_confirm_email_template
+from api.templates.email import (
+    participant_confirm_email_template,
+    participant_accepted_template,
+    participant_rejected_template,
+    participant_set_password_template,
+    admin_waiting_for_appoval_template,
+)
 from api.templates.template_filler import render_jinja_template
 from fastapi import Response, status
 from fastapi.encoders import jsonable_encoder
@@ -29,16 +35,16 @@ class RegistrationService:
         pass
 
     @classmethod
-    async def start_participant_registration(cls, request: ParticipantCreateRequest) -> SimpleMessageResponse:
+    async def start_participant_registration(cls, request: RegistrationCreateRequest) -> SimpleMessageResponse:
         """
         Start participant registration process.
-        Participant sends a request with a form, it is then saved to db into registration_request and email is sent.
+        Participant sends a request with company info only, it is saved to db and confirmation email is sent.
         """
         payload = {
             "id": uuid4(),
             "status": RegistrationStatus.REQUESTED.value,
             "request_form": jsonable_encoder(request),
-            "error_detail": "",  # Test for some error details
+            "error_detail": "",
             "email_confirmed": False,
         }
         rr = await async_postgres_service.create_registration_request(payload)
@@ -57,8 +63,7 @@ class RegistrationService:
             body_type="html",
         )
         logger.info(email_response)
-        # TODO after participant admin email confirmation - send email to DS admin
-        return SimpleMessageResponse(message="Everything OK")  # Make correct response
+        return SimpleMessageResponse(message="Registration submitted. Please check your email to confirm.")
 
     @classmethod
     async def _get_email_confirmation_url(cls, request_id):
@@ -77,13 +82,39 @@ class RegistrationService:
     async def confirm_email(cls, request_id):
         await async_postgres_service.confirm_email(request_id)
 
+        # Notify DS admin that a new registration is waiting for review
+        rr = await async_postgres_service.get_registration_request(request_id)
+        if rr and rr.request_form:
+            form = rr.request_form
+            try:
+                # Send notification to admin email (use the configured admin email or a dedicated one)
+                admin_email = getattr(ProjectSettings, "admin_email", None)
+                if admin_email:
+                    EmailService.send_email(
+                        recipients=[admin_email],
+                        subject="New participant registration awaiting approval",
+                        body=render_jinja_template(
+                            admin_waiting_for_appoval_template,
+                            {
+                                "participant_name": form.get("full_name", form.get("name", "Unknown")),
+                                "participant_email": form.get("email", "Unknown"),
+                            },
+                        ),
+                        body_type="html",
+                    )
+                    logger.info(f"Admin notification sent for registration {request_id}")
+                else:
+                    logger.warning("No admin_email configured – skipping admin notification")
+            except Exception as e:
+                logger.error(f"Failed to send admin notification for registration {request_id}: {e}")
+
     @classmethod
     async def get_all_regitrations_requests(cls, token: str, response: Response, offset: int = 0, limit: int | None = None):
         """Retrieve all registration requests"""
         registrations = await async_postgres_service.list_registration_requests(offset, limit)
 
         if not registrations:
-            raise RecordNotFoundException(message="No registration requests found", status_code=204, record_type="registration request list")
+            return []
         return registrations
 
     @classmethod
@@ -99,11 +130,10 @@ class RegistrationService:
     @classmethod
     async def get_registration_request_count(cls, token: str):
         """Retrieve specific registration request"""
-        # TODO auth
         return await async_postgres_service.get_registration_request_count()
 
     @classmethod
-    async def update_registration_status(cls, reg_id: str, new_status: str) -> int:
+    async def update_registration_status(cls, reg_id: str, new_status: str, reject_reason: str = "") -> int:
         """
         Updates registration status with checking if can change it
         REQUESTED -> APPROVED / REJECTED
@@ -111,7 +141,6 @@ class RegistrationService:
         """
         logger.info(new_status)
 
-        # TODO auth
         if not RegistrationStatus.__includes__(new_status):
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
         target_status = RegistrationStatus.normalize(new_status)
@@ -127,21 +156,154 @@ class RegistrationService:
         if RegistrationStatus.can_transition(rr.status, target_status):
             logger.info(f"Updating registration {reg_id} to status {target_status}")
             await async_postgres_service.update_registration_request(reg_id, {"status": target_status})
+
             if new_status == RegistrationStatus.APPROVED:
+                form = rr.request_form
+                kc_user_id = None
 
-                await cls._issue_vc_and_add_to_federated_catalog(rr.request_form['data_space_components'])
+                # 1. Create Keycloak user so the participant can log in to the portal
+                try:
+                    # This is a company/organisation account – use the short name as
+                    # firstName and the full legal name as lastName.  Keycloak requires
+                    # both fields but they carry no personal meaning here.
+                    kc_user_id = keycloak_service.create_user(
+                        email=form["email"],
+                        first_name=form.get("name", ""),
+                        last_name=form.get("full_name", form.get("name", "")),
+                        attributes={"registration_id": str(reg_id)},
+                    )
 
-                # TODO actual logic to check if all participant's services for connection are working
-                # TODO if services not working then <error_detail> and stay on APPROVED (availability to change it manually from admin dash)
-                logger.info(f"Updating registration {reg_id} to status {RegistrationStatus.ONBOARDED.value}")
-                _ = await async_postgres_service.update_registration_request(reg_id, {"status": RegistrationStatus.ONBOARDED.value})
+                    # Assign participant role
+                    try:
+                        keycloak_service.assign_realm_role(kc_user_id, "participant")
+                    except Exception as role_err:
+                        logger.warning(f"Could not assign 'participant' role (may not exist): {role_err}")
+
+                    # Set a temporary password and send credentials via our own email service
+                    temp_password = keycloak_service.set_temporary_password(kc_user_id)
+                    EmailService.send_email(
+                        recipients=[form["email"]],
+                        subject="Data Space - Your Account Credentials",
+                        body=render_jinja_template(
+                            participant_set_password_template,
+                            {
+                                "participant_name": form.get("full_name", form.get("name", "")),
+                                "email": form["email"],
+                                "temporary_password": temp_password,
+                                "portal_url": ProjectSettings.frontend_url,
+                            },
+                        ),
+                        body_type="html",
+                    )
+                    logger.info(f"Keycloak user created for {form['email']}, credentials email sent via email-service")
+                except Exception as e:
+                    logger.error(f"Failed to create Keycloak user for registration {reg_id}: {e}")
+                    # Roll back status to REQUESTED so admin can retry
+                    await async_postgres_service.update_registration_request(
+                        reg_id, {
+                            "status": RegistrationStatus.REQUESTED.value,
+                            "error_detail": f"Keycloak user creation failed: {e}",
+                        }
+                    )
+                    return JSONResponse(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        content={"message": f"Onboarding failed at Keycloak user creation: {e}"},
+                    )
+
+                # 2. Create participant record in DB
                 participant = await participant_service.register_participant(reg_id=reg_id)
                 if participant is None:
-                    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={})  # TODO pottentially add content
-            
-                return SimpleMessageResponse(message="Participant onboarded")
+                    await async_postgres_service.update_registration_request(
+                        reg_id, {
+                            "status": RegistrationStatus.REQUESTED.value,
+                            "error_detail": "Failed to create participant record in database",
+                        }
+                    )
+                    return JSONResponse(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        content={"message": "Onboarding failed: could not create participant record"},
+                    )
+
+                # 3. Update Keycloak user attribute with participant_id for token mapping
+                try:
+                    participant_id = str(participant.id) if hasattr(participant, 'id') else str(participant.get('id', ''))
+                    if kc_user_id and participant_id:
+                        keycloak_service.keycloak_admin.update_user(
+                            user_id=kc_user_id,
+                            payload={"attributes": {"participant_id": participant_id, "registration_id": str(reg_id)}},
+                        )
+                except Exception as e:
+                    logger.warning(f"Could not update Keycloak user attributes: {e}")
+
+                # 4. Transition to ONBOARDED
+                logger.info(f"Updating registration {reg_id} to status {RegistrationStatus.ONBOARDED.value}")
+                await async_postgres_service.update_registration_request(
+                    reg_id, {"status": RegistrationStatus.ONBOARDED.value, "error_detail": ""}
+                )
+
+                # 5. Send accepted email to participant
+                EmailService.send_email(
+                    [form["email"]],
+                    "Data Space - Registration Approved",
+                    render_jinja_template(participant_accepted_template, {"participant_name": form.get("full_name", form.get("name", ""))}),
+                    "html",
+                )
+
+                return SimpleMessageResponse(message="Participant approved and onboarded")
+
+            if new_status == RegistrationStatus.REJECTED:
+                form = rr.request_form
+                # Save rejection reason
+                if reject_reason:
+                    await async_postgres_service.update_registration_request(reg_id, {"error_detail": reject_reason})
+
+                # Send rejection email
+                try:
+                    EmailService.send_email(
+                        [form["email"]],
+                        "Data Space - Registration Rejected",
+                        render_jinja_template(
+                            participant_rejected_template,
+                            {
+                                "participant_name": form.get("full_name", form.get("name", "")),
+                                "reject_reason": reject_reason or "No reason provided.",
+                            },
+                        ),
+                        "html",
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to send rejection email for {reg_id}: {e}")
+
             return SimpleMessageResponse(message=f"Status of registration has been changed to {target_status}")
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": "Unsupported action"})
+
+    @classmethod
+    async def retry_onboarding(cls, reg_id: str):
+        """
+        Retry the onboarding process for a registration that previously failed.
+        Allowed when the registration is in REQUESTED state with a non-empty error_detail
+        (i.e. it was rolled back after a failure during approval).
+        Re-runs the same approval logic.
+        """
+        rr = await async_postgres_service.get_registration_request(reg_id)
+        if rr is None:
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Registration not found"})
+
+        if rr.status not in (RegistrationStatus.REQUESTED.value, RegistrationStatus.REQUESTED):
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={"message": f"Retry is only allowed for registrations in REQUESTED state (current: {rr.status})"},
+            )
+
+        if not rr.error_detail:
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={"message": "No previous error recorded – use the normal approve flow instead"},
+            )
+
+        # Clear the previous error and re-attempt approval
+        await async_postgres_service.update_registration_request(reg_id, {"error_detail": ""})
+        return await cls.update_registration_status(reg_id, RegistrationStatus.APPROVED)
 
     @classmethod
     async def _issue_vc_and_add_to_federated_catalog(cls, request_form) -> int:
@@ -160,7 +322,6 @@ class RegistrationService:
         Deletes registration request
         Function is called only when participant is being deleted
         """
-        # TODO auth
         return (
             SimpleMessageResponse(message="Record deleted")
             if await async_postgres_service.delete_registration_request(reg_id) > 0

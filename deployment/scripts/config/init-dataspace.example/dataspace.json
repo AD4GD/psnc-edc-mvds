@@ -1,6 +1,7 @@
 {
   "data_space_hub": {
-    "url": "http://localhost:8000"
+    "url": "http://localhost:8000",
+    "api_key": "edc"
   },
   "timeouts": {
     "max_wait_seconds": 120,

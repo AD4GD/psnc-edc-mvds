@@ -1,6 +1,6 @@
 {
   "did": "did:web:consumer-ih%3A7083:alice",
-  "sts_client_secret_alias": "sts-client-secret",
+  "sts_client_secret_alias": "consumer-sts-secret",
   "identity_hub": {
     "base_url": "http://localhost:7080",
     "identity_api_url": "http://consumer-ih:7082/api/identity",

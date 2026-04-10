@@ -8,7 +8,6 @@ from api.services.clients import vault_service
 from api.services.clients.vault_init import initialize_vault
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import asyncio
 
 logger = setup_logging()
 
@@ -20,8 +19,6 @@ async def lifespan(app: FastAPI):
     if (ProjectSettings.is_skip_init == False):
         logger.info("Initializing Vault...")
         try:
-            logger.info("Waiting for dependent services to initialize...")
-            await asyncio.sleep(20)
             summary = initialize_vault(create_default_keys=True)
             logger.info(f"Vault initialized: {summary}")
         except Exception as e:
