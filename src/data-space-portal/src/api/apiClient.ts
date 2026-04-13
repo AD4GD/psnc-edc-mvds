@@ -1,6 +1,61 @@
 import { useConfig } from "../config/ConfigContext";
 import { useAuth } from "../auth/AuthContext";
 
+// ── Shared types ───────────────────────────────────────────────────
+
+export interface RegistrationRequest {
+  id: string;
+  status: string;
+  email_confirmed: boolean;
+  error_detail: string;
+  request_form: {
+    name?: string;
+    full_name?: string;
+    VAT_number?: string;
+    email?: string;
+    location?: {
+      country: string;
+      city: string;
+      postal_code: string;
+      street: string;
+      building_number: string;
+    };
+  } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Participant {
+  id: string;
+  name: string;
+  full_name: string;
+  VAT_number: string;
+  email: string;
+  keycloak_id: string | null;
+  location: {
+    country: string;
+    city: string;
+    postal_code: string;
+    street: string;
+    building_number: string;
+  } | null;
+  data_space_components: {
+    connector_did?: string;
+    connector_dsp_url?: string;
+    identity_hub_url?: string;
+    [key: string]: string | undefined;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FcTarget {
+  id: string;
+  url: string;
+  name?: string;
+  supportedProtocols?: string[];
+}
+
 /**
  * Returns a set of API helper functions that automatically include
  * the Keycloak bearer token on authenticated requests.
@@ -53,7 +108,7 @@ export function useApi() {
 
   // ── Registration admin ────────────────────────────────────────────
 
-  async function listRegistrations(offset = 0, limit = 100) {
+  async function listRegistrations(offset = 0, limit = 100): Promise<RegistrationRequest[]> {
     const res = await fetch(
       `${apiBaseUrl}/v1/registration/request/list?offset=${offset}&limit=${limit}`,
       { headers: authHeaders() }
@@ -125,7 +180,7 @@ export function useApi() {
 
   // ── Participants admin ────────────────────────────────────────────
 
-  async function listParticipants(offset = 0, limit = 100) {
+  async function listParticipants(offset = 0, limit = 100): Promise<Participant[]> {
     const res = await fetch(
       `${apiBaseUrl}/v1/participants/list?offset=${offset}&limit=${limit}`,
       { headers: authHeaders() }
@@ -145,7 +200,7 @@ export function useApi() {
 
   // ── Federated Catalog ─────────────────────────────────────────────
 
-  async function getFcTargets(): Promise<Array<{ participantId: string; url: string; name?: string; supportedProtocols?: string[] }>> {
+  async function getFcTargets(): Promise<FcTarget[]> {
     const res = await fetch(`${apiBaseUrl}/v1/fc/targets`, {
       headers: authHeaders(),
     });

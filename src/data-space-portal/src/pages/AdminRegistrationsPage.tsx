@@ -1,14 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { useApi } from "../api/apiClient";
+import { useApi, type RegistrationRequest } from "../api/apiClient";
+import { DataTable } from "../components/DataTable";
 
-interface RegistrationRequest {
-  id: string;
-  status: string;
-  email_confirmed: boolean;
-  error_detail: string;
-  request_form: Record<string, any> | null;
-  created_at: string;
-  updated_at: string;
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
 }
 
 export function AdminRegistrationsPage() {
@@ -23,7 +19,7 @@ export function AdminRegistrationsPage() {
     try {
       setLoading(true);
       const data = await api.listRegistrations();
-      setRegistrations(data);
+      setRegistrations([...data].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
       setError("");
     } catch (err: any) {
       if (err.message?.includes("204") || err.message?.includes("No registration")) {
@@ -85,109 +81,112 @@ export function AdminRegistrationsPage() {
     return <span className={`badge ${map[s] || ""}`}>{s}</span>;
   };
 
-  if (loading) return <div className="page"><p>Loading registrations…</p></div>;
+  const columns = [
+    {
+      header: "Company",
+      render: (r: RegistrationRequest) => {
+        const form = r.request_form;
+        return (
+          <>
+            <strong>{form?.full_name || form?.name || "—"}</strong>
+            {form?.VAT_number && <div className="text-muted">{form.VAT_number}</div>}
+          </>
+        );
+      },
+    },
+    {
+      header: "Email",
+      render: (r: RegistrationRequest) => r.request_form?.email || "—",
+    },
+    {
+      header: "Status",
+      render: (r: RegistrationRequest) => statusBadge(r.status),
+    },
+    {
+      header: "Email Confirmed",
+      render: (r: RegistrationRequest) => (r.email_confirmed ? "✅" : "❌"),
+    },
+    {
+      header: "Submitted",
+      render: (r: RegistrationRequest) => r.created_at ? formatDate(r.created_at) : "—",
+    },
+    {
+      header: "Actions",
+      stopPropagation: true,
+      render: (r: RegistrationRequest) => {
+        const canAction = r.status === "REQUESTED" && r.email_confirmed;
+        const canRetry = canAction && !!r.error_detail;
+        const actionMsg = actionStatus[r.id];
+        return (
+          <>
+            {canRetry && (
+              <div className="error-banner" style={{ marginBottom: "0.5rem", fontSize: "0.85rem" }}>
+                ⚠️ Previous onboarding failed: {r.error_detail}
+              </div>
+            )}
+            {canAction ? (
+              <div className="action-group">
+                {canRetry ? (
+                  <button
+                    className="btn btn-sm btn-approve"
+                    onClick={() => handleRetry(r.id)}
+                    disabled={!!actionMsg}
+                  >
+                    🔄 Retry Onboarding
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-sm btn-approve"
+                    onClick={() => handleApprove(r.id)}
+                    disabled={!!actionMsg}
+                  >
+                    Approve
+                  </button>
+                )}
+                <div className="reject-group">
+                  <input
+                    type="text"
+                    placeholder="Reason (optional)"
+                    value={rejectReasons[r.id] || ""}
+                    onChange={(e) =>
+                      setRejectReasons((prev) => ({ ...prev, [r.id]: e.target.value }))
+                    }
+                    className="input-sm"
+                  />
+                  <button
+                    className="btn btn-sm btn-reject"
+                    onClick={() => handleReject(r.id)}
+                    disabled={!!actionMsg}
+                  >
+                    Reject
+                  </button>
+                </div>
+                {actionMsg && <span className="text-muted">{actionMsg}</span>}
+              </div>
+            ) : (
+              <span className="text-muted">
+                {r.status !== "REQUESTED" ? "Already processed" : "Awaiting email confirmation"}
+              </span>
+            )}
+            {r.error_detail && !canRetry && (
+              <div className="text-error">{r.error_detail}</div>
+            )}
+          </>
+        );
+      },
+    },
+  ];
 
   return (
-    <div className="page">
-      <h1>Registration Requests</h1>
-
-      {error && <div className="error-banner">{error}</div>}
-
-      {registrations.length === 0 ? (
-        <p>No registration requests found.</p>
-      ) : (
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Email Confirmed</th>
-                <th>Submitted</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {registrations.map((r) => {
-                const form = r.request_form;
-                const canAction = r.status === "REQUESTED" && r.email_confirmed;
-                const hasError = !!r.error_detail;
-                const canRetry = r.status === "REQUESTED" && r.email_confirmed && hasError;
-                const actionMsg = actionStatus[r.id];
-                return (
-                  <tr key={r.id}>
-                    <td>
-                      <strong>{form?.full_name || form?.name || "—"}</strong>
-                      {form?.VAT_number && <div className="text-muted">{form.VAT_number}</div>}
-                    </td>
-                    <td>{form?.email || "—"}</td>
-                    <td>{statusBadge(r.status)}</td>
-                    <td>{r.email_confirmed ? "✅" : "❌"}</td>
-                    <td>{r.created_at ? new Date(r.created_at).toLocaleDateString() : "—"}</td>
-                    <td>
-                      {canRetry && (
-                        <div className="error-banner" style={{ marginBottom: "0.5rem", fontSize: "0.85rem" }}>
-                          ⚠️ Previous onboarding failed: {r.error_detail}
-                        </div>
-                      )}
-                      {canAction ? (
-                        <div className="action-group">
-                          {canRetry ? (
-                            <button
-                              className="btn btn-sm btn-approve"
-                              onClick={() => handleRetry(r.id)}
-                              disabled={!!actionMsg}
-                            >
-                              🔄 Retry Onboarding
-                            </button>
-                          ) : (
-                            <button
-                              className="btn btn-sm btn-approve"
-                              onClick={() => handleApprove(r.id)}
-                              disabled={!!actionMsg}
-                            >
-                              Approve
-                            </button>
-                          )}
-                          <div className="reject-group">
-                            <input
-                              type="text"
-                              placeholder="Reason (optional)"
-                              value={rejectReasons[r.id] || ""}
-                              onChange={(e) =>
-                                setRejectReasons((prev) => ({ ...prev, [r.id]: e.target.value }))
-                              }
-                              className="input-sm"
-                            />
-                            <button
-                              className="btn btn-sm btn-reject"
-                              onClick={() => handleReject(r.id)}
-                              disabled={!!actionMsg}
-                            >
-                              Reject
-                            </button>
-                          </div>
-                          {actionMsg && <span className="text-muted">{actionMsg}</span>}
-                        </div>
-                      ) : (
-                        <span className="text-muted">
-                          {r.status !== "REQUESTED"
-                            ? "Already processed"
-                            : "Awaiting email confirmation"}
-                        </span>
-                      )}
-                      {r.error_detail && !canRetry && (
-                        <div className="text-error">{r.error_detail}</div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+    <DataTable
+      title="Registration Requests"
+      columns={columns}
+      rows={registrations}
+      keyFn={(r) => r.id}
+      loading={loading}
+      error={error}
+      emptyMessage="No registration requests found."
+      onRefresh={fetchRegistrations}
+    />
   );
 }

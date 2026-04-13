@@ -8,6 +8,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { RequestVcPage } from "./pages/RequestVcPage";
 import { AdminRegistrationsPage } from "./pages/AdminRegistrationsPage";
 import { AdminParticipantsPage } from "./pages/AdminParticipantsPage";
+import { FederatedCatalogPage } from "./pages/FederatedCatalogPage";
 import "./App.css";
 
 function App() {
@@ -52,6 +53,14 @@ function App() {
             element={
               <ProtectedRoute requireAdmin>
                 <AdminParticipantsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/federated-catalog"
+            element={
+              <ProtectedRoute requireAdmin>
+                <FederatedCatalogPage />
               </ProtectedRoute>
             }
           />

@@ -55,6 +55,12 @@ export function Layout() {
                   >
                     Participants
                   </NavLink>
+                  <NavLink
+                    to="/admin/federated-catalog"
+                    className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
+                  >
+                    Federated Catalog
+                  </NavLink>
                 </>
               )}
             </>
