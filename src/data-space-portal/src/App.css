@@ -409,6 +409,54 @@
   color: #6b9bff;
 }
 
+/* ── FC Status ──────────────────────────────────────── */
+.fc-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fc-status__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.fc-status__dot--green {
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e99;
+}
+
+.fc-status__dot--red {
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef444499;
+}
+
+.fc-status__label {
+  font-size: 13px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.fc-status--active .fc-status__label {
+  color: #4ade80;
+}
+
+.fc-status--inactive .fc-status__label {
+  color: #f87171;
+}
+
+.fc-status__url {
+  font-size: 11px;
+  word-break: break-all;
+  margin-top: 2px;
+  padding-left: 16px;
+}
+
 /* ── Tables ─────────────────────────────────────────── */
 .table-wrapper {
   overflow-x: auto;

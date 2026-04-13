@@ -300,19 +300,18 @@ class KeycloakService:
         payload = self.decode_jwt_payload(token)
         return payload.get("sub")
 
+    # kept as alias so nothing breaks during transition
+    def get_keycloak_id_from_token(self, token: str) -> Optional[str]:
+        """Extract the Keycloak 'sub' (user UUID) from a bearer token.
+        This is the stable, permanent identifier for a Keycloak user
+        """
+        return self.get_user_id_from_token(token)
+
     def get_participant_id_from_token(self, token: str) -> Optional[str]:
-        """Extract the 'participant_id' attribute from the token claims or user attributes."""
-        payload = self.decode_jwt_payload(token)
-        # First check if it's directly in the token (if mapped via protocol mapper)
-        pid = payload.get("participant_id")
-        if pid:
-            return pid
-        # Fallback: look up user attributes via userinfo
-        try:
-            info = self.userinfo(token)
-            return info.get("participant_id")
-        except Exception:
-            return None
+        """Deprecated: use get_keycloak_id_from_token + DB lookup by keycloak_id instead.
+        Kept for backward compatibility only.
+        """
+        return self.get_user_id_from_token(token)
 
 
 keycloak_service = KeycloakService()

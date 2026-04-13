@@ -21,7 +21,7 @@ class ParticipantService:
         pass
 
     @classmethod
-    async def register_participant(cls, reg_id) -> ParticipantResponse:
+    async def register_participant(cls, reg_id, keycloak_id: str = None) -> ParticipantResponse:
         """Register a new participant with the provided information."""
         reg_req: RegistrationRequest = await async_postgres_service.get_registration_request(reg_id)
         form: ParticipantCreateRequest = reg_req.request_form
@@ -38,6 +38,7 @@ class ParticipantService:
                     "location_id": location.id,
                     "VAT_number": form["VAT_number"],
                     "email": form["email"],
+                    "keycloak_id": keycloak_id,
                 },
                 session=session,
             )
@@ -173,18 +174,15 @@ class ParticipantService:
     async def offboard_self(cls, token: str, reason: str = "") -> SimpleMessageResponse:
         """
         Self-offboarding: the authenticated participant removes their own organization.
-        Steps:
-          1. Resolve participant_id from token
-          2. Confirm the caller is the owner of that participant
-          3. Delegate to delete_participant logic (minus the admin check)
+        Resolves the participant via the Keycloak 'sub' stored in keycloak_id column.
         """
-        participant_id = keycloak_service.get_participant_id_from_token(token)
-        if not participant_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No participant linked to your account")
+        keycloak_id = keycloak_service.get_keycloak_id_from_token(token)
+        if not keycloak_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not resolve identity from token")
 
-        participant = await async_postgres_service.get_participant(participant_id)
+        participant = await async_postgres_service.get_participant_by_keycloak_id(keycloak_id)
         if not participant:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Participant not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No participant linked to your account")
 
         participant_email = participant.email
         participant_name = participant.full_name or participant.name
@@ -202,13 +200,13 @@ class ParticipantService:
             logger.warning(f"Could not delete Keycloak user for {participant_email}: {kc_err}")
 
         # 2. Delete participant record
-        deleted = await async_postgres_service.delete_participant(p_id=str(participant_id))
+        deleted = await async_postgres_service.delete_participant(p_id=str(participant.id))
         if not deleted:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete participant record")
 
         # 3. Mark registration as REJECTED for audit trail
         try:
-            rr = await async_postgres_service.get_registration_request_by_participant_id(str(participant_id))
+            rr = await async_postgres_service.get_registration_request_by_participant_id(str(participant.id))
             if rr:
                 from api.models.db.registration_request import RegistrationStatus
                 await async_postgres_service.update_registration_request(
@@ -239,7 +237,7 @@ class ParticipantService:
         except Exception as mail_err:
             logger.warning(f"Offboarding email failed for {participant_email}: {mail_err}")
 
-        logger.info(f"Participant {participant_id} ({participant_email}) self-offboarded")
+        logger.info(f"Participant {participant.id} ({participant_email}) self-offboarded")
         return SimpleMessageResponse(message="Your organization has been offboarded from the Data Space")
 
 

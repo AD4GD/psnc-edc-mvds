@@ -14,6 +14,7 @@ class ParticipantDict(TypedDict):
     VAT_number: str
     data_space_components: JSON
     email: str
+    keycloak_id: str
     location_id: str
     location: Dict[str, Any]
     created_at: int
@@ -29,6 +30,7 @@ class Participant(Base):
     VAT_number = Column(String(50), nullable=False)  # VAT number if applicable
     data_space_components = Column(JSON, nullable=True)
     email = Column(String(255), nullable=False)
+    keycloak_id = Column(String(255), nullable=True, unique=True, index=True)  # Keycloak 'sub' (user UUID)
     location_id = Column(UUID(as_uuid=True), ForeignKey("location.id"), nullable=True)
     location = relationship("Location", lazy="subquery")
 
@@ -43,6 +45,7 @@ class Participant(Base):
             "VAT_number": f"{self.VAT_number}",
             "data_space_components": f"{self.data_space_components}",
             "email": f"{self.email}",
+            "keycloak_id": f"{self.keycloak_id}" if self.keycloak_id else None,
             "location_id": f"{self.location_id}",
             "location": self.location.to_dict(),
             "created_at": f"{self.created_at}",

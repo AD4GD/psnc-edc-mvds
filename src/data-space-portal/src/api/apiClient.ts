@@ -143,6 +143,17 @@ export function useApi() {
     return res.json();
   }
 
+  // ── Federated Catalog ─────────────────────────────────────────────
+
+  async function getFcTargets(): Promise<Array<{ participantId: string; url: string; name?: string; supportedProtocols?: string[] }>> {
+    const res = await fetch(`${apiBaseUrl}/v1/fc/targets`, {
+      headers: authHeaders(),
+    });
+    if (res.status === 204 || res.status === 404) return [];
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
   // ── VC request (authenticated participant) ────────────────────────
 
   async function requestVc(data: {
@@ -172,6 +183,7 @@ export function useApi() {
     offboardSelf,
     listParticipants,
     getParticipant,
+    getFcTargets,
     requestVc,
   };
 }

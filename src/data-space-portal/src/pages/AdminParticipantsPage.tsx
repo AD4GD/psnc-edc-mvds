@@ -18,8 +18,16 @@ interface Participant {
   created_at: string;
 }
 
+interface FcTarget {
+  participantId: string;
+  url: string;
+  name?: string;
+  supportedProtocols?: string[];
+}
+
 export function AdminParticipantsPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [fcTargets, setFcTargets] = useState<FcTarget[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -31,8 +39,12 @@ export function AdminParticipantsPage() {
   const fetchParticipants = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.listParticipants();
+      const [data, targets] = await Promise.all([
+        api.listParticipants(),
+        api.getFcTargets().catch(() => [] as FcTarget[]),
+      ]);
       setParticipants(data);
+      setFcTargets(targets);
       setError("");
     } catch (err: any) {
       if (err.message?.includes("204") || err.message?.includes("No participant")) {
@@ -61,6 +73,13 @@ export function AdminParticipantsPage() {
       setOffboardError(err.message || "Offboarding failed");
     }
   };
+
+  /** Find the FC target node for a participant by matching their connector DID. */
+  function getFcStatusForParticipant(p: Participant): FcTarget | null {
+    const did = p.data_space_components?.connector_did;
+    if (!did) return null;
+    return fcTargets.find((t) => t.participantId === did) ?? null;
+  }
 
   if (loading) return <div className="page"><p>Loading participants…</p></div>;
 
@@ -117,43 +136,53 @@ export function AdminParticipantsPage() {
                 <th>VAT</th>
                 <th>Email</th>
                 <th>Location</th>
-                <th>Connector</th>
+                <th>FC Status</th>
                 <th>Joined</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {participants.map((p) => (
-                <tr key={p.id} onClick={() => setExpanded(expanded === p.id ? null : p.id)} className="clickable-row">
-                  <td>
-                    <strong>{p.full_name}</strong>
-                    <div className="text-muted">{p.name}</div>
-                  </td>
-                  <td>{p.VAT_number}</td>
-                  <td>{p.email}</td>
-                  <td>
-                    {p.location
-                      ? `${p.location.city}, ${p.location.country}`
-                      : "—"}
-                  </td>
-                  <td>
-                    {p.data_space_components?.connector_did ? (
-                      <span className="badge badge-onboarded">Connected</span>
-                    ) : (
-                      <span className="badge badge-requested">Pending</span>
-                    )}
-                  </td>
-                  <td>{p.created_at ? new Date(p.created_at).toLocaleDateString() : "—"}</td>
-                  <td onClick={(e) => e.stopPropagation()}>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => { setOffboarding(p.id); setOffboardError(""); setOffboardReason(""); }}
-                    >
-                      Offboard
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {participants.map((p) => {
+                const fcTarget = getFcStatusForParticipant(p);
+                return (
+                  <tr key={p.id} onClick={() => setExpanded(expanded === p.id ? null : p.id)} className="clickable-row">
+                    <td>
+                      <strong>{p.full_name}</strong>
+                      <div className="text-muted">{p.name}</div>
+                    </td>
+                    <td>{p.VAT_number}</td>
+                    <td>{p.email}</td>
+                    <td>
+                      {p.location
+                        ? `${p.location.city}, ${p.location.country}`
+                        : "—"}
+                    </td>
+                    <td>
+                      {fcTarget ? (
+                        <div className="fc-status fc-status--active">
+                          <span className="fc-status__dot fc-status__dot--green" title="Registered in Federated Catalog" />
+                          <span className="fc-status__label">In catalog</span>
+                          <div className="fc-status__url text-muted">{fcTarget.url}</div>
+                        </div>
+                      ) : (
+                        <div className="fc-status fc-status--inactive">
+                          <span className="fc-status__dot fc-status__dot--red" title="Not registered in Federated Catalog" />
+                          <span className="fc-status__label">Not in catalog</span>
+                        </div>
+                      )}
+                    </td>
+                    <td>{p.created_at ? new Date(p.created_at).toLocaleDateString() : "—"}</td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => { setOffboarding(p.id); setOffboardError(""); setOffboardReason(""); }}
+                      >
+                        Offboard
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

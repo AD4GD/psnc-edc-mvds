@@ -63,16 +63,16 @@ async def request_vc(body: Annotated[InsertVcRequest, Body()], token: str = Depe
     except Exception:
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Invalid or expired token"})
 
-    # Get participant_id from token
-    participant_id = keycloak_service.get_participant_id_from_token(token)
-    if not participant_id:
+    # Get participant via Keycloak 'sub' stored in keycloak_id column
+    keycloak_id = keycloak_service.get_keycloak_id_from_token(token)
+    if not keycloak_id:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
             content={"error": "No participant linked to this account. Contact admin."},
         )
 
     # Verify participant exists
-    participant = await async_postgres_service.get_participant(participant_id)
+    participant = await async_postgres_service.get_participant_by_keycloak_id(keycloak_id)
     if not participant:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -85,7 +85,7 @@ async def request_vc(body: Annotated[InsertVcRequest, Body()], token: str = Depe
 
         # Update participant's data_space_components with the latest connector info
         await async_postgres_service.update_participant(
-            participant_id,
+            participant.id,
             {
                 "data_space_components": {
                     "connector_did": body.connector_did,
@@ -98,7 +98,7 @@ async def request_vc(body: Annotated[InsertVcRequest, Body()], token: str = Depe
 
         return SimpleMessageResponse(message="VCs issued and connector registered successfully")
     except Exception as e:
-        logger.error(f"VC request failed for participant {participant_id}: {e}")
+        logger.error(f"VC request failed for participant {participant.id}: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"error": f"VC issuance failed: {str(e)}"},

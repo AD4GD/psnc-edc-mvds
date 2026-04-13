@@ -210,8 +210,10 @@ class RegistrationService:
                         content={"message": f"Onboarding failed at Keycloak user creation: {e}"},
                     )
 
-                # 2. Create participant record in DB
-                participant = await participant_service.register_participant(reg_id=reg_id)
+                # 2. Create participant record in DB — include keycloak_id
+                participant = await participant_service.register_participant(
+                    reg_id=reg_id, keycloak_id=kc_user_id
+                )
                 if participant is None:
                     await async_postgres_service.update_registration_request(
                         reg_id, {
@@ -223,17 +225,6 @@ class RegistrationService:
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         content={"message": "Onboarding failed: could not create participant record"},
                     )
-
-                # 3. Update Keycloak user attribute with participant_id for token mapping
-                try:
-                    participant_id = str(participant.id) if hasattr(participant, 'id') else str(participant.get('id', ''))
-                    if kc_user_id and participant_id:
-                        keycloak_service.keycloak_admin.update_user(
-                            user_id=kc_user_id,
-                            payload={"attributes": {"participant_id": participant_id, "registration_id": str(reg_id)}},
-                        )
-                except Exception as e:
-                    logger.warning(f"Could not update Keycloak user attributes: {e}")
 
                 # 4. Transition to ONBOARDED
                 logger.info(f"Updating registration {reg_id} to status {RegistrationStatus.ONBOARDED.value}")

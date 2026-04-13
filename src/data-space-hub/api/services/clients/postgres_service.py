@@ -56,15 +56,23 @@ class AsyncPostgresService:
                     await session_.commit()
                     await session_.refresh(participant)
                     return participant
-                except Exception:  # pylint: disable=W0718
+                except Exception as e:  # pylint: disable=W0718
                     await session_.rollback()
-                    logger.error("Failed to create participant")
+                    logger.error(f"Failed to create participant: {e}")
                     return None
 
     async def get_participant(self, participant_id) -> Optional[Participant]:
         """Get participant by ID."""
         async with self.session_factory() as session:
             return await session.get(Participant, participant_id)
+
+    async def get_participant_by_keycloak_id(self, keycloak_id: str) -> Optional[Participant]:
+        """Get participant by Keycloak 'sub' (user UUID)."""
+        async with self.session_factory() as session:
+            result = await session.execute(
+                select(Participant).where(Participant.keycloak_id == keycloak_id)
+            )
+            return result.scalar_one_or_none()
 
     async def get_participant_count(self) -> int:
         async with self.session_factory() as session:
@@ -86,13 +94,13 @@ class AsyncPostgresService:
                 await session.execute(
                     update(Participant)
                     .where(Participant.id == participant_id)
-                    .values(**{**fields, "updated_at": datetime.now(datetime.timezone.utc)})
+                    .values(**{**fields, "updated_at": datetime.now(timezone.utc)})
                 )
                 await session.commit()
                 return await session.get(Participant, participant_id)
-            except Exception:  # pylint: disable=W0718
+            except Exception as e:  # pylint: disable=W0718
                 await session.rollback()
-                logger.error("Failed to update participant")
+                logger.error(f"Failed to update participant {participant_id}: {e}")
                 return None
 
     async def delete_participant(self, p_id: str) -> bool:
