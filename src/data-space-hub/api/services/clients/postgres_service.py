@@ -264,7 +264,7 @@ class AsyncPostgresService:
     async def create_issued_credential(self, data: Dict[str, Any]) -> IssuedCredentials:
         """Create issued_credential row (status pending/active)."""
         async with self.session_factory() as session:
-            ic = IssuedCredentials(**data, created_at=datetime.now(timezone.utc), updated_at=datetime.now(timezone.utc))
+            ic = IssuedCredentials(**data)
             session.add(ic)
             try:
                 await session.commit()

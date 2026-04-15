@@ -30,18 +30,23 @@ export function Layout() {
 
           {authenticated && (
             <>
-              <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-                Dashboard
-              </NavLink>
-
               {!user?.is_admin && (
-                <NavLink to="/request-vc" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-                  Request VCs
-                </NavLink>
+                <>
+                  <div className="nav-section">Participant</div>
+                  <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+                    Overview
+                  </NavLink>
+                  <NavLink to="/request-vc" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+                    Verifiable Credentials
+                  </NavLink>
+                </>
               )}
 
               {user?.is_admin && (
                 <>
+                  <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+                    Dashboard
+                  </NavLink>
                   <div className="nav-section">Admin</div>
                   <NavLink
                     to="/admin/registrations"

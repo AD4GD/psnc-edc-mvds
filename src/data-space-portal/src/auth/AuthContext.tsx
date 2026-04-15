@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import Keycloak from "keycloak-js";
 import type { AppConfig } from "../config/AppConfig";
+import type { Participant } from "../api/apiClient";
 
 interface UserInfo {
   user_id: string;
@@ -10,7 +11,7 @@ interface UserInfo {
   is_admin: boolean;
   roles: string[];
   participant_id: string | null;
-  participant: Record<string, any> | null;
+  participant: Participant | null;
 }
 
 interface AuthState {

@@ -24,7 +24,7 @@ class ParticipantDict(TypedDict):
 class Participant(Base):
     __tablename__ = "participant"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     name = Column(String(255), nullable=False)  # nickname or shorten organization name
     full_name = Column(String(500), nullable=False)  # full name of the organization
     VAT_number = Column(String(50), nullable=False)  # VAT number if applicable

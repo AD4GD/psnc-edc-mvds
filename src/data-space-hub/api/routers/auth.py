@@ -17,16 +17,15 @@ async def get_me(token: str = Depends(get_bearer_token)):
     """
     Returns current user information extracted from the Keycloak token.
     Includes user profile, roles, and linked participant (if any).
+    Participant lookup uses the Keycloak 'sub' stored as keycloak_id.
     """
     try:
-        # Validate token
         introspection = keycloak_service.introspect_token(token)
         if not introspection.get("active"):
             return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Token is inactive"})
 
         payload = keycloak_service.decode_jwt_payload(token)
 
-        # Extract basic user info
         user_id = payload.get("sub")
         email = payload.get("email", "")
         name = payload.get("name", "")
@@ -35,17 +34,17 @@ async def get_me(token: str = Depends(get_bearer_token)):
 
         is_admin = "admin" in realm_roles or "rs-admin" in realm_roles
 
-        # Try to find linked participant
-        participant_id = payload.get("participant_id")
+        # Look up participant by Keycloak sub (keycloak_id column)
         participant = None
-
-        if participant_id:
+        participant_id = None
+        if user_id:
             try:
-                p = await async_postgres_service.get_participant(participant_id)
+                p = await async_postgres_service.get_participant_by_keycloak_id(user_id)
                 if p:
                     participant = p.to_dict()
+                    participant_id = str(p.id)
             except Exception:
-                logger.warning(f"Could not load participant {participant_id} for user {user_id}")
+                logger.warning(f"Could not load participant for keycloak_id {user_id}")
 
         return {
             "user_id": user_id,

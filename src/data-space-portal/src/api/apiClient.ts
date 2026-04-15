@@ -49,6 +49,23 @@ export interface Participant {
   updated_at: string;
 }
 
+export interface IssuedVc {
+  id: string;
+  participant_id: string;
+  credential_id: string;
+  credential_hash: string;
+  credential_storage_ref: string | null;
+  issued_at: string | null;
+  expires_at: string | null;
+  status: "active" | "revoked" | "expired";
+  credential_metadata: {
+    connector_did?: string;
+    connector_dsp_url?: string;
+    raw_vc?: string;
+    [key: string]: string | undefined;
+  } | null;
+}
+
 export interface FcTarget {
   id: string;
   url: string;
@@ -226,6 +243,15 @@ export function useApi() {
     return res.json();
   }
 
+  async function getMyVcs(): Promise<IssuedVc[]> {
+    const res = await fetch(`${apiBaseUrl}/v1/verifiable-credentials/mine`, {
+      headers: authHeaders(),
+    });
+    if (res.status === 204 || res.status === 404) return [];
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
   return {
     submitRegistration,
     getMe,
@@ -240,5 +266,6 @@ export function useApi() {
     getParticipant,
     getFcTargets,
     requestVc,
+    getMyVcs,
   };
 }

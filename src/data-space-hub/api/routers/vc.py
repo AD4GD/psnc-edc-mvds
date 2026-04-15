@@ -19,28 +19,20 @@ router = APIRouter(prefix="/verifiable-credentials", tags=["Verifiable Credentia
     "",
     response_model=SimpleMessageResponse,
     status_code=status.HTTP_200_OK,
-    summary="Allow participant to generate new VCs for its users when keys rotate",
+    summary="Test endpoint",
 )
 def test_endpoint():
-    """
-    Test endpoint with various stages
-    """
     return SimpleMessageResponse(message="Test endpoint reached successfully")
+
 
 @router.post(
     "/issue",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Issue VCs for a participant and register in federated catalog",
+    summary="Issue VCs for a participant (API key protected)",
     dependencies=[Depends(require_dsh_api_key)],
 )
 async def issue_vc(body: Annotated[InsertVcRequest, Body()]):
-    """
-    Issue Verifiable Credentials for a participant and add them as a target
-    node in the Federated Catalog. Identity Hub participant context creation
-    and STS secret storage are handled externally by the init-dataspace script.
-
-    Requires a valid x-api-key header.
-    """
+    """Issue VCs and register in Federated Catalog. Requires x-api-key."""
     await vc_saver_service.issue_and_store_vcs(body)
     await federated_catalog_service.create_target_node(body.connector_did, body.connector_dsp_url)
     return None
@@ -52,18 +44,12 @@ async def issue_vc(body: Annotated[InsertVcRequest, Body()]):
     summary="Request VC issuance for an authenticated participant",
 )
 async def request_vc(body: Annotated[InsertVcRequest, Body()], token: str = Depends(get_bearer_token)):
-    """
-    Authenticated participant requests VC issuance for their connector.
-    The participant must be logged in (Keycloak bearer token).
-    This issues VCs and registers the connector in the federated catalog.
-    """
+    """Authenticated participant requests VC issuance. Issues VCs, registers in FC, logs to DB."""
     try:
-        # Validate the token
         keycloak_service.introspect_token(token)
     except Exception:
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Invalid or expired token"})
 
-    # Get participant via Keycloak 'sub' stored in keycloak_id column
     keycloak_id = keycloak_service.get_keycloak_id_from_token(token)
     if not keycloak_id:
         return JSONResponse(
@@ -71,7 +57,6 @@ async def request_vc(body: Annotated[InsertVcRequest, Body()], token: str = Depe
             content={"error": "No participant linked to this account. Contact admin."},
         )
 
-    # Verify participant exists
     participant = await async_postgres_service.get_participant_by_keycloak_id(keycloak_id)
     if not participant:
         return JSONResponse(
@@ -80,10 +65,9 @@ async def request_vc(body: Annotated[InsertVcRequest, Body()], token: str = Depe
         )
 
     try:
-        await vc_saver_service.issue_and_store_vcs(body)
+        await vc_saver_service.issue_and_store_vcs(body, participant_id=str(participant.id))
         await federated_catalog_service.create_target_node(body.connector_did, body.connector_dsp_url)
 
-        # Update participant's data_space_components with the latest connector info
         await async_postgres_service.update_participant(
             participant.id,
             {
@@ -103,3 +87,27 @@ async def request_vc(body: Annotated[InsertVcRequest, Body()], token: str = Depe
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"error": f"VC issuance failed: {str(e)}"},
         )
+
+
+@router.get(
+    "/mine",
+    status_code=status.HTTP_200_OK,
+    summary="List issued VCs for the authenticated participant",
+)
+async def get_my_vcs(token: str = Depends(get_bearer_token)):
+    """Returns all issued VCs recorded for the authenticated participant."""
+    try:
+        keycloak_service.introspect_token(token)
+    except Exception:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"error": "Invalid or expired token"})
+
+    keycloak_id = keycloak_service.get_keycloak_id_from_token(token)
+    if not keycloak_id:
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"error": "No participant linked"})
+
+    participant = await async_postgres_service.get_participant_by_keycloak_id(keycloak_id)
+    if not participant:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"error": "Participant not found"})
+
+    credentials = await async_postgres_service.list_issued_credentials(participant_id=str(participant.id))
+    return [c.to_dict() for c in credentials]
