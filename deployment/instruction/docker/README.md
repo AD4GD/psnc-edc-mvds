@@ -69,7 +69,6 @@ Generate values and paste them into `.env`, for example:
 - `KEYCLOAK_ADMIN_PASSWORD`
 - `IDENTITY_HUB_DB_PASSWORD`
 - `STORAGE_SECRET_KEY`
-- `CATALOG_API_KEY`
 - `CONNECTOR_STS_CLIENT_SECRET_ALIAS`
 
 For `IDENTITY_HUB_SUPERUSER_KEY`, generate value in format `base64(username).base64(secret)` with:
@@ -133,6 +132,7 @@ Important placeholders to replace with real Data Space values:
 - `ISSUER_DID`
 - `FEDERATED_CATALOG_ADDRESS`
 - `DATASPACE_HUB_URL`
+- `CATALOG_API_KEY`
 
 #### 4.3 Base configuration
 At minimum, verify and set:
