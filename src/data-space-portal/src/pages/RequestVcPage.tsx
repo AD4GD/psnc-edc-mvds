@@ -31,7 +31,7 @@ export function RequestVcPage() {
   const [vcsError, setVcsError] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const api = useApi();
-  const { refreshUser, user } = useAuth();
+  const { refreshUser } = useAuth();
 
   const fetchVcs = useCallback(async () => {
     try {
@@ -52,18 +52,6 @@ export function RequestVcPage() {
 
   const update = <K extends keyof VcForm>(key: K, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const prefill = () => {
-    if (user?.participant?.data_space_components) {
-      const dsc = user.participant.data_space_components as Record<string, string>;
-      setForm({
-        connector_did: dsc.connector_did || "",
-        connector_dsp_url: dsc.connector_dsp_url || "",
-        identity_hub_identity_url: dsc.identity_hub_identity_url || "",
-        identity_hub_api_key: dsc.identity_hub_api_key || "",
-      });
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

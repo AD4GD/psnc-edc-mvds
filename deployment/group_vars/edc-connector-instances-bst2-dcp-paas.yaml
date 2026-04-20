@@ -77,7 +77,7 @@ SENTRY_DSN: "https://132b6f2afb0c43b993b3f094c58a6658@sentry.apps.psnc.pl/6"
 SECRET_KEY:
   when_missing: "{{ random_django_secret_key }}"
 
-deployed_parameters_packs: "{{ ['connectorconsumer', 'identityhubconsumer', 'consumerdashboard', 'identityproviderconsumer', 'connectorprovider', 'identityhubprovider', 'providerdashboard', 'identityproviderprovider', 'consback', 'federatedcatalog', 'dataspacehub', 'dataspaceportal', 'identityhubfederatedcatalog', 'keyvaultconsumer', 'keyvaultprovider', 'keyvaultdataspacehub', 'keyvaultfederatedcatalog', 'mailservice'] }}"
+deployed_parameters_packs: "{{ ['connectorconsumer', 'identityhubconsumer', 'consumerdashboard', 'identityproviderconsumer', 'connectorprovider', 'identityhubprovider', 'providerdashboard', 'identityproviderprovider', 'consback', 'federatedcatalog', 'dataspacehub', 'identityproviderdataspace', 'dataspaceportal', 'identityhubfederatedcatalog', 'keyvaultconsumer', 'keyvaultprovider', 'keyvaultdataspacehub', 'keyvaultfederatedcatalog', 'mailservice'] }}"
 
 # RESOURCES
 #consumer
@@ -187,6 +187,14 @@ dataspacehub_resources:
     cpu: "1"
     memory: "400Mi"
 
+identityproviderdataspace_resources:
+  requests:
+    cpu: "100m"
+    memory: "400Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
 mailservice_resources:
   requests:
     cpu: "100m"
@@ -230,6 +238,8 @@ data_space_hub_keyvault_address: "https://data-space-hub-keyvault-dcp-data-space
 mail_service_address: "https://mail-service-dcp-data-space.apps.bst2.paas.psnc.pl"
 storage_address: "https://storage-dcp-data-space.apps.bst2.paas.psnc.pl"
 dataspaceportal_address_shorten: "data-space-portal-dcp-data-space.apps.bst2.paas.psnc.pl"
+data_space_keycloak_address: "https://data-space-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
+data_space_keycloak_hostname: "data-space-keycloak-dcp-data-space.apps.bst2.paas.psnc.pl"
 
 # CONFIG OBJECTS
 consumer_dashboard_app_config_obj:
@@ -577,6 +587,12 @@ routes:
     host: "{{ data_space_portal_address | regex_replace('^https?://', '') }}"
     service: "{{ application }}-dataspaceportal"
     target_port: www
+
+  # data space keycloak
+  - name: data-space-keycloak
+    host: "{{ data_space_keycloak_address | regex_replace('^https?://', '') }}"
+    service: "{{ application }}-identityproviderdataspace"
+    target_port: keycloak-http
 
   # mail service
   - name: mail-service

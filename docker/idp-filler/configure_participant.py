@@ -15,7 +15,7 @@ def main():
     KC_BASE = ku.env("KC_BASE", "http://localhost:48083")
     KC_USER = ku.env("KC_USER", "admin")
     KC_PASS = ku.env("KC_PASS", "edc")
-    REALM = ku.env("REALM_NAME", "dataspace")
+    REALM = ku.env("REALM_NAME", "Organizations")
     
     TEST_USER = ku.env("DASHBOARD_USER_NAME", "psnc")
     TEST_PASS = ku.env("DASHBOARD_USER_PASS", "edc")

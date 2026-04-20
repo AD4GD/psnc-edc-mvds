@@ -1,0 +1,15 @@
+dataspace_random_keycloak_user: "{{ lookup('password', '/dev/null length=12 chars=ascii_lowercase') }}"
+dataspace_random_keycloak_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}"
+
+identityproviderdataspace_configmap__05_defaults:
+  KC_DB: "postgres"
+  KC_DB_SCHEMA: "public"
+  KC_HOSTNAME: "{{ data_space_keycloak_hostname }}"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HTTP_ENABLED: "true"
+  KC_PROXY_ADDRESS_FORWARDING: "true"
+  KC_PROXY_HEADERS: "xforwarded"
+
+identityproviderdataspace_secret__05_defaults:
+  KEYCLOAK_ADMIN: "{{ dataspace_random_keycloak_user }}"
+  KEYCLOAK_ADMIN_PASSWORD: "{{ dataspace_random_keycloak_pass }}"
