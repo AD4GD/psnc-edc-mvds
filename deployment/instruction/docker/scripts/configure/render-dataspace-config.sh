@@ -135,9 +135,9 @@ cat > "$OUT_DIR/participants/participant.json" <<EOF
 }
 EOF
 
-if [[ -f "./scripts/configure/config/certs/connector_public.pem" ]]; then
+if [[ -f "./scripts/configure/config/certs/consumer_public.pem" ]]; then
   mkdir -p "$OUT_DIR/certs"
-  cp "./scripts/configure/config/certs/connector_public.pem" "$OUT_DIR/certs/connector_public.pem"
+  cp "./scripts/configure/config/certs/consumer_public.pem" "$OUT_DIR/certs/consumer_public.pem"
 fi
 
 echo "[INFO] Rendered dataspace config to: $OUT_DIR"
