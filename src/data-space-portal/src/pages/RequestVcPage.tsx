@@ -108,6 +108,10 @@ export function RequestVcPage() {
       render: (vc: IssuedVc) => vc.issued_at ? formatDate(vc.issued_at) : "—",
     },
     {
+      header: "Type",
+      render: (vc: IssuedVc) => vc.credential_type ?? "—",
+    },
+    {
       header: "Connector DID",
       render: (vc: IssuedVc) => (
         <code style={{ fontSize: "0.8em", wordBreak: "break-all" }}>
@@ -153,13 +157,6 @@ export function RequestVcPage() {
       <p className="subtitle">
         Provide your connector and Identity Hub details to request VC issuance and register in the federated catalog.
       </p>
-
-      {user?.participant?.data_space_components &&
-        Object.keys(user.participant.data_space_components).length > 0 && (
-          <button type="button" className="btn btn-secondary" onClick={prefill} style={{ marginBottom: 16 }}>
-            Pre-fill from existing configuration
-          </button>
-        )}
 
       <form onSubmit={handleSubmit} className="form">
         <fieldset>

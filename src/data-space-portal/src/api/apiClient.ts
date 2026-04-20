@@ -58,6 +58,7 @@ export interface IssuedVc {
   issued_at: string | null;
   expires_at: string | null;
   status: "active" | "revoked" | "expired";
+  credential_type: string | null;
   credential_metadata: {
     connector_did?: string;
     connector_dsp_url?: string;

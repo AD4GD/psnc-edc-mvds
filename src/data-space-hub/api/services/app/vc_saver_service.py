@@ -68,14 +68,13 @@ class VcSaverService:
       url = f"{identity_hub_identity_url}/v1alpha/participants/{participant_context_base64}/credentials"
       headers = {"x-api-key": identity_hub_api_key, "Content-Type": "application/json"}
 
-      credential_type = "MembershipCredential"
       vcs = await vc_generator_service.create_vc_set(GenerateVcRequest(
           connector_did=participant_id,
           vc_format="VC1_0_JWT",
-          credential_type=credential_type,
+          credential_type="MembershipCredential",
       ))
 
-      for vc in vcs:
+      for vc, _credential_type in vcs:
 
         logger.info(vc)
 
@@ -84,7 +83,7 @@ class VcSaverService:
           if r.status_code not in (204, 409):
             raise HTTPException(status_code=502, detail={"store_credential_error": r.text})
 
-      return [(vc, credential_type) for vc in vcs]
+      return vcs
       
     def _encode_participant_context_id(self, participant_id: str) -> str:
       # Base64-encode the exact participantId string used at creation time
