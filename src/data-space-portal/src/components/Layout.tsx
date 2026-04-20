@@ -8,6 +8,12 @@ export function Layout() {
     <div className="app-layout">
       <aside className="sidebar">
         <div className="sidebar-header">
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{ height: 32, marginBottom: 8, display: "block" }}
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
           <h2>Data Space</h2>
           <span className="sidebar-subtitle">Portal</span>
         </div>
