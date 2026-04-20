@@ -13,7 +13,8 @@ class ProjectSettings(BaseSettings):
     frontend_url: str = Field("http://localhost", alias="FRONTEND_URL")
     app_url: str = Field("http://localhost:8000", alias="APP_URL")
     is_skip_init: bool = Field(False, alias="IS_SKIP_INIT")
-    dsh_api_key: str = Field(..., alias="DSH_API_KEY")
+    # Optional: when unset, admin API endpoints are publicly accessible (no key required).
+    dsh_api_key: Optional[str] = Field(None, alias="DSH_API_KEY")
     admin_email: str = Field("", alias="ADMIN_EMAIL")
 
     model_config = {

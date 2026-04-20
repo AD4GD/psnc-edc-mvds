@@ -2,13 +2,14 @@ from typing import Annotated, List, Optional
 from uuid import UUID
 
 from api.core.logging_config import setup_logging
+from api.core.settings import ProjectSettings
 from api.models.dto.requests import RegistrationCreateRequest
 from api.models.dto.responses import RegistrationRequestResponse, SimpleMessageResponse
 from api.services.app import registration_service
 from api.models.db.registration_request import RegistrationStatus
 from api.services.helper import require_admin_token
 from fastapi import APIRouter, Body, Depends, Path, Query, Response, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 logger = setup_logging()
 router = APIRouter(prefix="/registration/request", tags=["Registration"])
@@ -71,22 +72,21 @@ async def get_registration(response: Response, request_id: UUID, token: str = De
 
 @router.get(
     "/{request_id}/email-confirm",
-    response_model=SimpleMessageResponse,
-    status_code=status.HTTP_202_ACCEPTED,
     summary="Confirm user email",
 )
 async def confirm_email(
     request_id: UUID = Path(..., description="Registration request UUID"),
     token: str = Query(..., description="Email confirmation token"),
 ):
+    frontend_url = ProjectSettings.frontend_url.rstrip("/")
     is_valid = await registration_service.assert_registration_token(request_id, token)
 
     if is_valid is False:
-        return JSONResponse(status_code=403, content={"message": "Wrong or expired confirmation token"})
+        return RedirectResponse(url=f"{frontend_url}/email-confirmed?status=error", status_code=302)
 
     await registration_service.confirm_email(request_id)
 
-    return SimpleMessageResponse(message="Email has been confirmed")
+    return RedirectResponse(url=f"{frontend_url}/email-confirmed", status_code=302)
 
 @router.put(
     "/{request_id}/approve",

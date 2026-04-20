@@ -9,6 +9,7 @@ import { RequestVcPage } from "./pages/RequestVcPage";
 import { AdminRegistrationsPage } from "./pages/AdminRegistrationsPage";
 import { AdminParticipantsPage } from "./pages/AdminParticipantsPage";
 import { FederatedCatalogPage } from "./pages/FederatedCatalogPage";
+import { EmailConfirmedPage } from "./pages/EmailConfirmedPage";
 import "./App.css";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/email-confirmed" element={<EmailConfirmedPage />} />
 
           {/* Authenticated routes */}
           <Route

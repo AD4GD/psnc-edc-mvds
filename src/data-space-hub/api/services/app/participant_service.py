@@ -129,7 +129,15 @@ class ParticipantService:
         except Exception as kc_err:
             logger.warning(f"Could not delete Keycloak user for {participant_email}: {kc_err}")
 
-        # 2. Delete participant record (DB)
+        # 2. Delete issued credentials (required before participant deletion due to FK constraint)
+        try:
+            credentials = await async_postgres_service.list_issued_credentials(participant_id=participant_id)
+            for cred in credentials:
+                await async_postgres_service.delete_issued_credential(cred.id)
+        except Exception as cred_err:
+            logger.warning(f"Could not delete issued credentials for {participant_id}: {cred_err}")
+
+        # 3. Delete participant record (DB)
         deleted = await async_postgres_service.delete_participant(p_id=participant_id)
         if not deleted:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete participant record")
@@ -199,7 +207,15 @@ class ParticipantService:
         except Exception as kc_err:
             logger.warning(f"Could not delete Keycloak user for {participant_email}: {kc_err}")
 
-        # 2. Delete participant record
+        # 2. Delete issued credentials (required before participant deletion due to FK constraint)
+        try:
+            credentials = await async_postgres_service.list_issued_credentials(participant_id=str(participant.id))
+            for cred in credentials:
+                await async_postgres_service.delete_issued_credential(cred.id)
+        except Exception as cred_err:
+            logger.warning(f"Could not delete issued credentials for {participant.id}: {cred_err}")
+
+        # 3. Delete participant record
         deleted = await async_postgres_service.delete_participant(p_id=str(participant.id))
         if not deleted:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete participant record")

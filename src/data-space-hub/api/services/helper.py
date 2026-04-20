@@ -22,7 +22,10 @@ def get_bearer_token(authorization: Optional[str] = Header(None)) -> str:
 
 
 def require_dsh_api_key(x_api_key: Optional[str] = Header(None)) -> str:
-    """Validate the x-api-key header against the configured DSH_API_KEY."""
+    """Validate the x-api-key header against the configured DSH_API_KEY.
+    If DSH_API_KEY is not configured, the endpoint is publicly accessible."""
+    if not ProjectSettings.dsh_api_key:
+        return ""
     if not x_api_key:
         raise UnauthorizedException(
             message="Missing x-api-key header", action="access protected resource"
