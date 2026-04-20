@@ -21,7 +21,7 @@ class InsertVcRequest(BaseModel):
     connector_did: str = Field(..., description="DID of participant owning the connector")
     connector_dsp_url: str = Field(..., description="Connector DSP protocol URL (for FC target node registration)")
     identity_hub_identity_url: str = Field(..., description="Identity Hub identity API URL")
-    identity_hub_api_key: str = Field(..., description="Identity Hub super-user API key")
+    identity_hub_api_key: Optional[str] = Field(None, description="Identity Hub super-user API key (omit to skip IH push)")
 
 
 class RegistrationCreateRequest(BaseModel):

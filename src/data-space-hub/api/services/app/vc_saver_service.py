@@ -27,17 +27,25 @@ class VcSaverService:
 
     async def issue_and_store_vcs(self, ctx: InsertVcRequest, participant_id: str | None = None):
       """
-      Generate VCs for a participant and store them in the Identity Hub.
-      If participant_id is provided, saves issued VCs to the database.
-      
+      Generate VCs for a participant and optionally store them in the Identity Hub.
+      If identity_hub_api_key is provided, VCs are pushed to the IH.
+      If participant_id is provided, saves issued VCs to the database regardless.
+
       Participant context creation in IH and STS secret storage in the
       connector are now handled externally by the init-dataspace script.
       """
       logger.info(f"Issuing VCs for {ctx.connector_did}")
 
-      vcs = await self._store_credential_in_identity_hub(
-        ctx.connector_did, [], ctx.identity_hub_identity_url, ctx.identity_hub_api_key)
-
+      if ctx.identity_hub_api_key:
+        vcs = await self._store_credential_in_identity_hub(
+          ctx.connector_did, [], ctx.identity_hub_identity_url, ctx.identity_hub_api_key)
+      else:
+        logger.info("No IH API key provided — generating VCs without pushing to Identity Hub")
+        vcs = await vc_generator_service.create_vc_set(GenerateVcRequest(
+          connector_did=ctx.connector_did,
+          vc_format="VC1_0_JWT",
+          credential_type="MembershipCredential",
+        ))
       # Persist to DB if we have a participant_id
       if participant_id and vcs:
         for vc_token, credential_type in vcs:

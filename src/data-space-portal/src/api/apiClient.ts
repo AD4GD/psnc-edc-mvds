@@ -233,7 +233,7 @@ export function useApi() {
     connector_did: string;
     connector_dsp_url: string;
     identity_hub_identity_url: string;
-    identity_hub_api_key: string;
+    identity_hub_api_key?: string;
   }) {
     const res = await fetch(`${apiBaseUrl}/v1/verifiable-credentials/request`, {
       method: "POST",

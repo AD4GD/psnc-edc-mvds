@@ -16,7 +16,6 @@ const emptyForm: VcForm = {
   identity_hub_identity_url: "",
   identity_hub_api_key: "",
 };
-
 function formatDate(iso: string): string {
   const d = new Date(iso);
   return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
@@ -24,6 +23,7 @@ function formatDate(iso: string): string {
 
 export function RequestVcPage() {
   const [form, setForm] = useState<VcForm>(emptyForm);
+  const [pushToIH, setPushToIH] = useState(true);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [issuedVcs, setIssuedVcs] = useState<IssuedVc[]>([]);
@@ -71,7 +71,13 @@ export function RequestVcPage() {
     setSubmitStatus("submitting");
     setMessage("");
     try {
-      const result = await api.requestVc(form);
+      const payload = {
+        connector_did: form.connector_did,
+        connector_dsp_url: form.connector_dsp_url,
+        identity_hub_identity_url: form.identity_hub_identity_url,
+        ...(pushToIH ? { identity_hub_api_key: form.identity_hub_api_key } : {}),
+      };
+      const result = await api.requestVc(payload);
       setSubmitStatus("success");
       setMessage(result.message || "VCs issued successfully!");
       await refreshUser();
@@ -195,16 +201,36 @@ export function RequestVcPage() {
                 placeholder="https://your-ih/api/identity"
               />
             </div>
-            <div className="form-field">
-              <label>API Key *</label>
-              <input
-                required
-                value={form.identity_hub_api_key}
-                onChange={(e) => update("identity_hub_api_key", e.target.value)}
-                placeholder="super-user API key"
-              />
-            </div>
           </div>
+          <div className="form-field" style={{ marginTop: "12px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={pushToIH}
+                onChange={(e) => setPushToIH(e.target.checked)}
+              />
+              Push VCs to Identity Hub
+              <span
+                title="When enabled, generated VCs are immediately uploaded to your Identity Hub using the API key. Disable if you prefer to manually handle the issued VCs."
+                style={{ cursor: "help", color: "var(--color-text-muted, #888)", fontSize: "0.9em", lineHeight: 1 }}
+              >
+                ℹ️
+              </span>
+            </label>
+          </div>
+          {pushToIH && (
+            <div className="form-grid" style={{ marginTop: "8px" }}>
+              <div className="form-field">
+                <label>API Key *</label>
+                <input
+                  required
+                  value={form.identity_hub_api_key}
+                  onChange={(e) => update("identity_hub_api_key", e.target.value)}
+                  placeholder="super-user API key"
+                />
+              </div>
+            </div>
+          )}
         </fieldset>
 
         {submitStatus === "success" && <div className="success-banner">{message}</div>}
