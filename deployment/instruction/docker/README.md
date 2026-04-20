@@ -80,8 +80,9 @@ IH_USER="super-user"; IH_SECRET="super-secret-key"; printf "%s.%s\n" "$(printf '
 For random secret (recommended), use:
 
 ```bash
-IH_USER="super-user"; IH_SECRET="$(openssl rand -base64 32 | tr -d '\n')"
-printf "%s.%s\n" "$(printf '%s' "$IH_USER" | base64 | tr -d '\n')" "$(printf '%s' "$IH_SECRET" | base64 | tr -d '\n')"
+IH_USER="super-user";  IH_SECRET="$(openssl rand -base64 32 | tr -d '\r\n')"; printf '%s.%s\n' \
+  "$(printf '%s' "$IH_USER" | openssl base64 -A)" \
+  "$(printf '%s' "$IH_SECRET" | openssl base64 -A)"
 ```
 
 ### 3.2 Generate Traefik basic auth value
