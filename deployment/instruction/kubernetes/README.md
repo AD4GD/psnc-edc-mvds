@@ -1,13 +1,38 @@
 # Deployment Instructions (Kubernetes)
 
-This directory contains a minimal, portable deployment for external organizations.
-The deployment is organized into one required section and three optional sections.
-
 ## Requirements
 
-- Access to a Kubernetes cluster (kubeconfig locally).
+- Access to an Openshift x Kubernetes cluster (kubeconfig locally).
+- Plain Kubernetes (without OpenShift Routes) is not supported by this version yet. Plain Kubernetes support will be added later.
 - Ansible + `kubernetes.core` collection.
 - Package with secrets in YAML format (separate, private repository).
+
+
+### Platform and tools
+
+- OpenShift cluster access and a working kubeconfig.
+- Permissions to create namespace/project resources.
+- `Ansible` and `kubernetes.core` collection.
+- `make`, `openssl`, `python3` (for optional bootstrap scripts).
+
+Install collection if needed:
+
+```bash
+ansible-galaxy collection install kubernetes.core
+```
+
+### Minimum resources
+
+Recommended minimum for a full profile (required base + optional sections):
+
+- CPU: 4 vCPU (recommended 8 vCPU)
+- RAM: 12 GiB (recommended 16 GiB)
+- Storage: at least 40 GiB persistent volume space across databases, Vault, and storage service
+
+At deployment level, resources are controlled in `vars/shared_vars.yaml` by:
+
+- `connector_resources`, `dashboard_resources`, `keycloak_resources`, `identity_hub_resources`, `storage_resources`, `consumer_backend_resources`, `vault_resources`
+- `connector_db_storage_size`, `keycloak_db_storage_size`, `identity_hub_db_storage_size`, `vault_pvc_storage_size`, `storage_pvc_size`
 
 Collection installation (if needed):
 
@@ -15,26 +40,81 @@ Collection installation (if needed):
 ansible-galaxy collection install kubernetes.core
 ```
 
-## Quick Start
 
-1. Copy this directory to the admin machine (or to an installation repository).
-2. Fill in settings in [vars/shared_vars.yaml](vars/shared_vars.yaml).
-3. Fill secret values in [vars/secrets.yaml](vars/secrets.yaml) (grouped by service).
-4. Copy secret files to the `secrets/` directory (see [secrets/README.md](secrets/README.md) for examples).
-5. Decide which optional sections are needed for the participant.
-6. Run deployment:
+## Prepare namespace and Docker pull secret
+
+### Namespace
+
+Set your target namespace:
 
 ```bash
-ansible-playbook deploy.yaml
+export NS=<your-namespace>
 ```
+
+Create namespace/project if needed:
+
+```bash
+kubectl get ns "$NS" >/dev/null 2>&1 || kubectl create ns "$NS"
+```
+
+### DockerHUB secret
+
+To prevent `ImagePullError` you need to create ImagePullSecret and connect it to the deployment phase.
+1. Sign in or sign up into Docker Hub
+2. Account Settings
+3. Personal access tokens
+4. Generate new token & copy it
+5. Go to CLI and type:
+```bash
+kubectl create secret docker-registry dockerhub-creds --docker-server=https://index.docker.io/v1/ --docker-username=<dockerhub-user> --docker-password=<dockerhub-token> --docker-email=<email>`
+```
+6. Then type
+```bash
+oc secrets link default dockerhub-creds --for=pull
+```
+
+
+If the secret already exists, replace command with:
+
+```bash
+kubectl delete secret dockerhub-creds
+```
+
+and then paste previous command to create secret
+
+OpenShift equivalent command can use `oc` instead of `kubectl`.
+
+Verify secret:
+
+```bash
+kubectl get secret dockerhub-creds
+```
+
+## Typical flow
+1. `make init` - initializes the repository for `env` files
+2. Fill in settings in [vars/shared_vars.yaml](vars/shared_vars.yaml).
+3. Decide which optional sections are needed for the participant.
+4. Fill secret values in [vars/secrets.yaml](vars/secrets.yaml) (grouped by service).
+5. `make deploy-env` - renderes `.env` files from `vars/` catalog to allow automatic scripts run later
+6. `make deploy-vault` - step to create vault for the first time. You can skip 6 and 7 if vault is already up & running 
+7. `make init-vault` - initializes vault, creates tokens and saves it to local secret file
+8. `make sync-vault` - synchronizes vault tokens with the repository variables
+8. `make deploy` - creates all of the containers \
+... Usually it takes several minutes to fully launch services
+10. `make configure-keycloak` - configures keycloak
+11. `make init-dataspace` - configures identity-hub 
+12. `make verify-dataspace`
+
 
 ## How It Works
 
 - `deploy.yaml` triggers subsequent playbooks.
+- `deploy-env.yaml` renders `.env` and `.env.secrets` from `vars/shared_vars.yaml` and `vars/secrets.yaml` for the scripts under `scripts/`.
 - `deploy-secrets.yaml` loads all YAML files from `secrets/` and renders Jinja variables from `vars/shared_vars.yaml` and `vars/secrets.yaml`.
 - `deploy-databases.yaml` starts the stateful section components: connector DB, optional Keycloak DB, optional Identity Hub DB, and optional Vault.
 - `deploy-stateless-services.yaml` starts connector, dashboard, and optional application services.
-- `deploy-routes.yaml` creates Ingress resources.
+- `deploy-routes.yaml` creates routes for proper proxy to specific services.
+- `deploy-vault.yaml` allows to run a key-vault only to initialize it for the first time
 
 ## Deployment Model
 
@@ -59,13 +139,12 @@ Do not enable only one service from an optional section. The sections are groupe
 Most important fields in [vars/shared_vars.yaml](vars/shared_vars.yaml):
 
 - `k8s_namespace`: namespace for services.
-- `image_tag`: image tag from Docker Hub.
-- `hosts` section: host addresses for Ingress.
 - `connector_id`: connector instance identifier (set once per new connector deployment).
 - `connector_participant_id`: connector DID/participant ID used by EDC; by default derived from `identity_hub_host` + `connector_id`, can be overridden explicitly.
 - `public_scheme`: public address scheme (http or https).
+- `hosts` section: host addresses for Ingress.
 - `connector_db_*`, `keycloak_db_*`, `identity_hub_db_*`: database parameters.
-- `ingress_tls_enabled`, `ingress_tls_secret_name`: TLS for Ingress (optional).
+- `image_pull_secret_name`: optional Kubernetes secret name used for pulling images from Docker Hub.
 - `is_auth`: enables/disables token-based auth for connector APIs (defaults to enabled).
 - `connector_management_audience`: audience for management API (defaults to `connector_id`).
 - `enable_identity_provider`, `enable_identity_hub`, `enable_storage`: optional deployment sections.
@@ -79,40 +158,20 @@ Database service names (default):
 
 ## Secrets
 
-In the secret package, we expect YAML files with type `Secret`. e.g.:
-
 See [secrets/README.md](secrets/README.md) for detailed examples and templates.
 
-Required keys in database secrets:
+### Normal secrets
+Use this random generator for all password-like values:
 
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `POSTGRES_DB`
-
-### Secrets expected in `secrets/`:
-
-- `connector.yaml`
-- `connector-db.yaml`
-- `keycloak.yaml`
-- `keycloak-db.yaml`
-- `identity-hub.yaml`
-- `identity-hub-db.yaml`
-- `storage.yaml`
-- `consumer-backend.yaml`
-
-Critical note:
-Connector and Identity Hub both rely on the same Vault endpoint in this setup. If you enable `identity-hub`, you must provide valid Vault bootstrap and runtime secrets.
-
-Operational note:
-This deployment creates Vault pods and persistent storage, but it does not automate `vault operator init`, unseal, or secret seeding.
-
-Secret values should be maintained centrally in [vars/secrets.yaml](vars/secrets.yaml) and referenced from secret manifests with `{{ secrets.<service>.<key> }}`.
-
-Secret values should be maintained centrally in [vars/secrets.yaml](vars/secrets.yaml) and referenced from secret manifests with `{{ secrets.<service>.<key> }}`.
-
-Critical note:
-Different services must contain matching credentials as they share components or use each others. If they diverge, the section deploys but does not work.
-
+```bash
+openssl rand -base64 32 | tr -d '\n'; echo
+```
+### Identity-Hub super-user secret
+```bash
+IH_USER="super-user";  IH_SECRET="$(openssl rand -base64 24 | tr -d '\r\n')"; printf '%s.%s\n' \
+  "$(printf '%s' "$IH_USER" | openssl base64 -A)" \
+  "$(printf '%s' "$IH_SECRET" | openssl base64 -A)"
+```
 ## Verification
 
 After deployment, you can check the status of resources:
@@ -125,11 +184,23 @@ kubectl -n <namespace> get deploy,svc,ingress
 
 - Required section is always deployed; optional sections are controlled by `enable_identity_provider`, `enable_identity_hub`, and `enable_storage`.
 - Databases and storage are deployed as StatefulSets because they own persistent data; a standalone PVC is just storage allocation and not a workload controller.
-- Vault is also deployed locally from templates in this directory, so this instruction no longer depends on external task files.
 - Vault deployment covers Kubernetes resources only. Vault initialization, unseal, and secret bootstrap still require an explicit operational step after deployment.
-- Storage and consumer-backend ingresses are created when `enable_storage=true`.
-- Images come from Docker Hub: `psncedcmvds/connector`, `psncedcmvds/data-dashboard`, `psncedcmvds/identity-provider`.
+- Storage and consumer-backend services are created when `enable_storage=true`.
+- Images come from Docker Hub: `psncedcmvds/connector`, `psncedcmvds/data-dashboard`, `psncedcmvds/consumer-backend`, `psncedcmvds/identity-hub`.
 - Templates in `templates/*.yaml` are rendered by Ansible (they contain Jinja `{% if %}` blocks).
+
+Critical note:
+Those instructions were run for a full-deployment. If you want to launch only some of the services, you have to disable/enable desired ones and then provide proper hosts/addresses/secrets for services that are not deployed by your organization but you want to use. 
+
+Operational note:
+This deployment creates Vault pods and persistent storage, but it does not automate `vault operator init`, unseal, or secret seeding.
+
+Secret values should be maintained centrally in [vars/secrets.yaml](vars/secrets.yaml) and referenced from secret manifests with `{{ secrets.<service>.<key> }}`.
+
+Secret values should be maintained centrally in [vars/secrets.yaml](vars/secrets.yaml) and referenced from secret manifests with `{{ secrets.<service>.<key> }}`.
+
+Critical note:
+Different services must contain matching credentials as they share components or use each others. If they diverge, the section deploys but does not work.
 
 ## Practical Rules
 
@@ -137,3 +208,5 @@ kubectl -n <namespace> get deploy,svc,ingress
 - If a participant does not need Identity Hub APIs and Vault-backed secret material, disable `identity-hub`.
 - If a participant does not need internal S3-compatible storage for transfers, disable `storage`.
 - Keep section ownership strict. Do not move services between sections just because two images happen to talk to each other.
+
+### FAQ & debugging

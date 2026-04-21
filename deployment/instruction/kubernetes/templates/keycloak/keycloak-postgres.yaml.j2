@@ -35,19 +35,35 @@ spec:
         app: "{{ application }}"
         component: keycloak-db
     spec:
+{% if image_pull_secret_name | default('') | length > 0 %}
+      imagePullSecrets:
+        - name: "{{ image_pull_secret_name }}"
+{% endif %}
       containers:
         - name: postgres
           image: "{{ postgres_image }}"
           ports:
             - name: postgres
               containerPort: 5432
-          envFrom:
-            - secretRef:
-                name: "keycloak-db-secret"
+          env:
+            - name: POSTGRESQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "keycloak-db-secret"
+                  key: POSTGRES_USER
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "keycloak-db-secret"
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: "keycloak-db-secret"
+                  key: POSTGRES_DB
           volumeMounts:
             - name: data
-              mountPath: /var/lib/postgresql/data
-              subPath: postgres
+              mountPath: /bitnami/postgresql
   volumeClaimTemplates:
     - metadata:
         name: data

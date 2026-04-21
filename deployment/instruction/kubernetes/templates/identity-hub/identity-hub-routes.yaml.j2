@@ -1,0 +1,139 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-identity-hub-did"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: identity-hub
+    spec:
+      host: "{{ identity_hub_host }}"
+      to:
+        kind: Service
+        name: "{{ application }}-identity-hub"
+        weight: 10
+      port:
+        targetPort: did
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-identity-hub-api"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: identity-hub
+    spec:
+      host: "{{ identity_hub_host }}"
+      path: /api
+      to:
+        kind: Service
+        name: "{{ application }}-identity-hub"
+        weight: 11
+      port:
+        targetPort: api
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-identity-hub-credentials"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: identity-hub
+    spec:
+      host: "{{ identity_hub_host }}"
+      path: /api/credentials
+      to:
+        kind: Service
+        name: "{{ application }}-identity-hub"
+        weight: 100
+      port:
+        targetPort: credentials
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-identity-hub-identity"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: identity-hub
+    spec:
+      host: "{{ identity_hub_host }}"
+      path: /api/identity
+      to:
+        kind: Service
+        name: "{{ application }}-identity-hub"
+        weight: 100
+      port:
+        targetPort: identity
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-identity-hub-version"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: identity-hub
+    spec:
+      host: "{{ identity_hub_host }}"
+      path: /api/version
+      to:
+        kind: Service
+        name: "{{ application }}-identity-hub"
+        weight: 100
+      port:
+        targetPort: version
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-identity-hub-sts"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: identity-hub
+    spec:
+      host: "{{ identity_hub_host }}"
+      path: /api/sts
+      to:
+        kind: Service
+        name: "{{ application }}-identity-hub"
+        weight: 100
+      port:
+        targetPort: sts
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None

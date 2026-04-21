@@ -20,6 +20,10 @@ spec:
         app: "{{ application }}"
         component: identity-hub
     spec:
+{% if image_pull_secret_name | default('') | length > 0 %}
+      imagePullSecrets:
+        - name: "{{ image_pull_secret_name }}"
+{% endif %}
       containers:
         - name: identity-hub
           image: "{{ identity_hub_image }}"

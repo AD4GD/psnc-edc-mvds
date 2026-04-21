@@ -1,0 +1,23 @@
+---
+- name: Deploy standalone Vault
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - vars/shared_vars.yaml
+
+  module_defaults:
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kubeconfig_path }}"
+      state: present
+      namespace: "{{ k8s_namespace }}"
+
+  tasks:
+    - name: Deploy Vault
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/vault/vault.yaml.j2') | from_yaml_all | list }}"
+      when: enable_vault | default(enable_identity_hub) | bool
+    
+    - name: Deploy key-vault route
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/vault/vault-route.yaml.j2') | from_yaml }}"
+      when: enable_identity_hub | bool

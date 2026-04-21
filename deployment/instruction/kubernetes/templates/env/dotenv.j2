@@ -1,0 +1,46 @@
+# Generated from vars/shared_vars.yaml and vars/secrets.yaml
+APPLICATION={{ application | to_json }}
+K8S_NAMESPACE={{ k8s_namespace | to_json }}
+ENABLE_IDENTITY_HUB={{ enable_identity_hub | to_json }}
+IDENTITY_HUB_VAULT_INSTANCE={{ identity_hub_vault_instance | to_json }}
+VAULT_STATEFULSET_NAME={{ (application ~ '-vault-' ~ identity_hub_vault_instance) | to_json }}
+VAULT_INTERNAL_ADDRESS={{ vault_url | to_json }}
+
+PUBLIC_SCHEME={{ public_scheme | to_json }}
+CONNECTOR_HOST={{ connector_host | to_json }}
+DASHBOARD_HOST={{ dashboard_host | to_json }}
+KEYCLOAK_HOST={{ keycloak_host | to_json }}
+IDENTITY_HUB_HOST={{ identity_hub_host | to_json }}
+VAULT_HOST={{ keyvault_host | to_json }}
+CONSUMER_BACKEND_HOST={{ consumer_backend_host | to_json }}
+STORAGE_HOST={{ storage_host | to_json }}
+
+KEYCLOAK_ADDRESS={{ (public_scheme ~ '://' ~ keycloak_host) | to_json }}
+IDENTITY_HUB_ADDRESS={{ (public_scheme ~ '://' ~ identity_hub_host) | to_json }}
+VAULT_ADDRESS={{ (public_scheme ~ '://' ~ keyvault_host) | to_json }}
+
+ISSUER_DID={{ issuer_did | to_json }}
+FEDERATED_CATALOG_ADDRESS={{ federated_catalog_address | to_json }}
+DATASPACE_HUB_URL={{ data_space_hub_address | to_json }}
+
+CONNECTOR_ID={{ connector_id | to_json }}
+PARTICIPANT_ID={{ participant_id | to_json }}
+
+CONNECTOR_STS_CLIENT_SECRET_ALIAS={{ sts_client_secret | to_json }}
+CONNECTOR_API_KEY={{ secrets.connector.web_http_management_auth_key | to_json }}
+IDENTITY_HUB_KEY_URL_PATH={{ '/certs/consumer_public.pem' | to_json }}
+IDENTITY_HUB_SUPERUSER_KEY={{ secrets.identity_hub.ih_api_superuser_key | to_json }}
+
+KEYCLOAK_ADMIN_PASSWORD={{ secrets.keycloak.admin_password | to_json }}
+KEYCLOAK_ADMIN_USER={{ secrets.keycloak.admin | to_json }}
+REALM_NAME={{ 'Organizations' | to_json }}
+USER_CLIENT_ID={{ 'data-space-users' | to_json }}
+USER_NAME={{ 'test' | to_json }}
+USER_PASS={{ 'edc' | to_json }}
+CATALOG_CLIENT_SECRET={{ 'catalog-secret' | to_json }}
+FC_GROUP={{ 'federated-catalog' | to_json }}
+CONNECTOR_ROLE={{ 'access-connector' | to_json }}
+CONNECTOR_CLIENT_SECRET={{ 'connector-secret' | to_json }}
+
+DATASPACE_MAX_WAIT_SECONDS={{ 120 }}
+DATASPACE_POLL_INTERVAL_SECONDS={{ 3 }}
