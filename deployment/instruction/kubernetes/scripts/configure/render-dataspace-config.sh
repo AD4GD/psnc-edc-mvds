@@ -95,6 +95,7 @@ CONNECTOR_STS_CLIENT_SECRET_ALIAS="${CONNECTOR_STS_CLIENT_SECRET_ALIAS:-sts-clie
 CONNECTOR_API_KEY="${CONNECTOR_API_KEY:-edc}"
 IDENTITY_HUB_SUPERUSER_KEY="${IDENTITY_HUB_SUPERUSER_KEY:-CHANGE_ME_IDENTITY_HUB_SUPERUSER_KEY}"
 DATASPACE_HUB_URL="${DATASPACE_HUB_URL:-${DATA_SPACE_HUB_URL:-CHANGE_ME_DATASPACE_HUB_URL}}"
+DSH_API_KEY="${DSH_API_KEY:-}"
 DATASPACE_MAX_WAIT_SECONDS="${DATASPACE_MAX_WAIT_SECONDS:-120}"
 DATASPACE_POLL_INTERVAL_SECONDS="${DATASPACE_POLL_INTERVAL_SECONDS:-3}"
 
@@ -105,6 +106,7 @@ IDENTITY_HUB_SUPERUSER_KEY="$(normalize_string_value "$IDENTITY_HUB_SUPERUSER_KE
 VAULT_ADDRESS="$(normalize_string_value "$VAULT_ADDRESS")"
 CONNECTOR_API_KEY="$(normalize_string_value "$CONNECTOR_API_KEY")"
 DATASPACE_HUB_URL="$(normalize_string_value "$DATASPACE_HUB_URL")"
+DSH_API_KEY="$(normalize_string_value "$DSH_API_KEY")"
 PUBLIC_SCHEME="$(normalize_string_value "$PUBLIC_SCHEME")"
 CONNECTOR_HOST="$(normalize_string_value "$CONNECTOR_HOST")"
 DATASPACE_MAX_WAIT_SECONDS="$(normalize_int_value "$DATASPACE_MAX_WAIT_SECONDS" "120")"
@@ -114,10 +116,11 @@ mkdir -p "$OUT_DIR/participants"
 
 jq -n \
   --arg url "$DATASPACE_HUB_URL" \
+  --arg dsh_api_key "$DSH_API_KEY" \
   --argjson max_wait "$DATASPACE_MAX_WAIT_SECONDS" \
   --argjson poll_interval "$DATASPACE_POLL_INTERVAL_SECONDS" \
   '{
-    data_space_hub: { url: $url },
+    data_space_hub: ({ url: $url } + (if ($dsh_api_key | length) > 0 then { api_key: $dsh_api_key } else {} end)),
     timeouts: {
       max_wait_seconds: $max_wait,
       poll_interval_seconds: $poll_interval

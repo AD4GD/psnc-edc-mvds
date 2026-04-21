@@ -116,11 +116,14 @@ kubectl get secret dockerhub-creds
 - `deploy-routes.yaml` creates routes for proper proxy to specific services.
 - `deploy-vault.yaml` allows to run a key-vault only to initialize it for the first time
 
-## Deployment Model
+
+## Configuration
+
+### Deployment Model
 
 There is one required base and three optional sections.
 
-Required base:
+Required base `connector`:
 
 - connector
 - connector DB
@@ -132,23 +135,31 @@ Optional sections:
 - `identity-hub` = identity-hub + identity-hub DB + Vault
 - `storage` = storage + consumer-backend
 
+Set proper values of `enable_identity_provider`, `enable_identity_hub`, `enable_storage` to enable/disable
+
+---
+
 Do not enable only one service from an optional section. The sections are grouped by responsibility, not by image count.
 
-## Configuration in shared_vars
+### Provided by a dataspace
+
+Important placeholders to replace with real Data Space values:
+
+- `ISSUER_DID`
+- `FEDERATED_CATALOG_ADDRESS`
+- `DATASPACE_HUB_URL`
+- `CATALOG_API_KEY`
+- `DSH_API_KEY` (optional, leave empty if Data Space Hub does not require API key)
 
 Most important fields in [vars/shared_vars.yaml](vars/shared_vars.yaml):
 
 - `k8s_namespace`: namespace for services.
 - `connector_id`: connector instance identifier (set once per new connector deployment).
-- `connector_participant_id`: connector DID/participant ID used by EDC; by default derived from `identity_hub_host` + `connector_id`, can be overridden explicitly.
+- `participant_id`: automatically generated. Can be overwritten explicitly.
 - `public_scheme`: public address scheme (http or https).
 - `hosts` section: host addresses for Ingress.
-- `connector_db_*`, `keycloak_db_*`, `identity_hub_db_*`: database parameters.
-- `image_pull_secret_name`: optional Kubernetes secret name used for pulling images from Docker Hub.
 - `is_auth`: enables/disables token-based auth for connector APIs (defaults to enabled).
-- `connector_management_audience`: audience for management API (defaults to `connector_id`).
-- `enable_identity_provider`, `enable_identity_hub`, `enable_storage`: optional deployment sections.
-- `identity_hub_vault_instance`, `vault_*`: Vault settings for the `identity-hub` section.
+
 
 Database service names (default):
 
@@ -201,6 +212,9 @@ Secret values should be maintained centrally in [vars/secrets.yaml](vars/secrets
 
 Critical note:
 Different services must contain matching credentials as they share components or use each others. If they diverge, the section deploys but does not work.
+
+Data Space note:
+Fill `issuer_did`, `federated_catalog_address`, `data_space_hub_address`, and optionally `dsh_api_key` in `vars/shared_vars.yaml`. If DSH does not require API key, keep `dsh_api_key` empty.
 
 ## Practical Rules
 

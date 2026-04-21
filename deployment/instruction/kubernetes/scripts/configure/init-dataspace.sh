@@ -82,8 +82,13 @@ fi
 DATASPACE_CONFIG="$CONFIG_DIR/dataspace.json"
 
 DSH_URL=$(jq -r '.data_space_hub.url' "$DATASPACE_CONFIG")
+DSH_API_KEY=$(jq -r '.data_space_hub.api_key // empty' "$DATASPACE_CONFIG")
 MAX_WAIT_SECONDS=$(jq -r '.timeouts.max_wait_seconds // 120' "$DATASPACE_CONFIG")
 POLL_INTERVAL=$(jq -r '.timeouts.poll_interval_seconds // 3' "$DATASPACE_CONFIG")
+
+if [ -z "$DSH_API_KEY" ]; then
+    fail "data_space_hub.api_key is required in $DATASPACE_CONFIG"
+fi
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -310,6 +315,13 @@ process_participant() {
 
     local credential_service_endpoint="${ih_credentials_url}/v1/participants/${participant_context_id_base64}"
 
+    # For this DSH request only: when using HTTP, force localhost as the host.
+    local ih_identity_url_for_request="$ih_identity_url"
+    if [[ "$ih_identity_url_for_request" =~ ^http://[^/:]+(:[0-9]+)?(.*)$ ]]; then
+        ih_identity_url_for_request="http://localhost${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+    fi
+
+
     local body
     body=$(jq -n \
         --arg did "$did" \
@@ -346,7 +358,7 @@ process_participant() {
 
     local response status_code response_body
     response=$(curl -sk -w "\n%{http_code}" \
-        -X POST "${ih_identity_url}/v1alpha/participants" \
+        -X POST "${ih_identity_url_for_request}/v1alpha/participants" \
         -H "Content-Type: application/json" \
         -H "x-api-key: ${ih_api_key}" \
         -d "$body")
@@ -471,6 +483,7 @@ issue_vc_for_participant() {
     response=$(curl -sk -w "\n%{http_code}" \
         -X POST "${DSH_URL}/api/v1/verifiable-credentials/issue" \
         -H "Content-Type: application/json" \
+        -H "x-api-key: ${DSH_API_KEY}" \
         -d "$body")
     status_code=$(echo "$response" | tail -1)
 
@@ -481,7 +494,8 @@ issue_vc_for_participant() {
     else
         local response_body
         response_body=$(echo "$response" | sed '$d')
-        fail "VC issuance for ${name} failed: HTTP ${status_code} - ${response_body}"
+        log "WARNING: VC issuance for ${name} returned HTTP ${status_code}: ${response_body}"
+        log "You may need to issue VCs manually via data-space-hub API"
     fi
 }
 

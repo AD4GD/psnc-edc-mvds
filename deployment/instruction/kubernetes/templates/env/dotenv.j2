@@ -22,6 +22,8 @@ VAULT_ADDRESS={{ (public_scheme ~ '://' ~ keyvault_host) | to_json }}
 ISSUER_DID={{ issuer_did | to_json }}
 FEDERATED_CATALOG_ADDRESS={{ federated_catalog_address | to_json }}
 DATASPACE_HUB_URL={{ data_space_hub_address | to_json }}
+CATALOG_API_KEY={{ catalog_api_key | to_json }}
+DSH_API_KEY={{ dsh_api_key | to_json }}
 
 CONNECTOR_ID={{ connector_id | to_json }}
 PARTICIPANT_ID={{ participant_id | to_json }}
