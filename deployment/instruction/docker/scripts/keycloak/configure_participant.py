@@ -119,8 +119,6 @@ def main():
     
     # 5. User: test
     ku.ensure_user(kc, REALM, TEST_USER, TEST_PASS, groups=[FC_GROUP])
-    # 5.1 User: test-no-fc
-    ku.ensure_user(kc, REALM, 'test-no-fc', TEST_PASS)
     
     print("=== Participant Configuration Complete ===", file=sys.stderr)
 
