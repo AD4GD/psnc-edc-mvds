@@ -82,8 +82,13 @@ fi
 DATASPACE_CONFIG="$CONFIG_DIR/dataspace.json"
 
 DSH_URL=$(jq -r '.data_space_hub.url' "$DATASPACE_CONFIG")
+DSH_API_KEY=$(jq -r '.data_space_hub.api_key // empty' "$DATASPACE_CONFIG")
 MAX_WAIT_SECONDS=$(jq -r '.timeouts.max_wait_seconds // 120' "$DATASPACE_CONFIG")
 POLL_INTERVAL=$(jq -r '.timeouts.poll_interval_seconds // 3' "$DATASPACE_CONFIG")
+
+if [ -z "$DSH_API_KEY" ]; then
+    fail "data_space_hub.api_key is required in $DATASPACE_CONFIG"
+fi
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -99,7 +104,7 @@ wait_for_url() {
     while true; do
         local http_code
         http_code=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 3 "${url}" 2>/dev/null) || true
-        if [ -n "$http_code" ] && [ "$http_code" != "000" ]; then
+        if [ -n "$http_code" ] && [ "$http_code" != "000" ] && [ "$http_code" -ge 200 ] && [ "$http_code" -lt 500 ]; then
             ok "${name} is ready (HTTP ${http_code})"
             return 0
         fi
@@ -199,39 +204,48 @@ phase_bootstrap_identity_hubs() {
     for base_url in $ih_configs; do
         local bootstrap_url="${base_url}/api/bootstrap"
         local health_url="${base_url}/api/check/health"
+        local elapsed=0
 
         wait_for_url "Identity Hub at ${base_url}" "${health_url}" || true
 
-        log "Calling bootstrap endpoint: ${bootstrap_url}..."
-        local response status_code
-        response=$(curl -sk -w "\n%{http_code}" \
-            -X POST "${bootstrap_url}" \
-            -H "Content-Type: application/json")
-        status_code=$(echo "$response" | tail -1)
-        local response_body
-        response_body=$(echo "$response" | sed '$d')
+        while true; do
+            log "Calling bootstrap endpoint: ${bootstrap_url}..."
+            local response status_code response_body
+            response=$(curl -sk -w "\n%{http_code}" \
+                -X POST "${bootstrap_url}" \
+                -H "Content-Type: application/json" 2>/dev/null || true)
+            status_code=$(echo "$response" | tail -1)
+            response_body=$(echo "$response" | sed '$d')
 
-        if [ "$status_code" = "200" ]; then
-            local status
-            status=$(echo "$response_body" | jq -r '.status // "unknown"')
-            if [ "$status" = "created" ]; then
-                local api_key
-                api_key=$(echo "$response_body" | jq -r '.apiKey // empty')
-                log "API key for ${base_url}: ${api_key}"
-                if [ -n "$api_key" ]; then
-                    printf "%s|%s\n" "$base_url" "$api_key" >> "$BOOTSTRAP_KEYS_FILE"
+            if [ "$status_code" = "200" ]; then
+                local status
+                status=$(echo "$response_body" | jq -r '.status // "unknown"')
+                if [ "$status" = "created" ]; then
+                    local api_key
+                    api_key=$(echo "$response_body" | jq -r '.apiKey // empty')
+                    log "API key for ${base_url}: ${api_key}"
+                    if [ -n "$api_key" ]; then
+                        printf "%s|%s\n" "$base_url" "$api_key" >> "$BOOTSTRAP_KEYS_FILE"
+                    fi
+                    ok "Super-user created at ${base_url} (API key: ${api_key})"
+                elif [ "$status" = "already_exists" ]; then
+                    ok "Super-user already exists at ${base_url}"
+                else
+                    ok "Bootstrap responded OK at ${base_url}: ${response_body}"
                 fi
-                ok "Super-user created at ${base_url} (API key: ${api_key})"
-            elif [ "$status" = "already_exists" ]; then
-                ok "Super-user already exists at ${base_url}"
+                break
+            elif [ "$status_code" = "502" ] || [ "$status_code" = "503" ] || [ "$status_code" = "000" ]; then
+                log "  Bootstrap temporary failure at ${base_url}: HTTP ${status_code} (retrying...)"
             else
-                ok "Bootstrap responded OK at ${base_url}: ${response_body}"
+                fail "Bootstrap failed at ${base_url}: HTTP ${status_code} - ${response_body}"
             fi
-        elif [ "$status_code" = "503" ]; then
-            fail "Vault not ready for IH at ${base_url}. Response: ${response_body}"
-        else
-            fail "Bootstrap failed at ${base_url}: HTTP ${status_code} - ${response_body}"
-        fi
+
+            elapsed=$((elapsed + POLL_INTERVAL))
+            if [ "$elapsed" -ge "$MAX_WAIT_SECONDS" ]; then
+                fail "Bootstrap did not stabilize at ${base_url} within ${MAX_WAIT_SECONDS}s (last HTTP ${status_code})"
+            fi
+            sleep "$POLL_INTERVAL"
+        done
     done
 
     ok "All Identity Hubs bootstrapped"
@@ -301,6 +315,13 @@ process_participant() {
 
     local credential_service_endpoint="${ih_credentials_url}/v1/participants/${participant_context_id_base64}"
 
+    # For this DSH request only: when using HTTP, force localhost as the host.
+    local ih_identity_url_for_request="$ih_identity_url"
+    if [[ "$ih_identity_url_for_request" =~ ^http://[^/:]+(:[0-9]+)?(.*)$ ]]; then
+        ih_identity_url_for_request="http://localhost${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+    fi
+
+
     local body
     body=$(jq -n \
         --arg did "$did" \
@@ -337,7 +358,7 @@ process_participant() {
 
     local response status_code response_body
     response=$(curl -sk -w "\n%{http_code}" \
-        -X POST "${ih_identity_url}/v1alpha/participants" \
+        -X POST "${ih_identity_url_for_request}/v1alpha/participants" \
         -H "Content-Type: application/json" \
         -H "x-api-key: ${ih_api_key}" \
         -d "$body")
@@ -462,6 +483,7 @@ issue_vc_for_participant() {
     response=$(curl -sk -w "\n%{http_code}" \
         -X POST "${DSH_URL}/api/v1/verifiable-credentials/issue" \
         -H "Content-Type: application/json" \
+        -H "x-api-key: ${DSH_API_KEY}" \
         -d "$body")
     status_code=$(echo "$response" | tail -1)
 

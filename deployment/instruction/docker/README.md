@@ -134,6 +134,7 @@ Important placeholders to replace with real Data Space values:
 - `FEDERATED_CATALOG_ADDRESS`
 - `DATASPACE_HUB_URL`
 - `CATALOG_API_KEY`
+- `DSH_API_KEY` (optional, leave empty if Data Space Hub does not require API key)
 
 #### 4.3 Base configuration
 At minimum, verify and set:
