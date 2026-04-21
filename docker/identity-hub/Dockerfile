@@ -68,7 +68,6 @@ RUN cp $APP_BUILD_PATH /app/app.jar
 RUN mkdir /app/certs
 COPY ./docker/identity-hub/config/* /app/config/
 COPY ./docker/identity-hub/certs/* /app/certs/
-COPY ./docker/identity-hub/credentials/* /app/credentials/
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 CMD curl --fail http://localhost:29191/api/check/health
 
