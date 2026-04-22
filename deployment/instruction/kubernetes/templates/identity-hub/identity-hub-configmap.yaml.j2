@@ -8,31 +8,31 @@ metadata:
 data:
   # API ports and paths
   WEB_HTTP_PORT: "7080"
-  WEB_HTTP_PATH: "/api"
+  WEB_HTTP_PATH: /api
   WEB_HTTP_CREDENTIALS_PORT: "7081"
-  WEB_HTTP_CREDENTIALS_PATH: "/api/credentials"
+  WEB_HTTP_CREDENTIALS_PATH: /api/credentials
   WEB_HTTP_IDENTITY_PORT: "7082"
-  WEB_HTTP_IDENTITY_PATH: "/api/identity"
+  WEB_HTTP_IDENTITY_PATH: /api/identity
   WEB_HTTP_DID_PORT: "7083"
-  WEB_HTTP_DID_PATH: "/"
+  WEB_HTTP_DID_PATH: /
   WEB_HTTP_VERSION_PORT: "7085"
-  WEB_HTTP_VERSION_PATH: "/api/version"
+  WEB_HTTP_VERSION_PATH: /api/version
   WEB_HTTP_STS_PORT: "7086"
-  WEB_HTTP_STS_PATH: "/api/sts"
+  WEB_HTTP_STS_PATH: /api/sts
 
   # IAM and identity
   EDC_IAM_DID_WEB_USE_HTTPS: "{{ 'true' if public_scheme == 'https' else 'false' }}"
-  EDC_IAM_STS_PRIVATEKEY_ALIAS: "key-1"
-  EDC_IAM_STS_PUBLICKEY_ID: "{{ identity_hub_participant_id }}#key-1"
+  EDC_IAM_STS_PRIVATEKEY_ALIAS: key-1
+  EDC_IAM_STS_PUBLICKEY_ID: "{{ participant_id }}#key-1"
   EDC_IH_IAM_PUBLICKEY_PATH: "/certs/consumer_public.pem"
-  EDC_IH_IAM_ID: "{{ identity_hub_participant_id }}"
-  EDC_MVD_CREDENTIALS_PATH: "app"
+  EDC_IH_IAM_ID: "{{ participant_id }}"
+  EDC_MVD_CREDENTIALS_PATH: app
 
   # Persistence
   EDC_SQL_SCHEMA_AUTOCREATE: "true"
-  EDC_DATASOURCE_DEFAULT_URL: "jdbc:postgresql://{{ identity_hub_db_service }}:5432/{{ identity_hub_db_name }}"
-
+  
   # Vault
-  EDC_VAULT_HASHICORP_URL: "{{ identity_hub_vault_url }}"
+  EDC_VAULT_HASHICORP_URL: "{{ vault_url }}"
   EDC_VAULT_HASHICORP_TOKEN_TTL: "0"
   EDC_VAULT_HASHICORP_TOKEN_SCHEDULED_RENEW_ENABLED: "false"
+  JAVA_TOOL_OPTIONS: "-Dedc.vault.hashicorp.token.scheduled-renew-enabled=false"

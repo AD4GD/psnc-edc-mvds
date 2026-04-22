@@ -13,7 +13,7 @@ data:
       "catalogUrl": "{{ public_scheme }}://{{ connector_host }}/api/catalog-proxy/catalog/request",
       "theme": "{{ dashboard_theme }}",
       "deploymentMode": "production",
-      "backendUrl": "{{ dashboard_backend_url }}",
+      "backendUrl": "{{ dashboard_backend_url }}/edr-endpoint",
       "oauthIssuer": "{{ public_scheme }}://{{ keycloak_host }}/realms/Organizations",
       "oauthClientId": "{{ dashboard_oauth_client_id }}",
       "connectorId": "{{ connector_id }}"

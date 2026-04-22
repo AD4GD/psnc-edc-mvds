@@ -23,12 +23,7 @@
         definition: "{{ lookup('template', 'templates/keycloak/keycloak-postgres.yaml.j2') | from_yaml_all | list }}"
       when: enable_identity_provider | bool
 
-    # Optional section: identity-hub = identity-hub + vault + identity-hub DB
-    - name: Deploy identity-hub vault
-      kubernetes.core.k8s:
-        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-vault.yaml.j2') | from_yaml_all | list }}"
-      when: enable_identity_hub | bool
-
+    # Optional section: identity-hub = identity-hub + identity-hub DB
     - name: Deploy identity-hub database
       kubernetes.core.k8s:
         definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-postgres.yaml.j2') | from_yaml_all | list }}"

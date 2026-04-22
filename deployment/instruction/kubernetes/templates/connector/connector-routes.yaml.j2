@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-management"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api/management
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: management
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-dsp"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api/dsp
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: protocol
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-catalog-proxy"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api/catalog-proxy
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: catalogproxy
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-public"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api/public
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: public
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-control"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api/control
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: control
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-catalog"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api/catalog
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: catalog
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-version"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api/version
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: version
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: "{{ application }}-connector-api"
+      annotations:
+        haproxy.router.openshift.io/ip_whitelist: "{{ route_ip_whitelist }}"
+      labels:
+        app: "{{ application }}"
+        component: connector
+    spec:
+      host: "{{ connector_host }}"
+      path: /api
+      to:
+        kind: Service
+        name: "{{ application }}-connector"
+        weight: 100
+      port:
+        targetPort: api
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None

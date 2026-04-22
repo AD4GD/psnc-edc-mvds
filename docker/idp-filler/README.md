@@ -118,7 +118,7 @@ python3 configure_dataspace.py
 **Zmienne:**
 - `KC_BASE`: URL Participant Keycloak (default: `http://localhost:8082`)
 - `KC_USER`, `KC_PASS`: Admin credentials (default: `admin/edc`)
-- `USER_NAME`, `USER_PASS`: Test user (default: `test/edc`)
+- `DASHBOARD_USER_NAME`, `DASHBOARD_USER_PASS`: Test user (default: `test/edc`)
 - `FC_GROUP`: Grupa dla Federated Catalog access (default: `federated-catalog`)
 - `CATALOG_CLIENT_SECRET`: Secret dla federated-catalog client (default: `catalog-secret`)
 
@@ -190,14 +190,12 @@ Wspólne funkcje dla wszystkich skryptów:
 - `wait_for_keycloak()` — czeka na dostępność Keycloak
 - `get_connection()` — nawiązuje połączenie OAuth2
 - `get_admin()` — inicjalizuje KeycloakAdmin
-- `get_access_token()` — pobiera token admin
 - `ensure_realm()` — tworzy/aktualizuje realm
 - `ensure_client()` — tworzy/aktualizuje client
 - `ensure_client_role()` — tworzy rolę dla clienta
 - `ensure_group()` — tworzy grupę z rolami
 - `ensure_user()` — tworzy użytkownika z hasłem
 - `ensure_idp_mapper()` — konfiguruje mapper dla external IdP
-- `upload_certificate()` — uploaduje JKS certyfikat do Keycloak
 
 
 ## Troubleshooting

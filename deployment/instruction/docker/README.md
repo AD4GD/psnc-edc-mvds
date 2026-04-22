@@ -69,7 +69,6 @@ Generate values and paste them into `.env`, for example:
 - `KEYCLOAK_ADMIN_PASSWORD`
 - `IDENTITY_HUB_DB_PASSWORD`
 - `STORAGE_SECRET_KEY`
-- `CATALOG_API_KEY`
 - `CONNECTOR_STS_CLIENT_SECRET_ALIAS`
 
 For `IDENTITY_HUB_SUPERUSER_KEY`, generate value in format `base64(username).base64(secret)` with:
@@ -81,8 +80,9 @@ IH_USER="super-user"; IH_SECRET="super-secret-key"; printf "%s.%s\n" "$(printf '
 For random secret (recommended), use:
 
 ```bash
-IH_USER="super-user"; IH_SECRET="$(openssl rand -base64 32 | tr -d '\n')"
-printf "%s.%s\n" "$(printf '%s' "$IH_USER" | base64 | tr -d '\n')" "$(printf '%s' "$IH_SECRET" | base64 | tr -d '\n')"
+IH_USER="super-user";  IH_SECRET="$(openssl rand -base64 32 | tr -d '\r\n')"; printf '%s.%s\n' \
+  "$(printf '%s' "$IH_USER" | openssl base64 -A)" \
+  "$(printf '%s' "$IH_SECRET" | openssl base64 -A)"
 ```
 
 ### 3.2 Generate Traefik basic auth value
@@ -133,6 +133,8 @@ Important placeholders to replace with real Data Space values:
 - `ISSUER_DID`
 - `FEDERATED_CATALOG_ADDRESS`
 - `DATASPACE_HUB_URL`
+- `CATALOG_API_KEY`
+- `DSH_API_KEY` (optional, leave empty if Data Space Hub does not require API key)
 
 #### 4.3 Base configuration
 At minimum, verify and set:

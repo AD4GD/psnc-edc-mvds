@@ -17,8 +17,8 @@ def main():
     KC_PASS = ku.env("KC_PASS", "edc")
     REALM = ku.env("REALM_NAME", "Organizations")
     
-    TEST_USER = ku.env("USER_NAME", "psnc")
-    TEST_PASS = ku.env("USER_PASS", "edc")
+    TEST_USER = ku.env("DASHBOARD_USER_NAME", "psnc")
+    TEST_PASS = ku.env("DASHBOARD_USER_PASS", "edc")
 
     FC_ROLE = "access-catalog"
     FC_GROUP = ku.env("FC_GROUP", "federated-catalog")
@@ -28,8 +28,6 @@ def main():
 
     ku.wait_for_keycloak(KC_BASE)
     conn = ku.get_connection(KC_BASE, KC_USER, KC_PASS)
-    token = ku.get_access_token(KC_BASE, "master", KC_USER, KC_PASS)
-    print(token)
     kc = ku.get_admin(connection=conn)
 
     print("=== Configuring Master Realm ===")
