@@ -4,6 +4,8 @@ FROM ${BASE_IMAGE}
 # available types: dcp
 ARG LAUNCHER_TYPE="dcp"
 ARG JVM_ARGS=""
+ARG HARICA_CERT_URL="https://repo.harica.gr/certs/HARICA-TLS-Root-2021-RSA.pem"
+ARG HARICA_CERT_ALIAS="harica-tls-root-2021-rsa"
 
 ENV PROJECT_PATH="src/identity-hub"
 ENV SHARED_EXTENSIONS_PATH="src/shared-extensions"
@@ -15,6 +17,16 @@ RUN apt update \
     && apt install -y curl unzip \
     && apt clean \
     && rm -rf /var/cache/apt/archives /var/lib/apt/lists
+
+# Add HARICA CA to JVM truststore for TLS connections to partners using HARICA-issued certs.
+RUN curl -fsSL -o /tmp/harica.pem "$HARICA_CERT_URL" \
+    && keytool -importcert \
+        -noprompt \
+        -cacerts \
+        -alias "$HARICA_CERT_ALIAS" \
+        -storepass changeit \
+        -file /tmp/harica.pem \
+    && rm -f /tmp/harica.pem
 
 WORKDIR /app
 

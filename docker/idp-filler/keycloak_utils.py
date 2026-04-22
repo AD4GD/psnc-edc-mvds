@@ -36,7 +36,6 @@ def get_connection(base : str, user : str, password : str) -> KeycloakOpenIDConn
         verify=True
     )
 
-
 def get_admin(base: str = None, user: str = None, password: str = None, connection: KeycloakOpenIDConnection = None) -> KeycloakAdmin:
     # keycloak library typically appends /auth if needed, but for quarkus (kc > 17) it's just base/
     # If base is http://host:port, we use that.
@@ -49,18 +48,6 @@ def get_admin(base: str = None, user: str = None, password: str = None, connecti
         realm_name="master",
         verify=True
     )
-
-def get_access_token(base_url : str, realm : str, username : str, password : str) -> str:
-    r = requests.post(
-        f"{base_url}/realms/{realm}/protocol/openid-connect/token",
-        data={
-            "client_id": "admin-cli",
-            "username": username,
-            "password": password,
-            "grant_type": "password"
-        }
-    ).json()
-    return r.get("access_token")
 
 def ensure_realm(kc: KeycloakAdmin, realm_name: str, require_https: bool = False, payload: dict = None, base_file: str = None):
     # Check if exists
@@ -126,24 +113,6 @@ def ensure_client(kc: KeycloakAdmin, realm: str, client_def: dict) -> str:
         print(found_id)
         client_def["id"] = found_id
         return kc.create_client(client_def, skip_exists=True)
-    
-def link_policy_to_permission(kc : KeycloakAdmin, realm : str, permission_id: str, policy_id: str, base_url: str, token: str = None):
-    kc.change_current_realm(realm)
-    mgmt_client_id = kc.get_client_id("realm-management")
-    url = f"{base_url}/admin/realms/{realm}/clients/{mgmt_client_id}/authz/resource-server/policy/{permission_id}"
-    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    
-    r = requests.get(url, headers=headers)
-    r.raise_for_status()
-    policy_def = r.json()
-    
-    current_policies = policy_def.get("policies", [])
-    if policy_id not in current_policies:
-        print(f"Linking policy to permission {policy_def['name']}...")
-        current_policies.append(policy_id)
-        policy_def["policies"] = current_policies
-        r = requests.put(url, json=policy_def, headers=headers)
-        r.raise_for_status()
 
 def ensure_client_role(kc: KeycloakAdmin, realm: str, client_uuid: str, role_name: str):
     kc.change_current_realm(realm)
@@ -248,40 +217,3 @@ def ensure_realm_default_groups(kc: KeycloakAdmin, realm: str, group_paths: List
 
     current["defaultGroups"] = sorted(existing | desired)
     kc.update_realm(realm, current)
-
-def upload_certificate(kc: KeycloakAdmin, realm: str, client_id: str, cert_path: str, base_url: str, alias="dapsPrivate", password="1234", token: str = None):
-    """
-    Uploads a JKS certificate for a client.
-    Uses direct API call since python-keycloak might vary in support.
-    """
-    if not os.path.exists(cert_path):
-        print(f"[ERROR] Certificate file not found: {cert_path}")
-        return
-
-    # Need internal ID
-    kc.change_current_realm(realm)
-    internal_id = kc.get_client_id(client_id)
-    if not internal_id:
-        print(f"Client {client_id} not found for certificate upload")
-        return
-
-    url = f"{base_url}/admin/realms/{realm}/clients/{internal_id}/certificates/jwt.credential/upload-certificate"
-    
-    # We need the raw token
-    
-    
-    print(f"Uploading certificate for {client_id}...")
-    with open(cert_path, "rb") as fh:
-        files = {"file": (os.path.basename(cert_path), fh, "application/octet-stream")}
-        data = {
-            "keystoreFormat": "JKS",
-            "keyAlias": alias,
-            "storePassword": password,
-        }
-        try:
-            r = requests.post(url, headers={"Authorization": f"Bearer {token}"}, files=files, data=data)
-            if r.status_code >= 400:
-                 print(f"[ERROR] Upload certificate failed: {r.status_code} {r.text}")
-        except Exception as e:
-            print(f"[ERROR] Upload certificate exception: {e}")
-

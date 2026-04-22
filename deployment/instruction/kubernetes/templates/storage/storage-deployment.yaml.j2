@@ -18,6 +18,15 @@ spec:
         app: "{{ application }}"
         component: storage
     spec:
+      podSecurityContext:
+        fsGroup: 100
+        runAsGroup: 100
+        runAsNonRoot: true
+        runAsUser: 65534
+{% if image_pull_secret_name | default('') | length > 0 %}
+      imagePullSecrets:
+        - name: "{{ image_pull_secret_name }}"
+{% endif %}
       containers:
         - name: storage
           image: "{{ storage_image }}"
@@ -39,8 +48,13 @@ spec:
                 name: "storage-secret"
                 optional: true
           volumeMounts:
+            - name: logs
+              mountPath: /logs
             - name: data
               mountPath: /data
+      volumes:
+        - name: logs
+          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: data

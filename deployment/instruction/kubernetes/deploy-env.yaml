@@ -1,0 +1,27 @@
+---
+- name: Render script env files
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - vars/shared_vars.yaml
+    - vars/secrets.yaml
+
+  tasks:
+    - name: Render .env for scripts
+      ansible.builtin.template:
+        src: templates/env/dotenv.j2
+        dest: ./.env
+        mode: "0644"
+
+    - name: Ensure secrets directory exists
+      ansible.builtin.file:
+        path: ./secrets
+        state: directory
+        mode: "0755"
+
+    - name: Render secrets/vault.secrets for Vault init flow
+      ansible.builtin.template:
+        src: templates/env/vault-secrets.j2
+        dest: ./secrets/vault.secrets
+        mode: "0600"
+        force: false

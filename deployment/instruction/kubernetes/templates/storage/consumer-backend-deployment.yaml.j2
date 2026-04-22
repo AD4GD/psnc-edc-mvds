@@ -20,6 +20,10 @@ spec:
         app: "{{ application }}"
         component: consumer-backend
     spec:
+{% if image_pull_secret_name | default('') | length > 0 %}
+      imagePullSecrets:
+        - name: "{{ image_pull_secret_name }}"
+{% endif %}
       containers:
         - name: consumer-backend
           image: "{{ consumer_backend_image }}"

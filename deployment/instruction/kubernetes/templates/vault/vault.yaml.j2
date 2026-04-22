@@ -97,6 +97,10 @@ spec:
         component: vault
         vault_instance: "{{ identity_hub_vault_instance }}"
     spec:
+{% if image_pull_secret_name | default('') | length > 0 %}
+      imagePullSecrets:
+        - name: "{{ image_pull_secret_name }}"
+{% endif %}
       serviceAccountName: "{{ vault_service_account_name }}"
       terminationGracePeriodSeconds: 30
       containers:
@@ -127,7 +131,6 @@ spec:
           securityContext:
             readOnlyRootFilesystem: false
             runAsNonRoot: true
-            runAsUser: 100
           volumeMounts:
             - name: vault-config
               mountPath: /etc/vault

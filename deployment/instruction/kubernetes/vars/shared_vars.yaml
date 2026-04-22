@@ -8,6 +8,7 @@ kubeconfig_path: "~/.kube/config"
 image_registry: "docker.io/psncedcmvds"
 image_tag: "latest"
 image_pull_policy: "IfNotPresent"
+image_pull_secret_name: ""
 
 connector_image: "{{ image_registry }}/connector:{{ image_tag }}"
 dashboard_image: "{{ image_registry }}/data-dashboard:{{ image_tag }}"
@@ -15,34 +16,44 @@ keycloak_image: "{{ image_registry }}/identity-provider:{{ image_tag }}"
 identity_hub_image: "{{ image_registry }}/identity-hub:{{ image_tag }}"
 consumer_backend_image: "{{ image_registry }}/consumer-backend:{{ image_tag }}"
 vault_image: "hashicorp/vault:1.16"
-storage_image: "rustfs/rustfs:1.0.0-alpha.85"
+storage_image: "rustfs/rustfs:1.0.0-alpha.87"
+postgres_image: "docker.io/bitnami/postgresql:latest"
 
 # Deployment sections
 # Required section is always deployed: connector + connector DB + dashboard.
 # Optional sections below
 enable_identity_provider: true
-enable_identity_hub: false
-enable_storage: false
+enable_identity_hub: true
+enable_storage: true
 
-# Public addresses (Ingress)
+# Public addresses
+public_scheme: "https"
 connector_host: "connector.example.org"
 dashboard_host: "dashboard.example.org"
 keycloak_host: "keycloak.example.org"
 identity_hub_host: "identity-hub.example.org"
 storage_host: "storage.example.org"
 consumer_backend_host: "consumer-backend.example.org"
-public_scheme: "https"
+keyvault_host: "vault.example.org"
+# OpenShift Route source IP whitelist (comma-separated CIDRs). Empty means no Route-level restriction.
+route_ip_whitelist: ""
+
+# Data Space settings
+issuer_did: "<issuer-did>"
 federated_catalog_address: "https://federated-catalog.example.org"
+data_space_hub_address: "https://data-space-hub.example.org"
+catalog_api_key: ""
+dsh_api_key: ""
 
 # Connector identity (single place to manage per new connector)
 # 1) Set connector_id for each connector instance.
-# 2) connector_participant_id can stay derived or be overridden explicitly with your DID.
+# 2) participant_id can stay derived or be overridden explicitly with your DID.
 connector_id: "change-me-connector-id"
-connector_participant_id: "did:web:{{ identity_hub_host }}:{{ connector_id }}"
+participant_id: "did:web:{{ identity_hub_host }}:{{ connector_id }}"
 
 # Connector auth defaults
 connector_auth_key: "password"
-connector_management_audience: "{{ connector_id }}"
+sts_client_secret: "sts-client-secret"
 
 # Auth toggles (Connector APIs)
 # If true, enable token-based auth for management/control/default and composite for catalogproxy.
@@ -66,7 +77,7 @@ identity_hub_db_service: "{{ application }}-identity-hub-db"
 connector_db_storage_size: "5Gi"
 keycloak_db_storage_size: "5Gi"
 identity_hub_db_storage_size: "5Gi"
-postgres_image: "postgres:16"
+connector_db_name: "edc_connector_db"
 
 # Vault
 vault_replicas: 1
@@ -74,8 +85,7 @@ vault_pvc_storage_size: "1Gi"
 vault_storage_class_name: ""
 vault_service_account_name: "default"
 identity_hub_vault_instance: "{{ connector_id }}-ih"
-connector_vault_url: "http://{{ application }}-vault-{{ identity_hub_vault_instance }}:8200"
-identity_hub_vault_url: "http://{{ application }}-vault-{{ identity_hub_vault_instance }}:8200"
+vault_url: "http://{{ application }}-vault-{{ identity_hub_vault_instance }}:8200"
 
 # Vault probes
 readiness_probe_period: 10
@@ -136,9 +146,6 @@ consumer_backend_resources:
   limits:
     cpu: "1"
     memory: "400Mi"
-
-# Identity Hub section (optional)
-identity_hub_participant_id: "{{ connector_participant_id }}"
 
 # Storage section (optional)
 storage_bucket: "downloads"

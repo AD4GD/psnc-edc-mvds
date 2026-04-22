@@ -1,5 +1,5 @@
 ---
-- name: Deploy ingress routes
+- name: Deploy routes
   hosts: local
   gather_facts: false
   vars_files:
@@ -13,33 +13,39 @@
 
   tasks:
     # Required section: connector + dashboard
-    - name: Deploy connector ingress
+    - name: Deploy connector routes
       kubernetes.core.k8s:
-        definition: "{{ lookup('template', 'templates/connector/connector-ingress.yaml.j2') | from_yaml }}"
+        definition: "{{ lookup('template', 'templates/connector/connector-routes.yaml.j2') | from_yaml }}"
 
-    - name: Deploy dashboard ingress
+    - name: Deploy dashboard route
       kubernetes.core.k8s:
-        definition: "{{ lookup('template', 'templates/dashboard/dashboard-ingress.yaml.j2') | from_yaml }}"
+        definition: "{{ lookup('template', 'templates/dashboard/dashboard-route.yaml.j2') | from_yaml }}"
 
     # Optional section: identity-provider = keycloak + keycloak DB
-    - name: Deploy keycloak ingress
+    - name: Deploy keycloak route
       kubernetes.core.k8s:
-        definition: "{{ lookup('template', 'templates/keycloak/keycloak-ingress.yaml.j2') | from_yaml }}"
+        definition: "{{ lookup('template', 'templates/keycloak/keycloak-route.yaml.j2') | from_yaml }}"
       when: enable_identity_provider | bool
 
     # Optional section: identity-hub = identity-hub + vault + identity-hub DB
-    - name: Deploy identity-hub ingress
+    - name: Deploy identity-hub routes
       kubernetes.core.k8s:
-        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-ingress.yaml.j2') | from_yaml }}"
+        definition: "{{ lookup('template', 'templates/identity-hub/identity-hub-routes.yaml.j2') | from_yaml }}"
+      when: enable_identity_hub | bool
+
+    # Optional section: key-vault
+    - name: Deploy key-vault route
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'templates/vault/vault-route.yaml.j2') | from_yaml }}"
       when: enable_identity_hub | bool
 
     # Optional section: storage = storage + consumer-backend
-    - name: Deploy storage ingress
+    - name: Deploy storage routes
       kubernetes.core.k8s:
-        definition: "{{ lookup('template', 'templates/storage/storage-ingress.yaml.j2') | from_yaml }}"
+        definition: "{{ lookup('template', 'templates/storage/storage-routes.yaml.j2') | from_yaml }}"
       when: enable_storage | bool
 
-    - name: Deploy consumer-backend ingress
+    - name: Deploy consumer-backend route
       kubernetes.core.k8s:
-        definition: "{{ lookup('template', 'templates/storage/consumer-backend-ingress.yaml.j2') | from_yaml }}"
+        definition: "{{ lookup('template', 'templates/storage/consumer-backend-route.yaml.j2') | from_yaml }}"
       when: enable_storage | bool
