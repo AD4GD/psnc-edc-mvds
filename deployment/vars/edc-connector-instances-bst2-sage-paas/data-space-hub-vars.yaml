@@ -2,32 +2,23 @@ dataspacehub_configmap__05_defaults:
   # API
   APP_URL: https://data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl
   ISSUER_DID: did:web:data-space-hub-sage-data-space.apps.bst2.paas.psnc.pl
-  API_CONTAINER_NAME: data-space-hub-api
-  PROJECT_NAME: data-space-hub
   API_PORT: 8000
-  POSTGRES_CONTAINER_NAME: dsh-postgres
   SERVICE_NAME: "Data Space HUB - PCSS bst2 sage"
-  FRONTEND_URL: https://localhost:5173
+  FRONTEND_URL: https://data-space-portal-sage-data-space.apps.bst2.paas.psnc.pl
 
-  # keycloak (not integrated yet)
-  KEYCLOAK_SERVER_URL: TODO
-  KEYCLOAK_REALM: master
-  KEYCLOAK_CLIENT_ID: admin-cli
-  KEYCLOAK_CLIENT_SECRET: TODO
+  # keycloak
+  KEYCLOAK_SERVER_URL: https://data-space-keycloak-sage-data-space.apps.bst2.paas.psnc.pl
+  KEYCLOAK_REALM: dataspace
+  KEYCLOAK_CLIENT_ID: data-space-hub
 
   # vault
   VAULT_URL: https://data-space-hub-keyvault-sage-data-space.apps.bst2.paas.psnc.pl
   VAULT_ROLE_ID: https://data-space-hub-keyvault-sage-data-space.apps.bst2.paas.psnc.pl
   VAULT_SECRET_ID: https://data-space-hub-keyvault-sage-data-space.apps.bst2.paas.psnc.pl
   VAULT_KV_MOUNT: secret
-  VAULT_TRANSIT_MOUNT: transit
-  VAULT_DEFAULT_KEY_TYPE: ed25519
-  VAULT_KEY_AUTO_ROTATE_DAYS: 90
+  VAULT_KEY_AUTO_ROTATE_DAYS: 180
   VAULT_NAMESPACE: admin
   KEY_NAME: test_private_key
-
-  # digital_wallet
-  NODE_CONNECTION_ENDPOINT: some_endpoint
 
   # federated catalog
   FEDERATED_CATALOG_DID: did:web:federated-catalog-identity-hub-sage-data-space.apps.bst2.paas.psnc.pl:authority
