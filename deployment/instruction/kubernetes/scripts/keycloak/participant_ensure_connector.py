@@ -46,8 +46,8 @@ def add_connector(kc: KeycloakAdmin, realm: str, connector_client_id: str, conne
     })
 
     # 4. User: test
-    test_user = ku.env("USER_NAME", "psnc")
-    test_pass = ku.env("USER_PASS", "edc")
+    test_user = ku.env("DASHBOARD_USER_NAME", "psnc")
+    test_pass = ku.env("DASHBOARD_USER_PASS", "edc")
     print(f"Ensuring test user '{test_user}' with access to connector...")
     ku.ensure_user(kc, realm, test_user, test_pass, groups=[group_name])
     

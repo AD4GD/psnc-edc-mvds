@@ -21,8 +21,8 @@ def main():
     KC_PASS = ku.env("KEYCLOAK_ADMIN_PASSWORD", "edc")
     REALM = ku.env("REALM_NAME", "Organizations")
     
-    TEST_USER = ku.env("USER_NAME", "test")
-    TEST_PASS = ku.env("USER_PASS", "edc")
+    TEST_USER = ku.env("DASHBOARD_USER_NAME", "test")
+    TEST_PASS = ku.env("DASHBOARD_USER_PASS", "edc")
 
     FC_ROLE = "access-catalog"
     FC_GROUP = ku.env("FC_GROUP", "federated-catalog")
