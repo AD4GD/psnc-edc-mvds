@@ -1,3 +1,26 @@
+"""
+DCAT Loader - usage guide
+
+Author: Mateusz Świercz
+Creation date: 2026-04-27
+
+Required libraries:
+- requests
+- python-keycloak
+
+Installation (example):
+    pip install requests python-keycloak
+
+Run from CLI:
+1) Fill in the .env file (by default next to this script) with required values,
+   including CATALOG_URL, MANAGEMENT_API, and authentication settings.
+2) Run:
+    python dcat_loader.py
+
+Optionally, you can use a different env file:
+    ENV_FILE=/path/to/.env python dcat_loader.py
+"""
+
 import json
 import logging
 import os
