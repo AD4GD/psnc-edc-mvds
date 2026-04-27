@@ -118,5 +118,6 @@ class RegistrationRequestResponse(BaseModel):
     error_detail: str = Field("")
     status: RegistrationStatus = Field(RegistrationStatus.REQUESTED, description="current status of registration")
     email_confirmed: bool = Field(False, description="is email confirmed")
+    request_form: Optional[Dict[str, Any]] = Field(None, description="submitted registration form data")
     created_at: Optional[datetime] = Field(..., description="")
     updated_at: Optional[datetime] = Field(..., description="")

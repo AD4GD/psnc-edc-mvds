@@ -172,7 +172,7 @@
 - name: "Deploy provider keycloak"
   include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
   vars:
-    component: providerkeycloak
+    component: identityproviderprovider
     kc_tmp_volume: "providerkeycloak-tmp"
 
 - name: "Deploy edc federated catalog"
@@ -250,4 +250,8 @@
     component: mailservice
 
 # Data Space Keycloak
-# TODO: not integrated yet
+- name: "Deploy data space keycloak"
+  include_tasks: deploy-stateless-tasks/templates/keycloak.yaml
+  vars:
+    component: identityproviderdataspace
+    kc_tmp_volume: "data-space-keycloak-tmp"

@@ -7,7 +7,7 @@ from api.models.db.registration_request import RegistrationRequest
 from api.models.dto.requests import ParticipantCreateRequest, ParticipantUpdateRequest
 from api.models.dto.responses import ParticipantResponse, SimpleMessageResponse
 from api.services.clients import EmailService, async_postgres_service, keycloak_service
-from api.templates.email import participant_accepted_template
+from api.templates.email import participant_offboarded_template
 from api.templates.template_filler import render_jinja_template
 from fastapi import HTTPException, status
 
@@ -21,9 +21,8 @@ class ParticipantService:
         pass
 
     @classmethod
-    async def register_participant(cls, reg_id) -> ParticipantResponse:
+    async def register_participant(cls, reg_id, keycloak_id: str = None) -> ParticipantResponse:
         """Register a new participant with the provided information."""
-        # TODO check content of request
         reg_req: RegistrationRequest = await async_postgres_service.get_registration_request(reg_id)
         form: ParticipantCreateRequest = reg_req.request_form
 
@@ -35,20 +34,15 @@ class ParticipantService:
                     "id": uuid4(),
                     "name": form["name"],
                     "full_name": form["full_name"],
-                    "data_space_components": form["data_space_components"],
+                    "data_space_components": form.get("data_space_components", {}),
                     "location_id": location.id,
                     "VAT_number": form["VAT_number"],
                     "email": form["email"],
+                    "keycloak_id": keycloak_id,
                 },
                 session=session,
             )
 
-        EmailService.send_email(
-            [form["email"]],
-            "Data Space - Onboarding",
-            render_jinja_template(participant_accepted_template, {"participant_name": form["full_name"]}),
-            "html",
-        )
         return participant
 
     @classmethod
@@ -74,8 +68,6 @@ class ParticipantService:
         participants = await async_postgres_service.list_participants(offset, limit)
         for i, participant in enumerate(participants):
             participants[i] = participant.to_dict()
-        if not participants:
-            raise RecordNotFoundException(message="No participants found", status_code=204, record_type="participant list")
         return participants
 
     @classmethod
@@ -108,28 +100,161 @@ class ParticipantService:
         return SimpleMessageResponse(message="Participant has been updated")
 
     @classmethod
-    async def delete_participant(cls, token: str, participant_id: str) -> None:
-        # TODO check if auth is ok
+    async def delete_participant(cls, token: str, participant_id: str, reason: str = "") -> SimpleMessageResponse:
+        """
+        Full offboarding of a participant (admin-initiated).
+        Steps:
+          1. Auth: must be admin
+          2. Load participant from DB to get their email and name
+          3. Delete Keycloak user (soft-fail: log warning if not found)
+          4. Delete participant DB record (cascades location via separate call)
+          5. Mark registration request as REJECTED (audit trail)
+          6. Send offboarding notification email to the participant
+        """
         try:
-            keycloak_service.decode_jwt_payload(token)
-            if not (keycloak_service.token_has_realm_role(token, "admin") or keycloak_service.authorized_for_participant(token, participant_id)):
-                raise UnauthorizedException(message="Insufficient permissions", action="delete participant")
-        except HTTPException:
-            raise
-        except Exception:  # pylint: disable=W0718
-            # fallback to introspection
-            keycloak_service.introspect_token(token)
+            keycloak_service.require_admin(token)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
 
+        participant = await async_postgres_service.get_participant(participant_id)
+        if not participant:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Participant not found")
+
+        participant_email = participant.email
+        participant_name = participant.full_name or participant.name
+
+        # 1. Remove from Keycloak (best-effort)
         try:
-            ok = await async_postgres_service.delete_participant(p_id=participant_id)
+            keycloak_service.delete_user_by_email(participant_email)
+        except Exception as kc_err:
+            logger.warning(f"Could not delete Keycloak user for {participant_email}: {kc_err}")
 
-            if not ok:
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Delete failed")
-        except HTTPException:
-            raise
-        except Exception as e:
-            logger.exception("Failed to delete participant")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        # 2. Delete issued credentials (required before participant deletion due to FK constraint)
+        try:
+            credentials = await async_postgres_service.list_issued_credentials(participant_id=participant_id)
+            for cred in credentials:
+                await async_postgres_service.delete_issued_credential(cred.id)
+        except Exception as cred_err:
+            logger.warning(f"Could not delete issued credentials for {participant_id}: {cred_err}")
+
+        # 3. Delete participant record (DB)
+        deleted = await async_postgres_service.delete_participant(p_id=participant_id)
+        if not deleted:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete participant record")
+
+        # 3. Mark registration as REJECTED for audit trail
+        try:
+            rr = await async_postgres_service.get_registration_request_by_participant_id(participant_id)
+            if rr:
+                from api.models.db.registration_request import RegistrationStatus
+                await async_postgres_service.update_registration_request(
+                    rr.id,
+                    {
+                        "status": RegistrationStatus.REJECTED.value,
+                        "error_detail": f"Offboarded by admin. Reason: {reason}" if reason else "Offboarded by admin.",
+                    },
+                )
+        except Exception as rr_err:
+            logger.warning(f"Could not update registration request during offboarding: {rr_err}")
+
+        # 4. Send offboarding email
+        try:
+            EmailService.send_email(
+                recipients=[participant_email],
+                subject="Data Space – Your organization has been offboarded",
+                body=render_jinja_template(
+                    participant_offboarded_template,
+                    {
+                        "participant_name": participant_name,
+                        "initiated_by": "admin",
+                        "reason": reason,
+                    },
+                ),
+                body_type="html",
+            )
+        except Exception as mail_err:
+            logger.warning(f"Offboarding email failed for {participant_email}: {mail_err}")
+
+        logger.info(f"Participant {participant_id} ({participant_email}) offboarded by admin")
+        return SimpleMessageResponse(message=f"Participant '{participant_name}' has been offboarded")
+
+    @classmethod
+    async def offboard_self(cls, token: str, reason: str = "") -> SimpleMessageResponse:
+        """
+        Self-offboarding: the authenticated participant removes their own organization.
+        Resolves the participant via the Keycloak 'sub' stored in keycloak_id column.
+        """
+        keycloak_id = keycloak_service.get_keycloak_id_from_token(token)
+        if not keycloak_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not resolve identity from token")
+
+        participant = await async_postgres_service.get_participant_by_keycloak_id(keycloak_id)
+        if not participant:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No participant linked to your account")
+
+        participant_email = participant.email
+        participant_name = participant.full_name or participant.name
+
+        # Verify the token email matches the participant email (ownership check)
+        token_payload = keycloak_service.decode_jwt_payload(token)
+        token_email = token_payload.get("email", "")
+        if token_email and token_email.lower() != participant_email.lower():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Token does not match participant email")
+
+        # 1. Delete Keycloak user (best-effort)
+        try:
+            keycloak_service.delete_user_by_email(participant_email)
+        except Exception as kc_err:
+            logger.warning(f"Could not delete Keycloak user for {participant_email}: {kc_err}")
+
+        # 2. Delete issued credentials (required before participant deletion due to FK constraint)
+        try:
+            credentials = await async_postgres_service.list_issued_credentials(participant_id=str(participant.id))
+            for cred in credentials:
+                await async_postgres_service.delete_issued_credential(cred.id)
+        except Exception as cred_err:
+            logger.warning(f"Could not delete issued credentials for {participant.id}: {cred_err}")
+
+        # 3. Delete participant record
+        deleted = await async_postgres_service.delete_participant(p_id=str(participant.id))
+        if not deleted:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete participant record")
+
+        # 3. Mark registration as REJECTED for audit trail
+        try:
+            rr = await async_postgres_service.get_registration_request_by_participant_id(str(participant.id))
+            if rr:
+                from api.models.db.registration_request import RegistrationStatus
+                await async_postgres_service.update_registration_request(
+                    rr.id,
+                    {
+                        "status": RegistrationStatus.REJECTED.value,
+                        "error_detail": f"Self-offboarded. Reason: {reason}" if reason else "Self-offboarded by participant.",
+                    },
+                )
+        except Exception as rr_err:
+            logger.warning(f"Could not update registration request during self-offboarding: {rr_err}")
+
+        # 4. Send offboarding email
+        try:
+            EmailService.send_email(
+                recipients=[participant_email],
+                subject="Data Space – Offboarding confirmed",
+                body=render_jinja_template(
+                    participant_offboarded_template,
+                    {
+                        "participant_name": participant_name,
+                        "initiated_by": "self",
+                        "reason": reason,
+                    },
+                ),
+                body_type="html",
+            )
+        except Exception as mail_err:
+            logger.warning(f"Offboarding email failed for {participant_email}: {mail_err}")
+
+        logger.info(f"Participant {participant.id} ({participant_email}) self-offboarded")
+        return SimpleMessageResponse(message="Your organization has been offboarded from the Data Space")
 
 
 participant_service = ParticipantService()

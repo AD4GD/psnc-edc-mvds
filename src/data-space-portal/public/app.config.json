@@ -1,4 +1,7 @@
 {
   "apiBaseUrl": "http://localhost:8000/api",
-  "isProduction": false
+  "isProduction": false,
+  "keycloakUrl": "http://localhost:48081",
+  "keycloakRealm": "dataspace",
+  "keycloakClientId": "data-space-users"
 }

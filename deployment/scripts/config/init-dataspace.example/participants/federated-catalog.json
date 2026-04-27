@@ -1,6 +1,6 @@
 {
   "did": "did:web:fc-ih%3A7103:piotr",
-  "sts_client_secret_alias": "sts-client-secret",
+  "sts_client_secret_alias": "fc-sts-secret",
   "identity_hub": {
     "base_url": "http://localhost:7100",
     "identity_api_url": "http://fc-ih:7102/api/identity",

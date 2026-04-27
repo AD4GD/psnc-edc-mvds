@@ -19,7 +19,7 @@ connectorprovider_configmap__05_defaults:
   EDC_DSP_CALLBACK_ADDRESS: https://provider-connector-dcp-data-space.apps.bst2.paas.psnc.pl/api/dsp
   EDC_PARTICIPANT_ID: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob
   EDC_MANAGEMENT_CONTEXT_ENABLED: true
-  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob-sts-client-secret
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: provider-sts-secret
   EDC_IAM_STS_OAUTH_CLIENT_ID: did:web:provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:bob
   EDC_IAM_STS_OAUTH_TOKEN_URL: https://provider-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api/sts/token
 

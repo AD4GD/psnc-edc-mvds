@@ -1,10 +1,12 @@
 import base64
 import json
-from typing import Any, Dict
+import secrets
+import string
+from typing import Any, Dict, Optional
 
 from api.core.logging_config import setup_logging
 from api.core.settings import KeycloakSettings
-from keycloak import KeycloakOpenID
+from keycloak import KeycloakAdmin, KeycloakOpenID
 
 logger = setup_logging()
 
@@ -13,14 +15,43 @@ class KeycloakService:
     """Synchronous service for interacting with Keycloak."""
 
     def __init__(self):
+        self.client_secret = KeycloakSettings.keycloak_client_secret
         self.keycloak_openid = KeycloakOpenID(
             server_url=KeycloakSettings.keycloak_server_url,
             realm_name=KeycloakSettings.keycloak_realm,
             client_id=KeycloakSettings.keycloak_client_id,
+            client_secret_key=self.client_secret,
             verify=True,
         )
-        # optional client secret for client-credentials grant
-        self.client_secret = getattr(KeycloakSettings, "keycloak_client_secret", None)
+
+        # Admin client for user management (lazy init)
+        self._keycloak_admin: Optional[KeycloakAdmin] = None
+
+    def _create_keycloak_admin(self) -> KeycloakAdmin:
+        """Create a fresh KeycloakAdmin instance."""
+        return KeycloakAdmin(
+            server_url=KeycloakSettings.keycloak_server_url,
+            username=KeycloakSettings.keycloak_admin_username,
+            password=KeycloakSettings.keycloak_admin_password,
+            realm_name=KeycloakSettings.keycloak_realm,
+            user_realm_name="master",
+            client_id="admin-cli",
+            verify=True,
+        )
+
+    @property
+    def keycloak_admin(self) -> KeycloakAdmin:
+        """Lazy-initialised KeycloakAdmin instance with automatic token refresh."""
+        if self._keycloak_admin is None:
+            self._keycloak_admin = self._create_keycloak_admin()
+        else:
+            # Re-authenticate if the admin token has expired to avoid 401 errors
+            try:
+                self._keycloak_admin.get_server_info()
+            except Exception:
+                logger.info("Keycloak admin token expired or invalid, re-authenticating")
+                self._keycloak_admin = self._create_keycloak_admin()
+        return self._keycloak_admin
 
     def health(self) -> bool:
         """Check Keycloak server health."""
@@ -140,6 +171,147 @@ class KeycloakService:
         if participant_did in managed:
             return True
         return False
+
+    # --- user management (KeycloakAdmin) ---
+
+    def create_user(
+        self,
+        email: str,
+        first_name: str,
+        last_name: str,
+        *,
+        enabled: bool = True,
+        email_verified: bool = True,
+        attributes: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """
+        Create a new user in Keycloak. Returns the Keycloak user id.
+
+        For company/organisation accounts firstName = short name, lastName = legal name.
+        requiredActions is set to UPDATE_PASSWORD only so Keycloak will not ask the
+        user to fill in profile fields that are already populated.
+        """
+        payload: Dict[str, Any] = {
+            "email": email,
+            "username": email,
+            "firstName": first_name,
+            "lastName": last_name,
+            "enabled": enabled,
+            "emailVerified": email_verified,
+            # Only ask for a password change on first login – profile is already complete.
+            "requiredActions": ["UPDATE_PASSWORD"],
+        }
+        if attributes:
+            payload["attributes"] = attributes
+
+        try:
+            user_id = self.keycloak_admin.create_user(payload, exist_ok=False)
+            logger.info(f"Created Keycloak user {email} -> {user_id}")
+            return user_id
+        except Exception as e:
+            logger.error(f"Failed to create Keycloak user {email}: {e}")
+            raise
+
+    def send_required_action_email(self, user_id: str, actions: Optional[list] = None) -> None:
+        """
+        Trigger Keycloak required-action emails (e.g. UPDATE_PASSWORD).
+        NOTE: Requires Keycloak SMTP to be configured. Prefer set_temporary_password() instead.
+        """
+        if actions is None:
+            actions = ["UPDATE_PASSWORD"]
+        try:
+            self.keycloak_admin.send_update_account(user_id=user_id, payload=actions)
+            logger.info(f"Sent required-action email to user {user_id}: {actions}")
+        except Exception as e:
+            logger.error(f"Failed to send required-action email to {user_id}: {e}")
+            raise
+
+    def set_temporary_password(self, user_id: str, length: int = 16) -> str:
+        """
+        Generate a random temporary password and set it on the Keycloak user
+        with 'temporary=True' so the user is prompted to change it on first login.
+
+        Also ensures UPDATE_PROFILE is NOT in requiredActions so the user is
+        never shown the "Update Account Information" form (profile is pre-filled
+        from registration data).
+
+        Returns the generated password.
+        """
+        alphabet = string.ascii_letters + string.digits + "!@#$%&*"
+        temp_password = "".join(secrets.choice(alphabet) for _ in range(length))
+        try:
+            self.keycloak_admin.set_user_password(
+                user_id=user_id,
+                password=temp_password,
+                temporary=True,
+            )
+            logger.info(f"Set temporary password for user {user_id}")
+
+            # setting temporary=True may cause Keycloak to append UPDATE_PASSWORD to
+            # requiredActions; make sure UPDATE_PROFILE is absent so the user is not
+            # asked to fill in profile fields that are already populated.
+            user = self.keycloak_admin.get_user(user_id)
+            required_actions = user.get("requiredActions", [])
+            cleaned = [a for a in required_actions if a != "UPDATE_PROFILE"]
+            if cleaned != required_actions:
+                self.keycloak_admin.update_user(
+                    user_id=user_id,
+                    payload={"requiredActions": cleaned},
+                )
+                logger.info(f"Removed UPDATE_PROFILE from requiredActions for user {user_id}")
+
+            return temp_password
+        except Exception as e:
+            logger.error(f"Failed to set temporary password for user {user_id}: {e}")
+            raise
+
+    def assign_realm_role(self, user_id: str, role_name: str) -> None:
+        """Assign a realm-level role to a user."""
+        try:
+            role = self.keycloak_admin.get_realm_role(role_name)
+            self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=[role])
+            logger.info(f"Assigned role '{role_name}' to user {user_id}")
+        except Exception as e:
+            logger.error(f"Failed to assign role '{role_name}' to user {user_id}: {e}")
+            raise
+
+    def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+        """Look up a user by email. Returns user dict or None."""
+        users = self.keycloak_admin.get_users(query={"email": email, "exact": True})
+        return users[0] if users else None
+
+    def delete_user_by_email(self, email: str) -> bool:
+        """
+        Delete the Keycloak user with the given email.
+        Returns True if deleted, False if the user was not found.
+        Raises on unexpected errors.
+        """
+        user = self.get_user_by_email(email)
+        if not user:
+            logger.warning(f"Keycloak user not found for email {email} – skipping KC deletion")
+            return False
+        user_id = user["id"]
+        self.keycloak_admin.delete_user(user_id)
+        logger.info(f"Deleted Keycloak user {email} ({user_id})")
+        return True
+
+    def get_user_id_from_token(self, token: str) -> Optional[str]:
+        """Extract the Keycloak 'sub' (user id) from a bearer token."""
+        payload = self.decode_jwt_payload(token)
+        return payload.get("sub")
+
+    # kept as alias so nothing breaks during transition
+    def get_keycloak_id_from_token(self, token: str) -> Optional[str]:
+        """Extract the Keycloak 'sub' (user UUID) from a bearer token.
+        This is the stable, permanent identifier for a Keycloak user
+        """
+        return self.get_user_id_from_token(token)
+
+    def get_participant_id_from_token(self, token: str) -> Optional[str]:
+        """Deprecated: use get_keycloak_id_from_token + DB lookup by keycloak_id instead.
+        Kept for backward compatibility only.
+        """
+        return self.get_user_id_from_token(token)
 
 
 keycloak_service = KeycloakService()

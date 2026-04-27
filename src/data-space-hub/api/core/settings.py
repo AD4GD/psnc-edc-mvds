@@ -1,3 +1,5 @@
+from typing import Optional
+
 from api.models.dto.local import KeyTypeEnum
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -11,6 +13,9 @@ class ProjectSettings(BaseSettings):
     frontend_url: str = Field("http://localhost", alias="FRONTEND_URL")
     app_url: str = Field("http://localhost:8000", alias="APP_URL")
     is_skip_init: bool = Field(False, alias="IS_SKIP_INIT")
+    # Optional: when unset, admin API endpoints are publicly accessible (no key required).
+    dsh_api_key: Optional[str] = Field(None, alias="DSH_API_KEY")
+    admin_email: str = Field("", alias="ADMIN_EMAIL")
 
     model_config = {
         "env_file": ".env",
@@ -43,7 +48,9 @@ class KeycloakSettings(BaseSettings):
     keycloak_server_url: str = Field(..., alias="KEYCLOAK_SERVER_URL")
     keycloak_realm: str = Field(..., alias="KEYCLOAK_REALM")
     keycloak_client_id: str = Field(..., alias="KEYCLOAK_CLIENT_ID")
-    keycloak_client_secret: str = Field(..., alias="KEYCLOAK_CLIENT_SECRET")
+    keycloak_client_secret: Optional[str] = Field(None, alias="KEYCLOAK_CLIENT_SECRET")
+    keycloak_admin_username: str = Field("admin", alias="KEYCLOAK_ADMIN_USERNAME")
+    keycloak_admin_password: str = Field(..., alias="KEYCLOAK_ADMIN_PASSWORD")
 
     model_config = {
         "env_file": ".env",
