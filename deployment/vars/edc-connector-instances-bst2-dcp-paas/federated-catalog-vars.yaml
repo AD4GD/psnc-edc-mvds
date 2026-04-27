@@ -24,7 +24,7 @@ federatedcatalog_configmap__05_defaults:
   EDC_CATALOG_CACHE_EXECUTION_PERIOD_SECONDS: 60
   EDC_MVD_PARTICIPANTS_LIST_FILE: config/participants.json
   EDC_MANAGEMENT_CONTEXT_ENABLED: true
-  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: did:web:federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:piotr-sts-client-secret
+  EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS: fc-sts-client-secret
   EDC_IAM_STS_OAUTH_CLIENT_ID: did:web:federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl:piotr
   EDC_IAM_STS_OAUTH_TOKEN_URL: https://federated-catalog-identity-hub-dcp-data-space.apps.bst2.paas.psnc.pl/api/sts/token
 

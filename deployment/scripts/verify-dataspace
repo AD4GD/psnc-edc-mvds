@@ -5,6 +5,7 @@
 #
 # Verifies that a dataspace initialized by init-dataspace is healthy:
 #   - Checks that Verifiable Credentials are stored in each Identity Hub
+#   - Checks that the DID document is published with valid (non-localhost) service endpoints
 #   - Checks that STS client secrets are stored in each connector's vault
 #
 # Uses the same config directory as init-dataspace.
@@ -72,6 +73,54 @@ log()  { echo "[verify-dataspace] $(date +%H:%M:%S) $*"; }
 ok()   { echo "[verify-dataspace] $(date +%H:%M:%S) ✅ $*"; }
 warn() { echo "[verify-dataspace] $(date +%H:%M:%S) ⚠️  $*"; }
 fail_check() { echo "[verify-dataspace] $(date +%H:%M:%S) ❌ $*"; EXIT_CODE=1; }
+
+# ---------------------------------------------------------------------------
+# Verify Data Space Hub reachability via /.well-known/did.json
+# ---------------------------------------------------------------------------
+
+verify_data_space_hub() {
+    local dsh_url
+    dsh_url=$(jq -r '.data_space_hub.url' "$CONFIG_DIR/dataspace.json")
+
+    if [ -z "$dsh_url" ] || [ "$dsh_url" = "null" ]; then
+        warn "data_space_hub.url not set in dataspace.json — skipping DID document check"
+        return
+    fi
+
+    log "--- Verifying Data Space Hub ---"
+    log "Checking /.well-known/did.json at ${dsh_url}..."
+
+    local did_url="${dsh_url%/}/.well-known/did.json"
+    local did_response did_status did_body
+
+    did_response=$(curl -sk -w "\n%{http_code}" \
+        --max-time 10 \
+        "${did_url}" 2>/dev/null) || true
+    did_status=$(echo "$did_response" | tail -1)
+    did_body=$(echo "$did_response" | sed '$d')
+
+    if [ "$did_status" = "200" ]; then
+        local did_id
+        did_id=$(echo "$did_body" | jq -r '.id // empty' 2>/dev/null || echo "")
+        if [ -n "$did_id" ]; then
+            ok "Data Space Hub: DID document reachable (id: ${did_id})"
+        else
+            warn "Data Space Hub: /.well-known/did.json returned 200 but no 'id' field found"
+        fi
+        if [ "$VERBOSE" = true ]; then
+            echo "$did_body" | jq '.' 2>/dev/null || echo "$did_body"
+        fi
+    elif [ "$did_status" = "000" ]; then
+        fail_check "Data Space Hub: UNREACHABLE at ${dsh_url} — DID documents cannot be resolved, DCP auth will fail for all participants"
+    else
+        fail_check "Data Space Hub: /.well-known/did.json returned HTTP ${did_status} (expected 200)"
+        if [ "$VERBOSE" = true ]; then
+            echo "$did_body"
+        fi
+    fi
+
+    echo ""
+}
 
 # ---------------------------------------------------------------------------
 # Verify a single participant
@@ -151,7 +200,77 @@ verify_participant() {
         fi
     fi
 
-    # ----- Check 2: STS client secret in connector vault -----
+    # ----- Check 2: DID document published and service endpoints valid -----
+
+    log "Checking DID document for ${name} in Identity Hub..."
+
+    local participant_b64
+    participant_b64=$(echo -n "${did}" | base64 -w0)
+    local did_b64
+    did_b64=$(echo -n "${did}" | base64 -w0 | tr '+/' '-_' | tr -d '=')
+
+    local did_response did_status did_body
+    did_response=$(curl -sk -w "\n%{http_code}" \
+        --max-time 10 \
+        "${ih_identity_url_for_request}/v1alpha/participants/${participant_b64}/dids/query" \
+        -H "x-api-key: ${ih_api_key}" \
+        -H "Content-Type: application/json" \
+        -d '{}' 2>/dev/null) || true
+    did_status=$(echo "$did_response" | tail -1)
+    did_body=$(echo "$did_response" | sed '$d')
+
+    if [ "$did_status" = "000" ]; then
+        fail_check "${name}: Identity Hub identity API unreachable at ${ih_identity_url}"
+    elif [ "$did_status" != "200" ]; then
+        fail_check "${name}: DID document query failed (HTTP ${did_status})"
+    else
+        # Find the DID document matching the participant's DID (skip super-user etc.)
+        local participant_did_doc
+        participant_did_doc=$(echo "$did_body" | jq -r --arg did "$did" '.[] | select(.id == $did)' 2>/dev/null || echo "")
+
+        if [ -z "$participant_did_doc" ]; then
+            fail_check "${name}: DID document for '${did}' not found in Identity Hub"
+        else
+            ok "${name}: DID document found in Identity Hub"
+
+            if [ "$VERBOSE" = true ]; then
+                echo "$participant_did_doc" | jq '.' 2>/dev/null || echo "$participant_did_doc"
+            fi
+
+            # Check all service endpoints do NOT use localhost
+            local bad_endpoints
+            bad_endpoints=$(echo "$participant_did_doc" | jq -r '
+                .service[]? | select(.serviceEndpoint | test("localhost|127\\.0\\.0\\.1")) |
+                "  • \(.id): \(.serviceEndpoint)"' 2>/dev/null || echo "")
+
+            if [ -n "$bad_endpoints" ]; then
+                fail_check "${name}: DID document contains service endpoint(s) with 'localhost' — other containers cannot resolve them:"
+                echo "$bad_endpoints" >&2
+            else
+                ok "${name}: All DID service endpoints use resolvable hostnames"
+            fi
+
+            # Check there is at least a CredentialService and a ProtocolEndpoint
+            local cred_svc
+            cred_svc=$(echo "$participant_did_doc" | jq -r '.service[]? | select(.type == "CredentialService") | .serviceEndpoint' 2>/dev/null || echo "")
+            local dsp_svc
+            dsp_svc=$(echo "$participant_did_doc" | jq -r '.service[]? | select(.type == "ProtocolEndpoint") | .serviceEndpoint' 2>/dev/null || echo "")
+
+            if [ -z "$cred_svc" ]; then
+                fail_check "${name}: DID document is missing a 'CredentialService' endpoint"
+            else
+                log "  CredentialService: ${cred_svc}"
+            fi
+
+            if [ -z "$dsp_svc" ]; then
+                warn "${name}: DID document has no 'ProtocolEndpoint' (DSP) — may be intentional for this participant"
+            else
+                log "  ProtocolEndpoint:  ${dsp_svc}"
+            fi
+        fi
+    fi
+
+    # ----- Check 3: STS client secret in connector vault -----
 
     log "Checking STS client secret for ${name} in connector..."
 
@@ -196,6 +315,8 @@ main() {
     fi
     log "=========================================="
     echo ""
+
+    verify_data_space_hub
 
     if [ -n "$SINGLE_PARTICIPANT" ]; then
         local config_file="$CONFIG_DIR/participants/${SINGLE_PARTICIPANT}.json"

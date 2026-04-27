@@ -114,7 +114,7 @@ class VcGeneratorService:
 
         return token
 
-    async def create_vc_set(self, req: GenerateVcRequest) -> list[dict]:
+    async def create_vc_set(self, req: GenerateVcRequest) -> list[tuple[dict, str]]:
 
         public_key: PublicKeyType = vault_service.get_public_key(self.key_name)
         now_iso = datetime.now(timezone.utc)
@@ -161,7 +161,7 @@ class VcGeneratorService:
                 ),
             )
 
-            generated_vcs.append(jsonld_vc_manifest_str)
+            generated_vcs.append((jsonld_vc_manifest_str, credential_type))
 
         # Perform DB operations
         # Create issued_credential record

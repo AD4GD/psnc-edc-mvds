@@ -1,6 +1,6 @@
 {
   "did": "did:web:provider-ih%3A7093:bob",
-  "sts_client_secret_alias": "sts-client-secret",
+  "sts_client_secret_alias": "provider-sts-secret",
   "identity_hub": {
     "base_url": "http://localhost:7090",
     "identity_api_url": "http://provider-ih:7092/api/identity",
