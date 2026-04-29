@@ -1,0 +1,32 @@
+info:
+  name: Get Connector's Offers
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{PROVIDER_CONNECTOR_MANAGEMENT_URL}}/v3/assets/request"
+  body:
+    type: json
+    data: |-
+      {
+          "@context": {
+              "@vocab": "https://w3id.org/edc"
+          },
+          "@type" : "QuerySpec",
+          "limit": 1000,
+          "offset": 0,
+          "sortOrder": "DESC",
+          "filterExpression": []
+      }
+  auth:
+    type: apikey
+    key: x-api-key
+    value: password
+    placement: header
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
