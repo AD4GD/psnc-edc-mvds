@@ -27,6 +27,8 @@ import os
 import re
 import sys
 import time
+import uuid
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
@@ -297,6 +299,53 @@ def normalize_to_list(value: Any) -> List[Any]:
     return [value]
 
 
+def find_first_key_value(payload: Any, key: str) -> Optional[Any]:
+    if isinstance(payload, dict):
+        if key in payload:
+            return payload[key]
+        for value in payload.values():
+            found = find_first_key_value(value, key)
+            if found is not None:
+                return found
+    elif isinstance(payload, list):
+        for item in payload:
+            found = find_first_key_value(item, key)
+            if found is not None:
+                return found
+    return None
+
+
+def fetch_catalog_access_service(
+    management_api: str,
+    headers: Dict[str, str],
+    timeout_seconds: int,
+    counter_party_address: str,
+    counter_party_id: str,
+) -> Any:
+    endpoint = f"{management_api.rstrip('/')}/v3/catalog/request"
+    payload = {
+        "@context": {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
+        "@type": "CatalogRequest",
+        "protocol": env("CATALOG_PROTOCOL", "dataspace-protocol-http"),
+        "counterPartyAddress": counter_party_address,
+        "counterPartyId": counter_party_id,
+    }
+
+    try:
+        response = requests.post(endpoint, headers=headers, data=json.dumps(payload), timeout=timeout_seconds)
+        response.raise_for_status()
+        catalog_payload = response.json()
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Failed to fetch catalog from management API: {exc}") from exc
+    except ValueError as exc:
+        raise RuntimeError("Catalog response from management API is not valid JSON.") from exc
+
+    access_service = find_first_key_value(catalog_payload, "dcat:service")
+    if access_service is None:
+        raise RuntimeError("Catalog response has no dcat:service key.")
+    return access_service
+
+
 def get_access_url(distribution: Dict[str, Any]) -> Optional[str]:
     access = distribution.get("dcat:accessURL")
     if isinstance(access, dict):
@@ -366,7 +415,57 @@ def normalize_whitespace_in_value(value: Any) -> Any:
     return value
 
 
-def build_metadata(dataset: Dict[str, Any], distribution: Dict[str, Any], access_url: str) -> Dict[str, Any]:
+def _format_id_from_distribution(distribution: Dict[str, Any]) -> Optional[str]:
+    raw_format = distribution.get("dct:format")
+    if isinstance(raw_format, dict):
+        raw_format = raw_format.get("@id")
+    if isinstance(raw_format, str):
+        value = raw_format.strip()
+        return value if value else None
+    return None
+
+
+def build_pull_push_distributions(access_service: Any) -> List[Dict[str, Any]]:
+    """
+    Emit HttpData-PULL and HttpData-PUSH distributions for FC compatibility.
+    These reference the connector's DataService by id.
+    """
+    return [
+        {
+            "@type": "dcat:Distribution",
+            "dct:format": {"@id": "HttpData-PULL"},
+            "dcat:accessService": deepcopy(access_service),
+        },
+        {
+            "@type": "dcat:Distribution",
+            "dct:format": {"@id": "HttpData-PUSH"},
+            "dcat:accessService": deepcopy(access_service),
+        },
+    ]
+
+
+def build_connector_data_service(connector_api_dsp: str) -> Dict[str, Any]:
+    """
+    Create a new DataService entry for asset registration.
+    Emits with a fresh UUID and connector endpoint.
+    """
+    service_id = str(uuid.uuid4())
+    return {
+        "@id": service_id,
+        "@type": "dcat:DataService",
+        "dcat:endpointDescription": "dspace:connector",
+        "dcat:endpointURL": connector_api_dsp,
+    }
+
+
+def build_metadata(
+    dataset: Dict[str, Any],
+    distribution: Dict[str, Any],
+    dataset_distributions: List[Any],
+    access_url: str,
+    asset_id: str,
+    access_service: Any,
+) -> Dict[str, Any]:
     metadata: Dict[str, Any] = {}
 
     for raw_key, value in dataset.items():
@@ -378,15 +477,32 @@ def build_metadata(dataset: Dict[str, Any], distribution: Dict[str, Any], access
             continue
         if raw_key == "dcat:distribution":
             continue
+        if raw_key == "dcat:service":
+            continue
         metadata[raw_key] = normalize_whitespace_in_value(value)
 
-    # Keep only the currently processed distribution in metadata.
-    metadata["dcat:distribution"] = normalize_whitespace_in_value(normalize_to_list(distribution))
+    # Emit PULL/PUSH distributions with service discovered from catalog request.
+    metadata["dcat:distribution"] = build_pull_push_distributions(access_service)
+
+    # Append all source distributions from URL; add accessService only when missing.
+    for source_distribution in dataset_distributions:
+        if not isinstance(source_distribution, dict):
+            continue
+        normalized_distribution = deepcopy(source_distribution)
+        if "dcat:accessService" not in normalized_distribution:
+            normalized_distribution["dcat:accessService"] = deepcopy(access_service)
+        metadata["dcat:distribution"].append(normalized_distribution)
 
     return metadata
 
 
-def build_asset_payload(dataset: Dict[str, Any], distribution: Dict[str, Any], index: int) -> Tuple[str, str, str, str, Dict[str, Any]]:
+def build_asset_payload(
+    dataset: Dict[str, Any],
+    distribution: Dict[str, Any],
+    dataset_distributions: List[Any],
+    index: int,
+    access_service: Any,
+) -> Tuple[str, str, str, str, Dict[str, Any]]:
     dataset_identifier = str(dataset.get("dct:identifier") or dataset.get("@id") or f"dataset-{index}")
     title = str(dataset.get("dct:title") or dataset_identifier)
 
@@ -401,7 +517,7 @@ def build_asset_payload(dataset: Dict[str, Any], distribution: Dict[str, Any], i
     suffix = str(distribution_identifier or access_url)
     asset_id = sanitize_identifier(f"{dataset_identifier}-{suffix}", f"dataset-{index}")
 
-    metadata = build_metadata(dataset, distribution, access_url)
+    metadata = build_metadata(dataset, distribution, dataset_distributions, access_url, asset_id, access_service)
 
     return asset_id, title, access_url, content_type, metadata
 
@@ -423,10 +539,14 @@ def create_offer_for_distribution(
     policy_id: str,
     dataset: Dict[str, Any],
     distribution: Dict[str, Any],
+    dataset_distributions: List[Any],
     index: int,
     proxy_enabled: bool,
+    access_service: Any,
 ) -> Dict[str, Any]:
-    asset_id, title, access_url, content_type, metadata = build_asset_payload(dataset, distribution, index)
+    asset_id, title, access_url, content_type, metadata = build_asset_payload(
+        dataset, distribution, dataset_distributions, index, access_service
+    )
     contract_definition_id = sanitize_identifier(f"cd_{asset_id}", f"cd_dataset_{index}")
 
     create_response = create_asset(
@@ -483,7 +603,7 @@ def create_offer_for_distribution(
     }
 
 
-def process_catalog(payload: Dict[str, Any], management_api: str, headers: Dict[str, str]) -> None:
+def process_catalog(payload: Dict[str, Any], management_api: str, headers: Dict[str, str], access_service: Any) -> None:
     policy_id = env("POLICY_ID", "test-policy")
     proxy_enabled = as_bool(env("PROXY_ENABLED", "true"), default=True)
     sleep_seconds_raw = env("SLEEP_SECONDS", "0.02")
@@ -525,8 +645,10 @@ def process_catalog(payload: Dict[str, Any], management_api: str, headers: Dict[
                     policy_id=policy_id,
                     dataset=dataset,
                     distribution=distribution,
+                    dataset_distributions=distributions,
                     index=(dataset_idx * 1000 + dist_idx),
                     proxy_enabled=proxy_enabled,
+                    access_service=access_service,
                 )
                 created += 1
                 LOGGER.info(
@@ -559,6 +681,8 @@ def main() -> int:
     try:
         catalog_url = get_required_env("CATALOG_URL")
         management_api = get_required_env("MANAGEMENT_API")
+        counter_party_address = env("CATALOG_COUNTER_PARTY_ADDRESS") or get_required_env("DSP_API")
+        counter_party_id = get_required_env("CATALOG_COUNTER_PARTY_ID")
         timeout_seconds = with_timeout()
 
         payload = fetch_json(catalog_url, timeout_seconds)
@@ -568,7 +692,14 @@ def main() -> int:
             return 1
 
         headers = authenticate(management_api, timeout_seconds)
-        process_catalog(payload, management_api, headers)
+        access_service = fetch_catalog_access_service(
+            management_api=management_api,
+            headers=headers,
+            timeout_seconds=timeout_seconds,
+            counter_party_address=counter_party_address,
+            counter_party_id=counter_party_id,
+        )
+        process_catalog(payload, management_api, headers, access_service)
         return 0
     except Exception as exc:  # noqa: BLE001
         LOGGER.error("Fatal error: %s", exc)

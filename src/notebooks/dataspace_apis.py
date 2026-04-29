@@ -3,6 +3,31 @@ import json
 import requests
 
 
+def _build_asset_properties(
+    asset_name: str,
+    asset_id: str,
+    content_type: str,
+    baseUrl: str,
+    version: str,
+    additional_metadata: dict,
+    proxy: bool,
+):
+    base_properties = {
+        "name": asset_name if asset_name else asset_id,
+        "contenttype": content_type,
+        "proxyPath": "true" if proxy else "false",
+        "proxyQueryParams": "true" if proxy else "false",
+        "version": version,
+        "baseUrl": baseUrl,
+    }
+
+    # Keep metadata fields on top-level properties (not nested under "metadata").
+    extra_properties = additional_metadata if isinstance(additional_metadata, dict) else {}
+
+    # Base EDC properties take precedence over metadata on conflicts.
+    return {**extra_properties, **base_properties}
+
+
 def create_asset(
     asset_id: str,
     management_url: str,
@@ -15,21 +40,23 @@ def create_asset(
     context: dict = {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
     proxy: bool = True,
 ):
+    properties = _build_asset_properties(
+        asset_name=asset_name if asset_name else asset_id,
+        asset_id=asset_id,
+        content_type=content_type,
+        baseUrl=baseUrl,
+        version=version,
+        additional_metadata=additional_metadata,
+        proxy=proxy,
+    )
+
     return requests.post(
         headers=default_headers,
         data=json.dumps(
             {
                 "@context": context,
                 "@id": asset_id,
-                "properties": {
-                    "name": asset_name if asset_name else asset_id,
-                    "contenttype": content_type,
-                    "proxyPath": "true" if proxy else "false",
-                    "proxyQueryParams": "true" if proxy else "false",
-                    "version": version,
-                    "baseUrl": baseUrl,
-                    "metadata": additional_metadata,
-                },
+                "properties": properties,
                 "private_properties": {
                     "name": asset_name if asset_name else asset_id,
                     "contenttype": content_type,
@@ -63,15 +90,15 @@ def update_asset(
     context: dict = {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
     proxy: bool = True,
 ):
-    properties = {
-        "name": asset_name,
-        "contenttype": content_type,
-        "proxyPath": "true" if proxy else "false",
-        "proxyQueryParams": "true" if proxy else "false",
-        "version": "1.0",
-        "metadata": additional_metadata,
-        "baseUrl": baseUrl,
-    }
+    properties = _build_asset_properties(
+        asset_name=asset_name,
+        asset_id=asset_id,
+        content_type=content_type,
+        baseUrl=baseUrl,
+        version="1.0",
+        additional_metadata=additional_metadata,
+        proxy=proxy,
+    )
     return requests.put(
         headers=default_headers,
         data=json.dumps(
@@ -178,7 +205,7 @@ def negotiate_contract(
                 "@context": {"edc": "https://w3id.org/edc/v0.0.1/ns/"},
                 "@type": "ContractRequest",
                 "counterPartyAddress": provider_protocol_internal,
-                "protocol": "dataspace-protocol-http",
+                "protocol": "dataspace-protocol-http:2025-1",
                 "policy": {
                     "@context": "http://www.w3.org/ns/odrl.jsonld",
                     "@id": f"{offer_id}",
@@ -216,7 +243,7 @@ def request_consumer_pull_transfer(
                 "counterPartyAddress": f"{counter_party_address_internal}",
                 "contractId": f"{contract_agreement_id}",
                 "assetId": asset_id,
-                "protocol": "dataspace-protocol-http",
+                "protocol": "dataspace-protocol-http:2025-1",
                 "transferType": "HttpData-PULL",
                 "dataDestination": {
                     "type": "HttpProxy",
@@ -247,7 +274,7 @@ def request_consumer_push_transfer(
                 "connectorAddress": f"{counter_party_address_internal}",
                 "contractId": f"{contract_agreement_id}",
                 "assetId": asset_id,
-                "protocol": "dataspace-protocol-http",
+                "protocol": "dataspace-protocol-http:2025-1",
                 "transferType": "HttpData-PUSH",
                 "dataDestination": {"type": "HttpData", "baseUrl": f"{data_destination_endpoint}"},
             }
