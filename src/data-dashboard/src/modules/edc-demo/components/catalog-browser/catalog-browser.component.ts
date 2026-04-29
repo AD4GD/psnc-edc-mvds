@@ -4,7 +4,7 @@ import { CatalogBrowserService, NotificationService, SorterService, UtilService 
 import { Router } from "@angular/router";
 import { ContractOffer } from "../../models/contract-offer";
 import { PageEvent } from '@angular/material/paginator';
-import { DATASET_CONTEXT, METADATA_CONTEXT } from 'src/modules/app/variables';
+import { DATASET_CONTEXT } from 'src/modules/app/variables';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-state.service';
@@ -121,18 +121,55 @@ export class CatalogBrowserComponent implements OnInit, OnDestroy {
   }
 
   findMetadataForAsset(offer: ContractOffer) {
+    const metadataFromProperties = this.extractMetadataFromProperties(offer?.properties);
+    if (Object.keys(metadataFromProperties).length > 0) {
+      return metadataFromProperties;
+    }
+
     const asset = offer[DATASET_CONTEXT]?.filter((_asset : any) => {
       return _asset['@id'] === offer.assetId || _asset.id === offer.assetId;
     })?.[0];
     
     if (!asset) return {};
-    
-    if (asset['metadata']) {
-      return asset['metadata'];
+
+    return this.extractMetadataFromDataset(asset);
+  }
+
+  private extractMetadataFromProperties(properties: any): Record<string, any> {
+    const result: Record<string, any> = {};
+    if (!properties) {
+      return result;
     }
-    
-    // Fallback to METADATA_CONTEXT (old JSON-LD transformed format)
-    return asset[METADATA_CONTEXT]?.[0] || {};
+
+    const additionalKeys: string[] = Array.isArray(properties.additionalPropertyKeys)
+      ? properties.additionalPropertyKeys
+      : [];
+    const valuesMap = properties.properties ?? {};
+
+    additionalKeys.forEach((key) => {
+      const normalizedKey = key.startsWith('asset:prop:') ? key.substring('asset:prop:'.length) : key;
+      result[normalizedKey] = valuesMap[key];
+    });
+
+    return result;
+  }
+
+  private extractMetadataFromDataset(dataset: any): Record<string, any> {
+    const result: Record<string, any> = {};
+    if (!dataset || typeof dataset !== 'object') {
+      return result;
+    }
+
+    Object.keys(dataset).forEach((key) => {
+      if (key === '@id' || key === '@type' || key === 'dct:identifier' || key === 'dct:title') {
+        return;
+      }
+      if (key.startsWith('dct:') || key.startsWith('dcat:')) {
+        result[key] = dataset[key];
+      }
+    });
+
+    return result;
   }
 
   onOfferClicked(contractOffer: ContractOffer): void {

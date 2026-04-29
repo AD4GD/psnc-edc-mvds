@@ -15,7 +15,7 @@ import { MIME_TO_EXTENSION, TransferProcessService } from '../../../mgmt-api-cli
 import { EdrService } from 'src/modules/mgmt-api-client/api/edr.service';
 import { PublicService } from 'src/modules/mgmt-api-client/api/public.service';
 import { AppConfigService } from 'src/modules/app/app-config.service';
-import { DATASET_CONTEXT, METADATA_CONTEXT, STORAGE_TYPE } from 'src/modules/app/variables';
+import { DATASET_CONTEXT, STORAGE_TYPE } from 'src/modules/app/variables';
 import { UnauthorizedStateService } from 'src/modules/app/auth/unauthorized-state.service';
 import { CatalogBrowserTransferDialog } from '../catalog-browser-transfer-dialog/catalog-browser-transfer-dialog.component';
 import { ContractOffer } from '../../models/contract-offer';
@@ -677,6 +677,11 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             return {};
         }
 
+        const metadataFromProperties = this.extractMetadataFromProperties(payload?.properties);
+        if (this.hasMetadataValue(metadataFromProperties)) {
+            return metadataFromProperties;
+        }
+
         const datasetKeys = [
             DATASET_CONTEXT,
             'dcat:dataset',
@@ -703,15 +708,44 @@ export class OfferDetailsComponent implements OnInit, OnDestroy {
             return {};
         }
 
-        if (dataset['metadata']) {
-            return dataset['metadata'];
+        return this.extractMetadataFromDataset(dataset);
+    }
+
+    private extractMetadataFromProperties(properties: any): Record<string, any> {
+        const result: Record<string, any> = {};
+        if (!properties) {
+            return result;
         }
 
-        if (dataset[METADATA_CONTEXT]?.[0]) {
-            return dataset[METADATA_CONTEXT][0];
+        const additionalKeys: string[] = Array.isArray(properties.additionalPropertyKeys)
+            ? properties.additionalPropertyKeys
+            : [];
+        const valuesMap = properties.properties ?? {};
+
+        additionalKeys.forEach((key) => {
+            const normalizedKey = key.startsWith('asset:prop:') ? key.substring('asset:prop:'.length) : key;
+            result[normalizedKey] = valuesMap[key];
+        });
+
+        return result;
+    }
+
+    private extractMetadataFromDataset(dataset: any): Record<string, any> {
+        const result: Record<string, any> = {};
+        if (!dataset || typeof dataset !== 'object') {
+            return result;
         }
 
-        return {};
+        Object.keys(dataset).forEach((key) => {
+            if (key === '@id' || key === '@type' || key === 'dct:identifier' || key === 'dct:title') {
+                return;
+            }
+            if (key.startsWith('dct:') || key.startsWith('dcat:')) {
+                result[key] = dataset[key];
+            }
+        });
+
+        return result;
     }
 
     private hasMetadataValue(value: any): boolean {

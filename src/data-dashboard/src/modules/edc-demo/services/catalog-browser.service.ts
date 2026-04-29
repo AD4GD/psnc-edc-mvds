@@ -32,6 +32,13 @@ import { EdcConnectorClient } from '@think-it-labs/edc-connector-client';
 })
 export class CatalogBrowserService {
 
+  private static readonly METADATA_BLACKLIST = new Set<string>([
+    '@id',
+    '@type',
+    'dct:identifier',
+    'dct:title',
+  ]);
+
   constructor(
     private httpClient: HttpClient,
     private transferProcessService: TransferProcessService,
@@ -79,7 +86,8 @@ export class CatalogBrowserService {
 
         for(let i = 0; i < datasets.length; i++) {
           const dataSet: any = datasets[i];
-          const properties: { [key: string]: string; } = {
+          const additionalProperties = this.extractDatasetMetadataProperties(dataSet);
+          const properties: any = {
             id: dataSet["@id"],
             type: dataSet["@type"],
             // These are @vocab terms in the returned compacted JSON-LD, so they appear unprefixed.
@@ -89,6 +97,8 @@ export class CatalogBrowserService {
             proxyPath: this.getItemProperty(dataSet, "proxyPath", ""),
             proxyQueryParams: this.getItemProperty(dataSet, "proxyQueryParams", ""),
             baseUrl: this.getItemProperty(dataSet, "baseUrl", ""),
+            additionalPropertyKeys: Object.keys(additionalProperties),
+            properties: additionalProperties,
           }
           const assetId = dataSet["@id"];
 
@@ -279,7 +289,8 @@ export class CatalogBrowserService {
       throw new Error(`Dataset ${datasetId} not found in response`);
     }
 
-    const properties: { [key: string]: string } = {
+    const additionalProperties = this.extractDatasetMetadataProperties(dataset);
+    const properties: any = {
       id: dataset["@id"] ?? datasetId,
       type: dataset["@type"],
       name: this.getItemProperty(dataset, "name", ""),
@@ -288,6 +299,8 @@ export class CatalogBrowserService {
       proxyPath: this.getItemProperty(dataset, "proxyPath", ""),
       proxyQueryParams: this.getItemProperty(dataset, "proxyQueryParams", ""),
       baseUrl: this.getItemProperty(dataset, "baseUrl", ""),
+      additionalPropertyKeys: Object.keys(additionalProperties),
+      properties: additionalProperties,
     };
 
     const hasPolicy = this.getFirstPolicy(this.getItemProperty(dataset, "hasPolicy", odrlPrefix));
@@ -347,6 +360,32 @@ export class CatalogBrowserService {
     }
 
     return null;
+  }
+
+  private extractDatasetMetadataProperties(dataset: any): Record<string, any> {
+    const result: Record<string, any> = {};
+    if (dataset == null || typeof dataset !== 'object') {
+      return result;
+    }
+
+    Object.keys(dataset).forEach((key) => {
+      if (CatalogBrowserService.METADATA_BLACKLIST.has(key)) {
+        return;
+      }
+      if (key === 'dcat:distribution') {
+        return;
+      }
+      if (!(key.startsWith('dct:') || key.startsWith('dcat:'))) {
+        return;
+      }
+      result[`asset:prop:${key}`] = dataset[key];
+    });
+
+    if (dataset['dcat:distribution'] != null) {
+      result['asset:prop:dcat:distribution'] = dataset['dcat:distribution'];
+    }
+
+    return result;
   }
 
   private catchError<T>(observable: Observable<T>, url: string, method: string): Observable<T> {

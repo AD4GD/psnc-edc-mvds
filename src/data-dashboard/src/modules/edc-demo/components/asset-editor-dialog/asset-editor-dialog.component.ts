@@ -68,7 +68,11 @@ export class AssetEditorDialog implements OnInit {
       "contenttype": this.contenttype,
       "proxyPath": this.isProxyPath.toString(),
       "proxyQueryParams": this.isProxyQueryParams.toString(),
-      "metadata": this.metadataEntries,
+      "dcat:service": {
+        id: `${this.id || this.name || 'asset'}-service`,
+        endpointUrl: this.baseUrl,
+      },
+      ...(this.metadataEntries || {}),
     };
 
     if (this.isDisplayBaseUrl) {

@@ -134,21 +134,6 @@
               </div>
             </div>
           </div>
-
-          <div class="detail-block" *ngIf="offer.properties.additionalPropertyKeys?.length">
-            <div class="block-title">Additional properties</div>
-            <div class="detail-list">
-              <div class="detail-row" *ngFor="let additionalPropertyKey of offer.properties.additionalPropertyKeys">
-                <div class="label" *ngIf="additionalPropertyKey.replace('asset:prop:', '') as name">
-                  {{ name.charAt(0).toUpperCase() + name.slice(1) }}
-                </div>
-                <div class="value overflow-ellipsis" title="{{ offer.properties.properties[additionalPropertyKey] }}">
-                  {{ offer.properties.properties[additionalPropertyKey] }}
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="detail-block">
             <policy-rules
               [permissionRules]="offer.policy.permission"

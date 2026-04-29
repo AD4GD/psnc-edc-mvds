@@ -183,7 +183,24 @@ export class AssetViewerComponent implements OnInit, OnDestroy {
   }
 
   findMetadataForAsset(asset: Asset) {
-    return asset.properties[METADATA_CONTEXT]?.[0]
+    const result: Record<string, any> = {};
+
+    const properties: any = (asset as any)?.properties;
+    const additionalKeys: string[] = Array.isArray(properties?.additionalPropertyKeys)
+      ? properties.additionalPropertyKeys
+      : [];
+    const valuesMap: Record<string, any> = properties?.properties ?? {};
+
+    additionalKeys.forEach((key) => {
+      const normalizedKey = key.startsWith('asset:prop:') ? key.substring('asset:prop:'.length) : key;
+      result[normalizedKey] = valuesMap[key];
+    });
+    
+    if (Object.keys(result).length > 0) {
+      return result;
+    }
+
+    return properties ?? {};
   }
 
   /**
