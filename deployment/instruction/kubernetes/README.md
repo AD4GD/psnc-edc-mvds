@@ -102,8 +102,8 @@ kubectl get secret dockerhub-creds
 8. `make deploy` - creates all of the containers \
 ... Usually it takes several minutes to fully launch services
 10. `make configure-keycloak` - configures keycloak
-11. `make init-dataspace` - configures identity-hub 
-12. `make verify-dataspace`
+11. `make init-identity-hub` - configures identity-hub 
+12. `make verify-identity-hub`
 
 
 ## How It Works
@@ -149,7 +149,6 @@ Important placeholders to replace with real Data Space values:
 - `FEDERATED_CATALOG_ADDRESS`
 - `DATASPACE_HUB_URL`
 - `CATALOG_API_KEY`
-- `DSH_API_KEY` (optional, leave empty if Data Space Hub does not require API key)
 
 Most important fields in [vars/shared_vars.yaml](vars/shared_vars.yaml):
 
@@ -191,6 +190,16 @@ After deployment, you can check the status of resources:
 kubectl -n <namespace> get deploy,svc,ingress
 ```
 
+## Onboard to dataspace as a participant
+Use Data Space Portal to register yourself as a participant to a dataspace. It consists of a few steps:
+1. Sign in or sign up
+2. Confirm your email
+3. Fill necessary information
+4. Request for Verifiable Credentials - fill necessary information and:
+    - You can pass api_key to your identity hub so that portal injects VCs automatically straight to your identity hub
+    - You can omit that and copy curl command, paste it into console, change API_KEY by yourself (identity hub's super-user key) and run the command
+5. Check your offers in Federated Catalog browser
+
 ## Notes
 
 - Required section is always deployed; optional sections are controlled by `enable_identity_provider`, `enable_identity_hub`, and `enable_storage`.
@@ -214,7 +223,7 @@ Critical note:
 Different services must contain matching credentials as they share components or use each others. If they diverge, the section deploys but does not work.
 
 Data Space note:
-Fill `issuer_did`, `federated_catalog_address`, `data_space_hub_address`, and optionally `dsh_api_key` in `vars/shared_vars.yaml`. If DSH does not require API key, keep `dsh_api_key` empty.
+Fill `issuer_did`, `federated_catalog_address`, `data_space_hub_address` in `vars/shared_vars.yaml`.
 
 ## Practical Rules
 
