@@ -9,7 +9,6 @@
 #
 # Usage:
 #   ./init-dataspace --config <config-dir>
-#   ./init-dataspace --config <config-dir> --skip-vc
 #   ./init-dataspace --config <config-dir> --participant consumer
 #   ./init-dataspace --config config/sage-init-dataspace
 #
@@ -27,7 +26,6 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 
 CONFIG_DIR=""
-SKIP_VC=false
 SINGLE_PARTICIPANT=""
 BOOTSTRAP_KEYS_FILE="$(mktemp -t ih-bootstrap-keys.XXXXXX)"
 
@@ -37,11 +35,10 @@ cleanup() {
 trap cleanup EXIT
 
 usage() {
-    echo "Usage: $0 --config <config-dir> [--skip-vc] [--participant <name>]"
+    echo "Usage: $0 --config <config-dir> [--participant <name>]"
     echo ""
     echo "Options:"
     echo "  --config <dir>          Path to config directory (required)"
-    echo "  --skip-vc               Skip VC issuance step"
     echo "  --participant <name>    Only bootstrap a single participant (matches filename without .json)"
     echo ""
     echo "Config directory structure:"
@@ -54,8 +51,6 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --config)
             CONFIG_DIR="$2"; shift 2 ;;
-        --skip-vc)
-            SKIP_VC=true; shift ;;
         --participant)
             SINGLE_PARTICIPANT="$2"; shift 2 ;;
         -h|--help)
@@ -417,103 +412,6 @@ phase_create_participants() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 4: Issue VCs via data-space-hub
-# ---------------------------------------------------------------------------
-
-issue_vc_for_participant() {
-    local config_file="$1"
-    local name
-    name=$(basename "$config_file" .json)
-
-    local did ih_identity_url ih_credentials_url ih_api_key
-    local connector_dsp_url connector_mgmt_url connector_api_key
-    local public_key_pem_path
-
-    did=$(jq -r '.did' "$config_file")
-    ih_identity_url=$(jq -r '.identity_hub.identity_api_url' "$config_file")
-    ih_credentials_url=$(jq -r '.identity_hub.credentials_api_url' "$config_file")
-    ih_api_key=$(jq -r '.identity_hub.api_key' "$config_file")
-    connector_dsp_url=$(jq -r '.connector.dsp_url' "$config_file")
-    connector_mgmt_url=$(jq -r '.connector.management_api_url' "$config_file")
-    connector_api_key=$(jq -r '.connector.api_key' "$config_file")
-    public_key_pem_path=$(jq -r '.identity_hub.public_key_pem_path' "$config_file")
-
-    if [[ "$public_key_pem_path" != /* ]]; then
-        public_key_pem_path="${CONFIG_DIR}/${public_key_pem_path}"
-    fi
-
-    log "Issuing VCs for ${name}..."
-
-    local pem_value
-    pem_value=$(read_pem "$public_key_pem_path")
-
-    local body
-    body=$(jq -n \
-        --arg did "$did" \
-        --arg dsp_url "$connector_dsp_url" \
-        --arg mgmt_url "$connector_mgmt_url" \
-        --arg mgmt_key "$connector_api_key" \
-        --arg ih_identity "$ih_identity_url" \
-        --arg ih_credentials "$ih_credentials_url" \
-        --arg ih_key "$ih_api_key" \
-        --arg pem "$pem_value" \
-        '{
-            "connector_did": $did,
-            "connector_dsp_url": $dsp_url,
-            "connector_management_url": $mgmt_url,
-            "connector_api_key": $mgmt_key,
-            "identity_hub_identity_url": $ih_identity,
-            "identity_hub_credentials_url": $ih_credentials,
-            "identity_hub_api_key": $ih_key,
-            "sts_public_key_pem": $pem,
-            "vc_format": "VC1_0_JWT",
-            "credential_type": "MembershipCredential"
-        }')
-
-    local response status_code
-    response=$(curl -sk -w "\n%{http_code}" \
-        -X POST "${DSH_URL}/api/v1/verifiable-credentials/issue" \
-        -H "Content-Type: application/json" \
-        -H "x-api-key: ${DSH_API_KEY}" \
-        -d "$body")
-    status_code=$(echo "$response" | tail -1)
-
-    if [ "$status_code" = "200" ] || [ "$status_code" = "201" ] || [ "$status_code" = "204" ]; then
-        ok "VCs issued for ${name}"
-    elif [ "$status_code" = "409" ]; then
-        log "VCs for ${name} already exist (409), skipping"
-    else
-        local response_body
-        response_body=$(echo "$response" | sed '$d')
-        log "WARNING: VC issuance for ${name} returned HTTP ${status_code}: ${response_body}"
-        log "You may need to issue VCs manually via data-space-hub API"
-    fi
-}
-
-phase_issue_vcs() {
-    if [ "$SKIP_VC" = true ]; then
-        log "=== Phase 4: Skipping VC issuance (--skip-vc) ==="
-        return 0
-    fi
-
-    log "=== Phase 4: Issuing Verifiable Credentials via data-space-hub ==="
-
-    wait_for_url "Data Space Hub" "${DSH_URL}/docs"
-
-    local files
-    files=$(participant_config_files)
-    if [ -z "$files" ]; then
-        fail "No participant config files found${SINGLE_PARTICIPANT:+ for '$SINGLE_PARTICIPANT'}"
-    fi
-
-    while IFS= read -r config_file; do
-        issue_vc_for_participant "$config_file"
-    done <<< "$files"
-
-    ok "VC issuance complete"
-}
-
-# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -529,7 +427,6 @@ main() {
     phase_wait_for_vaults
     phase_bootstrap_identity_hubs
     phase_create_participants
-    phase_issue_vcs
 
     log "=========================================="
     log "  Dataspace initialization complete!"
