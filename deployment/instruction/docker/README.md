@@ -235,7 +235,7 @@ Config for these scripts is auto-rendered from `.env` and `.env.secrets` into:
 
 - `.generated/dataspace-config`
 
-Initialize dataspace (Identity Hub context + connector secret + VC issuance):
+Initialize dataspace (Identity Hub context + connector secret):
 
 ```bash
 make init-identity-hub

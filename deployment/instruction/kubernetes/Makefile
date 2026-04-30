@@ -99,7 +99,6 @@ render-dataspace-config: check-env ## Render dataspace JSON config based on gene
 init-identity-hub: render-dataspace-config ## Initialize dataspace objects in IH and connector
 	@args="--config $(DATASPACE_CONFIG_DIR)"; \
 	if [ -n "$(PARTICIPANT)" ]; then args="$$args --participant $(PARTICIPANT)"; fi; \
-	if [ "$(SKIP_VC)" = "true" ] || [ "$(SKIP_VC)" = "1" ]; then args="$$args --skip-vc"; fi; \
 	bash $(CONFIGURE_SCRIPTS_DIR)/init-identity-hub.sh $$args
 
 verify-identity-hub: render-dataspace-config ## Verify dataspace state using the same generated config

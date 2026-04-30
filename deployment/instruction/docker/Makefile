@@ -5,7 +5,6 @@
 PROFILES ?=
 SERVICE ?=
 PARTICIPANT ?=
-SKIP_VC ?=false
 VERIFY_VERBOSE ?=false
 DATASPACE_CONFIG_DIR ?=./.generated/dataspace-config
 
@@ -129,10 +128,9 @@ ensure-connector: check-env python-venv ## Ensure connector client/role/group fo
 
 configure-keycloak-full: configure-participant ensure-connector ## Run full Keycloak bootstrap (participant + connector)
 
-init-identity-hub: render-dataspace-config ## Initialize dataspace (IH + connector + VC issuance)
+init-identity-hub: render-dataspace-config ## Initialize dataspace (IH + connector)
 	@args="--config $(DATASPACE_CONFIG_DIR)"; \
 	if [ -n "$(PARTICIPANT)" ]; then args="$$args --participant $(PARTICIPANT)"; fi; \
-	if [ "$(SKIP_VC)" = "true" ] || [ "$(SKIP_VC)" = "1" ]; then args="$$args --skip-vc"; fi; \
 	bash ./scripts/configure/init-identity-hub.sh $$args
 
 verify-identity-hub: render-dataspace-config ## Verify dataspace state using same config as init-identity-hub
