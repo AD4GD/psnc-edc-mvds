@@ -1,7 +1,7 @@
 # Docker Deployment Guide
 
 This is the only deployment instruction you need for this folder.
-It covers the full flow using:
+It covers the full flow of deployment using:
 
 - `docker-compose.yaml`
 - `.env`
@@ -134,7 +134,6 @@ Important placeholders to replace with real Data Space values:
 - `FEDERATED_CATALOG_ADDRESS`
 - `DATASPACE_HUB_URL`
 - `CATALOG_API_KEY`
-- `DSH_API_KEY` (optional, leave empty if Data Space Hub does not require API key)
 
 #### 4.3 Base configuration
 At minimum, verify and set:
@@ -239,36 +238,45 @@ Config for these scripts is auto-rendered from `.env` and `.env.secrets` into:
 Initialize dataspace (Identity Hub context + connector secret + VC issuance):
 
 ```bash
-make init-dataspace
+make init-identity-hub
 ```
 
-Useful variants:
+Possible variant:
 
 ```bash
-make init-dataspace SKIP_VC=true
-make init-dataspace PARTICIPANT=participant
+make init-identity-hub PARTICIPANT=participant
 ```
 
 Verify dataspace state using the same config directory:
 
 ```bash
-make verify-dataspace
+make verify-identity-hub
 ```
 
 Verbose verification output:
 
 ```bash
-make verify-dataspace VERIFY_VERBOSE=true
+make verify-identity-hub VERIFY_VERBOSE=true
 ```
 
 If needed, you can still point scripts to a custom config dir:
 
 ```bash
-make init-dataspace DATASPACE_CONFIG_DIR=./scripts/configure/config
-make verify-dataspace DATASPACE_CONFIG_DIR=./scripts/configure/config
+make init-identity-hub DATASPACE_CONFIG_DIR=./scripts/configure/config
+make verify-identity-hub DATASPACE_CONFIG_DIR=./scripts/configure/config
 ```
 
-## 9. Verify deployment
+## 9. Onboard to dataspace as a participant
+Use Data Space Portal to register yourself as a participant to a dataspace. It consists of a few steps:
+1. Sign in or sign up
+2. Confirm your email
+3. Fill necessary information
+4. Request for Verifiable Credentials - fill necessary information and:
+    - You can pass api_key to your identity hub so that portal injects VCs automatically straight to your identity hub
+    - You can omit that and copy curl command, paste it into console, change API_KEY by yourself (identity hub's super-user key) and run the command
+5. Check your offers in Federated Catalog browser
+
+## 10. Verify deployment
 
 ```bash
 make ps
@@ -281,7 +289,7 @@ Useful checks:
 - Dashboard: `https://<DASHBOARD_HOST>`
 - Vault health: `${VAULT_ADDRESS}/v1/sys/health`
 
-## 10. Stop or clean up
+## 11. Stop or clean up
 
 Stop services:
 

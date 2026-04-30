@@ -3,17 +3,17 @@
 #
 # Dataspace Verification Script
 #
-# Verifies that a dataspace initialized by init-dataspace is healthy:
+# Verifies that a dataspace initialized by init-identity-hub is healthy:
 #   - Checks that Verifiable Credentials are stored in each Identity Hub
 #   - Checks that the DID document is published with valid (non-localhost) service endpoints
 #   - Checks that STS client secrets are stored in each connector's vault
 #
-# Uses the same config directory as init-dataspace.
+# Uses the same config directory as init-identity-hub.
 #
 # Usage:
-#   ./verify-dataspace --config <config-dir>
-#   ./verify-dataspace --config <config-dir> --participant consumer
-#   e.g. ./verify-dataspace --config config/sage-init-dataspace
+#   ./verify-identity-hub --config <config-dir>
+#   ./verify-identity-hub --config <config-dir> --participant consumer
+#   e.g. ./verify-identity-hub --config config/sage-init-identity-hub
 # Config directory must contain:
 #   dataspace.json      - global settings
 #   participants/*.json - one file per participant
@@ -34,7 +34,7 @@ usage() {
     echo "Usage: $0 --config <config-dir> [--participant <name>] [--verbose]"
     echo ""
     echo "Options:"
-    echo "  --config <dir>          Path to config directory (required, same as init-dataspace)"
+    echo "  --config <dir>          Path to config directory (required, same as init-identity-hub)"
     echo "  --participant <name>    Only verify a single participant (matches filename without .json)"
     echo "  --verbose               Show full API responses"
     exit 1
@@ -69,10 +69,10 @@ fi
 # Helpers
 # ---------------------------------------------------------------------------
 
-log()  { echo "[verify-dataspace] $(date +%H:%M:%S) $*"; }
-ok()   { echo "[verify-dataspace] $(date +%H:%M:%S) ✅ $*"; }
-warn() { echo "[verify-dataspace] $(date +%H:%M:%S) ⚠️  $*"; }
-fail_check() { echo "[verify-dataspace] $(date +%H:%M:%S) ❌ $*"; EXIT_CODE=1; }
+log()  { echo "[verify-identity-hub] $(date +%H:%M:%S) $*"; }
+ok()   { echo "[verify-identity-hub] $(date +%H:%M:%S) ✅ $*"; }
+warn() { echo "[verify-identity-hub] $(date +%H:%M:%S) ⚠️  $*"; }
+fail_check() { echo "[verify-identity-hub] $(date +%H:%M:%S) ❌ $*"; EXIT_CODE=1; }
 
 # ---------------------------------------------------------------------------
 # Verify Data Space Hub reachability via /.well-known/did.json
@@ -149,7 +149,7 @@ verify_participant() {
         ih_identity_url_for_request="http://localhost${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
     fi
 
-    # Read optional short secret alias (must match init-dataspace and Ansible vars)
+    # Read optional short secret alias (must match init-identity-hub and Ansible vars)
     local sts_client_secret_alias
     sts_client_secret_alias=$(jq -r '.sts_client_secret_alias // empty' "$config_file")
     if [ -z "$sts_client_secret_alias" ]; then

@@ -88,7 +88,6 @@ CONNECTOR_STS_CLIENT_SECRET_ALIAS="${CONNECTOR_STS_CLIENT_SECRET_ALIAS:-sts-clie
 CONNECTOR_API_KEY="${CONNECTOR_API_KEY:-edc}"
 IDENTITY_HUB_SUPERUSER_KEY="${IDENTITY_HUB_SUPERUSER_KEY:-CHANGE_ME_IDENTITY_HUB_SUPERUSER_KEY}"
 DATASPACE_HUB_URL="${DATASPACE_HUB_URL:-${DATA_SPACE_HUB_URL:-CHANGE_ME_DATASPACE_HUB_URL}}"
-DSH_API_KEY="${DSH_API_KEY:-}"
 DATASPACE_MAX_WAIT_SECONDS="${DATASPACE_MAX_WAIT_SECONDS:-120}"
 DATASPACE_POLL_INTERVAL_SECONDS="${DATASPACE_POLL_INTERVAL_SECONDS:-3}"
 
@@ -99,26 +98,11 @@ IDENTITY_HUB_SUPERUSER_KEY="$(normalize_string_value "$IDENTITY_HUB_SUPERUSER_KE
 VAULT_ADDRESS="$(normalize_string_value "$VAULT_ADDRESS")"
 CONNECTOR_API_KEY="$(normalize_string_value "$CONNECTOR_API_KEY")"
 DATASPACE_HUB_URL="$(normalize_string_value "$DATASPACE_HUB_URL")"
-DSH_API_KEY="$(normalize_string_value "$DSH_API_KEY")"
 PUBLIC_SCHEME="$(normalize_string_value "$PUBLIC_SCHEME")"
 CONNECTOR_HOST="$(normalize_string_value "$CONNECTOR_HOST")"
 
 mkdir -p "$OUT_DIR/participants"
 
-if [[ -n "$DSH_API_KEY" ]]; then
-cat > "$OUT_DIR/dataspace.json" <<EOF
-{
-  "data_space_hub": {
-    "url": "${DATASPACE_HUB_URL}",
-    "api_key": "${DSH_API_KEY}"
-  },
-  "timeouts": {
-    "max_wait_seconds": ${DATASPACE_MAX_WAIT_SECONDS},
-    "poll_interval_seconds": ${DATASPACE_POLL_INTERVAL_SECONDS}
-  }
-}
-EOF
-else
 cat > "$OUT_DIR/dataspace.json" <<EOF
 {
   "data_space_hub": {
@@ -130,7 +114,6 @@ cat > "$OUT_DIR/dataspace.json" <<EOF
   }
 }
 EOF
-fi
 
 cat > "$OUT_DIR/participants/participant.json" <<EOF
 {
