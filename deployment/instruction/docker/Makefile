@@ -1,11 +1,10 @@
 %:
 	@:
-.PHONY: help init check-env render render-dataspace-config vault-init up down restart logs ps config validate python-venv python-deps configure-participant ensure-connector configure-keycloak-full init-dataspace verify-dataspace pull clean
+.PHONY: help init check-env render render-dataspace-config vault-init up down restart logs ps config validate python-venv python-deps configure-participant ensure-connector configure-keycloak-full init-identity-hub verify-identity-hub pull clean
 
 PROFILES ?=
 SERVICE ?=
 PARTICIPANT ?=
-SKIP_VC ?=false
 VERIFY_VERBOSE ?=false
 DATASPACE_CONFIG_DIR ?=./.generated/dataspace-config
 
@@ -129,17 +128,16 @@ ensure-connector: check-env python-venv ## Ensure connector client/role/group fo
 
 configure-keycloak-full: configure-participant ensure-connector ## Run full Keycloak bootstrap (participant + connector)
 
-init-dataspace: render-dataspace-config ## Initialize dataspace (IH + connector + VC issuance)
+init-identity-hub: render-dataspace-config ## Initialize dataspace (IH + connector)
 	@args="--config $(DATASPACE_CONFIG_DIR)"; \
 	if [ -n "$(PARTICIPANT)" ]; then args="$$args --participant $(PARTICIPANT)"; fi; \
-	if [ "$(SKIP_VC)" = "true" ] || [ "$(SKIP_VC)" = "1" ]; then args="$$args --skip-vc"; fi; \
-	bash ./scripts/configure/init-dataspace.sh $$args
+	bash ./scripts/configure/init-identity-hub.sh $$args
 
-verify-dataspace: render-dataspace-config ## Verify dataspace state using same config as init-dataspace
+verify-identity-hub: render-dataspace-config ## Verify dataspace state using same config as init-identity-hub
 	@args="--config $(DATASPACE_CONFIG_DIR)"; \
 	if [ -n "$(PARTICIPANT)" ]; then args="$$args --participant $(PARTICIPANT)"; fi; \
 	if [ "$(VERIFY_VERBOSE)" = "true" ] || [ "$(VERIFY_VERBOSE)" = "1" ]; then args="$$args --verbose"; fi; \
-	bash ./scripts/configure/verify-dataspace.sh $$args
+	bash ./scripts/configure/verify-identity-hub.sh $$args
 
 pull: check-env ## Pull images for selected profiles
 	$(COMPOSE) $(PROFILE_ARGS) pull
