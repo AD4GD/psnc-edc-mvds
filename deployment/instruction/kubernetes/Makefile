@@ -1,6 +1,6 @@
 %:
 	@:
-.PHONY: help init check-env deploy-env deploy deploy-vault deploy-all deploy-all-with-init-vault init-vault sync-vault python-venv python-deps configure-participant ensure-connector configure-keycloak-full render-dataspace-config init-dataspace verify-dataspace bootstrap-all
+.PHONY: help init check-env deploy-env deploy deploy-vault deploy-all deploy-all-with-init-vault init-vault sync-vault python-venv python-deps configure-participant ensure-connector configure-keycloak-full render-dataspace-config init-identity-hub verify-identity-hub bootstrap-all
 
 ANSIBLE_PLAYBOOK ?= ansible-playbook
 ANSIBLE_ARGS ?=
@@ -96,16 +96,15 @@ configure-keycloak: configure-participant ensure-connector ## Run full Keycloak 
 render-dataspace-config: check-env ## Render dataspace JSON config based on generated env files
 	bash $(CONFIGURE_SCRIPTS_DIR)/render-dataspace-config.sh ./$(ENV_FILE) $(DATASPACE_CONFIG_DIR)
 
-init-dataspace: render-dataspace-config ## Initialize dataspace objects in IH and connector
+init-identity-hub: render-dataspace-config ## Initialize dataspace objects in IH and connector
 	@args="--config $(DATASPACE_CONFIG_DIR)"; \
 	if [ -n "$(PARTICIPANT)" ]; then args="$$args --participant $(PARTICIPANT)"; fi; \
-	if [ "$(SKIP_VC)" = "true" ] || [ "$(SKIP_VC)" = "1" ]; then args="$$args --skip-vc"; fi; \
-	bash $(CONFIGURE_SCRIPTS_DIR)/init-dataspace.sh $$args
+	bash $(CONFIGURE_SCRIPTS_DIR)/init-identity-hub.sh $$args
 
-verify-dataspace: render-dataspace-config ## Verify dataspace state using the same generated config
+verify-identity-hub: render-dataspace-config ## Verify dataspace state using the same generated config
 	@args="--config $(DATASPACE_CONFIG_DIR)"; \
 	if [ -n "$(PARTICIPANT)" ]; then args="$$args --participant $(PARTICIPANT)"; fi; \
 	if [ "$(VERIFY_VERBOSE)" = "true" ] || [ "$(VERIFY_VERBOSE)" = "1" ]; then args="$$args --verbose"; fi; \
-	bash $(CONFIGURE_SCRIPTS_DIR)/verify-dataspace.sh $$args
+	bash $(CONFIGURE_SCRIPTS_DIR)/verify-identity-hub.sh $$args
 
-bootstrap-all: deploy-all-with-init-vault configure-keycloak-full init-dataspace verify-dataspace ## Full end-to-end deploy + init + keycloak + dataspace config
+bootstrap-all: deploy-all-with-init-vault configure-keycloak-full init-identity-hub verify-identity-hub ## Full end-to-end deploy + init + keycloak + dataspace config

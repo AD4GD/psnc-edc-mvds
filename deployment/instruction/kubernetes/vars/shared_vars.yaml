@@ -43,7 +43,6 @@ issuer_did: "<issuer-did>"
 federated_catalog_address: "https://federated-catalog.example.org"
 data_space_hub_address: "https://data-space-hub.example.org"
 catalog_api_key: ""
-dsh_api_key: ""
 
 # Connector identity (single place to manage per new connector)
 # 1) Set connector_id for each connector instance.
