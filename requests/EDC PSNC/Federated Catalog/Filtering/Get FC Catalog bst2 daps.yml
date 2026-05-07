@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: "{{FEDERATED_CATALOG_URL}}/catalog/v1alpha/catalog/query"
+  url: "{{FEDERATED_CATALOG_URL}}/api/catalog/v1alpha/catalog/query"
   body:
     type: json
     data: |-
