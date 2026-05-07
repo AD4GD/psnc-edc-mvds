@@ -16,12 +16,6 @@ http:
         "offset": 0,
         "sortOrder": "DESC",
         "filterExpression": [
-          {
-            "@type": "Criterion",
-            "operandLeft": "datasets.id",
-            "operator": "=",
-            "operandRight": "test-asset-01"
-          }
         ]
       }
   auth: inherit

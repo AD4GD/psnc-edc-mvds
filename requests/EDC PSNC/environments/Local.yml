@@ -25,7 +25,7 @@ variables:
   - name: DATA_SPACE_HUB_URL
     value: "{{ENTER_VALUE_HERE}}"
   - name: FEDERATED_CATALOG_URL
-    value: http://localhost:9181
+    value: http://localhost:8294
   - name: child_ids
     value: "{{ENTER_VALUE_HERE}}"
   - name: child_idx
@@ -41,7 +41,7 @@ variables:
   - name: PROVIDER_DSP_URL
     value: http://provider-connector:8192/api/dsp
   - name: PROVIDER_CONNECTOR_MANAGEMENT_URL
-    value: http://localhost:19193/management
+    value: http://localhost:8191/api/management
   - name: policy-id
     value: test-policy
   - name: asset-id

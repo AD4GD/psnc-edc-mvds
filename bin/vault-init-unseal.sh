@@ -8,7 +8,6 @@ else
     DEFAULT_VAULTS_CONFIG_FILE="$SCRIPT_DIR/../compose/vaults.json"
 fi
 readonly VAULTS_CONFIG_FILE="${VAULTS_CONFIG_FILE:-$DEFAULT_VAULTS_CONFIG_FILE}"
-echo $VAULTS_CONFIG_FILE
 
 # ----- Functions ----- #
 
@@ -19,7 +18,9 @@ vault_ready() {
 
 seal_status() {
     local addr="$1"
-    curl -s "$addr/v1/sys/seal-status" | jq -r '[.initialized, .sealed] | @tsv'
+    local res
+    res=$(curl -s "$addr/v1/sys/seal-status")
+    jq -r '[.initialized, .sealed] | @tsv' <<< "$res"
 }
 
 get_env_value() {
