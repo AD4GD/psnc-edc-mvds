@@ -1,0 +1,5087 @@
+{
+  "@context": {
+    "@vocab": "http://www.w3.org/ns/dcat#",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "adms": "http://www.w3.org/ns/adms#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "locn": "http://www.w3.org/ns/locn#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "gsp": "http://www.opengis.net/ont/geosparql#",
+    "stac": "https://stacspec.org/terms/",
+    "federation": "https://api.openeo.org/extensions/federation/"
+  },
+  "@id": "urn:stac:dcat:catalog",
+  "@type": "dcat:Catalog",
+  "dct:title": "STAC Collections as DCAT Datasets",
+  "dcat:dataset": [
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:AI4SAR_SIG0",
+      "dct:identifier": "AI4SAR_SIG0",
+      "dct:title": "AI4SAR Despeckled Sentinel-1 Sigma0 (20m)",
+      "dct:description": "Sentinel-1 Despeckled Sigma Nought (SIG0) are produced using AI4SAR workflow developed within AI4SAR project.",
+      "dcat:keyword": [
+        "sentinel-1b",
+        "sentinel-1a",
+        "sentinel-1",
+        "ai4sar-sig0"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AI4SAR_SIG0/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AI4SAR_SIG0/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AI4SAR_SIG0",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/AI4SAR_SIG0"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2014-10-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180 -90, -180 90, 180 90, 180 -90, -180 -90 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:AI4SAR_SIG0:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/AI4SAR_SIG0/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:AI4SAR_SIG0",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/AI4SAR_SIG0/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:ASA_IMP_1P",
+      "dct:identifier": "ASA_IMP_1P",
+      "dct:title": "Envisat ASAR Image Mode Precision Level-1",
+      "dct:description": "The ASA_IMP_1P product from Envisat is a multi-look, ground range, digital Precision Image generated from Level 0 data collected when the instrument was in Image Mode.",
+      "dcat:keyword": [
+        "esa",
+        "l1",
+        "asa-imp-1p",
+        "asar",
+        "envisat",
+        "sar"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ASA_IMP_1P/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ASA_IMP_1P/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ASA_IMP_1P",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/ASA_IMP_1P"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2002-03-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2012-04-08T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.5 46.4, 9.5 49.0, 17.2 49.0, 17.2 46.4, 9.5 46.4 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "Envisat"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:ASA_IMP_1P:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/ASA_IMP_1P/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:ASA_IMP_1P",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/ASA_IMP_1P/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:ASA_IMS_1P",
+      "dct:identifier": "ASA_IMS_1P",
+      "dct:title": "Envisat ASAR Image Mode Single Look Complex Level-1",
+      "dct:description": "The ASA_IMS_1P product from Envisat represents a single-look, complex, slant-range, digital image generated from Level 0 ASAR data.",
+      "dcat:keyword": [
+        "esa",
+        "l1",
+        "asa-ims-1p",
+        "asar",
+        "envisat",
+        "sar"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ASA_IMS_1P/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ASA_IMS_1P/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ASA_IMS_1P",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/ASA_IMS_1P"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2002-03-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2012-04-08T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.5 46.4, 9.5 49.0, 17.2 49.0, 17.2 46.4, 9.5 46.4 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "Envisat"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:ASA_IMS_1P:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/ASA_IMS_1P/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:ASA_IMS_1P",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/ASA_IMS_1P/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:AUSTRIA_GROUND_MOTION",
+      "dct:identifier": "AUSTRIA_GROUND_MOTION",
+      "dct:title": "Austria Ground Motion",
+      "dct:description": "The EGMS dataset for Austria provides precise and consistent information on natural and anthropogenic ground motion.",
+      "dcat:keyword": [
+        "land",
+        "copernicus",
+        "austria-ground-motion",
+        "ground-motion"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AUSTRIA_GROUND_MOTION/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AUSTRIA_GROUND_MOTION/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AUSTRIA_GROUND_MOTION",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/AUSTRIA_GROUND_MOTION"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2023-12-31T23:59:59Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.5 46.3, 9.5 49.2, 17.5 49.2, 17.5 46.3, 9.5 46.3 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:AUSTRIA_GROUND_MOTION:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/AUSTRIA_GROUND_MOTION/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:AUSTRIA_GROUND_MOTION",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/AUSTRIA_GROUND_MOTION/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:AUT_DEM",
+      "dct:identifier": "AUT_DEM",
+      "dct:title": "Austrian High Resolution DEM",
+      "dct:description": "Austrian High Resolution DEM is generated from Airborne Laser Scanning data with a grid of 10m x 10m.",
+      "dcat:keyword": [
+        "aut-dem"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AUT_DEM/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AUT_DEM/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/AUT_DEM",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/AUT_DEM"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2018-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.3 46.2, 9.3 49.2, 17.3 49.2, 17.3 46.2, 9.3 46.2 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:AUT_DEM:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/AUT_DEM/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:AUT_DEM",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/AUT_DEM/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:BOA_LANDSAT_8",
+      "dct:identifier": "BOA_LANDSAT_8",
+      "dct:title": "Bottom of Atmosphere Landsat-8 at 30m resolution.",
+      "dct:description": "Preprocessed analysis-ready-data (ARD) from Landsat-8 processed with FORCE.",
+      "dcat:keyword": [
+        "copernicus",
+        "landsat-8",
+        "landsat",
+        "boa-landsat-8",
+        "eodc"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/BOA_LANDSAT_8/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/BOA_LANDSAT_8/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/BOA_LANDSAT_8",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/BOA_LANDSAT_8"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2015-01-04T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2020-12-26T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 5.014148226142465 42.50120437013096, 5.014148226142465 51.419674834228985, 18.59706624229073 51.419674834228985, 18.59706624229073 42.50120437013096, 5.014148226142465 42.50120437013096 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "landsat-8"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:BOA_LANDSAT_8:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/BOA_LANDSAT_8/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:BOA_LANDSAT_8",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/BOA_LANDSAT_8/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:BOA_SENTINEL_2",
+      "dct:identifier": "BOA_SENTINEL_2",
+      "dct:title": "Bottom of Atmosphere Sentinel-2 at 10m resolution.",
+      "dct:description": "Preprocessed analysis-ready-data (ARD) from Sentinel-2 processed with FORCE.",
+      "dcat:keyword": [
+        "boa-sentinel-2",
+        "copernicus",
+        "sentinel-2",
+        "sentinel",
+        "eodc"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/BOA_SENTINEL_2/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/BOA_SENTINEL_2/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/BOA_SENTINEL_2",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/BOA_SENTINEL_2"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2020-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2020-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 1.4211922929976784 41.388795496730424, 1.4211922929976784 52.43260595832486, 19.38022689396854 52.43260595832486, 19.38022689396854 41.388795496730424, 1.4211922929976784 41.388795496730424 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-2"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:BOA_SENTINEL_2:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/BOA_SENTINEL_2/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:BOA_SENTINEL_2",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/BOA_SENTINEL_2/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:CGLS_SSM_1KM",
+      "dct:identifier": "CGLS_SSM_1KM",
+      "dct:title": "Copernicus Global Land Surface Soil Moisture",
+      "dct:description": "The Copernicus Global Land Surface Soil Moisture product displays the relative water content of the top few centimetres soil.",
+      "dcat:keyword": [
+        "cgls-ssm-1km",
+        "copernicus",
+        "sentinel-1",
+        "sentinel",
+        "eodc"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/CGLS_SSM_1KM/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/CGLS_SSM_1KM/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/CGLS_SSM_1KM",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/CGLS_SSM_1KM"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2018-12-16T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-04-04T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -25.81979937879616 31.602457597935924, -25.81979937879616 76.95632595060702, 58.39398229109195 76.95632595060702, 58.39398229109195 31.602457597935924, -25.81979937879616 31.602457597935924 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:CGLS_SSM_1KM:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/CGLS_SSM_1KM/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:CGLS_SSM_1KM",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/CGLS_SSM_1KM/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:COP_DEM",
+      "dct:identifier": "COP_DEM",
+      "dct:title": "Copernicus Digital Elevation Model (DEM)",
+      "dct:description": "The Copernicus DEM is a Digital Surface Model (DSM) that represents the surface of the Earth including buildings, infrastructure and vegetation.",
+      "dcat:keyword": [
+        "cop-dem"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/COP_DEM/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/COP_DEM/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/COP_DEM",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/COP_DEM"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2011-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180 -90, -180 90, 180 90, 180 -90, -180 -90 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:COP_DEM:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/COP_DEM/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:COP_DEM",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/COP_DEM/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:CORINE_LAND_COVER",
+      "dct:identifier": "CORINE_LAND_COVER",
+      "dct:title": "Corine Land Cover",
+      "dct:description": "The CORINE Land Cover (CLC) inventory began in 1985, consisting of 44 land cover classes.",
+      "dcat:keyword": [
+        "copernicus",
+        "corine-land-cover",
+        "sentinel-2",
+        "msi",
+        "sentinel",
+        "eodc"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/CORINE_LAND_COVER/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/CORINE_LAND_COVER/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/CORINE_LAND_COVER",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/CORINE_LAND_COVER"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "1990-12-15T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2018-12-15T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -32.091997820189285 31.6977150076753, -32.091997820189285 72.11413813793037, 55.116146716432254 72.11413813793037, 55.116146716432254 31.6977150076753, -32.091997820189285 31.6977150076753 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-2"
+        ],
+        "stac:instruments": [
+          "msi"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:CORINE_LAND_COVER:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/CORINE_LAND_COVER/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:CORINE_LAND_COVER",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/CORINE_LAND_COVER/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DEIMS_RECORD",
+      "dct:identifier": "DEIMS_RECORD",
+      "dct:title": "DEIMS Records",
+      "dct:description": "DEIMS-SDR metadata records.\n",
+      "dcat:keyword": [
+        "DEIMS"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DEIMS_RECORD/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DEIMS_RECORD/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DEIMS_RECORD",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DEIMS_RECORD"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2000-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180.0 -90.0, -180.0 90.0, 180.0 90.0, 180.0 -90.0, -180.0 -90.0 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "DEIMS"
+        ],
+        "federation:backends": [
+          "deims_oarec"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DEIMS_RECORD:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DEIMS_RECORD/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DEIMS_RECORD",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DEIMS_RECORD/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_K_KLAGENFURT",
+      "dct:identifier": "DOP_AUT_K_KLAGENFURT",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Kärnten Flugblock Klagenfurt",
+      "dct:description": "Orthofotos des Flugblockes Klagenfurt",
+      "dcat:keyword": [
+        "orthoimage",
+        "klagenfurt",
+        "dop-aut-k-klagenfurt",
+        "carinthia",
+        "orthophotos"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_KLAGENFURT/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_KLAGENFURT/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_KLAGENFURT",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_KLAGENFURT"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2022-05-19T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-06-20T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.967485195000119 46.36541188061731, 13.967485195000119 46.721472911972235, 15.080333273626895 46.721472911972235, 15.080333273626895 46.36541188061731, 13.967485195000119 46.36541188061731 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_K_KLAGENFURT:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_KLAGENFURT/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_K_KLAGENFURT",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_KLAGENFURT/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_K_OSTTIROL",
+      "dct:identifier": "DOP_AUT_K_OSTTIROL",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Kärnten Flugblock Osttirol",
+      "dct:description": "Orthofotos des Flugblockes Osttirol",
+      "dcat:keyword": [
+        "dop-aut-k-osttirol",
+        "east-tyrol",
+        "orthoimage",
+        "orthophotos",
+        "osttirol"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_OSTTIROL/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_OSTTIROL/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_OSTTIROL",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_OSTTIROL"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2021-09-02T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-09-24T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 12.66239337053699 46.59655104088551, 12.66239337053699 47.037629467133534, 13.022709336961602 47.037629467133534, 13.022709336961602 46.59655104088551, 12.66239337053699 46.59655104088551 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_K_OSTTIROL:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_OSTTIROL/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_K_OSTTIROL",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_OSTTIROL/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_K_TAMSWEG",
+      "dct:identifier": "DOP_AUT_K_TAMSWEG",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Kärnten Flugblock Tamsweg",
+      "dct:description": "Orthofotos des Flugblockes Tamsweg",
+      "dcat:keyword": [
+        "tamsweg",
+        "orthoimage",
+        "carinthia",
+        "orthophotos",
+        "dop-aut-k-tamsweg"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_TAMSWEG/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_TAMSWEG/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_TAMSWEG",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_TAMSWEG"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2021-09-02T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-09-23T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 12.987009545265067 47.018112421462206, 12.987009545265067 47.11002553041674, 14.006810065443387 47.11002553041674, 14.006810065443387 47.018112421462206, 12.987009545265067 47.018112421462206 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_K_TAMSWEG:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_TAMSWEG/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_K_TAMSWEG",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_TAMSWEG/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_K_VILLACH",
+      "dct:identifier": "DOP_AUT_K_VILLACH",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Kärnten Flugblock Villach",
+      "dct:description": "Orthofotos des Flugblockes Villach",
+      "dcat:keyword": [
+        "dop-aut-k-villach",
+        "orthoimage",
+        "carinthia",
+        "orthophotos",
+        "villach"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_VILLACH/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_VILLACH/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_VILLACH",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_VILLACH"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2022-06-18T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-09-13T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 12.987244329672953 46.478418251763074, 12.987244329672953 47.038065513109295, 14.006810065443387 47.038065513109295, 14.006810065443387 46.478418251763074, 12.987244329672953 46.478418251763074 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_K_VILLACH:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_VILLACH/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_K_VILLACH",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_VILLACH/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_K_WOLFSBERG",
+      "dct:identifier": "DOP_AUT_K_WOLFSBERG",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Kärnten Flugblock Wolfsberg",
+      "dct:description": "Orthofotos des Flugblockes Wolfsberg",
+      "dcat:keyword": [
+        "orthoimage",
+        "carinthia",
+        "orthophotos",
+        "dop-aut-k-wolfsberg",
+        "wolfsberg"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_WOLFSBERG/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_WOLFSBERG/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_WOLFSBERG",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_WOLFSBERG"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2022-07-13T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-07-21T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.970101698798722 46.692425077247385, 13.970101698798722 47.03580174699723, 15.050241586958041 47.03580174699723, 15.050241586958041 46.692425077247385, 13.970101698798722 46.692425077247385 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_K_WOLFSBERG:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_WOLFSBERG/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_K_WOLFSBERG",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_WOLFSBERG/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_K_ZELL_AM_SEE",
+      "dct:identifier": "DOP_AUT_K_ZELL_AM_SEE",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Kärnten Flugblock Zell am See",
+      "dct:description": "Orthofotos des Flugblockes Zell am See",
+      "dcat:keyword": [
+        "dop-aut-k-zell-am-see",
+        "carinthia",
+        "orthoimage",
+        "orthophotos"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELL_AM_SEE/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELL_AM_SEE/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELL_AM_SEE",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELL_AM_SEE"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2022-09-12T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-09-12T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 12.640596218582658 47.01844076037797, 12.640596218582658 47.14453516623542, 13.020243376683137 47.14453516623542, 13.020243376683137 47.01844076037797, 12.640596218582658 47.01844076037797 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_K_ZELL_AM_SEE:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELL_AM_SEE/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_K_ZELL_AM_SEE",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELL_AM_SEE/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_K_ZELTWEG",
+      "dct:identifier": "DOP_AUT_K_ZELTWEG",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Kärnten Flugblock Zeltweg",
+      "dct:description": "Orthofotos des Flugblockes Zeltweg",
+      "dcat:keyword": [
+        "dop-aut-k-zeltweg",
+        "carinthia",
+        "orthoimage",
+        "orthophotos"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELTWEG/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELTWEG/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELTWEG",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELTWEG"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2022-09-23T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-10-07T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.973818068962956 47.00924998081931, 13.973818068962956 47.09844028882999, 14.910953733717628 47.09844028882999, 14.910953733717628 47.00924998081931, 13.973818068962956 47.00924998081931 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_K_ZELTWEG:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELTWEG/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_K_ZELTWEG",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_K_ZELTWEG/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_BISCHOFSHOFEN",
+      "dct:identifier": "DOP_AUT_ST_BISCHOFSHOFEN",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Bischofshofen",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Bischofshofen",
+      "dcat:keyword": [
+        "orthoimage",
+        "bischofshofen",
+        "dop-aut-st-bischofshofen",
+        "styria",
+        "orthophotos"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_BISCHOFSHOFEN/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_BISCHOFSHOFEN/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_BISCHOFSHOFEN",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_BISCHOFSHOFEN"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_BISCHOFSHOFEN:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_BISCHOFSHOFEN/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_BISCHOFSHOFEN",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_BISCHOFSHOFEN/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_GRAZ",
+      "dct:identifier": "DOP_AUT_ST_GRAZ",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Graz",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Graz",
+      "dcat:keyword": [
+        "dop-aut-st-graz",
+        "orthoimage",
+        "styria",
+        "orthophotos",
+        "graz"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_GRAZ/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_GRAZ/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_GRAZ",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_GRAZ"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_GRAZ:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_GRAZ/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_GRAZ",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_GRAZ/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_KLAGENFURT",
+      "dct:identifier": "DOP_AUT_ST_KLAGENFURT",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Klagenfurt",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Klagenfurt",
+      "dcat:keyword": [
+        "orthoimage",
+        "klagenfurt",
+        "styria",
+        "orthophotos",
+        "dop-aut-st-klagenfurt"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_KLAGENFURT/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_KLAGENFURT/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_KLAGENFURT",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_KLAGENFURT"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_KLAGENFURT:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_KLAGENFURT/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_KLAGENFURT",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_KLAGENFURT/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_MARIAZELL",
+      "dct:identifier": "DOP_AUT_ST_MARIAZELL",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Mariazell",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Mariazell",
+      "dcat:keyword": [
+        "orthoimage",
+        "mariazell",
+        "dop-aut-st-mariazell",
+        "styria",
+        "orthophotos"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MARIAZELL/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MARIAZELL/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MARIAZELL",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MARIAZELL"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_MARIAZELL:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MARIAZELL/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_MARIAZELL",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MARIAZELL/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_MURTAL",
+      "dct:identifier": "DOP_AUT_ST_MURTAL",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Murtal",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Murtal",
+      "dcat:keyword": [
+        "dop-aut-st-murtal",
+        "orthoimage",
+        "styria",
+        "orthophotos",
+        "murtal"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MURTAL/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MURTAL/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MURTAL",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MURTAL"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_MURTAL:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MURTAL/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_MURTAL",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_MURTAL/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_SUEDBURGENLAND",
+      "dct:identifier": "DOP_AUT_ST_SUEDBURGENLAND",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Suedburgenland",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Suedburgenland",
+      "dcat:keyword": [
+        "dop-aut-st-suedburgenland",
+        "orthoimage",
+        "suedburgenland",
+        "styria",
+        "orthophotos"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_SUEDBURGENLAND/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_SUEDBURGENLAND/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_SUEDBURGENLAND",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_SUEDBURGENLAND"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_SUEDBURGENLAND:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_SUEDBURGENLAND/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_SUEDBURGENLAND",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_SUEDBURGENLAND/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_VILLACH",
+      "dct:identifier": "DOP_AUT_ST_VILLACH",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Villach",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Villach",
+      "dcat:keyword": [
+        "orthoimage",
+        "styria",
+        "dop-aut-st-villach",
+        "orthophotos",
+        "villach"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_VILLACH/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_VILLACH/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_VILLACH",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_VILLACH"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_VILLACH:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_VILLACH/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_VILLACH",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_VILLACH/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DOP_AUT_ST_WINDISCHGARSTEN",
+      "dct:identifier": "DOP_AUT_ST_WINDISCHGARSTEN",
+      "dct:title": "Digital Orthophotos (DOP) Austria - Land Steiermark Flugblock Windischgarsten",
+      "dct:description": "High-resolution digital orthophotos provided by the state of Styria, Austria. Flight block Windischgarsten",
+      "dcat:keyword": [
+        "windischgarsten",
+        "orthoimage",
+        "styria",
+        "orthophotos",
+        "dop-aut-st-windischgarsten"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_WINDISCHGARSTEN/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_WINDISCHGARSTEN/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_WINDISCHGARSTEN",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_WINDISCHGARSTEN"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T23:59:59.999990Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.55 46.6, 13.55 47.82, 16.18 47.82, 16.18 46.6, 13.55 46.6 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DOP_AUT_ST_WINDISCHGARSTEN:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_WINDISCHGARSTEN/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DOP_AUT_ST_WINDISCHGARSTEN",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DOP_AUT_ST_WINDISCHGARSTEN/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DROUGHT_VULNERABILITY",
+      "dct:identifier": "DROUGHT_VULNERABILITY",
+      "dct:title": "Drought Vulnerability",
+      "dct:description": "Average frequency of long-lasting droughts in Austria at 1km spatial resolution.",
+      "dcat:keyword": [
+        "drought-vulnerability"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DROUGHT_VULNERABILITY/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DROUGHT_VULNERABILITY/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DROUGHT_VULNERABILITY",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DROUGHT_VULNERABILITY"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2003-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2018-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.531249999715405 46.370535714571226, 9.531249999715405 49.022321428856955, 17.165178571144022 49.022321428856955, 17.165178571144022 46.370535714571226, 9.531249999715405 46.370535714571226 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DROUGHT_VULNERABILITY:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DROUGHT_VULNERABILITY/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-SA-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DROUGHT_VULNERABILITY",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DROUGHT_VULNERABILITY/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:DSM_AUT",
+      "dct:identifier": "DSM_AUT",
+      "dct:title": "Austrian Digital Surface Model",
+      "dct:description": "The DSM dataset for Austria provides a precise Digital Surface Model from Pléiades tri-stereo acquisitions.",
+      "dcat:keyword": [
+        "digital-surface-model",
+        "dsm",
+        "pleiades",
+        "dsm-aut",
+        "eisenstadt"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DSM_AUT/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DSM_AUT/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/DSM_AUT",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/DSM_AUT"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2023-07-16T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2023-07-16T23:59:59Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 16.48 47.81, 16.48 47.88, 16.58 47.88, 16.58 47.81, 16.48 47.81 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:DSM_AUT:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/DSM_AUT/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:DSM_AUT",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/DSM_AUT/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:ERS_ENVISAT_NRB",
+      "dct:identifier": "ERS_ENVISAT_NRB",
+      "dct:title": "ERS-1/2 SAR and ENVISAT ASAR ARD Normalized Radar Backscatter (NRB)",
+      "dct:description": "The ERS_ENVISAT_NRB collection provides Analysis Ready Data (ARD) derived from ERS and ENVISAT missions.",
+      "dcat:keyword": [
+        "ers2",
+        "esa",
+        "ami",
+        "ers",
+        "level-2",
+        "asar",
+        "envisat",
+        "ers-envisat-nrb",
+        "ers1",
+        "sar"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ERS_ENVISAT_NRB/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ERS_ENVISAT_NRB/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/ERS_ENVISAT_NRB",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/ERS_ENVISAT_NRB"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "1991-07-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2012-03-28T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.5 46.4, 9.5 49.0, 17.2 49.0, 17.2 46.4, 9.5 46.4 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "ENVISAT",
+          "ERS"
+        ],
+        "stac:instruments": [
+          "AMI",
+          "ASAR"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:ERS_ENVISAT_NRB:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/ERS_ENVISAT_NRB/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:ERS_ENVISAT_NRB",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/ERS_ENVISAT_NRB/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:GFM",
+      "dct:identifier": "GFM",
+      "dct:title": "Global Flood Monitoring",
+      "dct:description": "The Global Flood Monitoring (GFM) product provides continuous monitoring of floods worldwide.",
+      "dcat:keyword": [
+        "esa",
+        "copernicus",
+        "gfm",
+        "emergency",
+        "flood",
+        "sentinel-1",
+        "jrc",
+        "sentinel",
+        "sentinel-1b",
+        "sentinel-1a"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/GFM/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/GFM/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/GFM",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/GFM"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2015-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180 -90, -180 90, 180 90, 180 -90, -180 -90 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:GFM:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/GFM/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:GFM",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/GFM/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:INTRA_FIELD_CROP_GROWTH_POTENTIAL",
+      "dct:identifier": "INTRA_FIELD_CROP_GROWTH_POTENTIAL",
+      "dct:title": "Intra-field Crop Growth Potential",
+      "dct:description": "Medium-term intra-field crop growth potential and its spatial variability at 10m spatial resolution.",
+      "dcat:keyword": [
+        "intra-field-crop-growth-potential"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/INTRA_FIELD_CROP_GROWTH_POTENTIAL/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/INTRA_FIELD_CROP_GROWTH_POTENTIAL/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/INTRA_FIELD_CROP_GROWTH_POTENTIAL",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/INTRA_FIELD_CROP_GROWTH_POTENTIAL"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2017-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2020-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 8.675376233657454 45.81979116602317, 8.675376233657454 49.62308593333951, 17.89480854415766 49.62308593333951, 17.89480854415766 45.81979116602317, 8.675376233657454 45.81979116602317 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:INTRA_FIELD_CROP_GROWTH_POTENTIAL:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/INTRA_FIELD_CROP_GROWTH_POTENTIAL/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-SA-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:INTRA_FIELD_CROP_GROWTH_POTENTIAL",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/INTRA_FIELD_CROP_GROWTH_POTENTIAL/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:S2_MSI_L1C",
+      "dct:identifier": "S2_MSI_L1C",
+      "dct:title": "SENTINEL2 Level-1C",
+      "dct:description": "Sentinel-2 Level-1C",
+      "dcat:keyword": [
+        "SENTINEL2",
+        "L1C",
+        "MSI"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L1C/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L1C/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L1C",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L1C"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2015-06-23T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180.0 -90.0, -180.0 90.0, 180.0 90.0, 180.0 -90.0, -180.0 -90.0 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "SENTINEL2"
+        ],
+        "stac:instruments": [
+          "MSI"
+        ],
+        "federation:backends": [
+          "cop_dataspace"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:S2_MSI_L1C:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L1C/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "other",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:S2_MSI_L1C",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L1C/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:S2_MSI_L2A",
+      "dct:identifier": "S2_MSI_L2A",
+      "dct:title": "SENTINEL2 Level-2A",
+      "dct:description": "Sentinel-2 Level-2A",
+      "dcat:keyword": [
+        "SENTINEL2",
+        "MSI",
+        "L2A"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L2A/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L2A/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L2A",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L2A"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2018-03-26T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180.0 -90.0, -180.0 90.0, 180.0 90.0, 180.0 -90.0, -180.0 -90.0 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "SENTINEL2"
+        ],
+        "stac:instruments": [
+          "MSI"
+        ],
+        "federation:backends": [
+          "cop_dataspace"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:S2_MSI_L2A:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L2A/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "other",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:S2_MSI_L2A",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/S2_MSI_L2A/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SAR_IMP_1P",
+      "dct:identifier": "SAR_IMP_1P",
+      "dct:title": "ERS-1/2 SAR Image Mode Precision Level-1",
+      "dct:description": "The SAR_IMP_1P product from ERS-1/2 is a multi-look, ground range image generated in Image Mode.",
+      "dcat:keyword": [
+        "esa",
+        "l1",
+        "ers",
+        "sar-imp-1p",
+        "sar"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SAR_IMP_1P/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SAR_IMP_1P/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SAR_IMP_1P",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SAR_IMP_1P"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "1991-07-27T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2011-07-04T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.5 46.4, 9.5 49.0, 17.2 49.0, 17.2 46.4, 9.5 46.4 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "ERS"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SAR_IMP_1P:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SAR_IMP_1P/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SAR_IMP_1P",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SAR_IMP_1P/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SAR_IMS_1P",
+      "dct:identifier": "SAR_IMS_1P",
+      "dct:title": "ERS-1/2 SAR Image Mode Single Look Complex Level-1",
+      "dct:description": "The SAR_IMS_1P product from ERS-1/2 is a single look complex acquired in Image Mode.",
+      "dcat:keyword": [
+        "esa",
+        "l1",
+        "sar-ims-1p",
+        "ers",
+        "sar"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SAR_IMS_1P/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SAR_IMS_1P/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SAR_IMS_1P",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SAR_IMS_1P"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "1991-07-27T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2011-07-04T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.5 46.4, 9.5 49.0, 17.2 49.0, 17.2 46.4, 9.5 46.4 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "ERS"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SAR_IMS_1P:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SAR_IMS_1P/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SAR_IMS_1P",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SAR_IMS_1P/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_ALPS_WETSNOW",
+      "dct:identifier": "SENTINEL1_ALPS_WETSNOW",
+      "dct:title": "Sentinel-1 Alps WetSnow",
+      "dct:description": "Sentinel-1 based Wet Snow Maps in the EODC Data Catalogue available for the full Alpine domain.",
+      "dcat:keyword": [
+        "sentinel-1b",
+        "sentinel-1a",
+        "sentinel1-alps-wetsnow",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_ALPS_WETSNOW/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_ALPS_WETSNOW/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_ALPS_WETSNOW",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_ALPS_WETSNOW"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2019-03-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-08-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -0.838 37.528, -0.838 54.442, 18.985 54.442, 18.985 37.528, -0.838 37.528 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_ALPS_WETSNOW:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_ALPS_WETSNOW/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_ALPS_WETSNOW",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_ALPS_WETSNOW/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_GMR0",
+      "dct:identifier": "SENTINEL1_GMR0",
+      "dct:title": "SENTINEL1 Radiometric Terrain Corrected Gamma Nought",
+      "dct:description": "Sentinel-1 Gamma Nought (GMR0) radiometric terrain calibrated and georeferenced backscatter data.",
+      "dcat:keyword": [
+        "backscatter",
+        "sentinel-1c",
+        "radiometric-terrain-corrected",
+        "gamma0",
+        "wizsard",
+        "rtc",
+        "sentinel1-gmr0",
+        "sentinel-1",
+        "sentinel-1b",
+        "sentinel-1a"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GMR0/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GMR0/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GMR0",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GMR0"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2014-10-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9 46, 9 50, 24 50, 24 46, 9 46 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_GMR0:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GMR0/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_GMR0",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GMR0/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_GRD",
+      "dct:identifier": "SENTINEL1_GRD",
+      "dct:title": "Sentinel-1 SAR L1 GRD",
+      "dct:description": "Sentinel-1 Level-1 Ground Range Detected (GRD) products.",
+      "dcat:keyword": [
+        "esa",
+        "copernicus",
+        "sentinel1-grd",
+        "sentinel-1",
+        "radar",
+        "sentinel",
+        "sentinel-1b",
+        "sentinel-1a",
+        "sar"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2014-10-03T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180 -90, -180 90, 180 90, 180 -90, -180 -90 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_GRD:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_GRD",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_GRD_COVERAGE",
+      "dct:identifier": "SENTINEL1_GRD_COVERAGE",
+      "dct:title": "Sentinel-1 Coverage Maps",
+      "dct:description": "Global archive of Sentinel-1 Coverage-Maps processed at EODC.",
+      "dcat:keyword": [
+        "sentinel-1b",
+        "sentinel-1a",
+        "sentinel1-grd-coverage",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD_COVERAGE/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD_COVERAGE/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD_COVERAGE",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD_COVERAGE"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2014-10-03T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180.0 -90.0, -180.0 90.0, 180.0 90.0, 180.0 -90.0, -180.0 -90.0 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_GRD_COVERAGE:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD_COVERAGE/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_GRD_COVERAGE",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_GRD_COVERAGE/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_HPAR",
+      "dct:identifier": "SENTINEL1_HPAR",
+      "dct:title": "SENTINEL1 Harmonic Parameters",
+      "dct:description": "The Harmonic model describes the typical seasonal Sentinel-1 backscatter variation on a 20 m pixel level.",
+      "dcat:keyword": [
+        "sentinel1-hpar",
+        "sentinel-1b",
+        "sentinel-1a",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_HPAR/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_HPAR/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_HPAR",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_HPAR"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2019-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180 -90, -180 90, 180 90, 180 -90, -180 -90 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_HPAR:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_HPAR/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_HPAR",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_HPAR/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_MPLIA",
+      "dct:identifier": "SENTINEL1_MPLIA",
+      "dct:title": "SENTINEL1 Mean PLIA",
+      "dct:description": "The projected local incidence angle (PLIA) is the angle between the surface normal and the looking direction of the satellite.",
+      "dcat:keyword": [
+        "sentinel1-mplia",
+        "sentinel-1b",
+        "sentinel-1a",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_MPLIA/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_MPLIA/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_MPLIA",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_MPLIA"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2020-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2020-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180 -90, -180 90, 180 90, 180 -90, -180 -90 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_MPLIA:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_MPLIA/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_MPLIA",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_MPLIA/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_SCENE_GMR0",
+      "dct:identifier": "SENTINEL1_SCENE_GMR0",
+      "dct:title": "SENTINEL1 Scene-based Radiometric Terrain Corrected Gamma Nought",
+      "dct:description": "Sentinel-1 Gamma Nought (GMR0) scene-based radiometric terrain calibrated and georeferenced backscatter data.",
+      "dcat:keyword": [
+        "backscatter",
+        "sentinel-1c",
+        "radiometric-terrain-corrected",
+        "gamma0",
+        "wizsard",
+        "rtc",
+        "sentinel1-scene-gmr0",
+        "sentinel-1",
+        "scene-based",
+        "sentinel-1b",
+        "sentinel-1a"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SCENE_GMR0/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SCENE_GMR0/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SCENE_GMR0",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SCENE_GMR0"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2014-10-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9 46, 9 50, 24 50, 24 46, 9 46 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_SCENE_GMR0:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SCENE_GMR0/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_SCENE_GMR0",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SCENE_GMR0/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_SIG0_20M",
+      "dct:identifier": "SENTINEL1_SIG0_20M",
+      "dct:title": "SENTINEL1 Sigma Nought (SIG0) Backscatter in 20 meter resolution",
+      "dct:description": "Sentinel-1 Sigma Nought (SIG0) radiometric calibrated and georeferenced backscatter data at 20m resolution.",
+      "dcat:keyword": [
+        "sentinel1-sig0-20m",
+        "sentinel-1b",
+        "sentinel-1a",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SIG0_20M/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SIG0_20M/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SIG0_20M",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SIG0_20M"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2014-10-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180 -90, -180 90, 180 90, 180 -90, -180 -90 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_SIG0_20M:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SIG0_20M/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_SIG0_20M",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SIG0_20M/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL1_SLC",
+      "dct:identifier": "SENTINEL1_SLC",
+      "dct:title": "Sentinel-1 SLC",
+      "dct:description": "Level-1 Single Look Complex (SLC) products are images in the slant range by azimuth imaging plane.",
+      "dcat:keyword": [
+        "esa",
+        "sentinel1-slc",
+        "copernicus",
+        "ground",
+        "sentinel-1",
+        "sentinel",
+        "sentinel-1b",
+        "sentinel-1a",
+        "sar"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SLC/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SLC/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SLC",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SLC"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2014-10-10T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180.0 -90.0, -180.0 90.0, 180.0 90.0, 180.0 -90.0, -180.0 -90.0 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL1_SLC:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SLC/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL1_SLC",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL1_SLC/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL2_GRI_L1C",
+      "dct:identifier": "SENTINEL2_GRI_L1C",
+      "dct:title": "Multi-Layer Copernicus Sentinel-2 GRI in L1C",
+      "dct:description": "Multi-Layer Copernicus Sentinel-2 GRI in Level-1C",
+      "dcat:keyword": [
+        "esa",
+        "copernicus",
+        "l1c",
+        "s2",
+        "sentinel-2",
+        "sentinel-2a",
+        "sentinel2-gri-l1c",
+        "eu",
+        "sentinel",
+        "gri",
+        "sentinel-2b"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL2_GRI_L1C/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL2_GRI_L1C/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL2_GRI_L1C",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL2_GRI_L1C"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2015-07-06T10:57:26Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2018-09-06T08:25:59Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180.0 -90.0, -180.0 90.0, 180.0 90.0, 180.0 -90.0, -180.0 -90.0 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "Sentinel-2"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL2_GRI_L1C:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL2_GRI_L1C/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC0-1.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL2_GRI_L1C",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL2_GRI_L1C/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SENTINEL3_SRAL_L2",
+      "dct:identifier": "SENTINEL3_SRAL_L2",
+      "dct:title": "Sentinel-3 Products SRAL Level-2 data",
+      "dct:description": "Sentinel-3 SAR Radar Altimeter Level-2 data.",
+      "dcat:keyword": [
+        "esa",
+        "copernicus",
+        "sentinel-3b",
+        "sentinel-3",
+        "sentinel3-sral-l2",
+        "sentinel-3a",
+        "sentinel"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL3_SRAL_L2/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL3_SRAL_L2/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SENTINEL3_SRAL_L2",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL3_SRAL_L2"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-02-23T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -180.0 -90.0, -180.0 90.0, 180.0 90.0, 180.0 -90.0, -180.0 -90.0 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-3"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SENTINEL3_SRAL_L2:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SENTINEL3_SRAL_L2/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SENTINEL3_SRAL_L2",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SENTINEL3_SRAL_L2/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:SSM-RT0-SIG0-R-EXTR",
+      "dct:identifier": "SSM-RT0-SIG0-R-EXTR",
+      "dct:title": "SSM-RT0-SIG0-R-EXTR",
+      "dct:description": "Soil moisture product (RT0) created by TU Vienna from Sentinel-1 Sigma Nought (SIG0).",
+      "dcat:keyword": [
+        "sentinel-1b",
+        "sentinel-1a",
+        "ssm-rt0-sig0-r-extr",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SSM-RT0-SIG0-R-EXTR/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SSM-RT0-SIG0-R-EXTR/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/SSM-RT0-SIG0-R-EXTR",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/SSM-RT0-SIG0-R-EXTR"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2025-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( -0.838124 37.528484, -0.838124 55.311872, 18.984326 55.311872, 18.984326 37.528484, -0.838124 37.528484 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:SSM-RT0-SIG0-R-EXTR:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/SSM-RT0-SIG0-R-EXTR/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:SSM-RT0-SIG0-R-EXTR",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/SSM-RT0-SIG0-R-EXTR/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:Sentinel-1_Lacken_Extent",
+      "dct:identifier": "Sentinel-1_Lacken_Extent",
+      "dct:title": "SENTINEL-1 Lacken Extent",
+      "dct:description": "Sentinel-1 Wetland Data Lacken Extent",
+      "dcat:keyword": [
+        "sentinel-1-lacken-extent",
+        "sentinel-1a",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Lacken_Extent/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Lacken_Extent/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Lacken_Extent",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Lacken_Extent"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 15.4557 47.0861, 15.4557 48.155, 18.2263 48.155, 18.2263 47.0861, 15.4557 47.0861 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:Sentinel-1_Lacken_Extent:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Lacken_Extent/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:Sentinel-1_Lacken_Extent",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Lacken_Extent/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:Sentinel-1_Reed_Extent",
+      "dct:identifier": "Sentinel-1_Reed_Extent",
+      "dct:title": "SENTINEL-1 Reed Extent",
+      "dct:description": "Sentinel-1 Wetland Data Reed Extent",
+      "dcat:keyword": [
+        "sentinel-1-reed-extent",
+        "sentinel-1a",
+        "sentinel-1"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Reed_Extent/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Reed_Extent/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Reed_Extent",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Reed_Extent"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2016-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2021-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 15.4557 47.0861, 15.4557 48.155, 18.2263 48.155, 18.2263 47.0861, 15.4557 47.0861 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-1"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:Sentinel-1_Reed_Extent:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Reed_Extent/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:Sentinel-1_Reed_Extent",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/Sentinel-1_Reed_Extent/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:Sentinel-2-Greenness-Austria",
+      "dct:identifier": "Sentinel-2-Greenness-Austria",
+      "dct:title": "Sentinel-2 Greenness Austria",
+      "dct:description": "Sentinel-2 Greenness Layers",
+      "dcat:keyword": [
+        "esa",
+        "copernicus",
+        "imagery",
+        "sentinel-2",
+        "sentinel-2a",
+        "sentinel-2b",
+        "sentinel",
+        "sentinel-2-greenness-austria",
+        "reflectance"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-2-Greenness-Austria/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-2-Greenness-Austria/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/Sentinel-2-Greenness-Austria",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/Sentinel-2-Greenness-Austria"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2018-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-12-31T23:59:59Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.47996951665 46.4318173285, 9.47996951665 49.0390742051, 16.9796667823 49.0390742051, 16.9796667823 46.4318173285, 9.47996951665 46.4318173285 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-2"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:Sentinel-2-Greenness-Austria:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/Sentinel-2-Greenness-Austria/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:Sentinel-2-Greenness-Austria",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/Sentinel-2-Greenness-Austria/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:VEGETATION_CHANGE_AUSTRIA",
+      "dct:identifier": "VEGETATION_CHANGE_AUSTRIA",
+      "dct:title": "Vegetation-Change-Austria",
+      "dct:description": "Vegetation change within three time periods based on Sentinel-2 data.",
+      "dcat:keyword": [
+        "esa",
+        "copernicus",
+        "imagery",
+        "vegetation-change-austria",
+        "sentinel",
+        "reflectance"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/VEGETATION_CHANGE_AUSTRIA/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/VEGETATION_CHANGE_AUSTRIA/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/VEGETATION_CHANGE_AUSTRIA",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/VEGETATION_CHANGE_AUSTRIA"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2018-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2022-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 15.953984827833802 46.77108096987509, 15.953984827833802 48.1760048418813, 17.176816759840396 48.1760048418813, 17.176816759840396 46.77108096987509, 15.953984827833802 46.77108096987509 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:VEGETATION_CHANGE_AUSTRIA:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/VEGETATION_CHANGE_AUSTRIA/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "ODC-By-1.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:VEGETATION_CHANGE_AUSTRIA",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/VEGETATION_CHANGE_AUSTRIA/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:incal-hourly",
+      "dct:identifier": "incal-hourly",
+      "dct:title": "INCA analysis hourly data (1km)",
+      "dct:description": "INCA combines all available datasources for near surface atmosphere analysis.",
+      "dcat:keyword": [
+        "incal-hourly",
+        "humiditiy",
+        "precipitation",
+        "geosphere",
+        "wind-speed",
+        "pressure",
+        "temperature",
+        "radiation",
+        "inca"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/incal-hourly/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/incal-hourly/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/incal-hourly",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/incal-hourly"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2011-03-15T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 7.1 45.77, 7.1 49.48, 17.74 49.48, 17.74 45.77, 7.1 45.77 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:incal-hourly:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/incal-hourly/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:incal-hourly",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/incal-hourly/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:sentinel2-landsat8-l2f",
+      "dct:identifier": "sentinel2-landsat8-l2f",
+      "dct:title": "Harmonized Landsat and Sentinel 2 L2F",
+      "dct:description": "Harmonized Sentinel 2 and Landsat 8 & 9 data over Austria.",
+      "dcat:keyword": [
+        "sentinel-2c",
+        "landsat-9",
+        "sentinel-2",
+        "sentinel-2a",
+        "sentinel2-landsat8-l2f",
+        "landsat-8",
+        "sentinel-2b"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/sentinel2-landsat8-l2f/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/sentinel2-landsat8-l2f/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/sentinel2-landsat8-l2f",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/sentinel2-landsat8-l2f"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2024-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.3 46.3, 9.3 49.2, 17.3 49.2, 17.3 46.3, 9.3 46.3 ))"
+        }
+      },
+      "stac:summaries": {
+        "stac:constellation": [
+          "sentinel-2",
+          "landsat-8"
+        ],
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:sentinel2-landsat8-l2f:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/sentinel2-landsat8-l2f/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "proprietary",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:sentinel2-landsat8-l2f",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/sentinel2-landsat8-l2f/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:spartacus-daily",
+      "dct:identifier": "spartacus-daily",
+      "dct:title": "Spartacus Analysis Daily (1 km)",
+      "dct:description": "Gridded dataset of daily air temperature, precipitation, and sunshine duration over Austria at 1 km resolution.",
+      "dcat:keyword": [
+        "spartacus-daily",
+        "precipitation",
+        "geosphere",
+        "sunshine",
+        "pressure",
+        "temperature",
+        "spartacus"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/spartacus-daily/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/spartacus-daily/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/spartacus-daily",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/spartacus-daily"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "1961-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": null,
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 9.393909 46.161327, 9.393909 49.17754, 17.38218 49.17754, 17.38218 46.161327, 9.393909 46.161327 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:spartacus-daily:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/spartacus-daily/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:spartacus-daily",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/spartacus-daily/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    },
+    {
+      "@context": {
+        "@vocab": "http://www.w3.org/ns/dcat#",
+        "dcat": "http://www.w3.org/ns/dcat#",
+        "dct": "http://purl.org/dc/terms/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "adms": "http://www.w3.org/ns/adms#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "locn": "http://www.w3.org/ns/locn#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "gsp": "http://www.opengis.net/ont/geosparql#",
+        "stac": "https://stacspec.org/terms/",
+        "federation": "https://api.openeo.org/extensions/federation/"
+      },
+      "@id": "urn:stac:collection:topo-dc-austria",
+      "dct:identifier": "topo-dc-austria",
+      "dct:title": "Topographic datacube Austria",
+      "dct:description": "Topographic datacube of Austria containing the digital terrain, surface and normalized surface model.",
+      "dcat:keyword": [
+        "topo-dc-austria"
+      ],
+      "dcat:qualifiedRelation": [
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/topo-dc-austria/queryables",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/queryables"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/topo-dc-austria/items",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/ogc/1.0/items"
+        },
+        {
+          "@type": "dcat:Relationship",
+          "dct:relation": "https://eodag.dev.services.eodc.eu/collections/topo-dc-austria",
+          "dcat:hadRole": "http://www.opengis.net/def/rel/iana/1.0/self"
+        }
+      ],
+      "dcat:landingPage": {
+        "@id": "https://eodag.dev.services.eodc.eu/collections/topo-dc-austria"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": {
+          "@value": "2006-01-01T00:00:00Z",
+          "@type": "xsd:dateTime"
+        },
+        "dcat:endDate": {
+          "@value": "2024-12-31T00:00:00Z",
+          "@type": "xsd:dateTime"
+        }
+      },
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dcat:bbox": {
+          "@type": "gsp:wktLiteral",
+          "@value": "POLYGON(( 13.925037572194727 47.17225684691276, 13.925037572194727 47.241917770358086, 14.038576549922626 47.241917770358086, 14.038576549922626 47.17225684691276, 13.925037572194727 47.17225684691276 ))"
+        }
+      },
+      "stac:summaries": {
+        "federation:backends": [
+          "eodc"
+        ]
+      },
+      "dcat:distribution": [
+        {
+          "@id": "urn:stac:collection:topo-dc-austria:items",
+          "@type": "dcat:Distribution",
+          "dcat:accessURL": {
+            "@id": "https://eodag.dev.services.eodc.eu/collections/topo-dc-austria/items"
+          },
+          "dcat:mediaType": "http://www.iana.org/assignments/media-types/application/geo+json",
+          "dct:license": "CC-BY-4.0",
+          "dct:description": "STAC Items endpoint for the collection"
+        }
+      ],
+      "dcat:accessService": [
+        {
+          "@id": "urn:stac:service:topo-dc-austria",
+          "@type": "dcat:DataService",
+          "dcat:endpointURL": "https://eodag.dev.services.eodc.eu/collections/topo-dc-austria/items",
+          "dct:conformsTo": "https://api.stacspec.org/v1.0.0/ogcapi-features/"
+        }
+      ]
+    }
+  ]
+}
